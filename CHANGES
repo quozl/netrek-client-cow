@@ -4,6 +4,7 @@ Patches to cow@netrek.org
 COW_SDL_MIXER_BRANCH Jun. 11, 2002
  - add spike solution [tanner]
  - converted local.c to SDL_mixer
+ - added cvs commit to mailing list
 
 ?
 - minor source packaging changes [cameron]
