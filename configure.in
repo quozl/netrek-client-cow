@@ -65,6 +65,7 @@ if test "$code" = cow; then
     fi
   else
     AC_MSG_RESULT(unstable)
+    stable=nope
   fi
 fi
 

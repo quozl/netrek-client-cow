@@ -1,3 +1,8 @@
+Tue May  7 09:15:16 2002  James Cameron  <quozl@us.netrek.org>
+
+	* configure.in: --enable-unstable bug fix.
+	From tanner@real-time.com
+
 Tue Jul 24 14:47:50 2001  James Cameron  <quozl@us.netrek.org>
 
 	* parsemeta.c: fix delay during UDP startup, by waiting up four
