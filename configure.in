@@ -144,7 +144,7 @@ PATH_MAX
 
 
 # Checking for gnu-win32 Windows libraries
-AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lwinmm -lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
+AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-L/lib/noX"; XLIBSWLIB="-lwinmm -lgdi32 -luser32"; XINCLUDES="-I/usr/include/noX"; NOX11="#"; ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
    
 #--------------------------------------------------------------------
 #	Locate the X11 header files and the X11 library archive.
@@ -257,7 +257,7 @@ fi
 if test "$MPINC" = nope; then
    dirs="$srcdir/gmp-2.0.2 /usr/unsupported/include /usr/local/include \
       /usr/gnu/include /usr/gnu/include/mp /usr/local/gnu/include \
-      /usr/local/gnu/include/mp /usr/include/gnu /usr/local/lib/gmp-2.0.2"
+      /usr/local/gnu/include/mp /usr/include/gnu /usr/local/lib/gmp-2.0.2 win32"
    for i in $dirs; do
       if test -r $i/gmp.h; then
 	MPINC="-I$i"
@@ -306,7 +306,7 @@ if test "$MPLIB" = nope; then
   fi
   if test "$MPLIB" = nope; then
     dirs="$srcdir/gmp-2.0.2 /usr/unsupported/lib /usr/local/lib /usr/gnu/lib \
-      /usr/local/gnu/lib /usr/lib/gnu /usr/local/lib/gmp-2.0.2" 
+      /usr/local/gnu/lib /usr/lib/gnu /usr/local/lib/gmp-2.0.2 win32" 
     for i in $dirs; do
       if test -r $i/libmp.a; then
     	MPLIB="-L$i -lmp"

@@ -8,6 +8,9 @@
  * Kurt Siegl May 1998
  *
  * $Log: gnu_win32.c,v $
+ * Revision 1.3  2001/09/08 13:27:13  siegl
+ * Support for state of the art cygwin
+ *
  * Revision 1.2  2001/08/26 10:02:16  siegl
  * Playback fixes
  *
@@ -1421,17 +1424,12 @@ LRESULT CALLBACK NetrekWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
          STORE_EVENT_MOUSE;
          LastPressHwnd = hwnd;
          
-#ifdef SHIFTED_MOUSE
-         if ((wParam & MK_SHIFT) && (wParam & MK_CONTROL))
-            EventQueue[EventTail].key = W_LBUTTON4;
-         else if (wParam & MK_SHIFT)
-            EventQueue[EventTail].key = W_LBUTTON2;
-         else if (wParam & MK_CONTROL)
-            EventQueue[EventTail].key = W_LBUTTON3;
-         else
-            EventQueue[EventTail].key = W_LBUTTON;
-#else
          EventQueue[EventTail].key = W_LBUTTON;
+#ifdef SHIFTED_MOUSE
+         if (wParam & MK_SHIFT)
+            EventQueue[EventTail].key |= W_SHIFT_BUTTON;
+         if (wParam & MK_CONTROL)
+            EventQueue[EventTail].key |= W_CTRL_BUTTON;
 #endif /* SHIFTED_MOUSE */
 
 #ifdef MOTION_MOUSE
@@ -1448,17 +1446,12 @@ LRESULT CALLBACK NetrekWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
          STORE_EVENT_MOUSE;
          LastPressHwnd = hwnd;
          
-#ifdef SHIFTED_MOUSE
-         if ((wParam & MK_SHIFT) && (wParam & MK_CONTROL))
-            EventQueue[EventTail].key = W_MBUTTON4;
-         else if (wParam & MK_SHIFT)
-            EventQueue[EventTail].key = W_MBUTTON2;
-         else if (wParam & MK_CONTROL)
-            EventQueue[EventTail].key = W_MBUTTON3;
-         else
-            EventQueue[EventTail].key = W_MBUTTON;
-#else
          EventQueue[EventTail].key = W_MBUTTON;
+#ifdef SHIFTED_MOUSE
+         if (wParam & MK_SHIFT)
+            EventQueue[EventTail].key |= W_SHIFT_BUTTON;
+         if (wParam & MK_CONTROL)
+            EventQueue[EventTail].key |= W_CTRL_BUTTON;
 #endif /* SHIFTED_MOUSE */
 
 #ifdef MOTION_MOUSE
@@ -1474,17 +1467,12 @@ LRESULT CALLBACK NetrekWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
          STORE_EVENT_MOUSE;
          LastPressHwnd = hwnd;
          
-#ifdef SHIFTED_MOUSE
-         if ((wParam & MK_SHIFT) && (wParam & MK_CONTROL))
-            EventQueue[EventTail].key = W_RBUTTON4;
-         else if (wParam & MK_SHIFT)
-            EventQueue[EventTail].key = W_RBUTTON2;
-         else if (wParam & MK_CONTROL)
-            EventQueue[EventTail].key = W_RBUTTON3;
-         else
-            EventQueue[EventTail].key = W_RBUTTON;
-#else
          EventQueue[EventTail].key = W_RBUTTON;
+#ifdef SHIFTED_MOUSE
+         if (wParam & MK_SHIFT)
+            EventQueue[EventTail].key |= W_SHIFT_BUTTON;
+         if (wParam & MK_CONTROL)
+            EventQueue[EventTail].key |= W_CTRL_BUTTON;
 #endif /* SHIFTED_MOUSE */
 
 #ifdef MOTION_MOUSE
@@ -1645,57 +1633,27 @@ LRESULT CALLBACK NetrekWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
          STORE_EVENT_MOUSE;
          EventQueue[EventTail].type = W_EV_BUTTON;
 
-#ifdef SHIFTED_MOUSE
-         //Turn shift+button into a differnt code, and that sort of thing...
-         if (extended_mouse)
-            {
-            if (wParam & MK_CONTROL && wParam & MK_SHIFT)
-               {
-               if (wParam & MK_LBUTTON)
-                   EventQueue[EventTail].key = W_LBUTTON4;
-               else if (wParam & MK_MBUTTON)
-                   EventQueue[EventTail].key = W_MBUTTON4;
-               else if (wParam & MK_RBUTTON)
-                   EventQueue[EventTail].key = W_RBUTTON4;
-
-               return(0);
-               }
-
-            if (wParam & MK_SHIFT)
-               {
-               if (wParam & MK_LBUTTON)
-                   EventQueue[EventTail].key = W_LBUTTON2;
-               else if (wParam & MK_MBUTTON)
-                   EventQueue[EventTail].key = W_MBUTTON2;
-               else if (wParam & MK_RBUTTON)
-                   EventQueue[EventTail].key = W_RBUTTON2;
-
-               return(0);
-               }
-
-            if (wParam & MK_CONTROL)
-               {
-               if (wParam & MK_LBUTTON)
-                   EventQueue[EventTail].key = W_LBUTTON3;
-               else if (wParam & MK_MBUTTON)
-                   EventQueue[EventTail].key = W_MBUTTON3;
-               else if (wParam & MK_RBUTTON)
-                   EventQueue[EventTail].key = W_RBUTTON3;
-               return(0);
-               }
-            }
-
-#endif /* SHIFTED_MOUSE */
-
-         //Whew! If, after checking for all that, there are no shift keys,
-         //no controls keys, process this normally
+          if ((wParam & MK_LBUTTON) || (wParam & MK_MBUTTON) || (wParam & MK_RBUTTON))
+          {
             if (wParam & MK_LBUTTON)
                 EventQueue[EventTail].key = W_LBUTTON;
             else if (wParam & MK_MBUTTON)
                EventQueue[EventTail].key = W_MBUTTON;
             else if (wParam & MK_RBUTTON)
                 EventQueue[EventTail].key = W_RBUTTON;
+
+#ifdef SHIFTED_MOUSE
+         //Turn shift+button into a differnt code, and that sort of thing...
+         if (extended_mouse)
+            {
+	      if (wParam & MK_SHIFT)
+	            EventQueue[EventTail].key |= W_SHIFT_BUTTON;
+         	      if (wParam & MK_CONTROL)
+            		EventQueue[EventTail].key |= W_CTRL_BUTTON;
+               }
+#endif /* SHIFTED_MOUSE */
             return(0);
+            }
 
 #endif /* MOTION_MOUSE */
 
