@@ -161,9 +161,9 @@ if test -z "$CYGWINOS"; then
 else
 
 # Fix some autodetect errors
-AC_DEFINE(HAVE_STRCMPI)
-AC_DEFINE(HAVE_STRNCMPI)
-AC_DEFINE(SKIP_SOUND)
+# AC_DEFINE(HAVE_STRCMPI)
+# AC_DEFINE(HAVE_STRNCMPI)
+# AC_DEFINE(SKIP_SOUND)
 
 if test -z "$no_x"; then
   AC_DEFINE(HAVE_X11) 
