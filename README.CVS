@@ -26,5 +26,5 @@ to 007@netrek.org so that it can be added.
 Developer be careful read/write access is only available over SSH with
 
 export CVS_RSH=ssh 
-cvs -z3 -ddevelopername@cvs.netrek.sourceforge.net:/cvsroot/netrek co modulename
+cvs -z3 -ddevelopername@cowsrc.netrek.org:/cvsroot/netrek co modulename
 

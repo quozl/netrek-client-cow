@@ -1,6 +1,9 @@
 /* data.c
  *
  * $Log: data.c,v $
+ * Revision 1.6  2000/12/28 12:36:38  siegl
+ * CVS info
+ *
  * Revision 1.5  2000/05/19 14:24:52  jeffno
  * Improvements to playback.
  * - Can jump to any point in recording.
@@ -674,8 +677,10 @@ unsigned char keys[MAX_KEY] = "";
 char   *wwwlink = "netscape -remote \"openURL(%s)\"";
 char   *upgradeURL = "http://cow.netrek.org/current/index.html#%s";
 char   *releaseURL = "http://cow.netrek.org/%s/README.html#pl%i";
+char   *bugURL = "http://sourceforge.net/bugs/?group_id=968";
+/*
 char   *bugURL = "http://bugzilla.us.netrek.org/cow?version=%s&pl=%i&arch=%s";
-
+*/
 #endif
 
 #ifdef SOUND
