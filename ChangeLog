@@ -1,3 +1,20 @@
+Tue Jul 24 14:47:50 2001  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c: fix delay during UDP startup, by waiting up four
+	seconds for the first response from a metaserver, and not waiting
+	one second between processing X events on the window.Update the
+	list properly on a refresh.  Fix empty window when the player is
+	serviced by satellite delays.
+
+	Change the colour on a server line to Cyan during a connection
+	attempt to observe, and to Yellow during a normal connection
+	attempt.  Change to Green on successful connection.  Change to Red
+	if connection fails.
+	
+	Make better guesses as to the initial size of the window.  Tidy up
+	messages, remove excess periods, and add warning about no return
+	packets suggesting a firewall as the cause.
+	
 Tue Jun 12 16:32:48 2001  James Cameron  <quozl@us.netrek.org>
 
 	* playback.c (pbmain): process all windowing events before

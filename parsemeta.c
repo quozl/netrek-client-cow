@@ -3,6 +3,9 @@
 /* meta.c
  * 
  * $Log: parsemeta.c,v $
+ * Revision 1.7  2001/07/24 05:00:21  quozl
+ * fix metaserver window delays
+ *
  * Revision 1.6  1999/08/02 07:21:48  carlos
  *
  * Fixed a minor bug in the UDP menu display where it wouldn't highlight
@@ -360,7 +363,7 @@ static int ReadMetasSend()
 	  if (hp->h_addr_list[i] == NULL) break;
 	  address.sin_addr.s_addr = *(long *) hp->h_addr_list[i];
 	  if (verbose) fprintf(stderr,
-		"Requesting player list from %s at %s.\n",
+		"Requesting player list from %s at %s\n",
 		token, inet_ntoa(address.sin_addr));
 	  if (sendto(sock, "?", 1, 0, (struct sockaddr *)&address,
 		sizeof(address)) < 0) {
@@ -372,7 +375,7 @@ static int ReadMetasSend()
       }
     } else {
       /* call to inet_addr() worked, host name is in IP address form */
-      if (verbose) fprintf(stderr, "Requesting player list from %s.\n",
+      if (verbose) fprintf(stderr, "Requesting player list from %s\n",
 	inet_ntoa(address.sin_addr));
       if (sendto(sock, "?", 1, 0, (struct sockaddr *)&address,
 	sizeof(address)) < 0) {
@@ -408,14 +411,18 @@ static int ReadMetasRecv(int x)
 
     FD_ZERO(&readfds);
     FD_SET(sock, &readfds);
-    if (x != -1) FD_SET(x, &readfds);
-    timeout.tv_sec=1;
+    timeout.tv_sec=4;
     timeout.tv_usec=0;
 
-    if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
+    if (x != -1) FD_SET(x, &readfds);
+    if (select(FD_SETSIZE, &readfds, NULL, NULL,
+	       (x != -1) ? NULL : &timeout) < 0) {
       perror("ReadMetasRecv: select");
       return 0;
     }
+
+    /* if x activity, return immediately */
+    if (x != -1 && FD_ISSET(x, &readfds)) return 0;
 
     /* if the wait timed out, then we give up */
     if (!FD_ISSET(sock, &readfds)) {
@@ -935,7 +942,14 @@ void    parsemeta(int metaType)
         ReadMetasSend();
 	LoadMetasCache();
 	if (num_servers == 0) ReadMetasRecv(-1);
-        metaHeight = num_servers + 10;
+	if (num_servers != 0) {
+	  metaHeight = num_servers + 5;
+	} else {
+	  printf("Warning: no response from metaservers, "
+		 "are you firewalled?\n"
+		 "         (no reply to probe on UDP port %d)\n", metaport);
+	  metaHeight = num_servers + 10;
+	}
         return;
 	break;
       case 2:
@@ -1107,25 +1121,28 @@ void    metaaction(W_Event * data)
       slist = serverlist + data->y - 1;
       xtrekPort = slist->port;
       if (data->key==W_RBUTTON)  /* Guess at an observer port */
-      {
+	{
           xtrekPort++;
           printf("Attempting to observe on port %d...\n",xtrekPort);
-      }
+	  metarefresh(data->y - 1, W_Cyan);
+	} else {
+	  metarefresh(data->y - 1, W_Yellow);
+	}
+      W_Flush();
       serverName = strdup(slist->address);
 
-      metarefresh(data->y - 1, W_Yellow);
-      W_Flush();
-      
       printf("Attempting to connect to %s on port %d...\n",serverName,xtrekPort);
       if ((sock = open_port(serverName, xtrekPort, 0)) <= 0)
         {
           fprintf(stderr,"Cannot connect to %s!\n",serverName);
           slist->status = statusCantConnect;
-          metarefresh(data->y-1, textColor);
+          metarefresh(data->y - 1, W_Red);
           W_Flush();
         }
       else
         {
+	  metarefresh(data->y - 1, W_Green);
+	  W_Flush();
           close(sock);
           sprintf(buf, "Netrek  @  %s", serverName);
           W_RenameWindow(baseWin, buf);
@@ -1136,11 +1153,9 @@ void    metaaction(W_Event * data)
     {
       int i;
 
-      W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Refreshing...", 13, 0);
+      W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers", 13, 0);
       W_Flush();
       ReadMetasSend();
-      W_WriteText(metaWin, 0, metaHeight-2, W_Yellow, "Refresh", 7, 0);
-      W_Flush();
     }
   else if (data->y == metaHeight-1)
     {
@@ -1168,9 +1183,8 @@ void    metainput(void)
 	{
 	  do
             {
-	        int i;
-		ReadMetasRecv(-1);
-	        W_Flush();
+	      W_Flush();
+	      if (ReadMetasRecv(W_Socket())) metawindow();
 	    } while (!W_EventsPending());
 	}
       W_NextEvent(&data);
