@@ -4,6 +4,10 @@
 /* main.c
  *
  * $Log: main.c,v $
+ * Revision 1.10  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.9  2000/11/07 20:24:05  ahn
  * Add patch from Crist Clark <cjclark@alum.mit.edu>
  *
@@ -84,6 +88,7 @@
 #endif
 
 #include "cowapi.h"
+#include "defs.h"
 
 #ifdef GATEWAY
 extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
@@ -322,7 +327,7 @@ main2(int argc, char **argv)
 #endif
 
 	    case 'U':
-	      if ((baseUdpLocalPort = atoi(*argv)) == 0)
+	      if ((baseLocalPort = atoi(*argv)) == 0)
 		{
 		  fprintf(stderr, "Error: -U requires a port number\n");
 		  exit(1);
@@ -431,7 +436,7 @@ main2(int argc, char **argv)
       char    webcall[1024];
 
       initDefaults(deffile);
-      if ((getdefault("wwwlink")) != NULL)
+      if (getdefault("wwwlink") != NULL)
 	wwwlink = getdefault("wwwlink");
 
       sprintf(webcall, wwwlink, url);
@@ -521,7 +526,7 @@ printUsage(char *prog)
   printf(" [-H]   specify host (via gateway)\n");
 #endif
 
-  printf(" [-U udp_port]       Specify client UDP port (useful for some firewalls)\n");
+  printf(" [-U port]       Specify client UDP or TCP port (useful for some firewalls)\n");
 
 #ifdef RSA
   printf(" [-o]   use old-style binary verification)\n");

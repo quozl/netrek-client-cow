@@ -1,6 +1,10 @@
 /* data.c
  *
  * $Log: data.c,v $
+ * Revision 1.7  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.6  2000/12/28 12:36:38  siegl
  * CVS info
  *
@@ -290,7 +294,7 @@ char   *gw_mach = NULL;				 /* UDP */
 #endif
 
 /* for router-based firewalls, we need to tunnel through at a specific port */
-int     baseUdpLocalPort = 0;			 /* UDP */
+int     baseLocalPort = 0;			 /* UDP */
 
 int     debug = 0;
 

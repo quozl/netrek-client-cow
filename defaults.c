@@ -8,6 +8,10 @@
 /****************************************************************************/
 /*
  * $Log: defaults.c,v $
+ * Revision 1.4  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.3  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -691,7 +695,7 @@ resetdefaults(void)
   tryUdp = booleanDefault("tryUdp", tryUdp);
   tryUdp1 = tryUdp;
   udpSequenceChk = booleanDefault("udpSequenceCheck", udpSequenceChk);
-  baseUdpLocalPort = intDefault("baseUdpLocalPort", baseUdpLocalPort);
+  baseLocalPort = intDefault("baseLocalPort", baseLocalPort);
 
 #ifdef SHORT_PACKETS
   tryShort = booleanDefault("tryShort", tryShort);

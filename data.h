@@ -2,6 +2,10 @@
 /* data.h
  *
  * $Log: data.h,v $
+ * Revision 1.7  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.6  2000/05/19 14:24:52  jeffno
  * Improvements to playback.
  * - Can jump to any point in recording.
@@ -282,7 +286,7 @@ extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
 extern char *gw_mach;				 /* UDP */
 
 #endif
-extern int baseUdpLocalPort;			 /* UDP */
+extern int baseLocalPort;			 /* UDP and TCP */
 
 
 extern int showTractorPressor;

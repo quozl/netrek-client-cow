@@ -8,6 +8,10 @@
  * Routines to allow connection to the xtrek server.
  *
  * $Log: socket.c,v $
+ * Revision 1.5  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.4  1999/07/24 19:23:43  siegl
  * New default portSwap for UDP_PORTSWAP feature
  *
@@ -117,11 +121,12 @@ void    handleScan(struct scan_spacket *packet);
 
 void    handleUdpReply(struct udp_reply_spacket *packet);
 void    handleSequence(struct sequence_spacket *packet);
-void    handleRSAKey(struct rsa_key_spacket *packet);
 
 #ifdef RSA
+void    handleRSAKey(struct rsa_key_spacket *packet);
 extern void rsa_black_box(unsigned char *, unsigned char *, unsigned char *, unsigned char *);
-
+#else
+void    handleRSAKey(void *packet);
 #endif
 
 void    handleShipCap(struct ship_cap_spacket *packet);
@@ -2126,10 +2131,17 @@ pickSocket(int old)
   int     newsocket;
   struct socket_cpacket sockPack;
 
-  newsocket = (getpid() & 32767);
+  /* If baseLocalPort is defined we want to start from that */
+  if(baseLocalPort)
+      newsocket = baseLocalPort;
+  else
+      newsocket = (getpid() & 32767);
   while (newsocket < 2048 || newsocket == old)
     {
-      newsocket = (newsocket + 10687) & 32767;
+      if(baseLocalPort)
+          newsocket++;
+      else
+          newsocket = (newsocket + 10687) & 32767;
     }
   sockPack.type = CP_SOCKET;
   sockPack.socket = htonl(newsocket);
@@ -2836,11 +2848,11 @@ openUdpConn(void)
   errno = 0;
   udpLocalPort = (getpid() & 32767) + (RANDOM() % 256);
 
-  /* if baseUdpLocalPort is defined, we want to start from that */
-  if (baseUdpLocalPort)
+  /* if baseLocalPort is defined, we want to start from that */
+  if (baseLocalPort)
     {
-      udpLocalPort = baseUdpLocalPort;
-      UDPDIAG(("using base port %d\n", baseUdpLocalPort));
+      udpLocalPort = baseLocalPort;
+      UDPDIAG(("using base port %d\n", baseLocalPort));
     }
 
   for (attempts = 0; attempts < MAX_PORT_RETRY; attempts++)
@@ -2867,7 +2879,7 @@ openUdpConn(void)
        * 
        * * router-based firewall, we just increment; otherwise we try to mix
        * it * * up a little.  The check for ports < 2048 is done above. */
-      if (baseUdpLocalPort)
+      if (baseLocalPort)
 	udpLocalPort++;
       else
 	udpLocalPort = (udpLocalPort + 10687) & 32767;
@@ -2914,7 +2926,7 @@ connUdpConn()
   addr.sin_port = htons(udpServerPort);
 
   UDPDIAG(("Connecting to host 0x%x on port %d\n", serveraddr, udpServerPort));
-  if (connect(udpSock, &addr, sizeof(addr)) < 0)
+  if (connect(udpSock, (struct sockaddr *) &addr, sizeof(addr)) < 0)
     {
       fprintf(stderr, "Error %d: ");
       perror("netrek: unable to connect UDP socket");

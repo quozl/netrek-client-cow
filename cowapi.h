@@ -13,6 +13,10 @@
  * The COW development team
  *
  * $Log: cowapi.h,v $
+ * Revision 1.5  2001/04/28 04:03:56  quozl
+ * change -U to also adopt a local port number for TCP mode.
+ * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+ *
  * Revision 1.4  2000/05/19 14:24:52  jeffno
  * Improvements to playback.
  * - Can jump to any point in recording.
@@ -70,7 +74,7 @@ extern char pseudo[PSEUDOSIZE];
 extern char defpasswd[PSEUDOSIZE];
 extern char login[PSEUDOSIZE];
 
-extern int baseUdpLocalPort; 
+extern int baseLocalPort; 
 extern int log_packets;
 
 extern int ghoststart;
