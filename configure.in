@@ -36,7 +36,7 @@ if test "$code" = cow; then
   AC_MSG_CHECKING(release type)
   AC_SUBST(stable)
   AC_ARG_ENABLE(stable, [  --enable-stable         stable release], stable=yes)
-  AC_ARG_ENABLE(unstable, [  --enable-unstable         unstable release], unstable=yes)
+  AC_ARG_ENABLE(unstable, [  --enable-unstable       unstable release], unstable=yes)
   if test "x$stable" = xyes ; then
     if test "x$unstable" = xyes ; then
       AC_MSG_RESULT(inconsistent)
@@ -141,18 +141,34 @@ AC_EGREP_CPP(PATH_MAX, [
 PATH_MAX
 ], AC_DEFINE(NO_PATH_MAX) AC_MSG_RESULT(no), AC_MSG_RESULT(yes))
 
-
-
-# Checking for gnu-win32 Windows libraries
-AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-L/lib/noX"; XLIBSWLIB="-lwinmm -lgdi32 -luser32"; XINCLUDES="-I/usr/include/noX"; NOX11="#"; ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
-   
 #--------------------------------------------------------------------
 #	Locate the X11 header files and the X11 library archive.
 #--------------------------------------------------------------------
 
-if test -z "$NOX11" ; then
-
 AC_PATH_X
+
+if test -z "$no_x"; then
+  AC_DEFINE(HAVE_X11) 
+  NOWIN32="#"
+else
+
+# Checking for gnu-win32 Windows libraries
+AC_CYGWIN
+
+if test -z "$CYGWIN"; then
+  AC_DEFINE(HAVE_X11) 
+  NOWIN32="#"
+else
+  AC_DEFINE(HAVE_WIN32) 
+  XLIBSWDIR="-L/lib/noX"
+  XLIBSWLIB="-lwinmm -lgdi32 -luser32"
+  XINCLUDES="-I/usr/include/noX"
+  NOX11="#"
+fi
+
+fi
+
+if test -z "$NOX11" ; then
 
 if test -z "$x_libraries" ; then
 echo checking for X11 header files
@@ -241,7 +257,9 @@ fi
 #--------------------------------------------------------------------
 
 AC_MSG_CHECKING(for mp.h)
-AC_ARG_WITH(gmp-incdir,[  --with-gmp-incdir       GMP Include Dir], MPINC="-I$withval" search=false, MPINC=nope)
+AC_ARG_WITH(gmp-incdir, 
+	[  --with-gmp-incdir       GMP Include Dir], 
+	MPINC="-I$withval" search=false, MPINC=nope)
 if test "$MPINC" = nope; then
 AC_EGREP_CPP( GNU_MP,[ 
 #include <mp.h> 
@@ -257,7 +275,7 @@ fi
 if test "$MPINC" = nope; then
    dirs="$srcdir/gmp-2.0.2 /usr/unsupported/include /usr/local/include \
       /usr/gnu/include /usr/gnu/include/mp /usr/local/gnu/include \
-      /usr/local/gnu/include/mp /usr/include/gnu /usr/local/lib/gmp-2.0.2 win32"
+      /usr/local/gnu/include/mp /usr/include/gnu /usr/local/lib/gmp-2.0.2"
    for i in $dirs; do
       if test -r $i/gmp.h; then
 	MPINC="-I$i"
@@ -296,7 +314,9 @@ AC_EGREP_CPP("gmp=.*2", [
   ],AC_DEFINE(HAVE_GMP2_H))
 INCS="$SAVEINCS"
 
-AC_ARG_WITH(gmp-libdir,[  --with-gmp-libdir       GMP Library Dir], MPLIB="-L$withval -lgmp" search=false, MPLIB=nope)
+AC_ARG_WITH(gmp-libdir,
+	[  --with-gmp-libdir       GMP Library Dir], 
+	MPLIB="-L$withval -lgmp" search=false, MPLIB=nope)
 if test "$MPLIB" = nope; then
   if test "$search" = true; then
     MPLIB=nope
@@ -306,7 +326,7 @@ if test "$MPLIB" = nope; then
   fi
   if test "$MPLIB" = nope; then
     dirs="$srcdir/gmp-2.0.2 /usr/unsupported/lib /usr/local/lib /usr/gnu/lib \
-      /usr/local/gnu/lib /usr/lib/gnu /usr/local/lib/gmp-2.0.2 win32" 
+      /usr/local/gnu/lib /usr/lib/gnu /usr/local/lib/gmp-2.0.2" 
     for i in $dirs; do
       if test -r $i/libmp.a; then
     	MPLIB="-L$i -lmp"
