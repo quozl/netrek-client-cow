@@ -1,135 +1,152 @@
+#
+# $Id: cow.spec,v 1.6 2002/05/06 08:24:43 tanner Exp $
+#
+# HOW TO COMPILE
+#
+# on redhat 7.2:           --define "keydef path/to/key.def"
+#
+# rpm -ba --define "keydef /home/basic/.key.def" cow.spec
+# rpm --rebuild --define "keydef /home/basic/.key.def" cow-3.00_XXXX.src.rpm
+# 
+# If you do not define a key.def file, I'll default to the sample_key.def found in the
+# cow source distribution. Please read the FAQ about blessed clients if this does not
+# make sense to you <http://www.inl.org/netrek/netrekFAQ.html#10>
+#
 Summary: Netrek Client
-Name: netrek-client
-Version: 3.00pl2
-Release: 1
+Name: cow
+Version: 3.00_20020506
+Release: realtime.4
 Copyright: Undetermined
-Packager: quozl@netrek.org
 URL: http://cow.netrek.org/
+Vendor: Real Time Enterprises, Inc. <support@real-time.com>
+Packager: Real Time Enterprises, Inc. <support@real-time.com>
+Distribution: Red Hat Linux 7.2 / i386
+Serial: 1
 Group: Amusements/Games
-Source0: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-bin/COW.3.00pl2.ix86_linux.gz
-Source1: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-Sound.3.00.tar.gz
-Source2: ftp://ftp.netrek.org/pub/netrek/clients/cow/pixmaps.tgz
-Source3: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW.3.00pl2.doc.tar.gz
+Source0: %{name}-%{version}.tar.bz2
+Source2: COW-Sound.3.00.tar.gz
+Source3: pixmaps.tgz
+Source4: COW.3.00pl2.doc.tar.gz
+Source5: cow.desktop
+Source6: cow.png
+Patch0: cow-3.00-xpmfix.patch
+
+#
+# Sorry, I don't distribute my key. Even with the source code, see the COW.DOC file
+# on generating your own key
+#
+#Source10: key.def
+BuildRequires: gmp-devel, kde1-compat-devel, qt1x-devel
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
+Requires: gmp, kde1-compat, qt1x, tclug-menu
 
 %description
 This is a client for the multi-player game of Netrek.
 
-Netrek is the probably the first video game which can accurately be
-described as a "sport."  It has more in common with basketball than
-with arcade games or Quake.  Its vast and expanding array of tactics
-and strategies allows for many different play styles; the best players
-are the ones who think fastest, not necessarily the ones who twitch
-most effectively.  It can be enjoyed as a twitch game, since the
-dogfighting system is extremely robust, but the things that really set
-Netrek apart from other video games are the team and strategic
-aspects.  Team play is dynamic and varied, with roles constantly
-changing as the game state changes.  Strategic play is explored in
-organized league games; after 6+ years of league play, strategies are
-still being invented and refined.
+Netrek is the probably the first video game which can accurately be described
+as a "sport."  It has more in common with basketball than with arcade games or
+Quake.  Its vast and expanding array of tactics and strategies allows for many
+different play styles; the best players are the ones who think fastest, not
+necessarily the ones who twitch most effectively.  It can be enjoyed as a
+twitch game, since the dogfighting system is extremely robust, but the things
+that really set Netrek apart from other video games are the team and strategic
+aspects.  Team play is dynamic and varied, with roles constantly changing as
+the game state changes.  Strategic play is explored in organized league games;
+after 6+ years of league play, strategies are still being invented and refined.
 
-The game itself has existed for over 10 years, and has a solid
-playerbase, including some people who have been playing for nearly as
-long as the game has existed.
+The game itself has existed for over 10 years, and has a solid playerbase,
+including some people who have been playing for nearly as long as the game has
+existed.
 
-All Netrek clients and servers are completely free of charge, although
-there are several people working on commercial netrek variants or
-derivatives.
+All Netrek clients and servers are completely free of charge, although there
+are several people working on commercial netrek variants or derivatives.
 
 Netrek web site:          <http://www.netrek.org/>
 Development web site:     <http://cow.netrek.org/>
 
-To start the client program, run /usr/bin/netrek, and a list of
-servers should be displayed.  See also /usr/doc/cow-*/index.html
+To start the client program, run /usr/bin/netrek, and a list of servers should
+be displayed.  
 
 %prep
-rm -rf $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/
-rm -rf $RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION/
-rm -rf $RPM_BUILD_ROOT/usr/bin/netrek
-mkdir -p $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION
-mkdir -p $RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION
+
+%setup -q -a 2 -a 3 -a 4
+%patch0 -p1 
+
+%build
+
+%{__autoconf}
+%configure --enable-unstable
+#
+# If we find a keydef then use it, otherwise use the sample_key.def
+#
+%{__make} OPT="$RPM_OPT_FLAGS" %{?keydef:KEYDEF="%{keydef}"}
+
+%{__make} OPT="$RPM_OPT_FLAGS" \
+	KDEDIR="/usr/lib/kde1-compat" \
+	LFLAGS="-L/usr/lib/kde1-compat/lib -L/usr/lib/qt-2.3.1/lib -lmediatool -lqt" \
+	-C sound/soundlib
 
 %install
-#
-#	Unpack the binary distribution in the Right Places.
-#
-gunzip - < $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux.gz > $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux 
-install $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux \
-	$RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/
-cd /usr/games/cow-$RPM_PACKAGE_VERSION
-tar xfz $RPM_SOURCE_DIR/pixmaps.tgz
-tar xfz $RPM_SOURCE_DIR/COW-Sound.3.00.tar.gz
-cd /usr/doc/cow-$RPM_PACKAGE_VERSION
-tar xfz $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.doc.tar.gz
-#
-#	Create script for starting client
-#	(which creates a working .xtrekrc file if one is not there)
-#
-cat << EOF > $RPM_BUILD_ROOT/usr/bin/netrek
-#!/bin/sh
-cd /usr/games/cow-$RPM_PACKAGE_VERSION
-if [ ! -f ~/.xtrekrc ]
-then
-	cat << eox > ~/.xtrekrc
-# your .xtrekrc was created by /usr/bin/netrek
-# for further documentation see /usr/doc/cow-$RPM_PACKAGE_VERSION/index.html
-#
-# enable sound, point to sound files and player program
-sound: on
-sounddir: /usr/games/cow-$RPM_PACKAGE_VERSION/sound/sounds
-soundplayer: /usr/games/cow-$RPM_PACKAGE_VERSION/sound/bgsndplay
-# point to the pixmaps directory
-pixmapDir: /usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps
-eox
-fi
-./COW.$RPM_PACKAGE_VERSION.ix86_linux -r ~/.xtrekrc -m
-EOF
-#
-#	Fix protections on script.
-#
-chmod +x $RPM_BUILD_ROOT/usr/bin/netrek
-#
-#	Remove the KDE sound player, because it creates a libmediatool
-#	dependency for the package.
-#
-cd $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/sound
-rm bgsndplay.linux.kde
-rm bgsndplay
-mv bgsndplay.linux bgsndplay
-#
-#	Fix ownerships on all files.
-#	(games username is not consistently available across distributions)
-#
-chown -R root:root \
-	$RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION \
-	$RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION 
-#
-#	Decompress the pixmaps that have arrrived in the package as compressed,
-#	so as to lose the warning created by COW on startup.
-#
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/genocide.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/greet.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/hockey.xpm.gz
-rm $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/ghostbust.xpm.gz
-cd $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/
-ln -sf genocide.xpm ghostbust.xpm
-install -d $RPM_BUILD_ROOT/usr/share/gnome/apps/Games
-cat << EOF > $RPM_BUILD_ROOT/usr/share/gnome/apps/Games/cow.desktop
-[Desktop Entry]
-Name=Netrek
-Comment=Netrek
-Exec=netrek
-Terminal=0
-Type=Application
-Icon=cow.png
-EOF
+rm -rf %{buildroot}
+
+%{__install} -m 755 -d %{buildroot}%{_sysconfdir}/X11/applnk/Games/Tclug
+%{__install} -m 755 -d %{buildroot}%{_datadir}/gnome/ximian/Programs/Games/Tclug
+%{__install} -m 755 -d %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
+%{__install} -m 755 -d %{buildroot}%{_datadir}/pixmaps
+%{__install} -m 755 -d %{buildroot}%{_bindir}
+%{__install} -m 755 -d %{buildroot}%{_datadir}/sounds/%{name}
+%{__install} -m 755 -d %{buildroot}%{_datadir}/pixmaps/%{name}
+
+%{__install} %SOURCE5 %{buildroot}%{_sysconfdir}/X11/applnk/Games/Tclug
+%{__install} %SOURCE5 %{buildroot}%{_datadir}/gnome/ximian/Programs/Games/Tclug
+%{__install} %SOURCE5 %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
+%{__install} %SOURCE6 %{buildroot}%{_datadir}/pixmaps
+%{__install} -m 755 -s netrek %{buildroot}%{_bindir}/cow
+%{__install} -m 755 -s sound/soundlib/bgsndplay %{buildroot}%{_bindir}
+
+# Using tar to keep symlinks
+(cd sound/sounds/; tar -cf - .)|(cd %{buildroot}%{_datadir}/sounds/%{name}; tar -xf -)
+(cd pixmaps; tar -cp \
+    --exclude readme.txt \
+    --exclude rotate.bas \
+    --exclude setarace.bat \
+    --exclude setrace.bat \
+    -f - .) | (cd %{buildroot}%{_datadir}/pixmaps/%{name}; tar -xpf -)
 
 %files
-/usr/games/cow-3.00pl2/
-/usr/doc/cow-3.00pl2/
-/usr/bin/netrek
-/usr/share/gnome/apps/Games/cow.desktop
-/usr/share/pixmaps/cow.png
+%defattr(-,root,root)
+%doc %{name}-docs-3.00pl12/*
+%doc sound/SOUND.DOC 
+%doc pixmaps/readme.txt
+%{_bindir}/%{name}
+%{_bindir}/bgsndplay
+%attr(0755,root,root) %dir %{_datadir}/sounds/%{name}
+%attr(0444,root,root) %{_datadir}/sounds/%{name}/*
+%attr(0755,root,root) %dir %{_datadir}/pixmaps/%{name}
+%attr(0444,root,root) %{_datadir}/pixmaps/%{name}/*
+%attr(0644,root,root)%{_sysconfdir}/X11/applnk/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/gnome/apps/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/gnome/ximian/Programs/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/pixmaps/%{name}.png
 
 %clean
+rm -rf %{buildroot}
 
 %changelog
+* Sat May 06 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00_20040504-realtime.4
+  - submitted keys to metaserver, recompiled binaries for those keys
+  - added ability to pass into the rpm build process the location of keydef file
+  - fixed permission on pixmap directory
+  - patch [Bug #552772]
+
+* Sat May 04 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00_20040504-realtime.2
+  - first attempt at building cow for source. previous rpm was binary only
+  - changed hard coded commands to rpm macros
+  - setup compile of bgsndplay 
+
+* Tue Jul 24 2001 James Cameron <quozl@us.netrek.org>
+  + cow-3.00pl12-1
+  - intitial spec file
+  - this date is just a guess using rcs2log and looking for the first entry
