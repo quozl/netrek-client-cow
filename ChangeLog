@@ -1,3 +1,11 @@
+Tue Jun 12 16:32:48 2001  James Cameron  <quozl@us.netrek.org>
+
+	* playback.c (pbmain): process all windowing events before
+	proceeding to the next update, rather than just the one event.
+	With pixmaps enabled on a playback, the event queue would grow
+	causing the keystrokes to be ignored for many seconds.  Enabling
+	pixmaps generates more events.
+
 Tue Jun 12 12:03:42 2001  James Cameron  <quozl@us.netrek.org>
 
 	* playback.c, input.c: add single-step playback keys, enter to

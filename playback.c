@@ -5,6 +5,9 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.8  2001/07/24 00:29:13  quozl
+ * minor playback fix
+ *
  * Revision 1.7  2001/06/12 02:48:49  quozl
  * add single-step playback keys
  *
@@ -415,7 +418,7 @@ int
       if (keepInfo > 0 && opened_info != -2)
 	opened_info--;
 
-      if (W_EventsQueuedCk())
+      while (W_EventsQueuedCk())
 	{
 	  process_event();
 	  /* W_Flush(); */
