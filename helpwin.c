@@ -5,6 +5,13 @@
  * damages, real, potential, or imagined, resulting  from the use of it.
  *
  * $Log: helpwin.c,v $
+ * Revision 1.2  2001/04/28 04:06:57  quozl
+ * Rethink each help message, remove the
+ * word toggle and replace with on/off, as toggle is a technical
+ * term, remove mixed case descriptions in favour of lower case, move
+ * some verbs to the end of the message, and change the column fit
+ * algorithm to avoid overflow in normal and 800x600 mode.
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
  * COW 3.0 initial revision
  * */
@@ -55,7 +62,7 @@
 
 
 
-/* fills in the help window to note all keys also mapped to the *  listed
+/* fills in the help window to note all keys also mapped to the listed
  * functions */
 void    update_Help_to_Keymap(char *helpmessage);
 
@@ -74,85 +81,86 @@ char   *help_message[] =
   "7     Set speed",
   "8     Set speed",
   "9     Set speed",
-  ")     speed = 10",
-  "!     speed = 11",
-  "@     speed = 12",
-  "%     speed = maximum",
-  "#     speed = 1/2 maximum",
-  "<     slow speed 1",
-  ">     speed up 1",
-  "k     Set course",
-  "p     Fire phaser",
+  ")     Speed = 10",
+  "!     Speed = 11",
+  "@     Speed = 12",
+  "%     Speed = maximum",
+  "#     Speed = 1/2 maximum",
+  "<     Speed down 1",
+  ">     Speed up 1",
+  "k     Course set",
+  "p     Fire phaser beam",
   "t     Fire photon torpedo",
   "f     Fire plasma torpedo",
-  "d     detonate enemy torps",
-  "D     detonate own torps",
-  "L     List players",
-  "P     List planets",
-  "S     Status graph toggle",
-  "]     Put up shields",
-  "[     Put down shields",
-  "u     Shield toggle",
-  "s     Shield toggle",
+  "d     Detonate enemy torpedos",
+  "D     Detonate own torpedos",
+  "L     Players list on/off",
+  "P     Planets list on/off",
+  "S     Status graph on/off",
+  "]     Shields on",
+  "[     Shields off",
+  "u     Shields on/off",
+  "s     Shields on/off",
   "i     Info on player/planet",
   "I     Extended info on player",
   "b     Bomb planet",
   "z     Beam up armies",
   "x     Beam down armies",
-  "{     Cloak",
-  "}     Uncloak",
-  "T     Toggle tractor beam",
-  "y     Toggle pressor beam",
-  "_     Turn on tractor beam",
-  "^     Turn on pressor beam",
-  "$     Turn off tractor/pressor beam",
-  "R     Enter repair mode",
-  "o     Orbit planet or dock to outpost",
-  "e     Docking permission toggle",
+  "c     Cloak on/off",
+  "{     Cloak on",
+  "}     Cloak off",
+  "T     Tractor beam on/off",
+  "y     Pressor beam on/off",
+  "_     Tractor beam on",
+  "^     Pressor beam on",
+  "$     Tractor/pressor beam off",
+  "R     Repair mode on",
+  "o     Orbit planet or dock to base",
+  "e     Docking permission on/off",
   "r     Refit (change ship type)",
   "Q     Quit",
-  "q     Fast Quit",
-  "?     Message window toggle",
-  "c     Cloaking device toggle",
+  "q     Fast quit",
+  "?     Message window on/off",
   "l     Lock on to player/planet",
   ";     Lock on to planet",
-  "h     Help window toggle",
-  "w     War declarations window",
-  "N     Planet names toggle",
-  "V     Rotate local planet display",
-  "B     Rotate galactic planet display",
-  "*     Send in practice robot",
-  "E     Send Distress signal",
+  "h     Help window on/off",
+  "w     War declarations window on/off",
+  "N     Planet names on/off",
+  "V     Change local planet display",
+  "B     Change galactic planet display",
+  "*     Practice robot or transwarp",
+  "E     Send distress signal",
   "F     Send armies carried report",
-  "U     Show rankings window",
-  "m     Message Window Zoom",
-  "/     Toggle sorted player list",
-  ":     Toggle message logging",
-  "+     Show UDP options window",
+  "U     Rankings window on/off",
+  "mA    Send message to ALL",
+  "mT    Send message to team",
+  "/     Sort player list on/off",
+  ":     Message logging on/off",
+  "+     UDP window on/off",
   "=     Update all",
-  ",     Ping stats window",
-  ".     NetstatWindow",
-  "\\     LagMeter",
+  ",     Ping stats window on/off",
+  ".     Netstat window on/off",
+  "\\     LagMeter window on/off",
 
 #ifdef SHORT_PACKETS
-  "`      Toggle PacketWindow",
+  "`     Packet window on/off",
   "-     Update small",
   "|     Update medium",
 #endif						 /* SHORT_PACKETS */
 
-  "      (space) Unmap special windows",
+  "      (space) special windows off",
 
 #ifdef NBT
-  "X     Enter Macro Mode",
-  "X?    Show current Macros",
+  "X     Enter macro mode",
+  "X?    Show current macros",
 #endif
 
 #ifdef TOOLS
-  "M     Toggle shell tools window",
+  "M     Shell tools window on/off",
 #endif
 
 #ifdef SOUND
-  "~     Sound control window",
+  "~     Sound control window on/off",
 #endif
 
   "&     Reread .xtrekrc",
@@ -170,10 +178,10 @@ void
   char    helpmessage[MAXHELP];
 
 
-  /* 4 column help window. THis may be changed depending on font size */
+  /* 4 column help window. This may be changed depending on font size */
   for (column = 0; column < 4; column++)
     {
-      for (row = 1; row < HELPMESSAGES / 4 + 2; row++)
+      for (row = 1; row < HELPMESSAGES / 4 + 1; row++)
 	{
 	  if (help_message[i] == 0)
 	    break;
