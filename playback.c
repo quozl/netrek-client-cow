@@ -5,6 +5,22 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.6  2001/04/26 05:58:20  quozl
+ * 	* Makefile (dist): change dist and distdoc targets to generate a
+ * 	.tar.gz file that unpacks to a directory below the current
+ * 	directory.  Note: also writes the output kit file to the current
+ * 	directory rather than the directory above.
+ *
+ * 	* INSTALL: new file, standard generic installation instructions.
+ *
+ * 	* README: new file, explains the other important package
+ * 	documentation files.
+ *
+ * 	* ChangeLog: new file, a programmers change log as per GNU
+ * 	packaging standards and automated EMACS change log entry creation.
+ *
+ * 	* .cvsignore: add list of files to be ignored by CVS.
+ *
  * Revision 1.5  2000/11/07 20:24:05  ahn
  * Add patch from Crist Clark <cjclark@alum.mit.edu>
  *
@@ -568,6 +584,8 @@ void
 inline int
         ckRecordPacket(char packet)
 {
+  return 1;
+#if 0
   switch (packet)
     {
     case SP_MESSAGE:
@@ -620,6 +638,7 @@ inline int
       return 1;
     }
   return 0;
+#endif
 }
 
 extern struct packet_handler handlers[];

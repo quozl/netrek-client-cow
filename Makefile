@@ -53,11 +53,17 @@ tags: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) tags
 
 dist: name
-	tar cvf - `cat manifest` | gzip -9 > ../COW.`./name`.tar.gz
+	mkdir COW.`./name`
+	tar cf - `cat manifest` | (cd COW.`./name`;tar xf -)
+	tar cvf - COW.`./name` | gzip -9 > COW.`./name`.tar.gz
+	rm -rf COW.`./name`
 
 distdoc: name XTREKRC
-	tar cvf - README.* COW.DOC CHANGES XTREKRC netrekrc.example \
-		*.html *.css stars.gif | gzip -9 >../COW.`./name`.doc.tar.gz
+	mkdir COW.`./name`.doc
+	tar cf - README.* COW.DOC CHANGES XTREKRC netrekrc.example \
+		*.html *.css stars.gif | (cd COW.`./name`.doc; tar xf -)
+	tar cvf - COW.`./name`.doc | gzip -9 > COW.`./name`.doc.tar.gz
+	rm -rf COW.`./name`.doc
 
 distbin: name netrek
 	-strip netrek
