@@ -49,6 +49,8 @@ reallyclean: clean
 	config.h system.mk config.status config.log config.cache key.mail null \
 	netrek.shared lib*
 
+distclean: clean reallyclean
+
 tags: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) tags
 
