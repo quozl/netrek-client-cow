@@ -203,7 +203,6 @@ extern void Init_Sound(void) {
      * the introduction
      */
     if (loadSounds()) {
-      sound_init = 0;
       if (Mix_PlayChannel(-1, sounds[INTRO_WAV], 0) < 0) {
 	fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
       }
@@ -440,6 +439,11 @@ extern void sounddone(void) {
 /*
  *
  * $Log: sound.c,v $
+ * Revision 1.10  2002/06/22 19:32:40  tanner
+ * 	* sound.c: Fixed a small, if sound is off in the .netrekrc, SDL
+ * 	sound still tried to play the .wav files. Forgot to initialize the
+ * 	sound_init var.
+ *
  * Revision 1.9  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *

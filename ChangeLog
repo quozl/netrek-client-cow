@@ -1,3 +1,9 @@
+Sat Jun 22 14:30:42 2002  Bob Tanner  <tanner@real-time.com>
+
+	* sound.c: Fixed a small, if sound is off in the .netrekrc, SDL
+	sound still tried to play the .wav files. Forgot to initialize the
+	sound_init var.
+
 Sat Jun 22 00:36:05 2002  Bob Tanner  <tanner@real-time.com>
 
 	* configure.in: Added check for sdl_config, don't find it, don't
