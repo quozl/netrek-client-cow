@@ -1,5 +1,5 @@
 #
-# $Id: cow.spec,v 1.8 2002/06/21 05:44:53 tanner Exp $
+# $Id: cow.spec,v 1.9 2002/07/07 22:22:11 tanner Exp $
 #
 # HOW TO COMPILE
 #
@@ -16,12 +16,12 @@
 
 Summary: Netrek Client
 Name: cow
-Version: 3.00pl3-SDL
-Release: realtime.8
+Version: 3.01pl0
+Release: realtime.1
 Copyright: Undetermined
 URL: http://cow.netrek.org/
 Vendor: Real Time Enterprises, Inc. <support@real-time.com>
-Packager: Real Time Enterprises, Inc. <support@real-time.com>
+Packager: Bob Tanner <basic@us.netrek.org>
 Distribution: Red Hat Linux 7.3 / i386
 Group: Amusements/Games
 Source0: %{name}-%{version}.tar.bz2
@@ -38,6 +38,7 @@ Source4: COW.3.00pl2.doc.tar.gz
 #
 # You can get the tclug-menu at Twin Cities Linux Users Group official ftp
 # server <ftp://ftp.mn-linux.org/linux/apt/realtime/7.3/i386/RPMS.tclug/>
+# The tclug-menu package just setups up the appropriate menu entries for cow.
 #
 Requires: gmp, tclug-menu, SDL >= 1.2.4, SDL_mixer >= 1.2.4
 BuildRequires: gmp-devel, SDL-devel >= 1.2.4, SDL_mixer-devel >= 1.2.4
@@ -94,9 +95,13 @@ rm -rf %{buildroot}
 #
 # KDE desktop directory
 #
-%{__install} -m 755 -d %{buildroot}%{_datadir}/applnk/Games/Tclug
+%{__install} -m 755 -d %{buildroot}%{_datadir}/applnk/Games/Arcade
 %{__install} -m 755 -d %{buildroot}%{_datadir}/icons/hicolor/16x16/apps
 %{__install} -m 755 -d %{buildroot}%{_datadir}/icons/hicolor/32x32/apps
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/hicolor/48x48/apps
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/locolor/16x16/apps
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/locolor/32x32/apps
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/locolor/48x48/apps
 #
 # Common directories
 #
@@ -114,9 +119,13 @@ rm -rf %{buildroot}
 #
 # Install desktop entry into KDE areas
 #
-%{__install} %{desktop} %{buildroot}%{_datadir}/applnk/Games/Tclug
+%{__install} %{desktop} %{buildroot}%{_datadir}/applnk/Games/Arcade
 %{__install} %{png} %{buildroot}%{_datadir}/icons/hicolor/16x16/apps
 %{__install} %{png} %{buildroot}%{_datadir}/icons/hicolor/32x32/apps
+%{__install} %{png} %{buildroot}%{_datadir}/icons/hicolor/48x48/apps
+%{__install} %{png} %{buildroot}%{_datadir}/icons/locolor/16x16/apps
+%{__install} %{png} %{buildroot}%{_datadir}/icons/locolor/32x32/apps
+%{__install} %{png} %{buildroot}%{_datadir}/icons/locolor/48x48/apps
 #
 # Common files
 #
@@ -144,15 +153,25 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_sysconfdir}/X11/applnk/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/apps/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/ximian/Programs/Games/Tclug/%{name}.desktop
-%attr(0644,root,root)%{_datadir}/applnk/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/applnk/Games/Arcade/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
 %attr(0644,root,root)%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/locolor/16x16/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/locolor/32x32/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/locolor/48x48/apps/%{name}.png
 %attr(0644,root,root)%{_datadir}/pixmaps/%{name}.png
 
 %clean
 rm -rf %{buildroot}
 
 %changelog
+* Sun Jul 07 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.01p-realtime.1
+  - rolled new RPM from HEAD of cow tree
+
 * Fri Jun 21 2002 Bob Tanner <tanner@real-time.com>
   + cow-3.00p3-SDL-realtime.8
   - rolled new RPM from HEAD of cow tree
