@@ -120,7 +120,7 @@ PATH_MAX
 
 
 # Checking for gnu-win32 Windows libraries
-AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
+AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lwinmm -lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
    
 #--------------------------------------------------------------------
 #	Locate the X11 header files and the X11 library archive.
@@ -449,4 +449,4 @@ done
 
 fi
 
-AC_OUTPUT(system.mk tools/no_geno_timer tools/geno_timer docs/sample_geno_timer_crontab)
+AC_OUTPUT(system.mk)

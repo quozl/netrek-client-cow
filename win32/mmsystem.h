@@ -44,7 +44,7 @@ typedef struct wavehdr_tag {
     DWORD       dwLoops;                /* loop control counter */
     struct wavehdr_tag FAR *lpNext;     /* reserved for driver */
     DWORD       reserved;               /* reserved for driver */
-} WAVEHDR, *PWAVEHDR, NEAR *NPWAVEHDR, FAR *LPWAVEHDR;
+} PACKED WAVEHDR, *PWAVEHDR, NEAR *NPWAVEHDR, FAR *LPWAVEHDR;
 
 /* flags for dwFlags field of WAVEHDR */
 #define WHDR_DONE       0x00000001  /* done bit */
@@ -60,7 +60,7 @@ typedef struct waveformat_tag {
     DWORD   nSamplesPerSec;    /* sample rate */
     DWORD   nAvgBytesPerSec;   /* for buffer estimation */
     WORD    nBlockAlign;       /* block size of data */
-} WAVEFORMAT, *PWAVEFORMAT;
+} PACKED WAVEFORMAT, *PWAVEFORMAT;
 
 #ifndef _WAVEFORMATEX_
 #define _WAVEFORMATEX_
@@ -79,7 +79,7 @@ typedef struct tWAVEFORMATEX
     WORD        wBitsPerSample;     /* number of bits per sample of mono data */
     WORD        cbSize;             /* the count in bytes of the size of */
 				    /* extra information (after cbSize) */
-} WAVEFORMATEX, *PWAVEFORMATEX, NEAR *NPWAVEFORMATEX, FAR *LPWAVEFORMATEX;
+} PACKED WAVEFORMATEX, *PWAVEFORMATEX, NEAR *NPWAVEFORMATEX, FAR *LPWAVEFORMATEX;
 typedef const WAVEFORMATEX FAR *LPCWAVEFORMATEX;
 
 #endif /* _WAVEFORMATEX_ */
@@ -92,7 +92,7 @@ typedef const WAVEFORMATEX FAR *LPCWAVEFORMATEX;
 typedef struct pcmwaveformat_tag {
     WAVEFORMAT  wf;
     WORD        wBitsPerSample;
-} PCMWAVEFORMAT, *PPCMWAVEFORMAT;
+} PACKED PCMWAVEFORMAT, *PPCMWAVEFORMAT;
 
 /* device ID for wave device mapper */
 #define WAVE_MAPPER     ((UINT)-1)

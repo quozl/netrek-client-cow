@@ -1941,7 +1941,7 @@ if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   cat >> confdefs.h <<\EOF
 #define HAVE_WIN32 1
 EOF
- XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" 
+ XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lwinmm -lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" 
 else
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
@@ -3893,7 +3893,7 @@ done
 ac_given_srcdir=$srcdir
 ac_given_INSTALL="$INSTALL"
 
-trap 'rm -fr `echo "system.mk tools/no_geno_timer tools/geno_timer docs/sample_geno_timer_crontab config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "system.mk config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -3989,7 +3989,7 @@ EOF
 
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"system.mk tools/no_geno_timer tools/geno_timer docs/sample_geno_timer_crontab"}
+CONFIG_FILES=\${CONFIG_FILES-"system.mk"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then

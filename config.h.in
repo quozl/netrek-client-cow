@@ -580,6 +580,11 @@ extern long random ();
 
 /*	Some Server specific programs */
 #ifdef SERVER
+#ifdef HAVE_USLEEP
+#define USLEEP(x)       usleep(x)
+#else
+#define USLEEP(x)       microsleep(x)           /* from util.c */
+#endif
 
 #include <sys/types.h>
 /* SYSV Types */
@@ -631,12 +636,6 @@ extern long random ();
     }                                                           \
     SETPGRP();                                                  \
     }
-
-#ifdef HAVE_USLEEP
-#define USLEEP(x)       usleep(x)
-#else
-#define USLEEP(x)       microsleep(x)           /* from util.c */
-#endif
 
 #if defined (SunOS)            /*  this core dumps with SIGSEGV on a sparc-10 */
 #define LONGJMP(x,y)    return;

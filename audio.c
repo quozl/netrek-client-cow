@@ -6,6 +6,9 @@
  * long as this notice is left here.
  *
  * $Log: audio.c,v $
+ * Revision 1.2  2000/01/02 11:46:32  siegl
+ * Audio fixes
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
  * COW 3.0 initial revision
  * */
@@ -78,7 +81,7 @@ extern int
       return (-1);
     }
 
-  SoundRet = -1;
+  SoundRet = 1;
   SIGNAL(SIGUSR1, RetOk);
   SIGNAL(SIGUSR2, RetErr);
   SIGNAL(SIGCHLD, RetErr);
@@ -101,6 +104,7 @@ extern int
       execvp(sound_player, argv);
       perror(sound_player);
       fflush(stderr);
+      SoundRet = -2;
       _exit(-1);
     }
 
@@ -111,7 +115,8 @@ extern int
     }
 
   snd_pid = pid;
-  pause();
+  if (SoundRet >0 )
+    pause();
   if (SoundRet)
     ExitSound();
   return (SoundRet);
