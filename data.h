@@ -2,6 +2,9 @@
 /* data.h
  *
  * $Log: data.h,v $
+ * Revision 1.8  2002/06/21 00:29:02  quozl
+ * describe playback states
+ *
  * Revision 1.7  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.
  * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
@@ -131,9 +134,10 @@ extern FILE *recordIndexFile;   /* To jump around recordings. */
 extern FILE *recordContextFile; /* To jump around recordings. */
 extern int playback; /* State playback is in (pause, forward, reverse) */
 
-#define PL_PAUSE 1
-#define PL_FORWARD 2
-#define PL_REVERSE 3
+#define PL_OFF 0        /* not playing back, but in a real game	*/
+#define PL_PAUSE 1      /* playing back, paused			*/
+#define PL_FORWARD 2    /* playing back, in forward direction	*/
+#define PL_REVERSE 3    /* playing back, in reverse direction	*/
 #endif
 extern FILE *logFile;				 /* message log */
 extern int msgBeep;				 /* ATM - msg beep */
