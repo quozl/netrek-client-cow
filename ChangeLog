@@ -1,3 +1,7 @@
+Tue Jun 11 2002 Bob Tanner <tanner@real-time.com>
+
+	* spike: See spike/README for details
+
 Tue May  7 09:15:16 2002  James Cameron  <quozl@us.netrek.org>
 
 	* configure.in: --enable-unstable bug fix.

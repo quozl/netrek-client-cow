@@ -1,6 +1,9 @@
 Comments, suggestions and bug reports to cow@netrek.org 
 Patches to cow@netrek.org
 
+COW_SDL_MIXER_BRANCH Jun. 11, 2002
+ - add spike solution [tanner]
+
 ?
 - minor source packaging changes [cameron]
 - mouse wheel support [siegl]
