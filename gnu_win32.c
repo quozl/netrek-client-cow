@@ -8,6 +8,9 @@
  * Kurt Siegl May 1998
  *
  * $Log: gnu_win32.c,v $
+ * Revision 1.2  2001/08/26 10:02:16  siegl
+ * Playback fixes
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
  * COW 3.0 initial revision
  * */
@@ -1859,7 +1862,7 @@ int W_EventsQueued()
 // Used for playback - QueuedAfterReading - should be fixed later
 int W_EventsQueuedCk(void)
 {
-  return (W_EventsQueued());
+  return (W_EventsPending());
 }
 
 
