@@ -1,3 +1,6 @@
+Fri Jun 21 00:43:53 2002  Bob Tanner  <tanner@real-time.com>
+	* cow.spec: rolled new RPM from HEAD of cow tree
+
 Thu Jun 16 02:31:27 2002  Bob Tanner  <tanner@real-time.com>
 	* cow.spec: added cow.png and cow.desktop
 

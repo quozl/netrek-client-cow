@@ -1,45 +1,47 @@
 #
-# $Id: cow.spec,v 1.7 2002/05/07 04:27:56 tanner Exp $
+# $Id: cow.spec,v 1.8 2002/06/21 05:44:53 tanner Exp $
 #
 # HOW TO COMPILE
 #
-# on redhat 7.2:           --define "keydef path/to/key.def"
+# on redhat:           --define "keydef path/to/key.def"
 #
 # rpm -ba --define "keydef /home/basic/.key.def" cow.spec
 # rpm --rebuild --define "keydef /home/basic/.key.def" cow-3.00_XXXX.src.rpm
 # 
-# If you do not define a key.def file, I'll default to the sample_key.def found in the
-# cow source distribution. Please read the FAQ about blessed clients if this does not
-# make sense to you <http://www.inl.org/netrek/netrekFAQ.html#10>
+# If you do not define a key.def file, I'll default to the sample_key.def 
+# found in the cow source distribution. Please read the FAQ about blessed 
+# clients if this does not make sense to you 
+# <http://www.inl.org/netrek/netrekFAQ.html#10>
 #
+
 Summary: Netrek Client
 Name: cow
-Version: 3.00_20020506
-Release: realtime.5
+Version: 3.00pl3-SDL
+Release: realtime.8
 Copyright: Undetermined
 URL: http://cow.netrek.org/
 Vendor: Real Time Enterprises, Inc. <support@real-time.com>
 Packager: Real Time Enterprises, Inc. <support@real-time.com>
-Distribution: Red Hat Linux 7.2 / i386
-Serial: 1
+Distribution: Red Hat Linux 7.3 / i386
 Group: Amusements/Games
 Source0: %{name}-%{version}.tar.bz2
-Source2: COW-Sound.3.00.tar.gz
 Source3: pixmaps.tgz
 Source4: COW.3.00pl2.doc.tar.gz
-Source5: cow.desktop
-Source6: cow.png
-Patch0: cow-3.00-xpmfix.patch
-Patch1: cow-3.00-sound.patch
+%define png	$RPM_BUILD_DIR/%{name}-%{version}/cow.png
+%define desktop $RPM_BUILD_DIR/%{name}-%{version}/cow.desktop
 
 #
-# Sorry, I don't distribute my key. Even with the source code, see the COW.DOC file
+# Sorry, I don't distribute my key with the source code,  see the COW.DOC file 
 # on generating your own key
 #
 #Source10: key.def
-BuildRequires: gmp-devel, kde1-compat-devel, qt1x-devel
+#
+# You can get the tclug-menu at Twin Cities Linux Users Group official ftp
+# server <ftp://ftp.mn-linux.org/linux/apt/realtime/7.3/i386/RPMS.tclug/>
+#
+Requires: gmp, tclug-menu, SDL >= 1.2.4, SDL_mixer >= 1.2.4
+BuildRequires: gmp-devel, SDL-devel >= 1.2.4, SDL_mixer-devel >= 1.2.4
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires: gmp, kde1-compat, qt1x, tclug-menu
 
 %description
 This is a client for the multi-player game of Netrek.
@@ -70,44 +72,59 @@ be displayed.
 
 %prep
 
-%setup -q -a 2 -a 3 -a 4
-%patch0 -p1 
-%patch1 -p1
+%setup -q -a 3 -a 4
 
 %build
-
-%{__autoconf}
+#%{__autoconf}
 %configure --enable-unstable
 #
 # If we find a keydef then use it, otherwise use the sample_key.def
 #
-%{__make} OPT="$RPM_OPT_FLAGS" %{?keydef:KEYDEF="%{keydef}"}
-
-%{__make} OPT="$RPM_OPT_FLAGS" \
-	KDEDIR="/usr/lib/kde1-compat" \
-	LFLAGS="-L/usr/lib/kde1-compat/lib -L/usr/lib/qt-2.3.1/lib -lmediatool -lqt" \
-	-C sound/soundlib
+%{__make} OPT="$RPM_OPT_FLAGS" %{?keydef:KEYDEF="%{keydef}"} %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 
+#
+# Redhat GNOME and Ximian GNOME desktop directories
+#
 %{__install} -m 755 -d %{buildroot}%{_sysconfdir}/X11/applnk/Games/Tclug
 %{__install} -m 755 -d %{buildroot}%{_datadir}/gnome/ximian/Programs/Games/Tclug
 %{__install} -m 755 -d %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
+#
+# KDE desktop directory
+#
+%{__install} -m 755 -d %{buildroot}%{_datadir}/applnk/Games/Tclug
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/hicolor/16x16/apps
+%{__install} -m 755 -d %{buildroot}%{_datadir}/icons/hicolor/32x32/apps
+#
+# Common directories
+#
 %{__install} -m 755 -d %{buildroot}%{_datadir}/pixmaps
 %{__install} -m 755 -d %{buildroot}%{_bindir}
+
 %{__install} -m 755 -d %{buildroot}%{_datadir}/sounds/%{name}
 %{__install} -m 755 -d %{buildroot}%{_datadir}/pixmaps/%{name}
-
-%{__install} %SOURCE5 %{buildroot}%{_sysconfdir}/X11/applnk/Games/Tclug
-%{__install} %SOURCE5 %{buildroot}%{_datadir}/gnome/ximian/Programs/Games/Tclug
-%{__install} %SOURCE5 %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
-%{__install} %SOURCE6 %{buildroot}%{_datadir}/pixmaps
+#
+# Install desktop entries in GNOME areas
+#
+%{__install} %{desktop} %{buildroot}%{_sysconfdir}/X11/applnk/Games/Tclug
+%{__install} %{desktop} %{buildroot}%{_datadir}/gnome/ximian/Programs/Games/Tclug
+%{__install} %{desktop} %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
+#
+# Install desktop entry into KDE areas
+#
+%{__install} %{desktop} %{buildroot}%{_datadir}/applnk/Games/Tclug
+%{__install} %{png} %{buildroot}%{_datadir}/icons/hicolor/16x16/apps
+%{__install} %{png} %{buildroot}%{_datadir}/icons/hicolor/32x32/apps
+#
+# Common files
+#
+%{__install} %{png} %{buildroot}%{_datadir}/pixmaps
 %{__install} -m 755 -s netrek %{buildroot}%{_bindir}/cow
-%{__install} -m 755 -s sound/soundlib/bgsndplay.au %{buildroot}%{_bindir}/bgsndplay
 
 # Using tar to keep symlinks
-(cd sound/sounds/; tar -cf - .)|(cd %{buildroot}%{_datadir}/sounds/%{name}; tar -xf -)
+(cd spike/cow-test/sounds/; tar -cf - .)|(cd %{buildroot}%{_datadir}/sounds/%{name}; tar -xf -)
 (cd pixmaps; tar -cp \
     --exclude readme.txt \
     --exclude rotate.bas \
@@ -118,10 +135,8 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %doc %{name}-docs-3.00pl12/*
-%doc sound/SOUND.DOC 
 %doc pixmaps/readme.txt
 %{_bindir}/%{name}
-%{_bindir}/bgsndplay
 %attr(0755,root,root) %dir %{_datadir}/sounds/%{name}
 %attr(-,root,root) %{_datadir}/sounds/%{name}/*
 %attr(0755,root,root) %dir %{_datadir}/pixmaps/%{name}
@@ -129,25 +144,40 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_sysconfdir}/X11/applnk/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/apps/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/ximian/Programs/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/applnk/Games/Tclug/%{name}.desktop
+%attr(0644,root,root)%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
+%attr(0644,root,root)%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
 %attr(0644,root,root)%{_datadir}/pixmaps/%{name}.png
 
 %clean
 rm -rf %{buildroot}
 
 %changelog
+* Fri Jun 21 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00p3-SDL-realtime.8
+  - rolled new RPM from HEAD of cow tree
+
+* Sat Jun 16 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00_20020616-realtime.7
+  - first release of cow with SDL_mixer sound support
+
 * Sat May 06 2002 Bob Tanner <tanner@real-time.com>
-  + cow-3.00_20040504-realtime.5
+  + cow-3.00_20020504-realtime.6
+  - small patch to fix compilation under redhat 7.3 an kde3
+
+* Sat May 06 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00_20020504-realtime.5
   - patch [Bug #553113] to fix sound problems under 2.4.x kernels/redhat 7.2
 
 * Sat May 06 2002 Bob Tanner <tanner@real-time.com>
-  + cow-3.00_20040504-realtime.4
+  + cow-3.00_20020504-realtime.4
   - submitted keys to metaserver, recompiled binaries for those keys
   - added ability to pass into the rpm build process the location of keydef file
   - fixed permission on pixmap directory
   - patch [Bug #552772] to fix configure not detecting xpm under redhat 7.2
 
 * Sat May 04 2002 Bob Tanner <tanner@real-time.com>
-  + cow-3.00_20040504-realtime.2
+  + cow-3.00_20020504-realtime.2
   - first attempt at building cow for source. previous rpm was binary only
   - changed hard coded commands to rpm macros
   - setup compile of bgsndplay 
