@@ -28,3 +28,11 @@ Developer be careful read/write access is only available over SSH with
 export CVS_RSH=ssh 
 cvs -z3 -ddevelopername@cowsrc.netrek.org:/cvsroot/netrek co modulename
 
+Note: commits are best done on individual files since many files
+include a $Log: README.CVS,v $
+include a Revision 1.6  2002/06/21 00:57:46  quozl
+include a review of sdl branch merge made difficult by commit
+include a logs embedded in some source files, discussed with
+include a bob, decided we hadn't said anywhere that individual
+include a commits are preferred.
+include a of commit comments.
