@@ -1,4 +1,10 @@
-Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
+
+	* playback.c (pbmain):  Converted enter_ship.wav
+
+	* input.c (Key113): Converted self_destruct.wav
+
+	* input.c (Key109): Converted message.wav
 
 	* local.c (DrawMisc): Converted warning.wav
 

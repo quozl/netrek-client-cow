@@ -2,6 +2,16 @@
 /* sound.c - Sound stuff
  *
  * $Log: sound.c,v $
+ * Revision 1.4  2002/06/13 03:58:41  tanner
+ * The changes for sound are mostly isolated in local.c, just a few other changes
+ * in the commit.
+ *
+ * 	* playback.c (pbmain):  Converted enter_ship.wav
+ *
+ * 	* input.c (Key113): Converted self_destruct.wav
+ *
+ * 	* input.c (Key109): Converted message.wav
+ *
  * Revision 1.3  2002/06/13 03:45:19  tanner
  * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
  *
@@ -288,6 +298,7 @@ extern void Play_Sound(int type) {
 
 extern void Abort_Sound(int type) {
 #if defined(HAVE_SDL)
+    return;
 #else
   if ((current_sound != NO_SOUND) && (type == current_sound))
     StopSound();
