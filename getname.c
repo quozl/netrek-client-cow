@@ -4,6 +4,11 @@
  * Kevin P. Smith 09/28/88
  *
  * $Log: getname.c,v $
+ * Revision 1.3  2001/04/28 04:06:15  quozl
+ * If server rejects guest login, allow the user to retry with a real name.
+ * Current INL servers are coded to reject guest login.  Having to restart
+ * the client is unnecessary.
+ *
  * Revision 1.2  1999/07/29 23:25:51  cameron
  * fix typo
  *
@@ -67,12 +72,11 @@ static int
   while (W_EventsPending())
     {
       W_NextEvent(&event);
-      if (event.Window != w)
-	continue;
       switch ((int) event.type)
 	{
 	case W_EV_EXPOSE:
-	  do_redraw = 1;
+	  if (event.Window == w)
+	    do_redraw = 1;
 	  break;
 	case W_EV_KEY:
 	  ch = event.key;
@@ -80,8 +84,12 @@ static int
 	    loginproced(ch, defname);
 	}
     }
+
   if (do_redraw)
-    displayStartup(defname);
+    {
+      displayStartup(defname);
+      showreadme();
+    }
 }
 
 
@@ -340,7 +348,6 @@ void
 }
 
 loaddude(void)
-/* Query dude. */
 {
   char    ppwd[16];
 
@@ -371,14 +378,17 @@ loaddude(void)
 	}
       if (loginAccept == 0)
 	{
-	  printf("Hmmm... The SOB server won't let me log in as guest!\n");
-
+	  char *s = "Server refuses guest login, use another name.";
+	  W_WriteText(w, 100, 70, textColor, s, strlen(s), W_BoldFont);
+	  (void) W_EventsPending();
+	  sleep(3);
+	  W_ClearWindow(w);
+	  state = ST_GETNAME;
+	  *tempname = 0;
 #ifdef AUTOKEY
 	  if (autoKey)
 	    W_AutoRepeatOn();
 #endif
-
-	  terminate(0);
 	}
       return;
     }
@@ -467,7 +477,7 @@ makeNewGuy(void)
       if (!autolog)
 	{
 	  s = "Passwords do not match";
-	  W_WriteText(w, 100, 120, textColor, s, strlen(s), W_BoldFont);
+	  W_WriteText(w, 100, 130, textColor, s, strlen(s), W_BoldFont);
 	  (void) W_EventsPending();
 	  sleep(3);
 	  W_ClearWindow(w);
@@ -529,7 +539,7 @@ displayStartup(char *defname)
 
   if (alf != NULL)
     W_WriteText(w, 100, 130, textColor, alf, strlen(alf), W_BoldFont);
-  sprintf(buf, "Connection established to %s", serverName);
+  sprintf(buf, "Connection established to Netrek server %s", serverName);
   t = buf;
   W_WriteText(w, 100, 150, textColor, t, strlen(t), W_BoldFont);
   t = "Enter your name.  Use the name 'guest' for a temporary character.";
@@ -559,9 +569,9 @@ displayStartup(char *defname)
     {
       alf = NULL;
       t = "Enter it again to make sure you typed it right.";
-      W_WriteText(w, 100, 100, textColor, t, strlen(t), W_BoldFont);
-      t = "Your password? :";
       W_WriteText(w, 100, 110, textColor, t, strlen(t), W_BoldFont);
+      t = "Your password? :";
+      W_WriteText(w, 100, 120, textColor, t, strlen(t), W_BoldFont);
     }
 }
 
@@ -585,7 +595,7 @@ showreadme(void)
     "      No one takes responsibility for lost INL games etc.",
     "      Use at your own risk! If you don't like it, don't use it.",
     "",
-    "Comments, suggestions, bugreports to: cow@netrek.org",
+    "Comments, suggestions, bug reports to: cow@netrek.org",
     "",
     "Include version and architecture info in bug reports",
     "",
