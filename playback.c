@@ -5,6 +5,35 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.5  2000/11/07 20:24:05  ahn
+ * Add patch from Crist Clark <cjclark@alum.mit.edu>
+ *
+ * There was a server bust during the Mixed Tw^H^HDrinks-Smack Pack game
+ * yesterday. All that was recovered was the cambot.pkt dump. I figured
+ * it would be pretty easy to dump the messages from the playback to a
+ * file and then run the stats scripts on that to get some pwstat-style
+ * numbers.
+ *
+ * Well, it took a little client hacking (and then some toying with the
+ * ancient pwstat.pl I had). I was modifying COW.3.00pl2. The two files
+ * that need to be patched to get it to work are included at the
+ * end. main.c needed changing since apparently using the '-f' option on
+ * the command line just changes the name of the logfile, but does not
+ * turn on logging (bug or feature?). I changed that. Second, playback.c
+ * did not support logging at all, so I added the few lines of code it
+ * needed.
+ *
+ * I was looking for the present COW development code, but could not
+ * track it down; most Netrek pages I could find are long collections of
+ * 404-links. (And my mail bounced when I tried to rejoin the Vanilla
+ * server mail lists.) Where is the latest COW? If anyone finds the
+ * patches interesting, feel free to use them. Finally, any "trusted" COW
+ * builders up for making a blessed FreeBSD COW? I have an unblessed
+ * FreeBSD client running, but need to run a Linux binary if I want
+ * blessed.
+ * --
+ * Crist J. Clark                           cjclark@alum.mit.edu
+ *
  * Revision 1.4  2000/05/19 14:24:52  jeffno
  * Improvements to playback.
  * - Can jump to any point in recording.
@@ -132,6 +161,16 @@ int
   i = setjmp(env);				 /* Error while initializing */
   if (i >= RETURNBASE)
     return (i - RETURNBASE);			 /* Terminate with retcode */
+
+  if (logFileName != NULL)
+    {
+      logFile = fopen(logFileName, "a");
+      if (logFile == NULL)
+        {
+          perror(logFileName);
+          return (1);
+        }
+    }
 
   for (i = 0; i < 80; i++)
     {
