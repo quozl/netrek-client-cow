@@ -8,7 +8,7 @@ URL: http://cow.netrek.org/
 Group: Amusements/Games
 Source0: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-bin/COW.3.00pl2.ix86_linux.gz
 Source1: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-Sound.3.00.tar.gz
-Source2: ftp://ftp.netrek.org/pub/netrek/clients/cow/pixmaps.tar.gz
+Source2: ftp://ftp.netrek.org/pub/netrek/clients/cow/pixmaps.tgz
 Source3: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW.3.00pl2.doc.tar.gz
 
 %description
@@ -39,48 +39,49 @@ Netrek web site:          <http://www.netrek.org/>
 Development web site:     <http://cow.netrek.org/>
 
 To start the client program, run /usr/bin/netrek, and a list of
-servers should be displayed.  See also /usr/doc/cow-3.00pl2/index.html
+servers should be displayed.  See also /usr/doc/cow-*/index.html
 
 %prep
-rm -rf $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/
-rm -rf $RPM_BUILD_ROOT/usr/doc/cow-3.00pl2/
+rm -rf $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/
+rm -rf $RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION/
 rm -rf $RPM_BUILD_ROOT/usr/bin/netrek
-mkdir -p $RPM_BUILD_ROOT/usr/games/cow-3.00pl2
-mkdir -p $RPM_BUILD_ROOT/usr/doc/cow-3.00pl2
+mkdir -p $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION
+mkdir -p $RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION
 
 %install
 #
 #	Unpack the binary distribution in the Right Places.
 #
-install $RPM_SOURCE_DIR/COW.3.00pl2.ix86_linux \
-	$RPM_BUILD_ROOT/usr/games/cow-3.00pl2/
-cd /usr/games/cow-3.00pl2
+gunzip - < $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux.gz > $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux 
+install $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.ix86_linux \
+	$RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/
+cd /usr/games/cow-$RPM_PACKAGE_VERSION
 tar xfz $RPM_SOURCE_DIR/pixmaps.tgz
 tar xfz $RPM_SOURCE_DIR/COW-Sound.3.00.tar.gz
-cd /usr/doc/cow-3.00pl2
-tar xfz $RPM_SOURCE_DIR/COW.3.00pl2.doc.tar.gz
+cd /usr/doc/cow-$RPM_PACKAGE_VERSION
+tar xfz $RPM_SOURCE_DIR/COW.$RPM_PACKAGE_VERSION.doc.tar.gz
 #
 #	Create script for starting client
 #	(which creates a working .xtrekrc file if one is not there)
 #
 cat << EOF > $RPM_BUILD_ROOT/usr/bin/netrek
 #!/bin/sh
-cd /usr/games/cow-3.00pl2
+cd /usr/games/cow-$RPM_PACKAGE_VERSION
 if [ ! -f ~/.xtrekrc ]
 then
 	cat << eox > ~/.xtrekrc
 # your .xtrekrc was created by /usr/bin/netrek
-# for further documentation see /usr/doc/cow-3.00pl2/index.html
+# for further documentation see /usr/doc/cow-$RPM_PACKAGE_VERSION/index.html
 #
 # enable sound, point to sound files and player program
 sound: on
-sounddir: /usr/games/cow-3.00pl2/sound/sounds
-soundplayer: /usr/games/cow-3.00pl2/sound/bgsndplay
+sounddir: /usr/games/cow-$RPM_PACKAGE_VERSION/sound/sounds
+soundplayer: /usr/games/cow-$RPM_PACKAGE_VERSION/sound/bgsndplay
 # point to the pixmaps directory
-pixmapDir: /usr/games/cow-3.00pl2/pixmaps
+pixmapDir: /usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps
 eox
 fi
-./COW.3.00pl2.ix86_linux -r ~/.xtrekrc -m
+./COW.$RPM_PACKAGE_VERSION.ix86_linux -r ~/.xtrekrc -m
 EOF
 #
 #	Fix protections on script.
@@ -90,7 +91,7 @@ chmod +x $RPM_BUILD_ROOT/usr/bin/netrek
 #	Remove the KDE sound player, because it creates a libmediatool
 #	dependency for the package.
 #
-cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/sound
+cd $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/sound
 rm bgsndplay.linux.kde
 rm bgsndplay
 mv bgsndplay.linux bgsndplay
@@ -99,23 +100,35 @@ mv bgsndplay.linux bgsndplay
 #	(games username is not consistently available across distributions)
 #
 chown -R root:root \
-	$RPM_BUILD_ROOT/usr/games/cow-3.00pl2 \
-	$RPM_BUILD_ROOT/usr/doc/cow-3.00pl2 
+	$RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION \
+	$RPM_BUILD_ROOT/usr/doc/cow-$RPM_PACKAGE_VERSION 
 #
 #	Decompress the pixmaps that have arrrived in the package as compressed,
 #	so as to lose the warning created by COW on startup.
 #
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/genocide.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/greet.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/hockey.xpm.gz
-rm $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/ghostbust.xpm.gz
-cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/genocide.xpm.gz
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/greet.xpm.gz
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/hockey.xpm.gz
+rm $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/ghostbust.xpm.gz
+cd $RPM_BUILD_ROOT/usr/games/cow-$RPM_PACKAGE_VERSION/pixmaps/Misc/
 ln -sf genocide.xpm ghostbust.xpm
+install -d $RPM_BUILD_ROOT/usr/share/gnome/apps/Games
+cat << EOF > $RPM_BUILD_ROOT/usr/share/gnome/apps/Games/cow.desktop
+[Desktop Entry]
+Name=Netrek
+Comment=Netrek
+Exec=netrek
+Terminal=0
+Type=Application
+Icon=cow.png
+EOF
 
 %files
 /usr/games/cow-3.00pl2/
 /usr/doc/cow-3.00pl2/
 /usr/bin/netrek
+/usr/share/gnome/apps/Games/cow.desktop
+/usr/share/pixmaps/cow.png
 
 %clean
 
