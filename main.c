@@ -4,6 +4,9 @@
 /* main.c
  *
  * $Log: main.c,v $
+ * Revision 1.7  2000/01/07 17:36:02  siegl
+ * final release infos
+ *
  * Revision 1.6  1999/08/20 18:32:45  siegl
  * WindowMaker Docking support
  *
@@ -410,7 +413,7 @@ main2(int argc, char **argv)
       printf("!!!!!!!!!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!!!!!!!!!\n");
       printf("This client will expire on %s\n", exptime);
       printf("Please obtain a newer version from your favourite ftp site.\n");
-      printf("At the moment of writing bigbang.astro.indiana.edu:/pub/netrek/COW is the COW home.\n");
+      printf("At the moment of writing http://cow.netrek.org/ is the COW home.\n");
 
 #ifdef TOOLS
       printf("Or try the -L option to get a new version.\n");

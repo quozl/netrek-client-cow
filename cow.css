@@ -1,7 +1,7 @@
 
-BODY { background: url(stars.gif) black; color: #C4DDF }
-A:link { color: #00CC00 }          /* unvisited link */
-A:visited { color: #9B2FFF }       /* visited links */
+BODY { background: url(stars.gif) black; color: #CCDDFF; }
+A:link { color: #CCFF80 }          /* unvisited link */
+A:visited { color: #FF80FF }       /* visited links */
 A:active { color: #FF0000 }        /* active links */
 
 H1 { align: center; color: #00CC00 }
@@ -13,3 +13,4 @@ DT { color: #FF0000 }
 
 PRE { color: #FFFFFF }
 .title { color: #00CC00 }
+

@@ -1,7 +1,7 @@
 Comments, suggestions and bug reports to cow@netrek.org 
 Patches to cow@netrek.org
 
-3.00 pl2
+3.00 pl2 Jan. 7, 2000
 - New default portSwap for UDP_PORTSWAP feature [siegl]
 - System wide .xtrekrc file set to "/etc/netrekrc" [siegl]
 - Cambot recording replay [koconnor]
