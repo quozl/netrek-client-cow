@@ -523,7 +523,7 @@ if test "$code" = cow; then
 AM_PATH_SDL(1.2.4, AC_DEFINE(HAVE_SDL),[])
 AM_CONDITIONAL(HAVE_SDL, [test x"$no_sdl" != x"yes"])
 
-if test x$no_sdl == xyes; then
+if test x$no_sdl != xyes; then
   have_SDLmixer=no
   AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio, [have_SDLmixer=yes SDL_MIXER_LIBS="-lSDL_mixer"])
   if test x$have_SDLmixer != xyes; then

@@ -4311,7 +4311,7 @@ else
   HAVE_SDL_FALSE=
 fi
 
-if test x$no_sdl == xyes; then
+if test x$no_sdl != xyes; then
   have_SDLmixer=no
   echo $ac_n "checking for Mix_OpenAudio in -lSDL_mixer""... $ac_c" 1>&6
 echo "configure:4318: checking for Mix_OpenAudio in -lSDL_mixer" >&5
