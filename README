@@ -1,0 +1,14 @@
+Client Of Win
+Source Package 
+
+	INSTALL		Installation guide, standard GNU project
+			(See also section 8.0 of COW.DOC)
+	COW.DOC		Documentation, text format
+	CHANGES		Change log, latest first, abbreviated format
+	ChangeLog	Change log, latest first, detailed format
+	README.*	Version specific changes and discussion
+	README.CVS	Source repository access information
+	README.html	Latest version specific detailed change log
+	TODO		List of things to be done by developers
+
+Feedback to cow@netrek.org
