@@ -4,6 +4,9 @@
  * Functions to maintain the local map.
  *
  * $Log: local.c,v $
+ * Revision 1.7  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.6  2002/06/20 04:18:38  tanner
  * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
@@ -338,9 +341,9 @@ static void DrawShips(void)
 		  Play_Sound(UNCLOAK_WAV);
 #else
 		  Play_Sound(UNCLOAK_SOUND);
-#endif
 		} else {
 		  Abort_Sound(CLOAK_SOUND);
+#endif
 		}
 #endif
 
@@ -1492,7 +1495,7 @@ static void DrawMisc(void)
 	  W_ChangeBorder(baseWin, gColor);
 	  W_ChangeBorder(iconWin, gColor);
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 	  Abort_Sound(WARNING_SOUND);
 #endif
 
@@ -1503,7 +1506,7 @@ static void DrawMisc(void)
 	  W_ChangeBorder(baseWin, yColor);
 	  W_ChangeBorder(iconWin, yColor);
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 	  Abort_Sound(WARNING_SOUND);
 #endif
 

@@ -1,3 +1,21 @@
+Fri Jun 21 22:41:15 2002  Bob Tanner  <tanner@real-time.com>
+
+	* newwin.c (newwin): Added code to just popup window saying SDL
+	sound is an all or nothing option.
+
+	* findslot.c (findslot):  #ifdef'd out Exit_Sound()
+
+	* cowmain.c: #ifdef'd out Abort_Sound(), it's not need with
+	SDL. #ifdef'd out Exit_Sound()
+
+	* playback.c:  #ifdef'd out Abort_Sound(), it's not need with SDL
+
+	* local.c: #ifdef'd out Abort_Sound(), it's not need with SDL
+
+	* sound.c: Removed the ability to toggle sounds under SDL. It's an
+	all or nothing thing now. If request, I'll make SDL work with
+	Kurt's sound toggling code.
+
 Fri Jun 21 02:40:55 2002  Bob Tanner  <tanner@real-time.com>
 
 	* socket.c (doRead): An attempt to fix the full update bug

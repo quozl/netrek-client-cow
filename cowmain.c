@@ -2,6 +2,9 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
+ * Revision 1.12  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.11  2002/06/20 04:18:38  tanner
  * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
@@ -978,7 +981,7 @@ int     cowmain(char *server, int port, char *name)
     {
 #endif
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
       Abort_Sound(ENGINE_SOUND);
 #endif
 
@@ -1026,7 +1029,7 @@ int     cowmain(char *server, int port, char *name)
 
 	  sendByeReq();
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 	  Exit_Sound();
 #endif
 

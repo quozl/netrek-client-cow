@@ -2,6 +2,9 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.11  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.10  2002/06/20 04:18:38  tanner
  * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
@@ -2571,8 +2574,8 @@ Key125(void)
   cloak_off();
 }
 
-Key126(W_Event * data)
-{
+/* ~ */
+Key126(W_Event * data) {
 
 #ifdef SOUND
   if ((soundWin != NULL) && W_IsMapped(soundWin))

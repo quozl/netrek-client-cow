@@ -5,6 +5,9 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.12  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.11  2002/06/20 04:18:38  tanner
  * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
@@ -408,7 +411,7 @@ int
   if (i >= RETURNBASE)
     return (i - RETURNBASE);			 /* Terminate with retcode */
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
   Abort_Sound(ENGINE_SOUND);
 #endif
 

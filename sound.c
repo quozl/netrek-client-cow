@@ -1,98 +1,7 @@
-
 /* sound.c - Sound stuff
  *
- * $Log: sound.c,v $
- * Revision 1.8  2002/06/21 04:47:51  quozl
- * fix minor typos in comments
- *
- * Revision 1.7  2002/06/20 04:18:38  tanner
- * Merged COW_SDL_MIXER_BRANCH to TRUNK.
- *
- * Revision 1.1.1.1.2.1  2002/06/13 04:10:16  tanner
- * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
- * 	SDL_MIXER_LIBS
- *
- * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
- * 	opening of audio device, and loading of 17 cow sounds.
- *
- * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
- * 	moved the Init_Sound method to right after readdefaults() so the
- * 	intro can start playing ASAP.
- *
- * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
- * 	add check for SDL_mixer.
- *
- * 	* config.h.in: add HAVE_SDL
- *
- * 	* spike: See spike/README for details
- *
- * Revision 1.4  2002/06/13 03:58:41  tanner
- * The changes for sound are mostly isolated in local.c, just a few other changes
- * in the commit.
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * Revision 1.3  2002/06/13 03:45:19  tanner
- * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Revision 1.2  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ * Moved sound cvs commit log to the end of the file 
+ */
 #include "config.h"
 
 #ifdef SOUND
@@ -191,7 +100,8 @@ static int sound_other = 1;			 /* Play other ship's sounds?
 
 #if defined(HAVE_SDL)
 
-/* 
+/*
+ * Build the patch to the sound files 
  */
 char *DATAFILE(const char* wav) {
  char buf[PATH_MAX];
@@ -201,6 +111,7 @@ char *DATAFILE(const char* wav) {
 } 
 
 /*
+ * Load the .wave files into the sounds array
  */
 int loadSounds(void) {
   int i;
@@ -237,6 +148,7 @@ int loadSounds(void) {
 }
 #endif
 
+#if !defined(HAVE_SDL)
 extern void Exit_Sound(void)
 {
   if (sound_init)
@@ -244,6 +156,7 @@ extern void Exit_Sound(void)
   sound_init = 0;
   sound_toggle = 0;
 }
+#endif
 
 extern void Init_Sound(void) {
   char buf[PATH_MAX];
@@ -319,6 +232,10 @@ extern void Init_Sound(void) {
 extern void Play_Sound(int type) {
 #if defined(HAVE_SDL)
 
+    if (!sound_init) {
+	return;
+    }
+
   if ((type >= NUM_WAVES) || (type < 0)) {
     fprintf(stderr, "Invalid sound type %d\n", type);
   }
@@ -327,7 +244,7 @@ extern void Play_Sound(int type) {
     fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
   }
 #else
-  char    buf[PATH_MAX];
+  char buf[PATH_MAX];
 
   /* Don't play other ship's sounds if turned off */
   if (type > OTHER_SOUND_OFFSET && !sound_other)
@@ -348,14 +265,13 @@ extern void Play_Sound(int type) {
 #endif
 }
 
+#if !defined(HAVE_SDL)
 extern void Abort_Sound(int type) {
-#if defined(HAVE_SDL)
-    return;
-#else
   if ((current_sound != NO_SOUND) && (type == current_sound))
     StopSound();
-#endif
 }
+#endif
+
 
 
 /* Sound options window stuff */
@@ -367,31 +283,30 @@ extern void Abort_Sound(int type) {
 
 static void soundrefresh(int i);
 
-extern void soundwindow(void)
-{
+extern void soundwindow(void) {
+#if defined(HAVE_SDL)
+    char *buf="All or nothing with SDL sound. Sorry";
+    W_WriteText(soundWin, 0, 0, textColor, buf, strlen(buf), 0);
+#else
   int     i;
 
   for (i = 0; i <= SOUND_DONE; i++)
     soundrefresh(i);
+#endif
 
   /* Map window */
   W_MapWindow(soundWin);
 }
 
+#if !defined(HAVE_SDL)
 static void soundrefresh(int i) {
-#if defined(HAVE_SDL)
-#else
   char    buf[BUFSIZ], *flag;
 
-  if (i == SOUND_TOGGLE)
-    {
+  if (i == SOUND_TOGGLE) {
       sprintf(buf, "Sound is turned %s", (sound_toggle == 1) ? "ON" : "OFF");
-    }
-  else if (i < SOUND_OTHER)
-    {
+    } else if (i < SOUND_OTHER) {
       flag = ((sounds[i].flag == 1) ? "ON" : "OFF");
-      switch (i)
-	{
+      switch (i) {
 	case CLOAK_SOUND:
 	  sprintf(buf, "Cloak sound is %s", flag);
 	  break;
@@ -439,43 +354,33 @@ static void soundrefresh(int i) {
 	  sprintf(buf, "Plasma hit sound is %s", flag);
 	  break;
 	}
-    }
-  else if (i == SOUND_OTHER)
-    {
+    } else if (i == SOUND_OTHER) {
       if (sound_other)
 	strcpy(buf, "Other ship's sound is ON");
       else
 	strcpy(buf, "Other ship's sound is OFF");
-    }
-  else if (i == SOUND_INIT)
-    {
+    } else if (i == SOUND_INIT) {
       if (sound_init)
 	strcpy(buf, "Restart external sound player");
       else
 	strcpy(buf, "Initialize external sound player");
-    }
-  else if (i == SOUND_DONE)
-    {
+    } else if (i == SOUND_DONE) {
       strcpy(buf, "Done");
-    }
-  else
-    {
+    } else {
       fprintf(stderr, "Uh oh, bogus refresh number in soundrefresh\n");
     }
 
   W_WriteText(soundWin, 0, i, textColor, buf, strlen(buf), 0);
-#endif
 }
+#endif /* HAVE_SDL */
 
 void soundaction(W_Event * data) {
-#if defined(HAVE_SDL)
-#else
+#if !defined(HAVE_SDL)
   int     i, j;
 
   i = data->y;
 
-  if (i == SOUND_TOGGLE)
-    {
+  if (i == SOUND_TOGGLE) {
       if (sound_init)
 	sound_toggle = (sound_toggle == 1) ? 0 : 1;
       soundrefresh(SOUND_TOGGLE);
@@ -523,12 +428,109 @@ void soundaction(W_Event * data) {
     {
       sounddone();
     }
-#endif
+#endif /* HAVE_SDL */
 }
 
-extern void
-        sounddone(void)
-{
+
+extern void sounddone(void) {
   W_UnmapWindow(soundWin);
 }
+
 #endif /* SOUND */
+/*
+ *
+ * $Log: sound.c,v $
+ * Revision 1.9  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
+ * Revision 1.8  2002/06/21 04:47:51  quozl
+ * fix minor typos in comments
+ *
+ * Revision 1.7  2002/06/20 04:18:38  tanner
+ * Merged COW_SDL_MIXER_BRANCH to TRUNK.
+ *
+ * Revision 1.1.1.1.2.1  2002/06/13 04:10:16  tanner
+ * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* playback.c (pbmain):  Converted enter_ship.wav
+ *
+ * 	* input.c (Key113): Converted self_destruct.wav
+ *
+ * 	* input.c (Key109): Converted message.wav
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
+ * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
+ * 	SDL_MIXER_LIBS
+ *
+ * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
+ * 	opening of audio device, and loading of 17 cow sounds.
+ *
+ * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
+ * 	moved the Init_Sound method to right after readdefaults() so the
+ * 	intro can start playing ASAP.
+ *
+ * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
+ * 	add check for SDL_mixer.
+ *
+ * 	* config.h.in: add HAVE_SDL
+ *
+ * 	* spike: See spike/README for details
+ *
+ * Revision 1.4  2002/06/13 03:58:41  tanner
+ * The changes for sound are mostly isolated in local.c, just a few other changes
+ * in the commit.
+ *
+ * 	* playback.c (pbmain):  Converted enter_ship.wav
+ *
+ * 	* input.c (Key113): Converted self_destruct.wav
+ *
+ * 	* input.c (Key109): Converted message.wav
+ *
+ * Revision 1.3  2002/06/13 03:45:19  tanner
+ * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
+ * Revision 1.2  2002/06/11 05:55:13  tanner
+ * Following XP made a simple change.
+ *
+ * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ *
+ * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
+ * COW 3.0 initial revision
+*/

@@ -4,6 +4,9 @@
  * Kevin Smith 03/23/88
  *
  * $Log: findslot.c,v $
+ * Revision 1.2  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
  * COW 3.0 initial revision
  * */
@@ -49,7 +52,7 @@ findslot(void)
       if (isServerDead())
 	{
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 	  Exit_Sound();
 #endif
 
@@ -95,7 +98,7 @@ findslot(void)
       if (isServerDead())
 	{
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 	  Exit_Sound();
 #endif
 
@@ -154,7 +157,7 @@ findslot(void)
 	      else if (event.Window == qwin)
 		{
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 		  Exit_Sound();
 #endif
 

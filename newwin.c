@@ -2,6 +2,9 @@
 /* newwin.c
  *
  * $Log: newwin.c,v $
+ * Revision 1.4  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.3  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -103,7 +106,7 @@ extern void nsaction(W_Event * data);
 extern void optionaction(W_Event * data);
 extern void udpaction(W_Event * data), waraction(W_Event * data);
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(HAVE_SDL)
 extern void soundaction(W_Event * data);
 
 #endif
@@ -266,11 +269,15 @@ newwin(char *hostmon, char *progname)
 #endif
 
 #ifdef SOUND
+#if defined(HAVE_SDL)
+  soundWin = W_MakeMenu("sound", TWINSIDE + 20, -BORDER + 10, 40, 1, NULL, 2);
+#else
   soundWin = W_MakeMenu("sound", TWINSIDE + 20, -BORDER + 10, 30,
 			MESSAGE_SOUND + 4, NULL, 2);
   W_SetWindowKeyDownHandler(soundWin, soundaction);
   W_SetWindowButtonHandler(soundWin, soundaction);
   W_DefineArrowCursor(soundWin);
+#endif
 #endif
 
 #ifdef TOOLS

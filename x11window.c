@@ -4,6 +4,9 @@
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
  * $Log: x11window.c,v $
+ * Revision 1.6  2002/06/22 04:43:24  tanner
+ * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
+ *
  * Revision 1.5  2001/08/21 20:52:15  siegl
  *
  * mouse wheel support
@@ -3560,8 +3563,7 @@ W_ReadEvents(void)
   return 0;
 }
 
-void
-        W_OverlayBitmap(int x, int y, W_Icon bit, W_Color color)
+void W_OverlayBitmap(int x, int y, W_Icon bit, W_Color color)
 {
   struct icon *icon = W_Void2Icon(bit);
 
