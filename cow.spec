@@ -1,12 +1,15 @@
 Summary: Netrek Client
 Name: netrek-client
-Version: 3.00pl1
-Release: 2
+Version: 3.00pl2
+Release: 1
 Copyright: Undetermined
-Packager: quozl@us.netrek.org
+Packager: quozl@netrek.org
 URL: http://cow.netrek.org/
 Group: Amusements/Games
-Source0: http://cow.netrek.org/current/COW.3.00pl1.ix86_linux.gz
+Source0: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-bin/COW.3.00pl2.ix86_linux.gz
+Source1: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW-Sound.3.00.tar.gz
+Source2: ftp://ftp.netrek.org/pub/netrek/clients/cow/pixmaps.tar.gz
+Source3: ftp://ftp.netrek.org/pub/netrek/clients/cow/COW.3.00pl2.doc.tar.gz
 
 %description
 This is a client for the multi-player game of Netrek.
@@ -36,48 +39,48 @@ Netrek web site:          <http://www.netrek.org/>
 Development web site:     <http://cow.netrek.org/>
 
 To start the client program, run /usr/bin/netrek, and a list of
-servers should be displayed.  See also /usr/doc/cow-3.00pl1/index.html
+servers should be displayed.  See also /usr/doc/cow-3.00pl2/index.html
 
 %prep
-rm -rf $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/
-rm -rf $RPM_BUILD_ROOT/usr/doc/cow-3.00pl1/
+rm -rf $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/
+rm -rf $RPM_BUILD_ROOT/usr/doc/cow-3.00pl2/
 rm -rf $RPM_BUILD_ROOT/usr/bin/netrek
-mkdir -p $RPM_BUILD_ROOT/usr/games/cow-3.00pl1
-mkdir -p $RPM_BUILD_ROOT/usr/doc/cow-3.00pl1
+mkdir -p $RPM_BUILD_ROOT/usr/games/cow-3.00pl2
+mkdir -p $RPM_BUILD_ROOT/usr/doc/cow-3.00pl2
 
 %install
 #
 #	Unpack the binary distribution in the Right Places.
 #
-install $RPM_SOURCE_DIR/COW.3.00pl1.ix86_linux \
-	$RPM_BUILD_ROOT/usr/games/cow-3.00pl1/
-cd /usr/games/cow-3.00pl1
+install $RPM_SOURCE_DIR/COW.3.00pl2.ix86_linux \
+	$RPM_BUILD_ROOT/usr/games/cow-3.00pl2/
+cd /usr/games/cow-3.00pl2
 tar xfz $RPM_SOURCE_DIR/pixmaps.tgz
 tar xfz $RPM_SOURCE_DIR/COW-Sound.3.00.tar.gz
-cd /usr/doc/cow-3.00pl1
-tar xfz $RPM_SOURCE_DIR/COW.3.00pl1.doc.tar.gz
+cd /usr/doc/cow-3.00pl2
+tar xfz $RPM_SOURCE_DIR/COW.3.00pl2.doc.tar.gz
 #
 #	Create script for starting client
 #	(which creates a working .xtrekrc file if one is not there)
 #
 cat << EOF > $RPM_BUILD_ROOT/usr/bin/netrek
 #!/bin/sh
-cd /usr/games/cow-3.00pl1
+cd /usr/games/cow-3.00pl2
 if [ ! -f ~/.xtrekrc ]
 then
 	cat << eox > ~/.xtrekrc
 # your .xtrekrc was created by /usr/bin/netrek
-# for further documentation see /usr/doc/cow-3.00pl1/index.html
+# for further documentation see /usr/doc/cow-3.00pl2/index.html
 #
 # enable sound, point to sound files and player program
 sound: on
-sounddir: /usr/games/cow-3.00pl1/sound/sounds
-soundplayer: /usr/games/cow-3.00pl1/sound/bgsndplay
+sounddir: /usr/games/cow-3.00pl2/sound/sounds
+soundplayer: /usr/games/cow-3.00pl2/sound/bgsndplay
 # point to the pixmaps directory
-pixmapDir: /usr/games/cow-3.00pl1/pixmaps
+pixmapDir: /usr/games/cow-3.00pl2/pixmaps
 eox
 fi
-./COW.3.00pl1.ix86_linux -r ~/.xtrekrc -m
+./COW.3.00pl2.ix86_linux -r ~/.xtrekrc -m
 EOF
 #
 #	Fix protections on script.
@@ -87,7 +90,7 @@ chmod +x $RPM_BUILD_ROOT/usr/bin/netrek
 #	Remove the KDE sound player, because it creates a libmediatool
 #	dependency for the package.
 #
-cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/sound
+cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/sound
 rm bgsndplay.linux.kde
 rm bgsndplay
 mv bgsndplay.linux bgsndplay
@@ -96,22 +99,22 @@ mv bgsndplay.linux bgsndplay
 #	(games username is not consistently available across distributions)
 #
 chown -R root:root \
-	$RPM_BUILD_ROOT/usr/games/cow-3.00pl1 \
-	$RPM_BUILD_ROOT/usr/doc/cow-3.00pl1 
+	$RPM_BUILD_ROOT/usr/games/cow-3.00pl2 \
+	$RPM_BUILD_ROOT/usr/doc/cow-3.00pl2 
 #
 #	Decompress the pixmaps that have arrrived in the package as compressed,
 #	so as to lose the warning created by COW on startup.
 #
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/pixmaps/Misc/genocide.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/pixmaps/Misc/greet.xpm.gz
-gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/pixmaps/Misc/hockey.xpm.gz
-rm $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/pixmaps/Misc/ghostbust.xpm.gz
-cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl1/pixmaps/Misc/
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/genocide.xpm.gz
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/greet.xpm.gz
+gunzip -f $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/hockey.xpm.gz
+rm $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/ghostbust.xpm.gz
+cd $RPM_BUILD_ROOT/usr/games/cow-3.00pl2/pixmaps/Misc/
 ln -sf genocide.xpm ghostbust.xpm
 
 %files
-/usr/games/cow-3.00pl1/
-/usr/doc/cow-3.00pl1/
+/usr/games/cow-3.00pl2/
+/usr/doc/cow-3.00pl2/
 /usr/bin/netrek
 
 %clean
