@@ -6,6 +6,9 @@
  * Most of the unneeded stuff in the structures has been thrown away.
  *
  * $Log: struct.h,v $
+ * Revision 1.3  2002/06/21 00:26:03  quozl
+ * fix description of PFOBSERV
+ *
  * Revision 1.2  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -136,7 +139,7 @@ enum dist_type
 #define PFTRACT  	0x400000		 /* tractor beam activated */
 #define PFPRESS  	0x800000		 /* pressor beam activated */
 #define PFDOCKOK	0x1000000		 /* docking permission */
-#define PFOBSERV	0x8000000		 /* docking permission */
+#define PFOBSERV	0x8000000		 /* observer */
 
 #define KQUIT		0x01			 /* Player quit */
 #define KTORP		0x02			 /* killed by torp */
