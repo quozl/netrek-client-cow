@@ -8,6 +8,14 @@
  * Routines to allow connection to the xtrek server.
  *
  * $Log: socket.c,v $
+ * Revision 1.6  2002/06/21 07:42:51  tanner
+ * An attempt to fix the full update bug (where's the bugzilla tracking number!) by
+ * reading 1024 bytes (BUFSIZE) for the socket instead of 768 bytes.
+ *
+ * For more details see this url:
+ *
+ * http://mailman.real-time.com/pipermail/vanilla-list/2002-June/001098.html
+ *
  * Revision 1.5  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.
  * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
@@ -1021,7 +1029,7 @@ doRead(int asock)
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
 
-  count = read(asock, buf, BUFSIZE - /* space for packet frag */ BUFSIZE / 4);
+  count = read(asock, buf, BUFSIZE);
 
 #ifdef NETSTAT
   if (netstat &&
