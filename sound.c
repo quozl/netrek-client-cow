@@ -2,6 +2,9 @@
 /* sound.c - Sound stuff
  *
  * $Log: sound.c,v $
+ * Revision 1.8  2002/06/21 04:47:51  quozl
+ * fix minor typos in comments
+ *
  * Revision 1.7  2002/06/20 04:18:38  tanner
  * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
@@ -249,10 +252,10 @@ extern void Init_Sound(void) {
   printf("Init_Sound\n");
 #endif
 
-  /* if sound_init is on in the .xtrekrc file (set in defauls.c) look for
-   * sounds in .xtrekrc sounddir parmeter. If that fails look for env variabled
-   * called SOUNDDIR, if that fails, the ./sounds directory 
-   */
+  /* if sound_init is on in the .xtrekrc file (set in defaults.c) look
+   * for sounds in .xtrekrc sounddir parameter. If that fails look for
+   * an environment variable called SOUNDDIR, if that fails, the
+   * ./sounds directory */
 
   if (sound_init) {
     if ((sounddir = getdefault("sounddir")) == NULL) {
