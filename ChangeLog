@@ -1,3 +1,13 @@
+Tue Jun 25 10:28:46 2002  James Cameron  <quozl@us.netrek.org>
+
+	* socket.c: remove unused strcpy_return(), and tidy PACKET_LOG
+	code.
+
+	* socket.c (print_packet): add packet logging that logs packets to
+	stderr rather than just count them.  Was very useful in
+	determining cause of update bug.  Not intended for 3.01pl0.
+	From: Carlos Villalpando.
+
 Sat Jun 22 14:30:42 2002  Bob Tanner  <tanner@real-time.com>
 
 	* sound.c: Fixed a small, if sound is off in the .netrekrc, SDL
@@ -89,6 +99,10 @@ Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
 	* config.h.in: add HAVE_SDL
 
 	* spike: See spike/README for details
+
+Thu May 23 13:03:22 2002  James Cameron  <quozl@us.netrek.org>
+
+	* data.h (PL_OFF): add constant for playback disabled.
 
 Tue May  7 09:15:16 2002  James Cameron  <quozl@us.netrek.org>
 
