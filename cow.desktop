@@ -1,7 +1,8 @@
 [Desktop Entry]
-Name=Netrek Client
+Encoding=UTF-8
+Name=Client of Win (COW)
 Comment=COW Netrek Client
 Exec=cow
-Terminal=0
+Terminal=false
 Type=Application
-Icon=cow.png
+Icon=cow
