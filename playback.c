@@ -5,15 +5,8 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
- * Revision 1.9  2002/06/13 03:58:41  tanner
- * The changes for sound are mostly isolated in local.c, just a few other changes
- * in the commit.
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
+ * Revision 1.10  2002/06/13 05:05:06  tanner
+ * Should back out the accidental commits to the head.
  *
  * Revision 1.8  2001/07/24 00:29:13  quozl
  * minor playback fix
@@ -401,12 +394,8 @@ int
     redrawPStats();
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(ENTER_SHIP_WAV);
-#else
   Play_Sound(ENTER_SHIP_SOUND);
   Play_Sound(ENGINE_SOUND);
-#endif
 #endif
 
 #ifdef HOCKEY_LINES

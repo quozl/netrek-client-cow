@@ -7,10 +7,8 @@
  * long as this notice is left here.
  *
  * $Log: audio.c,v $
- * Revision 1.3  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ * Revision 1.4  2002/06/13 05:05:06  tanner
+ * Should back out the accidental commits to the head.
  *
  * Revision 1.2  2000/01/02 11:46:32  siegl
  * Audio fixes

@@ -2,15 +2,8 @@
 /* input.c
  *
  * $Log: input.c,v $
- * Revision 1.8  2002/06/13 03:58:41  tanner
- * The changes for sound are mostly isolated in local.c, just a few other changes
- * in the commit.
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
+ * Revision 1.9  2002/06/13 05:05:06  tanner
+ * Should back out the accidental commits to the head.
  *
  * Revision 1.7  2001/08/21 20:52:15  siegl
  *
@@ -2344,11 +2337,7 @@ Key109(void)
 {
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(MESSAGE_WAV);
-#else
   Play_Sound(MESSAGE_SOUND);
-#endif
 #endif
 
   message_on();
@@ -2396,11 +2385,7 @@ Key113(void)
 {
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(SELF_DESTRUCT_WAV);
-#else
   Play_Sound(SELF_DESTRUCT_SOUND);
-#endif
 #endif
 
   fastQuit = 1;

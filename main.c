@@ -1,10 +1,8 @@
 /* main.c
  *
  * $Log: main.c,v $
- * Revision 1.11  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ * Revision 1.12  2002/06/13 05:05:06  tanner
+ * Should back out the accidental commits to the head.
  *
  * Revision 1.10  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.

@@ -2,31 +2,8 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
- * Revision 1.8  2002/06/13 03:45:19  tanner
- * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Revision 1.7  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ * Revision 1.9  2002/06/13 05:05:06  tanner
+ * Should back out the accidental commits to the head.
  *
  * Revision 1.6  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
@@ -1050,12 +1027,8 @@ int     cowmain(char *server, int port, char *name)
 
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-      Play_Sound(ENTER_SHIP_WAV);
-#else
       Play_Sound(ENTER_SHIP_SOUND);
       Play_Sound(ENGINE_SOUND);
-#endif /* HAVE_SDL */
 #endif
 
 #ifdef HOCKEY_LINES
