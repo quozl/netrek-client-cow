@@ -26,6 +26,9 @@ netrekI:
 netrek.shared: name system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) S=SHARED netrek.shared
 
+profile:
+	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" KEYDEF=$(KEYDEF) netrek
+
 java: netrek.shared
 	cd java; $(MAKE)
 
