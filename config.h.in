@@ -897,7 +897,4 @@ typedef unsigned long int SEMAPHORE;
 #define INC_SYS_FILIO NULLFILE
 #endif
 
-/* Define this if you have SDL libnary intalled */
-#undef HAVE_SDL
-
 #endif  /* __CONFIG_H */

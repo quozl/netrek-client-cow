@@ -100,17 +100,11 @@ X11SRC		= @NOX11@ x11window.c x11sprite.c audio.c
 WIN32OBJ	= @NOWIN32@ gnu_win32.o winsprite.o winsndlib.o
 WIN32SRC	= @NOWIN32@ gnu_win32.c winsprite.c winsndlib.c
 
-SDL_CFLAGS 	= @SDL_CFLAGS@
-SDL_CONFIG 	= @SDL_CONFIG@
-SDL_LIBS 	= @SDL_LIBS@
-SDL_MIXER_LIBS	= @SDL_MIXER_LIBS@
-
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(MPINC) $(INCS)
-CFLAGS = $(OPT) $($S) $(EXTRACFLAGS) $(SDL_CFLAGS) -D$(ARCH) $(RSA_FLAGS) $(INCDIRS)
+CFLAGS = $(OPT) $($S) $(EXTRACFLAGS) -D$(ARCH) $(RSA_FLAGS) $(INCDIRS)
 LFLAGS = $(EXTRALINKFLAGS)
-LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS)
-
+LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) 
 
 netrek: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(RSAOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c randomize
 	$(CC) $(LFLAGS) -o netrek `./randomize $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \

@@ -2,6 +2,10 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
+ * Revision 1.10  2002/06/14 03:13:55  tanner
+ * Fix conflicts during update. This is left over problems from the commit that
+ * should have been on a branch.
+ *
  * Revision 1.9  2002/06/13 05:05:06  tanner
  * Should back out the accidental commits to the head.
  *
@@ -752,10 +756,6 @@ int     cowmain(char *server, int port, char *name)
 
   resetdefaults();
 
-#if defined(HAVE_SDL)
-    Init_Sound();
-#endif
-
   if (censorMessages)
     initCensoring();
 
@@ -876,12 +876,7 @@ int     cowmain(char *server, int port, char *name)
     }
 #endif
 
-  /* Moved SDL sound initialization to right after readdefaults() so
-   * the intro can start playing ASAP 
-   */
-#if defined(SOUND) && !defined(HAVE_SDL)
   Init_Sound();
-#endif
 
   isFirstEntry = 1;				 /* First entry into game */
 
