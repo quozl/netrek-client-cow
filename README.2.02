@@ -1,0 +1,145 @@
+This file contains the most recent changes to the COW client, with example
+.xtrekrc options to deal with them, and the clips from the documentation that
+explain them.  If you're upgrading from an old version of COW, this file should
+make it a painless experience.
+
+*****************************************************************
+1)  Change Log
+*****************************************************************
+
+2.02 pl2 May 31, 1997 - final stable NO pixmap release
+- NO expiry date
+- NO background images, kathy, stars, ...
+- NO colored planets
+- BEEPLITE is off (exept TTS and sound) unless explicitly turned on by server
+ 
+2.02 pl1 Feb. 28, 1997
+- GMP and XPM autoconfig fixes [siegl]
+
+2.02 pl0 Feb. 15, 1997
+- scrolling message windows stolen from BRMH [siegl]
+- colored planets on galactic map [kellen]
+- high color fixes [kellen]
+- phaser stats and fixed PhaserMsg [greynite]
+- replace all exits with clean returns [siegl]
+- netscape plugin version included [siegl]
+- GMP 2.0 support [siegl]
+
+
+*****************************************************************
+2)  Cut and past changes to make COW work like it used to.
+*****************************************************************
+
+2.02 pl2
+
+Borgish features have been completley removed and are not able
+to turn on.
+ 
+2.00 pl0
+
+The showPhaser default has been replaced by PhaserMsg which translates
+in the following way:
+
+Old showPhaser:
+  0 = don't show
+  1 = show on kill window
+  2 = show on phaser window
+  3 = show on total review window only
+
+New PhaserMsg:
+  0 = Don't log phaser hits
+  1 = Log phasers on all window
+  2 = Log phasers on team window
+  3 = Log phasers on indiv window
+  4 = Log phasers on kill window
+  5 = Log phasers on review window
+
+If the phaser window is mapped it is logged there aditionally.
+
+Message windows have now Scrollbars which are on per default.
+You get the the old behaviour by turning it off:
+
+	ScrollBar: off
+
+*****************************************************************
+3)  Cut and past changes to turn on *all* new features.
+*****************************************************************
+
+2.00 pl0
+
+All new .xtrekrc entrys with defaults are:
+
+ #     PhaserMsg: 2
+ #     PhaserStats: off
+
+ #     colorgalactic: off
+ #     ownerhalo: off
+ #     showstars: off
+
+ #     macroKey: X
+
+ #     ScrollBar: on
+ #     ScrollBarWidth: 5
+ #     ScrollSaveLines: 100
+
+ #     message.mapped: 1
+ #     messageHUD: 0
+ #     messageHoldThresh: 0
+
+Just turn them all on to get the new features
+
+****************************************************************
+4) New manual sections
+****************************************************************
+
+Can use color pixmaps instead of bitmaps on galactic.
+resource-- colorgalactic:    off
+ 
+Use starry background on galactic map.
+resource-- showstars:    off
+ 
+Draw a circle in the owning team's color around planets (pixmaps only)
+resource-- ownerhalo:    off
+
+o Phaser hits can now be logged in different places.
+  resource--  PhaserMsg:   2
+
+  0 = Don't log phaser hits
+  1 = Log phasers on all window
+  2 = Log phasers on team window
+  3 = Log phasers on indiv window
+  4 = Log phasers on kill window
+  5 = Log phasers on review window
+
+****************************************************************
+5) Changes details
+****************************************************************
+
+Detailed changes by Michael Kellen:
+
+  + Pitiful but legible greyscale pixmaps.  The greyscale maps should
+    be used automatically on a Greyscale visual.  I have not checked
+    to see if this actually works automagically.  It depends upon the
+    value of W_Visual->class.   [nod to James Soutter for the idea]
+
+  + FEATURE PACKET support for the agri-specific bitmaps.  If the server
+    does not understand feature packets or sets AGRI_PIXMAP to false,
+    the regular planet pixmap is used. [nod to rgn comments]
+
+  + A colored circle can be drawn around the pixmap to indicate the 
+    team which owns the planet.  [nod to someone ... I lost the letter]
+
+  + On/Off controls for all pixmap stuff in both rcfile & options menu
+
+  + Compatible with -n startup option
+
+  + Compatible with private colormap
+
+  + Turns off pixmaps and remembers to keep them off if they cannot be
+    created for some reason  [nod to PictureMeNaked on the crappy Xterm]
+
+  - Artwork still sucks. [raspberry to me]
+
+
+
+

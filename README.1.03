@@ -1,0 +1,223 @@
+This file contains the most recent changes to the COW client, with example
+.xtrekrc options to deal with them, and the clips from the documentation that
+explain them.  If you're upgrading from an old version of COW, this file should
+make it a painless experience.
+
+*****************************************************************
+1)  Change Log
+*****************************************************************
+
+1.03 pl1 
+- map/unmap the motd window button [dearing]
+- RCD docs update [ahabig]
+- FTP server switched from infant2 to bigbang [ahabig]
+- SGI X crash bug fixed [siegl]
+- security enhancements [siegl]
+
+1.03 pl0
+- configurable destination macro keys [siegl]
+- added lots of tricks to XTREKRC.example [siegl]
+- invalid robots race char fix [siegl]
+- upgraded to autoconfig 2 [siegl]
+- add external rint() replacement function [siegl]
+ Fixes by  [Soutter]
+*  Added a playerlist option "sortMyTeamFirst".
+*  Added phaser shrink options "shrinkPhaserOnMiss" and "theirPhaserShrink".
+*  map() now has its own module and is a little faster I think.
+*  local() now has its own module and is a little faster I think.
+*  Bug fixed: Lock symbol sometimes blurs on the galactic.
+*  Bug fixed: Macros of the form "mac.<key>: <defn>" don't work.
+*  Bug fixed: Tractors sometimes drawn out of place if shrinkPhasers used.
+*  Bug fixed: Local map not updated until you first move.
+*  Bug fixed: Playerlist kills not updated when you first enter the game.
+*  Bug fixed: Some buttons in the Short Packet window are not always drawn.
+*  Bug fixed: When two ships overlap, the resulting color is sometimes black.
+*  Bug fixed: Planets on the galactic are sometimes partially erased.
+*  Bug fixed: You can write slightly longer messages than can be sent.
+*  Bug improved: Stationary players can be hidden by planets on the galactic.
+*  Bug fixed: When observing a player, the dashboard does not show
+        torps, kills or max armies as it would in normal mode.
+*  Bug Fixed: Holding down the `n' key for a few seconds will crash the client.
+*  Bug fixed: Obviously dead torps/phasers/plasmas are sometimes drawn.
+*  Bug fixed: The why-dead message is slightly different after window refresh.
+*  Bug Fixed: Failed meta-server reads effect the metaCache file.
+*  Bug Fixed: No positive feedback of selection from the meta-server window.
+
+
+*****************************************************************
+2)  Cut and past changes to make COW work like it used to.
+*****************************************************************
+
+1.03 pl1
+
+The WQ window looks different now and there's no way to get back
+the old one ;)
+
+1.03 pl0
+
+No changes visible exept all the bug fixes :)
+
+*****************************************************************
+3)  Cut and past changes to turn on *all* new features.
+*****************************************************************
+
+1.03 pl1
+
+No new features
+
+1.03 pl0
+
+#
+# Set symbolic names for macro
+# key.[key].[dest]:	[name of key]
+# If the destination isn't specified the key default to team.
+# Set the actual destination by sending a message:
+#	set [name of key] [destination id]
+# to the shell ("!")
+#
+key.C:		captain
+# Set Captian  to target player
+mac.^C.!:	set captain %g
+# Macros to the captain.
+mac.o.C:        Hi Captain let me suggest a base ogg?
+#
+key.B:		base
+# Set Base to target player
+mac.^B.!:       set base %g
+# Macros to the Base
+mac.a.B: 	BASE: Free armies for me?
+#
+key.m.A:        me
+# set the me (m) key to myself
+mac.^m.!:	set me %c
+# some Macro sent to myself
+mac.t.m:        TIME
+
+
+
+theirPhaserShrink: 6
+#
+#  Range: 0-16
+#
+#  How much to shrink everybody else's phasers by.  "phaserShrink"
+#  still effects your own phasers.
+#
+
+
+shrinkPhaserOnMiss: on
+#
+#  If on, a phaser is shrunk even if the phaser does not hit.
+#
+
+
+sortMyTeamFirst: on
+#
+#  This option only applies if "sortPlayers" is on.
+#
+#  With this option, the playerlist is order with your team at the top.
+#  Otherwise, the playerlist has the enemy team(s) first.
+#
+
+
+****************************************************************
+4) New manual sections
+****************************************************************
+
+***************************************************************
+* Symbolic names for macro destinations - Kurt Siegl 27/4/95
+***************************************************************
+
+You always wanted to send a macro directly to the captain, base,
+or the second SC bomber?
+
+Symbolic macro keys will solve your problems. Here how it goes:
+
+In the .xtrekrc file you assign a key to a symbolic name:
+
+	 key.[key].[dest]:	[name of key]
+
+If the destination isn't specified the key defaults to team.
+
+Examples:
+key.C:		captain
+key.B.t:	base
+key.m.A:        me
+
+Then you can use that new key in your macros.
+
+Examples:
+mac.o.C:        Hi Captain let me suggest a base ogg?
+mac.a.B: 	BASE: Free armies for me?
+mac.t.m:        TIME
+
+Finally during runtime you may change the actual destination 
+by sending a message:
+
+	set [name of key] [destination id]
+
+to the shell ("!") tools. Of corse this may be done with macros as well.
+
+Examples:
+mac.^C.!:	set captain %g
+mac.^m.!:	set me %c
+
+You can check the settings on the shell tools window "M".
+
+
+***************************************************************
+Connection Types: UDP and TCP explained
+***************************************************************
+
+UDP provides an unreliable, packet-based protocol for sending data
+across an IP network.  There are a variety of ways that a UDP packet
+can be lost or discarded, including a failure of the underlying
+communication mechanism.  UDP implements a checksum over the data
+portion of the packet.  If the checksum of a received packet is in
+error, the packet will be dropped with no indication given to the
+user.  A queue of received packets is provided for each UDP socket.
+This queue has a limited capacity.  Arriving datagrams which will not
+fit within its high-water capacity are silently discarded.
+
+Guest              Rd     71       27            2% /  13%
+
+The stats above show a typically UDP connection.  It has loss of
+packets but its round-trip times are fairly low.
+
+
+TCP provides a reliable, flow-controlled, in order transfer of data
+across an IP network.  There is nothing fundamentally different about
+the way UDP and TCP packets travel over the wire.  The only real
+difference is that TCP will keep sending the same packet over and over
+again until it gets an acknowledgement back.  As a result, TCP
+connects are typically slower than UDP connections and usually require
+more bandwidth.  TCP is slower because it guarantees that packets will
+arrive in order and so a lost packet can hold up later packets.
+
+Example:
+
+Guest          Ff    405      669            0% /   0%
+                     ^^^      ^^^            ^^^^^^^^^
+
+The above shows possibly the same connection with UDP turned off.
+There is no loss but the round trip times are much higher.
+
+
+NOTES:
+
+*  COW always uses TCP for some things.  For example, the text messages
+   that you can send to other players are implement in TCP to guarentee
+   that they always arrive.  However, if a UDP connection is also
+   available, it is used for the vast majority of communication.
+
+*  COW will fall back to using a TCP only if it fails to open
+   a UDP link.  If you find that you have high lag and no loss, you
+   probably should display the UDP control window (the default key is
+   `+') and turn UDP back on by pressing the top button.
+
+*  You are recommended to use a TCP connection if you are at the same
+   site (within a few milliseconds lag) of the server you are playing on.
+   The main reason for using UDP is to reduce your round trip times.
+
+*  The option "tryUdp" can be used to set a preference for using
+   UDP (tryUdp: on) or TCP only (tryUdp: off).
+

@@ -1,0 +1,942 @@
+Comments, suggestions and bug reports to cow@netrek.org 
+Patches to cow@netrek.org
+
+3.00 pl2
+- New default portSwap for UDP_PORTSWAP feature [siegl]
+- System wide .xtrekrc file set to "/etc/netrekrc" [siegl]
+- Cambot recording replay [koconnor]
+- various Win32 fixes [siegl]
+- V,B core dump with rabit ears fix [siegl]
+- remove DEFINES (BRMH NEW_DASHBOARD_2 RABBIT_EARS) [siegl]
+- MAX_MACRO increased to 255 [siegl]
+- -B options for automatic bug sumition [siegl]
+- new sample netrekrc file [siegl]
+- WindowMaker docking support [siegl]
+- Win32 Sound support [siegl]
+
+3.00 pl1 Mar. 27, 1999
+- Added UDP queries to the metaserver. [cameron, villalpando]
+- Added Multiple metaserver support. [cameron, villalpando]
+- Metaserver KEYGOD alias: clientkeys@clientkeys.netrek.org [villalpando]
+- New xtrekrc variables: metaverbose, metaUDPcache, metaType [cameron,
+                                                             villalpando]
+- modified behavior of metaserver to do multiple metaservers [cameron]
+- changed metaserver menu. Added age of data and refresh button [cameron]
+- new option, -M for TCP metaserver [cameron]
+- changed option -m for UDP metaserver [cameron]
+- Port to Cygnus Win32 [siegl]
+- Autoconfig detects Cygnus Win32 [siegl]
+- Win32 fixes [Gosselin]
+- Fix Pixmap transparancy [siegl]
+- Added hockey rink background XPM on galactic [siegl]
+
+3.00 pl0 Feb. 28, 1998
+- full color client [kellen]
+- metaserver defaults to: metaserver.netrek.org [sven]
+- new cow mailing list alias: cow@netrek.org [sven]
+- 32 views color pixmaps [Shawn]
+- recording feature [koconnor]
+- KDE sound support (.wav files) [siegl]
+- Tab key fixes  [koconnor]
+- OpenVMS fixes [cameron]
+- Auto upgrade via netscape [siegl]
+- whydead message fixes [siegl]
+- GMP 2 key generator fix [siegl]
+
+2.02 pl2 May 31, 1997 - final stable NO pixmap release
+- NO expiry date
+- NO background images, kathy, stars, ...
+- NO colored planets
+- BEEPLITE is off (exept TTS and sound) unless explicitly turned on by server
+
+2.02 pl1 Feb. 28, 1997
+- GMP and XPM autoconfig fixes [siegl]
+
+2.02 pl0 Feb. 15, 1997
+- scrolling message windows stolen from BRMH [siegl]
+- colored planets on galactic map [kellen]
+- high color fixes [kellen]
+- phaser stats and fixed PhaserMsg [greynite]
+- replace all exits with clean returns [siegl]
+- netscape plugin version included [siegl]
+- GMP 2.0 support
+
+2.01
+- version left out due to an Version conflict with WinCOW
+
+2.00 pl0 Aug. 18, 1996
+- LABs newest dashboard [lab]
+- cleanup dashboard .xtrekrc defaults -> newDashboard is int [siegl]
+- COW api - shared libs, java and Netscape plugin support [siegl]
+- support for WIN95 and NT [jshekter,greynite]
+- improved sound system [jshekter,siegl]
+- split up cowmain.c from main.c [siegl]
+- highlight friendly phasers [ellisj]
+- censor (obscenities filter) [ellisj]
+- Wide enemy phaser fix [koconnor]
+- Kathy replaced by stars [Kellen, majority vote]
+- Colormap Option [Kellen]
+- fix array overflow in metaserver Win [siegl]
+ 
+1.03 pl1 Aug. 25, 1995
+- map/unmap the motd window button [dearing]
+- RCD docs update [ahabig]
+- FTP server switched from infant2 to bigbang [ahabig]
+- SGI X crash bug fixed [siegl]
+- security enhancements [siegl]
+
+1.03 pl0 Apr. 27, 1995
+- configurable destination macro keys [siegl]
+- added lots of tricks to XTREKRC.example [siegl]
+- playerlist option "sortMyTeamFirst" [Soutter]
+- phaser shrink options [Soutter]
+- new files for map and local [Soutter]
+- Lot's of Bug fixes [Soutter]
+- invalid robots race char fix [siegl]
+- upgraded to autoconfig 2 [siegl]
+- add external rint() replacement function [siegl]
+
+1.02 pl2 Feb. 20, 1995
+- One year expire time [siegl]
+- put back sortPlayers option for unsorted playerlist [Soutter]
+- send full update request when joining [siegl]
+- Fixed some bugs with galactic map updates [Soutter]
+- Fixed some bugs with color map allocations [siegl]
+- Added sample xtrekrc file to the docs [siegl]
+- audio.c: replaced SIGCLD with SIGCHLD [ahabig]
+- config.h.in: include stdio.h for suns [gosselin]
+
+1.02 pl1 Feb. 9, 1995
+- phaserShrink option to remove  the bottom of your phaser [Soutter]
+- change TTS Y-location [Joseph]
+- Ignore Caps_Lock on key events [sheldon (taken from SWINE)]
+- Race Colors [Kellen]
+- removed message handler for Dashboard [Siegl]
+- fixed multi-line macro bug [Soutter]
+- metserver window rewritten [Soutter,Kellen]
+- playerlist window rewritten [Soutter]
+- The player list is now always sorted and so the "sortPlist"
+    option has been removed [Soutter]
+- The key "/" now changes the playerlist style rather than selecting
+    between sorted and unsorted player lists [Soutter]
+- Reimplemented the option "showPlanetOwner". [Soutter]
+- New layout for the option menus [Soutter].
+- Removed the options "mapmode" and "showShields".  Effectively,
+    these options are now treated as always being true [Soutter]
+- Added range checking on the options "showlocal", "showgalactic", and
+    "showLock" [Soutter]
+- Redraw the galactic map when you change teams [Soutter].
+- All handlers (both for X events and for packets) now return a void
+    rather than an integers.  This fixes some compiler errors [Soutter].
+
+1.02 pl0 Nov. 29, 1994
+- SP-2 New improved Short packages [hw]
+- New 10x faster playerlist [siegl]
+- tab stops and other RCD additions [siegl]
+- RCM (receiver configurable server messages) [siegl]
+- dashboard color fixes [soutter]
+- merged server and client's autoconfig stuff [siegl]
+- boolean defaults comments bug fix [siegl]
+- FreeBSD fixes [ahabig]
+- DEC Alpha defwin fixes [essl]
+- minor RCD fixes [hadley]
+- i386/UnixWare port fixes [bsp]
+
+1.01 pl2 June 22, 1994
+- Changed default RCD save planet [ahabig]
+- Firewall patches [fadden]
+- New Kathy image [ppregler]
+- AIX nint fixes [ahabig]
+- feature packets for non rsa [siegl]
+- warp dead off (needs server side changes for SP) [siegl] 
+- TTS for B&W screens [siegl]
+- ship dependend key & buttonmaps [siegl]
+- forcemono fixes [gosselin]
+- 6 Month expire time [siegl]
+- ship stats packet [ahabig]
+
+1.01 pl1 Apr 25, 1994
+- Added Hadleys TTS to BEEPLITE [siegl]
+- bug fixes for MULTILINE and feature packets [siegl]
+- selective features for BEEPLITE [jrumsey,siegl]
+- Add server features CLOAK_MAXWARP, SELF_8FLAGS, SELF_8FLAGS2 [siegl]
+- included nint() for floats to int casts [siegl]
+- cleanups and random() fixes [flan]
+- features info will go to the toolsw [siegl]
+- WARP_DEAD speed 14 for dead dedection [nbt]
+- VAX VMS port [cameron]
+
+1.01 pl0 Apr 8, 1994
+- SMALL_SCREEN version for 800x600 screens [siegl]
+- various autoconfig changes [siegl]
+- ship dependend .xtrekrc file [siegl]
+- 64bit (DEC alpha) port [essl]
+- protoizing the client for ANSI C [siegl]
+- replace cflags.h with cflags.c [siegl]
+- adding new key generator [sls, nbt]
+- switching from BRMH to BRM3 short package code [siegl]
+- BEEPLITE players and planets highlighting [nelson]
+- Multiline macros [nelson]
+- Request features with new feature package  [hadley,jrumsey]
+- Sound support for BEEPLITE and plasmas [siegl]
+- include VSHIELD_BITMAPS with warning shields [siegl]
+
+1.00 pl2 Feb 14, 1994
+- add status infos in handleSelfShip with SP [hw]
+- SP message bug fixes [jrumsey]
+- refit core dump fix [amb]
+- added gmp as configurable package [flan]
+- Makefile uses SECKEYFILE and KEYFILE [flan]
+- automatically turns RSA off if rsa_clientutil.c is missing [siegl]
+- socket.c, trekhopd fixes [fadden]
+- map message and players window per default [ahabig]
+
+1.00 pl1 Feb 7, 1994
+- add initializations to all defaults [siegl]
+- cleaned up refit code [siegl]
+- short package window fixes [siegl]
+- send short package request only once [siegl]
+- fixed networkstats (lagmeter) [siegl]
+- fixed maxstats in tstatw [siegl]
+
+1.00 pl0 Jan 17, 1994
+- fix NULL servername with -m flag [siegl]
+- add all warnings to the logfile [siegl]
+- always use ANSI C string functions [siegl]
+
+0.50 pl6 Jan 7, 1994
+- add control key support to buttonmap, singleMacro,
+    all macro and RCD definitions. [siegl]
+- RCD keys defaults to control key [siegl]
+- macro window show actual key definition for RCD [siegl]
+- change of .xtrekrc file via macros [siegl]
+- Wlib.h: changed key in event struct to unsigned char [siegl]
+- increased SB stats (needs server support) [ahabig]
+- check defaults after metaserver call [siegl]
+
+0.50 pl5 Dec 22, 1993
+- added Hockey Lines on tactical map [kantner]
+- don't use planets defaults sent by the server [siegl]
+- changed brmbugs to brmbugs@crown.EECS.Berkeley.EDU [siegl]
+
+0.50 pl4 Dec 9, 1993
+- configurable metaserver [siegl]
+- include all window and string defaults in sample .xtrekrc [buchholz]
+- fixed playerlist hoses defaults bug [siegl]
+- autoconfig always uses gmp if it exists [siegl]
+- config.h /dev/null replaced by null file [siegl]
+- sound stuff now portable across most machines [siegl]
+
+0.50 pl3 Nov 18, 1993
+- defwin: fixed name of planet bitmap [siegl]
+- defwin: fixed tryUdp [siegl]
+- fixed run_clock problem [siegl]
+- sun3 patches [gosselin]
+- fixed ghoststart [nelson]
+
+0.50 pl2 Nov 8, 1993
+- fixed det bug [powell]
+- find_font returns NULL on failure [hadley]
+
+0.50 pl1 Nov 4, 1993
+- fixed sound interupt problem [siegl]
+- added ROTATERACE define [siegl]
+- fixed invisible message destination [powell]
+
+0.50 pl0 Nov 3, 1993
+- changed all BRM related names to COW [siegl]
+- move system dependencies to config.h header file [siegl]
+- cleaning up system dependend includes [siegl]
+- new automatic installation procedure with GNU autoconfig [siegl]
+- replace geometry parser with X built in for negative coordinates [hadley]
+- replace strdup by builtin C function [siegl]
+- various RCD fixes [nelson]
+- added %k (number of kills) to distress calls [nelson]
+- added missing distress ctrl keys [nelson]
+- trekhopd support in reserved.c [fadden]
+- fixed problem with high wtmp [jmn]
+- added shell escape tool feature [siegl]
+- minor run_clock and SABER fixes [hadley]
+- removed double check of defaults [siegl]
+- code is formated with gnu indent [siegl]
+- show RCDS in macrowin [trown]
+- replace strncpy with STRNCPY (memcpy) for better efficiency [siegl]
+- generate sample .xtrekrc [buchholz]
+- removed implizit dependencies of -DRSA [siegl]
+- new improved distress.c [hoswell]
+- initial sound support [siegl]
+- increased x11window.c HASHSIZE to 101 [siegl]
+- changed input.c to do some direct io on the x socket [powell]
+- used Hadley's optimized socket.c [powell]
+- hacked short.c to work with Hadley's optimized socket.c [powell]
+- added documentation window and xtrekrc file window [powell]
+- changed default window creation for xtrekrc, documentation window [powell]
+  and xtrekrc file window [powell]
+- hopefuly finally fixed personalized cursors [powell]
+- got rid of slew of sprintf's [powell]
+- added custom string routines for field construction [powell]
+- applied the above to dashboard.c and playerlist.c [powell]
+- changed the clock redraw so it only redraws every second [powell]
+- added rabbit ear bitmaps to client [powell]
+- changed calls of readFromServer () to new Hadley form [powell]
+- modified W_ResizeWindow routine to work properly [powell]
+- added class spezification to mkkey [siegl]
+
+------------------------ old BRM changes ---------------------------------
+
+3.00 pl2 Oct 13, 1993
+- minor RCD cleanup[nelson]
+- added ^ l ^ m ^ p RCD[nelson]
+- "ogging" RCD fix[choker, nelson]
+- "carrying" % y->y[nelson]
+
+3.00 pl1 Oct 13, 1993
+- strncmpi fix[choker, nelson]
+- reserved.c gateway[fadden]
+- MCOPY reserved.c[nelson]
+
+3.00 Oct 8, 1993
+- galaxy rotate/ short packet fixes [gosselin]
+- stats to end of motd [rick]
+- forcemono ignore [rick]
+- send RCD within macro mode reinstalled, ignores keymap [nelson]
+- double header removed [jmn, nelson]
+- control-t same as control-T [nelson]
+- doc additions [nick trown, hoswell, nelson]
+
+3.00bp2 Oct 6, 1993
+- added further RCD DOCs [nelson]
+- control-U full message erase fix [powell]
+- doc additions [jmn]
+- further control key mods [powell]
+
+3.00bp1 Oct 5, 1993
+- fixed "I'm at calvin.  the cursor is invisible." [powell]
+- doc additions [nelson]
+
+3.00bp0 Oct 5, 1993
+- fixed ^d problem [powell]
+- fixed warp 10 problem [powell]
+- added missing features into the xtrekrc window [powell]
+- control keymap "ckeymap" w/ docs [powell]
+- socket.c keymap safety net [nelson]
+- new RCD defaults for whining twinks who didn't send give
+	us input before (ability to configure prefix maintained!) [jmn]
+- old RCD code removed, MUST use control keymap [nelson]
+- added %o and %O macro arguments [nelson]
+- galaxy rotation fixed [gosselin]
+
+
+2.99pl3 Sep 24, 1993
+- changed whole MDISTR send format [jmn]
+  note that .features better be set to pl3 and not lower as lower ones
+  will/may crash the server
+- cleaned up default RCD formats (based on sent-in suggestions) [jmn]
+- cleaned up Makefile defines. system specific in .mk file [jmn]
+- updated BRM.DOC for new dist labels [jmn]
+- distress.c now has a #define SERVER to make it easier to patch [jmn]
+- send macro to cloaker [hadley]
+- more sgi fixes [siegl]
+- enhanced mouse polishing, default off [powell]
+- enhanced mouse configurability [powell, nelson]
+- MACRO based on distress.c now [nelson]
+- MACRO/distress fixes [nelson]
+- ghost start, recovery after client dies [nelson]
+- planetary distresses not on team window [jmn,nelson]
+- major code cleanups [gold]
+- BRM.DOC rewrites [gold]
+- VARY_HULL [powell]
+- Hadley's xtrekrc window!! [stolden by powell]
+- TNG bitmaps [powell]
+- continous mouse thresholds [powell]
+- configurable playerlist [gosselin]
+- CONTROL KEYS!  [powell, nelson]
+
+
+2.99pl2 Sep 17, 1993
+- MAJOR receiver configurable distress fixes and enhancements [jmn, jn]
+- sgi fixes [siegl]
+- reserved.c MCOPY [Thaler, jn]
+- enhanced mouse [powell]
+- seg fault and bus recovery [powell]
+- new new dashboard [powell]
+
+
+2.99pl1 mainly jeff nelson and jmn
+- big hacks to support receiver configurable macro type distresses [jn,jmn]
+- removed show tractor code for observers [jmn]
+- playerlist.c, kills moved before logins, 0 showed as 0.  [lab]
+- short.c, short packet fixes  [hw]
+
+
+2.99pl0 - Aug 93, A little closer to a "stable" version.  [lab]
+
+-playerlist.c, .xtrekrc newPlist: on/off, new format for list  [lab]
+-newwin.c, credits moved to BRM.DOC.  [lab]
+-inform.c, 'i' shows login and adress too.  [lab]
+-redraw.c, .xtrekrc showIND: on/off, mark indep planets extra  [lab]
+-playerlist.c, Show total ratings instead of offense  [lab]
+-input.c, Removed obsolete macros, slurping etc. Use smartmacros  [lab]
+-redraw.c, .xtrekrc varyShields: on/off  Shield status color/bitmap  [lab]
+-redraw.c, .xtrekrc cloakChars: xy  Use 'xy' instead of '??'  [lab]
+-dmessage.c, New features handling  [lab]
+             Current features: WHY_DEAD, shows death reason.
+			       NO_NEWMACRO, disables Jeffs macro system.
+			       NO_SMARTMACRO, disables the SMARTer macros.
+			       NO_SMARTDISTRESS, no customized distresses.
+             With this the server god must actually do something to prevent
+	     the use of nifty things.
+-redraw.c, .xtrekrc enemyPhasers: width  Set enemy phaser width   [lab]
+-data.c, UseNewDistress by default off (poll showed this :)  [lab]
+-Makefile, new dir config  [trown]
+-small macro ext (%b, %B), no time limit on macros  [nelson]
+
+
+pl19
+-New option in menu and .xtrekrc, newDistress: on/off  [lab]
+-Ifdefs for ptx added  [siegl]
+-NEWMACRO extension, uses mouse position etc.  [nelson]
+-main.c, logfile fopen mode  [nelson]
+-socket.c, more whydead msgs  [trown]
+-socket.c, add_whydead  [trown/lab]
+-socket.c, NEWMACRO+SMARTMACRO turned on when using old reserved.c  [lab]
+-socket.c, new file short.c, S_P code in own file!  [hw]
+
+
+pl18
+-Compiling, new file describing how  [nelson]
+-Makefile, added distbin  [nelson]
+-getname.c, removed check for autolog==-1  [rmk]
+-defaults.c, cleaned up a few booleanDefaults  [nelson]
+-helpwin.c, added &, moved everything up one line  [lab]
+-x11window.c, changed default bigfont  [lab]
+-findslot.c, default is now to show motd while on queue,
+             in .xtrekrc add showMotd: off if you don't like it  [lab]
+-smessage.c, macro fix  [hoswell/nelson]
+
+
+pl17
+-newwin.c - fix quittime re-read within loop - nelson
+-more X11 patches- jeffw - PPosition and whatnot.
+-getname.c - nelson- fix CPU hogging 
+-dashboard.c - fix kills now being shown - nelson
+-fix duplicate Conquer file if message logging on
+-add .xtrekrc option: reportKills: on/off (do you want kills in review window?)
+-quick quit from jeff nelson - don't need to hit 'Q' twice - use 'q' instead
+-heiko - final final final final torp detting fix?
+-minor bug fix for kill tracking reports with S_P - jmn
+
+
+pl16
+- x11window.c - sam shen- fixes paste buffer
+- nick trown - big diff add WHYDEAD to features and improve client ID
+- warning.c - Jeff Nelson- time append fix of strcat with S_P
+- heiko- torp det bug fix, and some reportKills bug fix - HW
+  I'd be lying if I said I ever saw the reportKills problem - jmn :-)
+- sample .feature file BerkRick Moo entries:
+BerkRick Moo: NEWMACRO SMARTMACRO
+BerkRick Moo*confirm:2.00.16: WHY_DEAD
+                     version.pl
+
+
+pl15
+- playerlist displays dead players - nelson (playerlist.c)
+- removed old unused makefiles from manifest
+- jeffw patches to make it more x11 friendly
+- and makefile cleanup (again- sigh)
+- sls@aero.org:
+1. Add W_{Get,Set}Window{Button,KeyDown,KeyUp,Expose}Handler functions
+to Wlib.h
+
+2. Implement those functions in x11window.c
+
+3. Modify input.c (and some others) to use those functions.  This avoids
+a lot of ugly code in input() (it's possibly it's faster as well, dunno.)
+
+4. Get rid of the polling stuff in getname
+
+5. Eliminate an unneccessary call to time() in run_clock.
+
+- SMARTMACRO %% fix - nelson@soliton.physics.arizona.edu
+- galactic updates when you're on re-entry screen - jmn
+- hello screen tries to credit all big contributors (I bet I missed some) - jmn
+- warning.c: nelson@soliton.physics.arizona.edu
+    Here is a quick warning.c patch which does two things,
+1)  fixes a bug in the size of the phaser message (+10 -> +9)
+2)  if logmessages is active, dumps phaser warnings
+- x11window.c: jeffw@cs.tamu.edu
+This will cause the window manager to place any top level
+window anywhere it wants, but is overridden if the
+geometry is specified in the defaults file.
+- x11window.c: Kurt.Siegl@risc.uni-linz.ac.at
+I had some time to fix the 4 plane bug again. But there are still
+plenty of other bugs which I didn't correct yet.
+
+
+pl14
+- updated to june 12 mkkey.c
+- improved searching for .trekgwrc - fadden
+- NEWMACRO stuff fix from nelson
+- removed berk.main.c
+- due to extreme whining added in random() function (same one as in INL) - jmn
+- udp default on, showPlanetOwner default off, showlocal default 1
+
+pl13
+- removed back door login stuff
+- shields in new dashboard now are consistent with damage (ie big is bad)
+- jeff (Miles Teg) fixed minor shield goto problem 
+- jeff NEWMACRO stuff
+- lab .features file configuration type patches, touched up - jmn
+- jeff (galactus) fixes window resize problem in x11window.c
+
+
+pl12
+- heiko/hadley short packets torp fix
+- makefile major cleanup - jeffw - maybe now we can have only one makefile
+  for all architectures?
+- distress calls right justified (and properly truncated to avoid errors)- jmn
+- display shields when cloaked - lehors
+- solaris patches - jeffw
+- autologin added - Robert Kenney
+        0)  Autologin is only enabled if a default password is given, either
+            on the command line via '-A', or with a "password:" in the .rc.
+
+        1)  If the playername has never been used, the autologin procedure
+            will create it with the given password.
+
+        2)  If the password fails for the given player name, then an
+            error message is displayed, and the user is dropped back into
+            the manual login mode, and prompted for a correct playername/
+            password.
+
+        3)  If everything matches, the first thing you should see is the
+            team selection phase.
+
+- minor hp bug fixed - trown
+- dashboard now does colour - nick
+
+
+pl11
+- dashboard.c - added display of tmpmax in newdb - lab
+- changed over to sam shen's new mkkey.c for key management
+  to compile this baby you will now need rsa_clientutil.c ... at this 
+  point how to get that file is uncertain ( I suppose you could ask 
+  sls@aero.org for it but I'm not if he wants that or not )
+
+
+pl10
+- trown patches for hp 
+- added 'request medium update' (short_packets related) key 
+- adds clock and display of tmpmax in newdb - lab
+- valstr[20] in dashboard.c
+- heiko fixes packet logging
+- fadden trekhopd fix
+- message logging missing \n fix
+- pigcall moved to own routine 
+- finally fixed .xtrekrc overriding command line -R or -o
+- unnecessary metaserver call fixed
+
+
+pl9
+- intrupt double playerlist call removed - eric mehlhaff
+- patch to log_packets - hw
+- sheesh ... somewhere main.c lost resetdefaults call...
+- option showPlanetOwner: on/off to display planet ownership
+
+
+pl8
+- slurp fixed - lab
+- input.c remove borg code (don't panic... it wasn't used anywhere) - lab
+- keepInfo changed to number of updates instead of seconds - lab
+- ; now locks onto planets or base (not players) - lab
+- defaults were being read all over the place... attempted to put them 
+  into some kind of order (all in resetdefaults in defaults.c) - jmn
+- macrowin didn't list last macro 
+- added trekhopd patches - gosselin@ll.mit.edu and fadden 
+- added mondo new dashboard design (newDashboard: on/off) - lab
+
+
+pl7
+- keepInfo now uses >= time so you can do 1 sec duration
+- nick trown minor parsemeta patches
+
+
+pl6
+- added metaserver support - nick trown
+- added separate lock on planet key - lab
+- added variable time info windows stay displayed (keepInfo in .xtrekrc)- lab
+
+
+pl5- 
+- added t/p NBR keys - john irwin
+- added check for legitimate fonts - john irwin
+- fixed 24 bit display thingie - steve sheldon
+
+
+pl4 - heiko
+- fixed incorrect doosh count reporting 
+
+
+pl3 - nick trown
+- make patches is more robust now (doesn't assume ../$(PATCHDIR)
+- added show defined macro option 'X?'
+
+
+2.00pl2
+- added automatic generation of properly named patch files, dist targets
+  now to make diff files just do 'make PATCHDIR=client.old patches'
+- fixed pigcall to make it all on one line
+- added EXPIRE define
+- added manifest file 
+- nick attempts to fix FPE error again
+- tryShort in prev versions would make client try every time you died 
+
+
+2.00pl1
+- FPE error fix attempt to redraw.c - nick trown
+
+
+BRM version 2 - jmn
+- added SHORT_PACKETS (thanks to Heiko)!!!!!!!!!!!!!!!!!
+- fixed up size of outmessage (hack) so it didn't make suns puke-
+  why decstations were tolerant of this is beyond me
+- added .xtrekrc options: tryShort: on/off
+- 			useRSA: on/off 		(didn't work earlier)
+- RSA and short packets on by default.
+- hadley patch to netstat to fix floating point exception error
+
+
+pl8-
+- added packet logging stuff back in (Eric used to have this in client)
+- cleaned up Usage summary
+- nick trown patches to bplanets
+- getcourse fix applied to round off properly - pl1 was wrong and went away 
+  somewhere as well
+
+
+pl6-
+- applied fix to macro re-read inspired by Tim Nali
+- det requests get sent out at most once per 100msec (only applies to det
+  requests) - anybody know what happened to AUTOKEY code? it seemed
+  to be trying to do the same sort of thing...
+
+
+pl5- see README.CMU for more
+- patched to support observers
+- MDISTR flagging confuses servers.. (messages to TEAM with MDISTR don't 
+  get transmitted).. I'll wait till heiko finishes his SHORT message protocol
+  for this
+- messages marked with MCONQ get put on stdout in addition to message window
+
+
+pl3- hadley,John Sin, jmn
+- added defines _IBMR2  for IBM RS6000 AIX3.2 support
+- fixed ping calculations overflow problem
+- boolean was a dumb variable name- changed wherever dec cc used to barf on it
+- handlePlasmaxxx CORRUPTED_PACKETS ntohs problem fixed 
+
+
+pl2 April 23 93 - rick, sam , jmn
+- added ck_players code to client - rick
+- added mega paranoid rsa-client.c generator thanks to sam shen 
+  this means berk+ricksmoo is most secure client out there right now 
+- moved xtrePort related code in main.c to top of main.c 
+  this fixes ck_players code if you give no port
+- ROMVLUS (gross- jmn) CA bitmap apparantly added (default is OFF)- rick
+  either use options or use .xtrekrc line: ROMVLVS: on/off
+- the ROMVLVS bitmaps are buggy right now (when going up they don't draw 
+  at all- jmn)- was an optimizer bug of mine
+
+
+pl1 April 20 93 - jmn
+- compiled with new berk+ricksmoo dec key (nick - our key god has this one)
+- added Key_Version to version.h
+- fixed makefile library ordering for RSA - didn't work previously
+- leonard's fix to getcourse in input.c applied
+- cleaned up RSA related dependencies in makefile
+
+
+1.00pl0 Apr 19 93 - jmn
+- added observer support (your ship isn't displayed if you are on another one)
+- merged nick trown's variable distress call code (-DNBTDIST, -DNBTDISTVAR) 
+  and macro code (-DNBT) 
+- pigcall changed to something appropriate
+- added -v flag to get version info
+- cleaned up makefile
+- added version, patchlevel and cflags files
+
+
+macros:
+macro.x.X:      <text here>
+#x is any ascii character; it is the "name" of the macro (the key you press
+#in macro mode to send the associated macro)
+#X can be A,T,F,R,K,O where A=all, T=team, F=fed, R=rom, K=kli, O=ori
+#(determines the message board to which the text body of the macro is sent)
+Example: 
+macro.b.T:              BOMB!!!!
+
+#Variable distresses (only available if -DNBTDISTVAR)
+#I'm not sure letting people play with these is a good idea....
+#variable distress calls- ala nick trown
+# custom distress calls. d. is for ships. d.sb. is for SBs.
+# the different levels for changes in the distress calls.
+# first number is low value. Second is high value. In between is mid.
+# set up strings for each part of the distress call.
+# a '_' is a "no show"
+
+d.shld.lvl:             10 90
+d.shld.low:             SHLDS OUT!
+d.shld.high:            _
+d.shld.mid:             %d%% shlds
+
+d.dam.lvl:              10 90
+d.dam.low:              _
+d.dam.high:             %d%% DAM!
+d.dam.mid:              %d%% dam
+
+d.arms.lvl:             0 50
+d.arms.low:             _
+d.arms.high:            _
+d.arms.mid:             %d Armies
+
+d.fuel.lvl:             10 90
+d.fuel.low:             FUEL OUT!
+d.fuel.high:            _
+d.fuel.mid:             %d%%fuel
+
+# starbase stuff.... Much more interesting than ship distress I reckon
+d.sb.dam.lvl:           10 66
+d.sb.dam.low:           _
+d.sb.dam.mid:           %d%% dam
+d.sb.dam.high:          WRP1 %d%%dam
+
+etc.
+
+--------------------
+Recent updates to the "moo" client. 
+(sort of a tribute to harvard Admiral Moooooooo!) (aka ryche)
+
+future changes i'm working on:
+    having the outgoing message you are composing to redraw.
+    Configurable bitmaps for your cursors and your women,
+    if you happen to be sick enough not to like Kathy and Steph.
+--> RSA soon to be added by bronco gods.
+
+i'm open to suggestions...
+
+Changes to 'original' Mehlhaff client as of Apr 17, 1993:
+
+BRAND NEW FEATURES!!--
+
+o enemy phasers are now dotted lines so people on color
+  machines have less advantage over us b&w users.
+o you can turn the babes off if you want. .netrekrc resource:
+  babes: on/off
+o In color, you can have your shield be color of your warning
+  status, like your slot number.  resource:  
+  warnshields:  on/off
+o lagmeter now working.  \ to see the window and . to see the
+  netstat window  resources:
+  netstats:  on    netstatfreq:  5      (how many updates to
+  the lagmeter per second)
+o silly info-borg planet bitmaps are now optional.
+  resource:   newPlanetBitmaps:  on/off 
+o client now responds to pigcall with "ricksmoo ver. 1.08"
+  will only respond to individual messages. not 5 spaces to ALL.
+o added hadley's ping stuff. the "," key brings the window up.
+o Windows can now be resized!!
+o zorg type XSendEvents will not be accepted by moo.
+o moo has no default server compiled in. you must use -h
+  or the .netrekrc resource
+o New Sexist Features:  Stephanie Seymour now welcomes you to MOO
+  when you enter your name. Kathy Ireland informs you if you get
+  ghostbusted.
+o the 'you were killed by' messages now redraw.
+  sometimes they change the names when they do... not sure why.
+o Phaser hits can now be logged in different places.
+  resource--  showPhaser:   2
+  0 = don't show
+  1 = show on kill window
+  2 = show on phaser window
+  3 = show on total review window only
+
+  the phaser window is controlled just like the other
+  review windows.  e.g.:
+     review_phaser.mapped:   on
+     review_phaser.parent:   netrek
+     review_phaser.geometry: 81x2+0+555
+o Changed the 'you were killed by' messages to be more 
+  degrading. (You were SMACKed by a plasma from R3)
+o client now tells you what server you have connected 
+  to in the name entry screen, also in the wait queue
+o added kill messages to the message logging feature.
+o you can change the defaults file you want to read in
+  by sending the name of the file to 'M' (you->MOO)
+  currently, you have to put the full path to the file in
+  but I'll see about ~ completion...
+      example:  F0->MOO  /afs/andrew.cmu.edu/cm5m/.netrekrc
+                then hit & to re read the defaults.
+o defaults file can now be re-read in. using the & key.
+  this way you can change defaults without quitting out.
+   Currently the only changes that will take effect are
+   the message macros and the keymap.
+o Configurable message macros to the all board. control-jkliop
+  send to ALL board messages from your .xtrekrc
+  resource--   message1: your control-j message
+               message2: your control-k message
+               message3: your control-l message
+               message4: your control-i message
+               message5: your control-o message
+               message6: your control-p message
+o Made the regular info window smaller. the shift-i info window
+  is bigger. It contains the deleted info from the regular one.
+o Made the time-out for entering your name 199 seconds.
+  Used to be 99.
+o Client now calls you by your real rank, not just "Captain!"
+o added message logging on/off by default file.
+  resource--   logging: on
+o Added time stamping to logged messages.
+o Added message logging. Will log TEAM and ALL board messages,
+  either to standard out (your xterm, whatever) or, to a file.
+  usage:  moo -l /path/to/messagelog OR in .xtrekrc- logfile: file
+  the message logging is toggled with the ':' key.
+o Player list sorting is now toggleable with the '/' key, which
+  you can remap like any normal key.
+o show shields/don't show shields removed from shift-O window.
+  if this bothers you, see a pshychiatrist
+o show stats/don't show stats removed from shift-O window.
+  if this bothers you, use shift-S. that's what it's for.
+o Removed 'M' key. If this bothers you, see a doctor.
+  ('M' key used to turn off the galactic map)
+o Show resources on galactic map by default.
+o Update galactic map frequently by default.
+o Visible tractor/pressors turn off when tractee cloaks.
+o Show My Speed is no longer an option.
+o bug in x11window.c fixed.
+o beeps twice when you make the queue.
+o Small clock is displayed on the far right of tstat window.
+o Distress calls show armies carried as last field. (easier to read)
+o SB distress call says "HELP!!" (to attract more attention)
+o New (better?) cursor for tactical & galactic.
+o Option to not continue the visible tractors. (a la Bert's client)
+
+Can write TEAM and ALL messages to a file when you hit ':'
+resource--  logfile:	/tmp/messagelog
+the logfile can also be given on the command line.
+
+Can show nothing, resources, or owner on galactic by default.
+resource--  showgalactic:    1
+2 = nothing
+1 = resources
+0 = ownership
+
+Can show nothing, resources, or owner on local map by default.
+resource--  showlocal:    2
+2 = nothing
+1 = resources
+0 = ownership
+
+Can turn off planet names by default.
+resource-- showplanetnames:   off
+
+Can sort player list by team. code fixed by Greg. (gc2n@andrew.cmu.edu)
+resource-- sortPlayerlist:   on
+
+Can show lock on galactic, local, galactic & local, or none.
+resource-- showLock:  3
+0 = none
+1 = galactic
+2 = local
+3 = both
+
+Can be set to not continue the visible tractors.
+resource-- continuetractor:	on
+on = continue
+off = turns off after 2 updates.
+
+---- OLD README, from Mehlhaff client ---
+New key commands:
+    >  increase speed by 1
+    <  decrease speed by 1
+    }  turn on cloaking device.
+    {  turn off cloaking device.
+
+    F  send a report of armies carried. This sends a message to your team
+       saying how many armies you are carrying.  Many players used to use
+       distress signals to quickly convey the same information, lessening
+       the impact of the distress signal.  Distress signals should be for
+       emergencies, not just common usage.
+
+Changed distress signals:
+	The distress signal of ships tells your team if you are low on fuel.
+    Many ships are just as doomed when out of fuel as they are when they are 
+    damaged.  
+	Alternately, if you are flying a starbase, the distress signal 
+    tells instead how your weapon temperature is doing, because starbases
+    overheat far more often than they run out of fuel.
+    Also, after the percentage weapon temperature, it will put a 'W' if 
+    your weapons are currently overheated.
+
+
+Help Window:  
+	Basically, this was done to show what keys were
+    actually mapped to what functions.  Every key function has a line in 
+    the help window. Her'es a sample line:
+
+    s gb  Toggle shields
+    ||\\_ The 'b' key has been mapped to toggle shields
+    || \_ The 'g' key has also been mapped toggle to  the shields
+    |\____This space is always there, as a separator.
+    \_____This is the default key for this function, and the hook that you
+	  use when defining things to this function. I.e. to set the 'g' 
+	  and 'b' mappings mentioned here, you'd have to put 'gsbs' in 
+	  your .xtrekrc or your keymap options.
+	  NOTE:  This character will appear here, even if it is mapped
+		to something else.
+
+Featues from the Calvin_bwo client, by Tedd Hadley:
+    These features had been available in the hadley client for quite some
+    time.  If they bother you, you should bother him.
+
+Lock-on Icon:
+	A little triangle is put above the icon of planet that you are 
+    locked onto.  If you are locked onto a ship, this icon goes on the
+    bottom.
+
+Message-Warp:  The non-warp version.
+   	Hit the 'm' key and start typing. Your cursor changes to the
+    'text' cursor, and all keystrokes go to the message window.  Sending
+    the mesage or the ESC key ends this.  Note, the mouse pointer is not moved, 
+    and in fact, you could even still shoot and/or steer with mouse
+    events while in 'message' state.
+
+Changed cursors:
+	The cursor changes in different windows. Of specific importance
+    is the tactical cursor and how it changes when non-warp message-warp.
+    Is activated.
+   
+New xtrekrc features:
+	A sample xtrekrc should come with the client, but here are some of the
+    new xtrekrc options:
+
+    buttonmap:  map the mouse buttons to something else.
+	i.e. the default mapping is:
+	  1t2p3k
+
+    server: default server that is called when no -h argument is
+	specified.  The compiled in default server is bronco.ece.cmu.edu
+    port:   default port that gets called. The compiled default is 2592
+
+    showtractorpressor:  toggle showing tractor/pressor  beams
+
+       UDp control
+    tryUdp:	(on/off) Automaticaly use UDP if on
+    udpDebug:
+    udpClientSend:
+    udpClientRecv:
+    udpSequenceChk:
+
+    extraAlertBorder:  Draws border in internal netrek windows, as well
+	as external ones (which get ignored in X11 with window-managers )
+
+    forcemono:	   if on, the client windows are set to be monochrome

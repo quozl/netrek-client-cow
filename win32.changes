@@ -1,0 +1,82 @@
+3. May 98: 007@netrek.org
+ COW 3.0 Port to GNU Win32 http://www.cygnus.com/misc/gnu-win32/
+
+All additionally required libs and header files are included in the  win32 dir.
+ Autoconfig will properly detect it.
+
+ For compiling simply type make and wait until it's configured.
+ If you get an makedepend error ignore it and restart make.
+
+Known problems:
+
+GNU-win32 problems: 
+  Make sure you installed the beta 19.1 update, because the readme says:
+
+  If the installation was successful, you should be able to run "uname -a"
+  and see "19.1" in the output.
+
+  This update fixes a number of serious problems in the beta 19 release.
+  Windows 95 stability is much improved (I am able to completely rebuild
+  the compiler tools now).  Some problems with the network calls are also
+  fixed by this release.
+
+Sound not yet tested:
+  GNU-win32 per default doesn't include the required header files, 
+  but the original files from the API are supposed to work.
+
+  #undef the SOUND define in config.h.in before you start to get rid of
+  eventual problems with sound.
+  
+Unimplemented features:
+In the winsprite.c and gnu_win32.c file there are a few lines marked with
+#ifdef LATER
+which are X calles I didn't know yet how to translate to MS-Windows call.
+
+Due to this problem colored weapons and cloaking won't work proper.
+
+Also no background images are possible.
+If anyone knows how to implement them, please do so.
+
+Kurt <007@netrek.org>
+
+--------------------
+
+Old changes with WIN32 defines are obsolete and unsupported now:
+
+mkcflags.c: changed time handling due to lack of gettimeofday fn
+smessage.c: changed smessage function to void return type and (172) made return statements
+consistent to fix compile errors
+socket.c: (34) added #defines for non-NT socket calls and (917) changed error code name
+          for winsock compilation.
+short.c: (209) added prototype for new_flags to fix compile errors
+string_util.h/c: changed itoa() fn to itoapad() so it wouldn't conflict with stdlib defn
+distress.c: changed testmacro to void return type and made return statements 
+            consistent to fix compiler errors; changed solvetest and condmacro 
+            to int return and made return statements consistent. (412) Changed
+            itoa call to itoapad call.
+playerlist.c: changed itoa calls to itoapad calls
+audio.h: put config info inside #ifdef win32 as it's not needed and causes a compile error
+main.c:  changed main() to main2() so windows init can be done in winmain.c. Added SRANDOM call
+         Also added "if (!passive)" so that the -s option again works correctly. Hey, I use it!
+input.c: changed detallow code to call mstime rather than set a timer.
+         This should also make it work on VMS. Also ifdef'd use of WSock()
+         as ther is no equivalent on Win32 (use W_EventsPending instead)
+newwin.c: added ifdef around pastebuffer() as it's not on Win32
+interface.c: added an ifdef'd version of mstime and msetime fns for Win32 due to lack of gettimeofday
+             added return types for same (ulong)
+redraw.c: changed gettimeofday calls to msetime calls 
+defaults.c: Made #defines to remove "." from filenames when checking for default files.
+            Added uniform file-finding function findfile()
+getname.c: don't use W_Socket. Only store kathy bitmap once (made it static).  Don't re-get 
+           login name w/ getpwuid, duplicating all the work in main.c Use the global var
+           instead.
+option.c: Had to refix menu change bug as described previously.
+          This bug has been around since BRM. Fortunately, it only required an
+         'else' to fix.
+sound.c: Implemented prioritized sound playing system
+socket.c: (1671) Added ifdef so planet areas are cleared when redrawn; It seems the windows
+          graphics lib works a little differently than the x graphics lib. 
+docwin.c: use findfile() when loading xtrekrc
+map.c:   planets are always cleared when redrawn
+getship.c: galaxy class ships are 20 pixels wide, not 28
+

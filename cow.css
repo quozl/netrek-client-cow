@@ -1,0 +1,15 @@
+
+BODY { background: url(stars.gif) black; color: #C4DDF }
+A:link { color: #00CC00 }          /* unvisited link */
+A:visited { color: #9B2FFF }       /* visited links */
+A:active { color: #FF0000 }        /* active links */
+
+H1 { align: center; color: #00CC00 }
+H2, H3, H4 { color: #00CC00 }
+
+OL { list-style: decimal inside}
+OL OL { list-style: lower-roman outside }
+DT { color: #FF0000 } 
+
+PRE { color: #FFFFFF }
+.title { color: #00CC00 }

@@ -1,0 +1,378 @@
+This file contains the most recent changes to the COW client, with example
+.xtrkrc options to deal with them, and the clips from the documentation that
+explain them.  If you're upgrading from an old version of COW, this file should
+make it a painless experience.
+
+*****************************************************************
+1)  Change Log
+*****************************************************************
+1.02 pl2 Feb. 20, 1995
+- One year expire time [siegl]
+- put back sortPlayers option for unsorted playerlist [Soutter]
+- send full update request when joining [siegl]
+- Fixed some bugs with galactic map updates [Soutter]
+- Fixed some bugs with color map allocations [siegl]
+- Added sample xtrekrc file to the docs [siegl]
+- audio.c: replaced SIGCLD with SIGCHLD [ahabig]
+- config.h.in: include stdio.h for suns [gosselin]
+
+1.02 pl1 Feb. 9, 1995
+- phaserShrink option to remove  the bottom of your phaser [Soutter]
+- change TTS Y-location [Joseph]
+- Ignore Caps_Lock on key events [sheldon (taken from SWINE)]
+- Race Colors [Kellen]
+- removed message handler for Dashboard [Siegl]
+- fixed multi-line macro bug [Soutter]
+- metserver window rewritten [Soutter,Kellen]
+- playerlist window rewritten [Soutter]
+- The player list is now always sorted and so the "sortPlist"
+    option has been removed [Soutter]
+- The key "/" now changes the playerlist style rather than selecting
+    between sorted and unsorted player lists [Soutter]
+- Reimplemented the option "showPlanetOwner". [Soutter]
+- New layout for the option menus [Soutter].
+- Removed the options "mapmode" and "showShields".  Effectively,
+    these options are now treated as always being true [Soutter]
+- Added range checking on the options "showlocal", "showgalactic", and
+    "showLock" [Soutter]
+- Redraw the galactic map when you change teams [Soutter].
+- All handlers (both for X events and for packets) now return a void
+    rather than an integers.  This fixes some compiler errors [Soutter].
+
+*****************************************************************
+2)  Cut and past changes to make COW work like it used to.
+*****************************************************************
+
+sortPlayers: on
+#
+#  The default for "sortPlayers" is a bit strange and so we recommend
+#  that you set the "sortPlayers" option in your .xtrekrc.  The following
+#  will impose the old default.
+#
+
+
+ignoreCaps: off
+#
+#  By default, the caps lock key is now ignored.  If you would like
+#  the old behaviour then set "ignoreCaps" to "off".
+#
+
+*****************************************************************
+3)  Cut and past changes to turn on *all* new features.
+*****************************************************************
+
+phaserShrink: 10
+#
+#  possible values: 0-16
+#
+#  Don't draw the first <phaserShrink>/16 th of your phaser.  This makes
+#  it easier to see incoming torps.
+#
+#  Most people who tested this feature really like it (even thought it
+#  sounds weird).
+#
+
+
+playerListStyle: 3
+#
+#  possible values: 0-4
+#
+#  This is a new way of choosing which playerlist you want, although
+#  newPlist still works.  Options are:
+#
+#       (0) Custom player list as defined by the
+#               playerlist variable above,
+#       (1) Old player list,
+#       (2) Traditional COW player list,
+#       (3) Kill watch player list,
+#       (4) BRMH Player list.
+#        
+#       If "playerListStyle" is set, newPlist is ignored.
+#       Use the options menu (shift-O) to try the different styles.
+#
+#  The "Kill watch player list" is a new built in style.  It makes scanning
+#  kills easier and it shows the kind of thing klew players were already
+#  doing with the "playerlist" option.
+#
+
+
+partitionPlist: on
+#
+#  Add blank lines to a sorted player list to separate the
+#  different teams.
+#
+
+
+metaCache: .metaCache
+#
+#  Enable caching of meta-server information into the file
+#  "$HOME/.metaCache".
+#
+#  Use "cow -k" to use the cached information rather than waiting
+#  to contact the metaServer.
+#
+#  For more details, see the "MetaServer Options" manual in
+#  section (4).
+#
+
+
+metaStatusLevel: 4
+#        
+#  Select the level of detail to be displayed on the meta-server window.
+#
+#  The status levels are coded as follows.
+#
+#  0   Servers which have players but not a wait queue.
+#  1   + Servers with a wait queue.
+#  2   + Servers with nobody playing. (see NOTE1).
+#  3   + Servers which have Timed Out for the MetaServer (see NOTE2).
+#  4   + Servers which the MetaServer has not been able to connect to.
+#
+
+
+ignoreCaps: on
+#
+#  By default, the caps lock key is now ignored and so this is not
+#  strictly necessary.
+#
+
+
+showPlanetOwner: on
+#
+#  showPlanetOwner is an old feature that has been reimplemented.
+#  When on, the appropriate race letter is drawn next to each
+#  planet on the  galactic.
+#
+
+tts_time:       25
+#tts_max_len:
+#tts_font:
+#tts_color:      ivory
+tts_pos:        20
+#
+# Some of these are new TTS options.  This set of parameters moves any TTS
+# messages to near the top of the screen.  tts_pos is # of pixels down from the
+# top to print the message, the other parameters allow control of how the text
+# looks. 
+
+color.Rom:              tomato
+color.Kli:              green2
+color.Ori:              light steel blue
+color.Fed:		goldenrod
+color.Ind:		aliceblue
+#
+# You can use these resources to change the colors of the race's bitmaps,
+# without messing up the border colors and things from the old style
+# "color.red" resources.
+
+****************************************************************
+4) New manual sections
+****************************************************************
+
+
+MetaServer Options
+==================
+
+The MetaServer and the MetaServerCache are provided to help you find a
+netrek game to join.  Both services provide a list of the popular
+netrek servers.  The MetaServer is neat because provides information
+on the number of players at each site.  The MetaServerCache is neat
+because it is much faster if you can guess where a game will be.
+
+To access the MetaServer, use the command line switch "-m".  For
+example "cow -m".  To access the MetaServerCache, use the "-k" switch
+instead.
+
+        
+
+1) Where to find the MetaServer:
+
+You can use the options "metaport" and "metaserver" to point COW
+to a new MetaServer.  The defaults for these options are:
+
+         metaport: 3521
+         metaserver: metaserver.ecst.csuchico.edu
+
+
+2) How to create a list of known servers for the MetaServerCache:
+
+Before you can use the MetaServerCache, you must give COW a file in
+which to cache the information from the MetaServer.  Use the .xtrekrc
+option "metaCache" to specify this file.  The files path will be
+relative to your home directory unless you start the file name with a
+slash (/).
+
+For example, to set the cache file to "~/.metaCache" use:
+
+        metaCache: .metaCache
+
+Unlike the MetaServer, the MetaServerCache will not show the number of
+people playing at a server.  If a server is contactable, it will be
+shown as "Active".
+
+
+3) How much information will be shown:
+
+You can now control the amount of information that the MetaServer
+displays for you by setting the "metaStatusLevel" flag.  The default
+is:
+        
+        metaStatusLevel: 3
+        
+        
+The status levels are coded as follows.
+
+0       Servers which have players but not a wait queue.
+1       + Servers with a wait queue.
+2       + Servers with nobody playing. (see NOTE1).
+3       + Servers which have Timed Out for the MetaServer (see NOTE2).
+4       + Servers which the MetaServer has not been able to connect to.
+
+NOTE1: When using the MetaServerCache, "metaStatusLevel" values of
+less than 3 are treated as the value 3.  This minimum is enforced
+because the cache does not attempt to show the number of people
+playing at a site.
+
+NOTE2: If you are a long way from the MetaServer, you are advised to
+ignore TimeOut errors.  For example, the MetaServer in America may
+have difficulty contacting to a server in Holland while the link from
+England to Holland is very good.
+
+
+4) The Fallback
+
+If you attempt to contact the MetaServer, and the connection times
+out, COW will try to show the MetaServerCache instead.
+
+Similarly, if you attempt to use the MetaServerCache, and your
+"metaCache" file does not exist, COW will attempt to call
+theMetaServer.
+
+
+
+Player List Options
+===================
+
+1) Configurable Player List:
+ 
+    I've added a new .xtrekrc option called "playerlist" what it allows
+you to do is specify which columns of the player list you want to show
+and in what order.  The following is a table of the available columns.
+ 
+Spc  Let   Name                 Header
+---  ---   -------------------- -------------------
+  3  'n'   Ship Number          " No"
+  3  'T'   Ship Type            " Ty"
+ 11  'R'   Rank                 " Rank      "
+ 17  'N'   Name                 " Name            "
+  6  'K'   Kills                " Kills"
+ 17  'l'   Login Name           " Login           "
+  6  'O'   Offense              " Offse"
+  6  'W'   Wins                 "  Wins"
+  6  'D'   Defense              " Defse"
+  6  'L'   Losses               "  Loss"
+  6  'S'   Total Rating (stats) " Stats"
+  6  'r'   Ratio                " Ratio"
+  8  'd'   Damage Inflicted(DI) "      DI"
+  1  ' '   White Space          " "
+PLIST1
+  6  'B'   Bombing              " Bmbng"
+  6  'b'   Armies Bombed        " Bmbed"
+  6  'P'   Planets              " Plnts"
+  6  'p'   Planets Taken        " Plnts"
+ 17  'M'   Display/Host Machine " Host Machine    "
+  7  'H'   Hours Played         " Hours "
+  6  'k'   Max Kills            " Max K"
+  6  'V'   Kills per Hour       "   KPH"
+  6  'v'   Deaths per Hour      "   DPH"
+PLIST2
+  9  'w'   War staus            " War Stat"
+  3  's'   Speed                " Sp"
+ 
+So for example if you just wanted to see names and rank you'd add this
+line to your .xtrekrc:
+ 
+playerlist: NR
+ 
+     In order for this mod to be in effect you must compile with PLIST
+defined, otherwise you will get either of the two currently available
+defaults.  The things shown after PLIST1 are only available if you
+have PLIST1 defined, the same goes for the things after PLIST2, but
+you must have PLIST defined or neither of these will do anything.
+ 
+dave
+gosselin@ll.mit.edu
+
+
+NOTE FROM SOURCE KEEPER:
+PLIST2 is not active in BRM currently.  Some players feel that placing
+speed on the playerlist gives a strategic advantage.
+
+NOTE ON SB STATS :
+On servers which support the SBHOURS .feature, you will see slightly 
+different things when you info a SB, or show the SB player on the 
+playerlist.  The usual offense and defense lines are replaced with SB 
+kills/hour and deaths/hour.  The kills, deaths, hours and ratio entries
+are all the player's SB stats as long as he is in the SB, and his normal
+stats otherwise.
+
+
+2) Predefined "playerlist" styles:
+
+For your viewing pleasure we have predefined some playerlist layouts
+that you might like to try.  These predefined styles can be selected
+using the "playerListStyle" option in your .xtrekrc or by using the
+options menu (shift-O).
+
+The "playerListStyle" options are:
+
+        0: Custom style         = playerlist
+        1: Old style            = "nTRNKWLr O D d "
+        2: COW style            = "nTR N  K lrSd"
+        3: Kill watch style     = "nTK  RNlr Sd"
+        4):BRMH style           = "nTR N  K l M"
+
+
+For backward compatability, the option "newPlist" will still select
+between the old style playerlist (off) and the COW style playerlist
+(on) if the "playerListStyle" option does not appear in your .xtrekrc.
+
+
+3) The "partitionPlist" option:
+
+Lets face it, the main role of the player list is so that you can keep
+track of who has kills.
+
+To make life easier, the player list is sorted so that enemy and
+friendly teams are always in the same place in the list.  However, in
+mono it is not immediatly obvious where one team starts and another
+team ends.  If the "partitionPlist" option is "on", white space will
+be added to the player list to separate your teams from the other
+teams and the players entering the game.  In color, this option is not
+usually required because the teams are distinct anyway.
+
+Race Colors README
+------------------
+You can now change the color in which a given race is drawn *without*
+having to also change other objects currently drawn in the same color.
+
+The race color defaults to the color in which the race is normally drawn
+(ie, Roms are drawn in color.red, which itself defaults to red).
+
+This option defaults transparently to off and uses up NO CPU time in
+normal play.  (so there :-b)
+
+resource       default resource       default color
+----------    ------------------      -------------
+color.Ind:      color.light grey        light grey
+color.Fed:      color.yellow            yellow
+color.Rom:      color.red               red
+color.Kli:      color.green             green
+color.Ori:      color.cyan              cyan
+
+###############################################################
+#  Example .xtrekrc lines
+color.Rom:              tomato
+color.Kli:              green2
+color.Ori:              light steel blue
+

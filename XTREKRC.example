@@ -1,0 +1,847 @@
+#------------#
+#  .xtrekrc  #
+#------------#
+#
+#  This is the defaults file for netrek.  Layout was taken from
+#  jch's file, lots of other stuff from various places.
+#
+#  Dave Gosselin
+#  Apr 92
+#  Changes regularly
+#
+###############################################################################
+#
+# How I found this stuff:
+#     doc/patch files that come with the clients
+#     greped code (booleanDefault, intDefault, getdefault, mostly)
+#     scaned the code (defaults.c, etc)
+#
+# Most of these settings apply to Berkricksmoo2.00pl19
+#
+###############################################################################
+# 
+# Modified this slightly to make defaults that newbies might like
+# better/find more instructive.  Be sure to place this file in your
+# home directory and rename it to ".xtrekrc"  - Jeff Nelson	8/11/93
+#
+###############################################################################
+#
+#  Feb 95 Added new features - Kurt Siegl [007]
+
+############ WARNING ############ WARNING ############## WARNING ########
+# There seems to be a bug which makes defaults, containing		#
+# comments or other garbage (blanks) at the right end INVALID.		#
+############ WARNING ############ WARNING ############## WARNING ########
+
+name:			guest
+
+# set password to your player name password for autologin
+#password:		oggtpau
+password:	
+
+###############################################################################
+# this sets the default server and port (and verification scheme)
+
+server:			bigbang.astro.indiana.edu
+port:			2592
+useRSA:			on
+
+# you can also make nicknames like:
+server.bronco:		bronco.ece.cmu.edu
+port.bronco:		2592
+useRSA.bronco.ece.cmu.edu:	on
+
+server.hockey:		hockey.ksu.edu
+port.hockey:		2592
+
+server.doorstop:	doorstop.design.iastate.edu
+port.doorstop:		2592
+
+server.legend:		legend.cma.fr
+port.legend:		2592
+
+server.guzzler:		guzzler.ecst.csuchico.edu
+port.guzzler:		5858
+
+server.lowell:		netrek.uml.edu
+port.lowell:		2592
+server.uml:		netrek.uml.edu
+port.uml:		2592
+
+server.explorer:	128.46.158.74
+port.explorer:		2592
+useRSA.128.46.158.74:	on
+
+server.garnet:		garnet.cdf.toronto.edu
+port.garnet:		5555
+
+server.fisher:		fisher.psy.vu.nl
+port.fisher:		2592
+
+server.ucar:		netrek.atd.ucar.edu
+port.ucar:		2592
+
+server.calvin:		calvin.usc.edu
+port.calvin:		2592
+
+server.bookend:		bookend.design.iastate.edu
+port.bookend:		2592
+
+server.clue1:		riovista.berkeley.edu
+port.clue1:		4566 
+server.clue1o:		riovista.berkeley.edu
+port.clue1o: 		4000
+server.clue2:		riovista.berkeley.edu
+port.clue2:		4577
+server.clue2:		riovista.berkeley.edu
+port.clue2o:		5000
+
+###############################################################################
+# a bunch of boolean sets/toggles some may not do anything 
+
+# gotta see when they are up
+showshields:		on
+# show shields in warning status
+warnshields:  		on
+# stay peaceful after death
+keeppeace:		on
+# This may or may not work
+galacticfrequent:       on
+# really handy \  not really sure
+showtractor:		on
+# really handy /  which really does this
+showTractorPressor:     on
+# no means visible shuts off in 2 updates
+continuetractors:	on
+# only works sans window manager 
+extraAlertBorder:	on
+# I like color
+forcemono:		off
+# kinda borgish
+showmyspeed:		off
+# really silly rom bitmaps
+ROMVLVS:		off
+# the babes when you bust (kinda sexist but oh well)
+babes: 			on
+# I like these bitmaps, even tho there seem to be some bugs still...
+newPlanetBitmaps:	on
+# I like to see planet names
+showplanetnames:	on
+# Show the planet owner on galactic as a team letter (a most annoying feature)
+showPlanetOwner:	off
+# Yea!!! Maybe it even works
+sortPlayers:	   	on
+# New mucho-mondo dashboard
+newDashboard:		3
+# I don't want to use the borg
+ForMorons:		off
+# not sure.... maybe fill lock triangle?
+filltriangle:		on
+# not sure.... maybe message warp?
+warp:			on
+# not quite sure which motd....
+showmotd:		off
+# I don't like the right justified distress calls
+newDistress: 		off
+
+# message logging
+logging: 		off 
+logfile:                /tmp/Log_me
+
+# galactic map stuff: 0 = ownership  1 = resources  2 = nothing
+showgalactic:    	1
+# local map stuff: 0 = ownership  1 = resources   2 = nothing
+showlocal:		2
+
+# It seems this might actually work now...
+updatespersec:          5
+
+# how many updates to keep infowins
+keepInfo:		15
+
+# Time to auto-quit (I think)
+autoquit:		199
+
+# lock:  0 = don't show, 1 = galactic only , 2 = tactical only, 3 = both
+showLock:		3
+
+# lagmeter stuff (which I don't use)
+netstats:  		off
+#netstatfreq:  		5
+
+# tryUdp:  on/off
+tryUdp:                 on
+
+# udpClientSend: 0 = TCP only  1 = simple UDP 2 = enforced UDP (state only)
+#                3 = enforced UDP (state & weap)
+udpClientSend:          3
+
+# udpClientReceive:  0 = TCP only  1 = simple UDP  2 = fat UDP  3 = double UDP
+udpClientReceive:       1
+
+# udpSequenceCheck:  on/off
+udpSequenceCheck:       on
+
+# udpDebug: 0 = OFF   1 = ON (conect msgs only)  2 = ON (verbose output)
+udpDebug:               0
+
+# short packets
+tryShort:		on
+
+# PPosition or USPosition (PPosition if you use vtwm)
+WMXYHintMode: USPosition
+
+# Sound is really cool, but anoing for others.
+sounddir:               /usr/local/netrek/sound/sounds
+sound:                  off
+
+###############################################################################
+# my keymap
+#
+# q = warp 1,	  w = beam up,   e = det own,  r = pressor, t = tractor
+#  a = maxwarp,    s = shield tog, d = torps,	f = tractor, g = plasma 
+#   z = 1/2 speed   x = beam down,   c = cloak   v = lock
+#		  SPACE == det enemy torps
+#
+# Q = repair              E = distress  R = repair
+#  A = info                 D = lock     F = army call  
+#
+# n = refit (new ship)
+# | = quit ( now fastquit - jn )
+# / = docking
+# W = war window
+#
+# everything else is the default (I think)
+
+# turned off keymap, almost certainly this is individual taste
+# also | -> fast quit, not normal quit - jn
+
+#keymap:		wweerrTTyyddDDffzzxxccbbOOq2wzeDrytTa%ssdtfTgf dAiDlWw/enrRRz#xxvl|qQROO
+
+#buttonmap: 	1t2p3k
+
+# 007's extended mouse button map alows you to play with the mouse only.
+
+# Mouse Buttons:
+# Normal:       torp    phaser  set course
+# Shift:        shield  traktor half warp
+# CNTRL:        cloak   pressor max warp
+# CTL-Shift:    macro   info    lock
+
+continuousMouse: off
+shiftedMouse:   on
+
+# Using virtual keys for ship independend macro overlays.
+
+buttonmap:      1^A2^B3^C4^D5^E6^F7^G8^H9^Ia^Jb^Kc^L
+ckeymap:      ^At^Bp^Ck^Du^ET^F#^Gc^Hy^I%^JX^Ki^Ll
+keymap:         afsDddzzxxccv%nrmm dXX0%-R++\-??wwiiIIKKOOSSVVBBUUDDee
+
+# Add one off: [sc, dd, ca, bb, as, sb, ga, att, default] for ship dependend keys
+
+# SB doesn't need half warp replace it with repair
+ckeymap-sb:      ^At^Bp^Ck^Du^ET^FR^Gc^Hy^I%^JX^Ki^Ll
+
+
+###############################################################################
+# This only works for mono displays as far as I know
+
+GAlertPattern:          0xf
+YAlertPattern:          0xa 0x5
+RAlertPattern:          0x0f 0x0f 0x0f 0x0f 0xf0 0xf0 0xf0 0xf0
+
+# Well I was playing around with them at one time....
+
+color.white:		white
+color.black:		black
+color.red:		red
+color.green:		green
+color.yellow:		yellow
+color.cyan:		cyan
+color.light grey:	lightgrey
+
+# Use different colors for the Races
+color.Ind:              light grey
+color.Fed:              yellow
+color.Rom:              magenta
+color.Kli:              green2
+color.Ori:              light steel blue
+
+# From Helix's .xtrekrc
+# Standard, except red is hard to see on some monitors
+#color.white:           white
+#color.white:            grey90
+#color.black:           black
+#color.black:            grey35
+#color.red:              #FFB4FF
+#color.green:            green
+#color.yellow:           yellow
+#color.cyan:             cyan
+#color.light grey:       light grey
+
+###############################################################################
+#  Fonts
+#
+#  I've gone through many iterations of this as you can see...
+#
+#  Currently I'm only setting bigfont since the berkmoo defaults seem ok
+
+bigfont:                lucidasanstypewriter-bold-24
+
+#     Using real italic fonts (bigger...)
+#font:                   -schumacher-clean-medium-r-normal--10-100-75-75-c-60-*
+#boldfont:               -schumacher-clean-bold-r-normal--10-100-75-75-c-60-*
+#italicfont:             -schumacher-clean-medium-i-normal--12-120-75-75-c-60-*
+
+# 
+#font:           6x10
+#boldfont:       -schumacher-clean-bold-r-normal--10-100-75-75-c-60-iso8859-1
+#italicfont:     -schumacher-clean-medium-i-normal--12-120-75-75-c-60-iso8859-1
+
+#  My old defaults
+#font: 			6x10
+#font:                  -misc-fixed-medium-r-normal--10-100-75-75-c-60-iso8859-1
+#italicfont:    		-*-clean-medium-r-normal--6-60-75-75-c-60-*
+#italicfont:		6x10i
+#boldfont:		-*-clean-bold-r-normal--10-100-75-75-c-60-*
+
+#  A new idea
+#font: 			-*-clean-bold-r-normal--10-100-75-75-c-60-*
+#italicfont:    		6x10
+#boldfont:		6x10
+
+# fonts from Helix's .xtrekrc
+# Give same size fonts with boldface, italics for small font using client
+# I have checked out all the fonts that are reasonable--pick the one you like
+#font:           -schumacher-clean-medium-r-normal--10-100-75-75-c-60-iso8859-1
+#boldfont:       -schumacher-clean-bold-r-normal--10-100-75-75-c-60-iso8859-1
+#italicfont:     -schumacher-clean-medium-i-normal--12-120-75-75-c-60-iso8859-1
+#font:          6x10
+#font:          -misc-fixed-medium-r-normal--10-100-75-75-c-60-iso8859-1
+#boldfont:      -adobe-courier-bold-r-normal--10-100-75-75-m-60-iso8859-1
+#italicfont:    -schumacher-clean-medium-r-normal--10-100-75-75-c-60-iso8859-1
+#italicfont:    -adobe-courier-medium-o-normal--10-100-75-75-m-60-iso8859-1
+#italicfont:    -adobe-courier-bold-o-normal--10-100-75-75-m-60-iso8859-1
+#bigfont:       lucidasanstypewriter-bold-24
+#
+#smallfont:              5x8
+#smallboldfont:          lucidasanstypewriter-bold-8
+#smitalicfont:           lucidasanstypewriter-8
+
+# 007's fonts using an underline font for oponents (kewl for B&W)
+
+#font:           6x10
+#boldfont:       -schumacher-clean-bold-r-normal--10-100-75-75-c-60-iso8859-1
+#italicfont:     6x10i
+#bigfont:        lucidasanstypewriter-bold-24
+tts_font:       -*-lucida-bold-r-*-*-34-*-*-*-*-*-*-*
+
+###############################################################################
+#  Window placement
+#
+#  Since changing fonts causes changes to the window sizes
+#  this section has gone through many revisions as well
+#
+#  The next iteration of all this using the new dashboard....
+
+# I don't usually want to see the MOTD until I'm in
+
+#WaitMotd.mapped: off
+
+# To encourage motd reading I'll activate this - jn
+WaitMotd.mapped: on
+
+# start of gosellin's geometry, cool in some ways but mapping
+# various windows onto root has it's uses.  I've commented
+# this out and replaced it with more standard mappings. - jn
+
+## The main window -- only map it when there's no wait queue
+#
+##netrek.geometry:       1150x875+0    # the maximal window for my sparc 2
+##netrek.geometry:        1002x795+145+79 # using old fonts
+#netrek.geometry:        1002x836+147+40
+netrek.geometry:         1002x760
+netrek.mapped:          off
+#
+war.geometry:           +800
+#
+help.parent:            netrek
+help.geometry:          +0+547
+##
+planet.parent:          netrek
+planet.geometry:        +20
+
+## Ok, on the left side we have a column of six windows; message,
+## warning, new dash (ie tstats), my messages, team messages, all
+## messages. I have the total messages maped to cover this whole area
+## so by using ? you can toggle between seeing the broken up messages
+## or the total window. The stats window has been removed in favor of
+## the new dashboard.
+#
+message.parent:         netrek
+message.geometry:       496x20+502+500
+message.mapped:         on
+#
+warn.parent:            netrek
+warn.geometry:          496x23+502+523
+warn.mapped:            on
+#
+#tstat.parent:           netrek
+#tstat.geometry:         500x43+0+547
+##tstat.geometry:         500x43+501+500  # pre new dash method
+#tstat.mapped:           on
+#
+review_your.parent:     netrek
+#review_your.geometry:   81x5+0+591	# message below new dashboard...
+review_your.geometry:   81x4+0+547
+review_your.mapped:     on
+#
+review_team.parent:     netrek
+#review_team.geometry:   81x9+0+652
+review_team.geometry:   81x5+0+599
+##review_team.geometry:   81x5+0+609 # smaller team window
+##review_team.geometry:   81x5+0+617 # big fonts
+review_team.mapped:     on
+#
+review_all.parent:      netrek
+review_all.geometry:    81x4+0+662
+#review_all.geometry:    81x7+0+754
+##review_all.geometry:    81x5+0+690  # big fonts
+review_all.mapped:      on
+#
+## With this setup, you can use "?" to cycle between the big review window, the
+## four small message windows, and no windows at all.
+#
+review.parent:                netrek
+review.geometry:      81x20+0+547
+review.mapped:		off
+#
+## On the right side we have the phaser window, player list, kill messages
+#
+## phaser window
+## dunno if the following line is really needed or not....
+#phaserWindow:		on
+## 0 = don't show    1 = show on kill window   2 = show on phaser window
+## 3 = show on total review window only
+#showPhaser:   		2
+#review_phaser.mapped:   on
+#review_phaser.parent:   netrek
+#review_phaser.geometry: 81x3+501+500
+## review_phaser.geometry: 81x4+501+543 # pre-newdash
+#
+player.parent:          netrek
+#player.geometry:        +502+530
+player.geometry:        +502+550
+##player.geometry:        +502+595
+player.mapped:          on
+#
+reportkills:            on
+review_kill.parent:          netrek
+#review_kill.geometry:        81x6+501+768
+review_kill.geometry:   81x4+0+714
+review_kill.mapped:          on
+#
+
+# start of new window mappings - jn
+#netrek.geometry:        +0+0
+#war.geometry:           +800
+#rank.parent:            root
+#rank.geometry:          89x30
+#review_all.mapped:      on
+#review_all.geometry:    80x26+554+624
+#review_your.parent:     review_all
+#review_your.geometry:   80x6+0+0
+#review_your.mapped:     on
+#review_team.parent:     review_all
+#review_team.geometry:   80x5+0+78
+#review_team.mapped:     on
+#review_kill.parent:     review_all
+#review_kill.geometry:   80x4+0+143
+#review_kill.mapped:     on
+#help.geometry:          150x21
+#player.geometry:        95x24+2+624
+#player.mapped:          on
+
+
+
+## a couple of other window mappings
+#
+# Some UDP stuff
+udp.geometry:        +0+0
+udp.mapped:          off
+
+# I'm planning on using the new dash instead
+showstats:              off 
+stats.parent:           netrek
+#stats.geometry:         160x108+332+500      # old font stuff
+#stats.geometry:         160x108+332+550      # puts the stats window further down
+#stats.geometry:         160x108+332+547
+stats.geometry:         160x94+842+500
+
+###############################################################################
+# from: jjudy@argon.berkeley.edu (Jack W. Judy)
+# Heh! This makes it almost impossible to screw-up and *accidently* choose
+# the *wrong* team!  Got this idea from an old post.
+
+#fed - Fed selection window
+fed.parent:		local
+fed.geometry:		75x75+0+424
+
+#rom - Romulan selection window
+rom.parent:		local
+rom.geometry:		75x75+0+0
+
+#kli - Klingon selection window
+kli.parent:		local
+kli.geometry:		75x75+425+0
+
+#ori - Orion selection window
+ori.parent:		local
+ori.geometry:		75x75+424+424
+
+#quit
+quit.parent:		local
+quit.geometry:		100x100+200+0
+
+# from Helix's .xtrekrc
+# The team selection windows, put in their logical places
+# on the GALACTIC map!
+#fed.geometry:   +0+400
+#rom.geometry:   +0+0
+#kli.geometry:   +400+0
+#ori.geometry:   +400+400
+#quit.geometry:  +200+400
+#rom.parent:     map
+#kli.parent:     map
+#fed.parent:     map
+#ori.parent:     map
+#quit.parent:    map
+
+###############################################################################
+#
+# custom distress calls. d. is for ships. d.sb. is for SBs.
+# the different levels for changes in the distress calls.
+# first number is low value. Second is high value. In between is mid.
+# set up strings for each part of the distress call.
+# a '_' is a "no show"
+# 
+# These may or may not be included in the client (usually not I think,
+# but maybe someday...)
+# Actually it has been replaced by RCD
+
+#d.shld.lvl:             10 90
+#d.shld.low:             SHLDS OUT!
+#d.shld.high:            _
+#d.shld.mid:             %d%% shlds
+
+#d.dam.lvl:              10 90
+#d.dam.low:              _
+#d.dam.high:             %d%% DAM!
+#d.dam.mid:              %d%% dmg
+
+#d.arms.lvl:             0 50
+#d.arms.low:             _
+#d.arms.high:            _
+#d.arms.mid:             %d armies!
+
+#d.fuel.lvl:             10 90
+#d.fuel.low:             FUEL OUT!
+#d.fuel.high:            _
+#d.fuel.mid:             %d%%fuel
+
+# starbase stuff.... Much more interesting than ship distress I reckon
+#d.sb.dam.lvl:           10 66
+#d.sb.dam.low:           _
+#d.sb.dam.mid:           %d%% dam
+#d.sb.dam.high:          WRP1 %d%%dam
+
+# Place all important macros and distess calls onto the mouse.
+# Requires 007's extended mouse button map.
+
+# Mouse Buttons:
+# Normal:       pop       control    pickup
+# Shift:        bombing   escorting  ogging
+# CNTRL:        ack team  ack player ogg
+# CTL-Shift:    distress  takeing    carrying
+
+dist.^A.pop:             %T%c->%O  %l%?%n>-1%{ @ %n%}!
+dist.bomb:      %T%c: %?%n>4%{bomb %l @ %n%!BOMB%}
+dist.^B.save_planet:     %T%c->%O Emergency at %L!!!!
+dist.space_control:     %T%c: Danger Help Control at %l
+dist.^C.pickup:        WATCH %u: %t%p++ @ %l
+
+dist.^D.bombing: %T%c: Bombing %l @ %n
+dist.^E.escorting:       %T%c: Escorting %p
+dist.^F.ogging:  %T%c: Ogging %p
+
+mac.^G.t:       ok
+mac.^H.%u:       ACK
+dist.^I.ogg:        OGG %u (%t%p) near >%l<
+
+dist.^J.help:    %i (%S %T%c@%b): %?%S=SB%{SB%!%} Help!  %d%% dam, %s%% shd, %f%% fuel  %E%{ETEMPED!!! %}%W%{WTEMPED!!!  %}%?%a>0%{%a armies!!%!%}
+dist.^K.taking:        %i (%S %T%c@%b): need ESCORT going to >%l%?%n>0%{@%n%}<%?%a>0%{, carrying %a armies!%}
+dist.^L.carrying:        %i (%S %T%c@%b) has %a armies on board!
+
+###############################################################################
+#
+# Configurable message macros to the all board. control-jkliop
+# Seems not to work anymore.
+
+message1: KA-BOOOOOOOOOOOOOOOOOOOM
+message2: I suck today!
+message3: SNL!
+message4: Live From New York, it's Saturday Night!
+message5: I am Hanz, and I am here to blow (ka-boom) you up!
+message6: I hate OT.
+
+###############################################################################
+#      Macro stuff
+#
+#  Mostly so I will know how to play around with them if I ever
+#  decide to...
+#
+###############################################################################
+#
+#macro.x.X:      <text here>
+#x is any ascii character; it is the "name" of the macro (the key you press
+#in macro mode to send the associated macro)
+#X can be A,T,F,R,K,O where A=all, T=team, F=fed, R=rom, K=kli, O=ori
+#(determines the message board to which the text body of the macro is sent)
+#
+# These are the "standard" macro things (ie mostly compiled in)
+
+macro.b.T: BOMB!!!!  Using an AS!
+macro.s.T: We need a sc bomber.
+macro.g.T: Going sc bombing.
+
+###############################################################################
+#
+#  These are the "NEWMACRO" type macros
+#
+#  Definitions:
+#     %a      armies I am carrying
+#     %d      my damage percentage
+#     %s      my shield percentage
+#     %f      my fuel percentage
+#     %w      my wtemp percentage
+#     %e      my etemp percentage
+#     %p      id character of player nearest mouse
+#     %l      three character name of planet nearest mouse
+#     %t      team id character of planet/player nearest mouse
+#     %T      team id character of my team
+#     %c      my id character
+#     %n      armies on planet nearest mouse
+#     %E      1 if etemped, 0 if not
+#     %W      1 if wtemped, 0 if not
+#     %S      my two character ship type
+
+# normalish macro
+
+mac.F.T:         Help!  Carrying %a!!
+
+# extra keystroke macro
+#  need to do something like: XfT (send to team)
+
+mac.f:           Help!  Carrying %a!!
+
+# multiline (won't work without destination)
+
+mac.C.A:   +-- +-+ +   +     Client     simply
+mac.C.A:   |   | | |   |      Of         the
+mac.C.A:   +-- +-+  \^/        Win        best.
+
+mac.D.A:        D
+mac.D.A:        O
+mac.D.A:        O
+mac.D.A:        S
+mac.D.A:        H
+
+###############################################################################
+#
+#  These are the "SMARTMACRO" type macros
+#
+#  Test Definitions:
+#     %?      introduces a test
+#     =       equivalence
+#     >       greater
+#     <       less
+#
+# "Syntax"
+#
+# (1/0)%{ true %! false %}
+# ^^^^^ Test part (if whatever is here evaluates to 1 you get true
+#                                                   0 you get false)
+
+# simple examples
+
+mac.R.A:        I'm a %?%S=SB%{star base!%!twink!%}
+#mac.b.T:        %?%n>4%{bomb %Gl at %n%!bomb%}
+mac.e.T:        need escort going to %l%?%a>0%{, carrying %a armies!%}
+
+# complex examples
+
+mac.d.T:        %E%{%!%W%{%!I'm fine.  How are you?  %}%}%E%{ETEMPED!!!  %}%W%{WTEMPED!!!  %}Carrying %?%a>0%{%a armies!%!NO armies.%}
+mac.a.T:        %E%{ETEMPED!!!  %}%W%{WTEMPED!!!  %}Carrying %?%a>0%{%a armies!%!NO armies.%}
+
+###############################################################################
+# New new macros?
+#
+# %m      the last message you sent
+# %i      my full player name (16 character max)
+# %u      full name of player nearest mouse (16 character max)
+# %z      3 letter team id of player/planet nearest mouse
+# 
+# FULLY CAPITALIZED:
+# %L      three character name of planet nearest mouse
+# %M      the last message you sent
+# %I      my full player name (16 character max)
+# %U      full name of player nearest mouse (16 character max)
+# %Z      3 letter team id of player/planet nearest mouse
+
+
+#useful for INL...
+mac.C.%i:       CAPTAIN
+mac.N.%i:       NEWGALAXY
+mac.S.%i:       START
+mac.T.%i:       %Z
+
+mac.W.%t:       SHUT UP, TWINKS!!
+mac.I.%u:       %u: det when you escort!
+mac.O.%u:       (%i) ogging
+
+key.C:		captain
+key.B.0:	base
+mac.A.C:	Ack, Captain
+
+# What this does is allows you to send a macro to a player or
+# team specified by your mouse location instead of requiring
+# a 3rd character to be input.  Also, it allows you to send
+# message to yourself without having to actual sit there and
+# figure out who you are (they tried and failed back in the '60s).
+
+# Macros without pressing a macro key.
+
+singleMacro:    ^p^h^l
+
+# Various Macros
+
+mac.^p: %v ms ping with %V ms stdv(lag) and %y %% loss really sucks :<
+mac.^h: Hi, nice to doosh you.
+# Check the load of the machine
+mac.^l.!: who;uptime
+
+# Set symbolic names for macro
+# key.[key].[dest]:     [name of key]
+# If the destination isn't specified the key default to team.
+# Set the actual destination by sending a message:
+#       set [name of key] [destination id]
+# to the shell ("!")
+#
+key.C:          captain
+# Set Captian  to target player
+mac.^c.!:       set captain %g
+# Macros to the captain.
+mac.o.C:        Hi Captain let me suggest a base ogg?
+#
+key.B:          base
+# Set Base to target player
+mac.^b.!:       set base %g
+# Macros to the Base
+mac.a.B:        BASE: Free armies for me?
+#
+key.m.A:        me
+# set the me (m) key to myself
+mac.^m.!:       set me %c
+# some Macro sent to myself
+mac.t.m:        TIME
+
+# Beep Lite and TTS
+UseLite:                on
+
+# Some consider blinking ships borgish so turn off all the defaults
+DefLite:                off
+
+#lite.taking:   /c/l
+#lite.base_ogg: /g/m
+#lite.pickup:   /h
+#lite.help:  %?%S=SB%{/c%}
+
+# I like a big TTS ++ pickup message on my screen and TTS is not borgish
+lite.pickup:   /|%p++ @ %l|
+# On a base ogg highlite own ship and beep (not borgish at all :)
+lite.base_ogg: /m/0
+
+
+# Let's have some neat formated kill messages
+msg.kill: %i (%S) (%T%c%?%a>0%{+%a babes) %>30 doosh%!) %>30 kill %} %?%d>0%{%k%!%} for %u (%r%p) %?%w>0%{%>70%W%!%}
+msg.planet:     %i (%S) (%T%c%?%a>0%{+%a armies%!%} %>30 killed by %l (%z)
+msg.bomb:       %N %>30 bombed by %i (%S) (%T%c) with %d%% dam
+msg.destroy:    %N %>30 destroyed by %i (%T%c)
+msg.take:       %N %>30 taken by %i (%T%c)
+msg.ghostbust:  %i (%S) (%T%c) %>30 kill %k for the GhostBusters
+
+###############################################################################
+#
+#  This is the list of windows I've been able to find.  Most you will
+#  probably not want to screw around with, but these can be controlled
+#  (at least it appears that way in the code...).
+#
+# I found these by greping for:
+#   checkMapped
+#   W_MakeWindow
+#   W_MakeTextWindow
+#   W_MakeScrollingWindow
+#   W_MakeMenu
+#
+#Window list:
+#
+#planet          - Planet listing (P)
+#rank	         - The rank window (U)
+#help            - Help window (h)
+#macro           - Macro Listing (X-?)
+#MetaServer List - Metaserver stuff (not quite sure how to use it)
+#review		 - The munged list of messages from all sources
+#review_all      - Messages to all
+#review_team     - Messages to your team
+#review_your     - Messages to you
+#review_kill     - Kill messages
+#review_phaser	 - The phaser damage window
+#netstat	 - Network statistics
+#lagMeter	 - The Lag-o-Meter
+#pingStats	 - Ping statistics window
+#player		 - Player list
+#tstat		 - Dashboard
+#UDP		 - UDP controls
+#network	  -
+#local	         - Main fighting window
+#map	         - Galactic map
+#option	         - The options window
+#wait		 -
+#count		 -
+#waitquit	 -
+#waitmotd	 -
+#info		 -
+#netrek		 - The "main" window (parent)
+#netrek_icon	 -
+#warn		 - Warnings ("forgot your toothbrush",et al)
+#message	 - Message sending window
+#FED	         - Team windows on entry
+#ROM	         - Team windows on entry
+#KLI	         - Team windows on entry
+#ORI	         - Team windows on entry
+#quit		 - Quit box on entry
+#stats		 -
+#scanner	 -
+#war		 - War delcarations
+#
+# This gives you:
+#    name.mapped    (on/off for initial mapping)
+#    name.parent    (which window you want this one to be in)
+#    name.geometry  (size and location)
+#
+###############################################################################
+#
+#        THE END
+#
+###############################################################################
+

@@ -1,0 +1,452 @@
+dnl	This file is an input file used by the GNU "autoconf" program to
+dnl	generate the file "configure", which is run during Netrek installation
+dnl	to configure the system for the local environment.
+AC_INIT(name.c)
+AC_CONFIG_HEADER(config.h)
+
+#----------------------------------------------------
+#	For which code are we checking? (server, cow)
+#----------------------------------------------------
+
+AC_MSG_CHECKING(for used sources)
+if test -f "$srcdir/playerlist.c"; then
+  code=cow
+  AC_MSG_RESULT(COW)
+  AC_DEFINE(COW)
+elif test -f "$srcdir/ntserv/daemonII.c"; then
+  code=server
+  AC_MSG_RESULT(Vanilla SERVER)
+  AC_DEFINE(SERVER)
+else
+  echo "	Unknown Sources"
+  exit 1
+fi
+ 
+if test "$code" = server; then
+  if test "$prefix" = NONE; then
+    prefix="/usr/local/games/netrek"
+  fi
+  echo installation path is $prefix
+  AC_SUBST(prefix)
+  AC_DEFINE_UNQUOTED(LIBDIR,"$prefix")
+  AC_SUBST(LOGNAME)
+fi
+
+if test "$code" = cow; then
+echo "Produce a stable release (y/n)?"
+read stable
+
+AC_SUBST(stable)
+ if test "$stable" = "y"; then
+  echo "Producing stable release"
+  AC_DEFINE(STABLE)
+ else
+  stable=nope
+ fi
+fi
+
+AC_PROG_INSTALL
+#
+# autoconf assumes that we never cd to a subdirectory and then use the
+# install-sh that it has found in the current directory, so we hack around
+# this by testing for the particular case and modifying the variable directly.
+#
+# this may break with a future version of autoconf.  to test this on a Linux
+# system, hide your /usr/bin/install, remove config.cache, and re-run the
+# autoconf generated configure script.
+#							cameron@stl.dec.com
+#
+if test "$INSTALL" = "./install-sh -c"; then
+  INSTALL="$PWD/install-sh -c"
+fi
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_LN_S
+
+AC_AIX
+
+AC_C_INLINE
+
+#--------------------------------------------------------------------
+#	Include sys/select.h if it exists and if it supplies things
+#	that appear to be useful.  This appears to be true only on
+#	the RS/6000 under AIX.  Some systems like OSF/1 have a
+#	sys/select.h that's of no use, and other systems like SCO
+#	UNIX have a sys/select.h that's pernicious.  If there isn't
+#	a sys/select.h, then make sure that "fd_set" is defined in
+#	sys/types.h.
+#--------------------------------------------------------------------
+
+AC_MSG_CHECKING(if fd_set requires sys/select.h)
+AC_TRY_COMPILE( [#include <sys/types.h>], [fd_set readMask, writeMask;],
+  AC_MSG_RESULT(no) ,
+  AC_EGREP_HEADER(fd_set, sys/select.h, 
+      AC_DEFINE(NEED_SYS_SELECT_H) AC_MSG_RESULT(yes),
+      AC_DEFINE(NO_FD_SET) AC_MSG_RESULT(fd_set missing)))
+
+#--------------------------------------------------------------------
+#	Check for various typedefs and provide substitutes if
+#	they don't exist.
+#--------------------------------------------------------------------
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h memory.h math.h stdlib.h)
+AC_CHECK_HEADERS(sys/timeb.h sys/ptyio.h sys/fcntl.h fcntl.h)
+AC_CHECK_HEADERS(ctype.h machine/endian.h sys/resource.h)
+AC_CHECK_HEADERS(sys/wait.h netinet/in.h netinet/tcp.h sys/filio.h)
+
+AC_FUNC_WAIT3
+AC_TYPE_PID_T
+AC_TYPE_UID_T
+AC_TYPE_SIZE_T
+AC_FUNC_VFORK
+AC_STRUCT_TM
+
+AC_MSG_CHECKING(for itimer in time.h)
+AC_EGREP_HEADER(itimerval, time.h, AC_MSG_RESULT(yes) , AC_DEFINE(NEED_SYS_TIME_H) AC_MSG_RESULT(no))
+
+AC_CHECK_SIZEOF(long)
+
+AC_MSG_CHECKING(for u_int in sys/types.h)
+AC_EGREP_HEADER(u_int, sys/types.h, AC_MSG_RESULT(yes) , AC_DEFINE(NO_U_INT) AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(for PATH_MAX in limits.h)
+AC_EGREP_CPP(PATH_MAX, [
+#include <limits.h> 
+PATH_MAX
+], AC_DEFINE(NO_PATH_MAX) AC_MSG_RESULT(no), AC_MSG_RESULT(yes))
+
+
+
+# Checking for gnu-win32 Windows libraries
+AC_CHECK_LIB(gdi32, main, [AC_DEFINE(HAVE_WIN32) XLIBSWDIR="-Lwin32"; XLIBSWLIB="-lgdi32 -luser32"; XINCLUDES="-Iwin32"; NOX11="#"; CPPFLAGS="$CPPFLAGS -Iwin32" ], [AC_DEFINE(HAVE_X11) NOWIN32="#" ])
+   
+#--------------------------------------------------------------------
+#	Locate the X11 header files and the X11 library archive.
+#--------------------------------------------------------------------
+
+if test -z "$NOX11" ; then
+
+AC_PATH_X
+
+if test -z "$x_libraries" ; then
+echo checking for X11 header files
+XINCLUDES=""
+AC_TRY_CPP([#include <X11/Intrinsic.h>], , XINCLUDES="nope")
+if test "$XINCLUDES" = nope; then
+    dirs="/usr/unsupported/include /usr/local/include /usr/X386/include \
+      /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 \
+      /usr/openwin/include /usr/X11/include /pub/X11R5/include \
+      /usr/local/X11R5/include /usr/X11R6/include /usr/include/X11R6 \
+      /pub/X11R6/include /usr/local/X11R6/include"
+
+    for i in $dirs ; do
+	if test -r $i/X11/Intrinsic.h; then
+	    XINCLUDES=" -I$i"
+	fi
+    done
+fi
+if test "$XINCLUDES" = nope; then
+  echo "Warning:  couldn't find any X11 include files."
+  XINCLUDES=""
+fi
+
+echo "checking for X11 library archive"
+AC_CHECK_LIB(X11, main, XLIBSWLIB="-lX11", XLIBSWLIB=nope)
+if test "$XLIBSWLIB" = nope; then
+    dirs="/usr/unsupported/lib /usr/local/lib /usr/X386/lib \
+      /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib \
+      /usr/X11/lib /pub/X11R5/lib /usr/local/X11R5/lib \
+      /usr/X11R6/lib /usr/lib/X11R6 /pub/X11R6/lib /usr/local/X11R6/lib"
+
+    for i in $dirs ; do
+	if test -r $i/libX11.a; then
+	    XLIBSWDIR="-L$i"
+	    XLIBSWLIB="-lX11"
+	fi
+    done
+fi
+if test "$XLIBSWLIB" = nope ; then
+    AC_CHECK_LIB(Xwindow, main, XLIBSWLIB=-lXwindow)
+fi
+if test "$XLIBSWLIB" = nope ; then
+    echo "Warning:  couldn't find the X11 library archive.  Using -lX11."
+    XLIBSWLIB=-lX11
+fi
+else
+XINCLUDES="-I$x_includes"
+XLIBSWDIR="-L$x_libraries"
+XLIBSWLIB="-lX11"
+fi
+
+fi
+
+AC_SUBST(NOX11)
+AC_SUBST(NOWIN32)
+
+if test "$code" = cow; then
+ if test "$stable" = nope; then
+  SAVELIBS="$LIBS"
+  LIBS="$LIBS $XLIBSWDIR $XLIBSWLIB"
+  SAVEINCS="$INCS"
+  INCS="$INCS $XINCLUDES"
+  AC_CHECK_LIB(Xpm, main, [AC_DEFINE(HAVE_XPM) XPMLIBS="-lXpm"])
+  AC_CHECK_HEADERS(X11/xpm.h)
+  LIBS="$SAVELIBS"
+  INCS="$SAVEINCS"
+ fi
+fi
+
+# Fix link order for Xpm
+XLIBSW="$XLIBSWDIR $XPMLIBS $XLIBSWLIB"
+
+if test "$code" = server; then
+  AC_SUBST(XINCLUDES)
+  AC_SUBST(XLIBSW)
+  true		# dummy line
+else
+  INCS="$INCS $XINCLUDES"
+  AC_SUBST(INCS)
+  LIBS="$LIBS $XLIBSW"
+fi
+
+
+#--------------------------------------------------------------------
+#	Check for gmp and mp
+#--------------------------------------------------------------------
+
+AC_MSG_CHECKING(for mp.h)
+AC_ARG_WITH(gmp-incdir,[  --with-gmp-incdir       GMP Include Dir], MPINC="-I$withval" search=false, MPINC=nope)
+if test "$MPINC" = nope; then
+AC_EGREP_CPP( GNU_MP,[ 
+#include <mp.h> 
+__GNU_MP__
+], [MPINC=nope search=true AC_MSG_RESULT(no)], [MPINC="" search=false AC_MSG_RESULT(no)] )
+fi
+
+AC_MSG_CHECKING(for gmp.h)
+if test "$MPINC" = nope; then
+    AC_TRY_CPP([#include <gmp.h>], [MPINC="" search=false], MPINC=nope)
+fi
+
+if test "$MPINC" = nope; then
+   dirs="$srcdir/gmp-2.0.2 /usr/unsupported/include /usr/local/include \
+      /usr/gnu/include /usr/gnu/include/mp /usr/local/gnu/include \
+      /usr/local/gnu/include/mp /usr/include/gnu /usr/local/lib/gmp-2.0.2"
+   for i in $dirs; do
+      if test -r $i/gmp.h; then
+	MPINC="-I$i"
+      fi
+   done
+fi
+
+if test "$MPINC" = nope; then
+
+  if test "$code" = cow; then
+# 	mp not supported with new mkkey.
+   AC_TRY_CPP([#include <mp.h>], MPINC=nope , MPINC=nope)
+  else
+   AC_TRY_CPP([#include <mp.h>], MPINC="" , MPINC=nope)
+  fi
+
+   if test "$MPINC" = nope; then
+      MPINC="# -I."
+      NORSA="#"
+      AC_MSG_RESULT(no)
+   else
+     AC_MSG_RESULT(yes)
+   fi
+else
+   AC_MSG_RESULT(yes)
+fi
+
+AC_SUBST(MPINC)
+
+# Checking for GMP 2
+SAVEINCS="$INCS"
+INCS="$INCS $XINCLUDES"
+AC_EGREP_CPP("gmp=.*2", [
+  #include <gmp.h> 
+  gmp=__GNU_MP__
+  ],AC_DEFINE(HAVE_GMP2_H))
+INCS="$SAVEINCS"
+
+AC_ARG_WITH(gmp-libdir,[  --with-gmp-libdir       GMP Library Dir], MPLIB="-L$withval -lgmp" search=false, MPLIB=nope)
+if test "$MPLIB" = nope; then
+  if test "$search" = true; then
+    MPLIB=nope
+  else
+    AC_CHECK_LIB(mp, main, MPLIB="-lmp", MPLIB=" ")
+    AC_CHECK_LIB(gmp, main, MPLIB="$MPLIB -lgmp", MPLIB=nope)
+  fi
+  if test "$MPLIB" = nope; then
+    dirs="$srcdir/gmp-2.0.2 /usr/unsupported/lib /usr/local/lib /usr/gnu/lib \
+      /usr/local/gnu/lib /usr/lib/gnu /usr/local/lib/gmp-2.0.2" 
+    for i in $dirs; do
+      if test -r $i/libmp.a; then
+    	MPLIB="-L$i -lmp"
+      fi
+      if test -r $i/libgmp.a; then
+	MPLIB="-L$i -lgmp"
+	AC_MSG_RESULT(yes)
+      fi
+    done
+  fi
+fi
+if test "$MPLIB" = nope; then
+  if test "$code" = cow; then
+   AC_CHECK_LIB(mp, main, MPLIB=bsdmp, MPLIB=nope)
+  else
+   AC_CHECK_LIB(mp, main, MPLIB="-lmp", MPLIB=nope)
+  fi
+   if test "$MPLIB" = bsdmp; then
+      echo "Sorry COW requires gmp not mp for RSA."
+      MPLIB="# -L. -lmp -lgmp"
+      NORSA="#"
+   fi
+   if test "$MPLIB" = nope; then
+      echo Warning mp or gmp library not found, turning RSA off.
+      MPLIB="# -L. -lmp -lgmp"
+      NORSA="#"
+   fi
+fi
+AC_SUBST(MPLIB)
+
+if test "$code" = cow; then
+ if test -r "$srcdir/mkkey.c"; then
+    echo "	RSA utilities for cow build found."
+ else
+    echo
+    echo Warning RSA utilities for cow build not found, turning RSA off.
+    NORSA="#"
+    echo Check your favorite ftp site for a blessed client.
+    echo In case you can not find one contact brmbugs.
+    echo
+ fi
+fi
+if test "$code" = server; then
+ AC_MSG_CHECKING(res-rsa/configure)
+ if test -r "$srcdir/res-rsa/configure"; then
+    AC_CONFIG_SUBDIRS($srcdir/res-rsa)
+    AC_MSG_RESULT(RSA utilities found)
+    RSAINC="-I`pwd`/res-rsa"
+    RSALIB="-L`pwd`/res-rsa -lrsa"
+    NORSA=""
+ else
+    AC_MSG_RESULT(Warning RSA utilities for server build not found, turning RSA off)
+    NORSA="#"
+    echo
+ fi
+fi
+
+AC_SUBST(RSAINC)
+AC_SUBST(RSALIB)
+AC_SUBST(NORSA)
+
+#--------------------------------------------------------------------
+#	Check for the existence of various libraries.  The order here
+#	is important, so that then end up in the right order in the
+#	command line generated by Make.
+#--------------------------------------------------------------------
+
+AC_CHECK_LIB(Xbsd, main, [LIBS="$LIBS -lXbsd"])
+# AC _CHECK_LIB(V3, main, [LIBS="$LIBS -lV3"])
+# AC _CHECK_LIB(PW, main, [LIBS="$LIBS -lPW"])
+AC_CHECK_LIB(socket, main, [LIBS="$LIBS -lsocket"])
+AC_CHECK_LIB(inet, main, [LIBS="$LIBS -linet"])
+AC_CHECK_LIB(nsl, main, [LIBS="$LIBS -lnsl"])
+AC_CHECK_LIB(seq, main, [LIBS="$LIBS -lseq"])
+AC_CHECK_LIB(sun, main, [LIBS="$LIBS -lsun"])
+
+if test "$code" = server; then
+AC_CHECK_LIB(ipc, main, [LIBS="$LIBS -lipc"])
+AC_CHECK_LIB(shm, main, [LIBS="$LIBS -lshm"])
+AC_CHECK_LIB(stuff, main, [LIBS="$LIBS -lstuff"])
+
+AC_CHECK_LIB(crypt, crypt, [LIBCRYPT="-lcrypt"]) 
+AC_SUBST(LIBCRYPT)
+
+AC_CHECK_LIB(termcap, main, [LIBTERMCAP="-ltermcap"]) 
+AC_SUBST(LIBTERMCAP)
+
+AC_CHECK_LIB(curses, newwin, [LIBCURSES="-lcurses"]) 
+AC_SUBST(LIBCURSES)
+
+fi
+
+#--------------------------------------------------------------------
+#    	Check for type of signals
+#--------------------------------------------------------------------
+
+AC_TYPE_SIGNAL
+AC_SYS_RESTARTABLE_SYSCALLS
+echo checking for BSD style signals
+AC_TRY_RUN([
+#include <signal.h>
+#include <sys/time.h>
+test(){ }
+int main(){
+int c;
+static struct itimerval udt;
+signal(SIGALRM,test);
+udt.it_interval.tv_sec = 1;
+udt.it_interval.tv_usec = 10;
+udt.it_value.tv_sec = 1;
+udt.it_value.tv_usec = 10;
+(void) setitimer(ITIMER_REAL, &udt, (struct itimerval *) 0);
+for (c=0; c<5; c++)
+pause();
+exit(0);}
+], AC_DEFINE(BSD_SIGNALS), 
+   AC_CHECK_FUNC(sigset, AC_DEFINE(SYSV_SIGNALS), AC_DEFINE(POSIX_SIGNALS)),
+   AC_DEFINE(POSIX_SIGNALS)
+)
+
+# AC_CHECK_LIB(BSD, main, [LIBS="$LIBS -lBSD"])
+# AC_CHECK_LIB(bsd, main, [LIBS="$LIBS -lbsd"])
+
+AC_CHECK_FUNCS(usleep random setstate strftime ftime strcmpi strncmpi)
+
+AC_CHECK_LIB(m, main, [LIBS="$LIBS -lm"])
+AC_CHECK_FUNCS(nint)
+AC_EGREP_HEADER(rint, math.h, , AC_DEFINE(NEED_RINT_DEC))
+
+if test "$code" = cow; then
+	AC_REPLACE_FUNCS(usleep setstate strdup rint)
+fi
+if test "$code" = server; then
+	AC_REPLACE_FUNCS(random strdup rint)
+fi
+
+#--------------------------------------------------------------------
+#       Check for system dependend programs
+#--------------------------------------------------------------------
+
+if test "$code" = server; then
+
+AC_MSG_CHECKING(for netstat)
+dirs="/bsd /usr/bsd /etc /bin /usr/bin /usr/etc"
+NETSTAT="nice -20 /usr/ucb/netstat -f inet"
+for i in $dirs; do
+  if test -x $i/netstat; then
+     NETSTAT="nice -20 ${i}/netstat -a"
+     AC_DEFINE_UNQUOTED(NETSTAT,"$NETSTAT")
+     AC_MSG_RESULT(yes)
+     break
+  fi
+done
+
+AC_MSG_CHECKING(for uptime)
+dirs="/bsd /usr/bsd /etc /bin /usr/bin /usr/etc"
+for i in $dirs; do
+  if test -x $i/uptime; then
+     AC_DEFINE_UNQUOTED(UPTIME,"${i}/uptime")
+     AC_MSG_RESULT(yes)
+     break
+  fi
+done
+
+fi
+
+AC_OUTPUT(system.mk tools/no_geno_timer tools/geno_timer docs/sample_geno_timer_crontab)

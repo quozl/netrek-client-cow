@@ -1,0 +1,333 @@
+Changes to MACRO:
+
+9/10/93 - jn
+
+By pressing a single character you can now invoke a macro.
+Put a line in your defaults file like the following.
+
+singleMacro:	EFTc
+
+This will make whatever macros normally assigned to keys
+E, F, T, and c, be invoked immediately, without needing
+a 'X' before them to enter macro mode.
+
+
+-------------------------------------------------------------------------
+9/2/93 - jmn, jn (no relation 8^)
+
+Receiver configurable distress calls have been added to the client
+and use a MACRO-like syntax.
+
+In order to change the distress type a line such as the following
+should be in your defaults file.
+
+dist.T.taking:		(%i) Carrying %a to %l%?%n>-1%{ @ %n%}
+
+This has the format 
+dist.[key].[name of distress]:		[macro]
+
+Arguments for the macro and SMARTMACRO syntax are exactly the same
+as before.  Any argument can be used, but usually only those
+in the groups "Standard" and "FULLY CAPITALIZED" apply.
+
+Below is a table giving the name of each distress, the key it
+is assigned to, and the default macro (at the time of this writing).
+
+Key  Name	Default Distress Macro
+T    taking	%T%c: (%i) Carrying %a to %l%?%n>-1%{ @ %n%}
+o    ogg	%T%c: Help Ogg %p at xx
+b    bomb	%T%c: %?%n>4%{bomb %l @ %n%!bomb%}
+c    space_control	%T%c: Help Control at %l
+1    help1	%T%c: Help me! %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+2    help2	%T%c: Help me! %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+3    help3	%T%c: Help me! %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+4    help4	%T%c: Help me! %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+e    escorting	%T%c: Escorting %p
+O    ogging	%T%c: Ogging %p
+B    bombing	%T%c: Bombing %l @ %n
+C    controlling	%T%c: Controlling at %l
+5    doing1	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+6    doing2	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+7    doing3	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+8    doing4	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+f    free_beer	%T%c: %p is free beer
+n    no_gas	%T%c: %p no gas
+h    crippled	%T%c: %p crippled
+9    pickup	%T%c: %p++ @ %l
+0    pop	%T%c: %l%?%n>-1%{ @ %n%}!
+F    carrying	%T%c@%b: %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+@    other2	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+#    other3	%T%c: @%b %d%% dam, %s%% shd, %f%% fuel %a lawyers.
+E    help	%T%c@%b: %?%S=SB%{SB%!%} Help!  %d%% dam, %s%% shd, %f%% fuel  %E%{ETEMPED!!! %}%W%{WTEMPED!!!  %}%?%a>0%{%a armies!!%!%}
+
+
+
+Here is some documentation written by jmn about how receiver
+configurable distress calls work:
+
+===========================
+Well... here's how it works.... Each RC_DISTRESS compatible client can make
+the distress call appear as whatever you like through their .xtrekrc...
+If you DONT have a new enough client the server will do a default parsing
+of the distress call and you will see it like that. Also if the server is
+old then the distress call sent out by each client will appear the way
+_the sender_ likes to have them displayed.
+
+Let me summarize with an example:
+F0 likes 'F' to say 'Carrying 4 maggots.'
+F1 likes 'F' to say 'Carrying 4 armies.'
+F2 likes 'F' to say 'Carrying 4 lawyers. 20% fuel'
+The server default is 'Carrying 4.'
+Note:
+Advanced RC_DISTRESS users should note that 'F' can be remapped easily in
+at least 2 different ways. For example throught .xtrekrc
+
+dist.(.carrying: %T%c: Carrying %a maggots.
+singleMacro: (
+(this will make 'X(' or '(' be the same as 'F' used to be)
+There will be more documentation on this coming later but basically the
+syntax is the same as SMARTMACRO and NEWMACRO.
+
+-----------
+On a NEW server:
+Case 1: All of them are using a new client.
+F1 will ALWAYS see 'Carrying x armies.' No matter who sent it.
+
+Case 2: Only F1 is using an old client.
+F1 will see the _server_ set defaults for the carrying call from everybody.
+Note that the calls from F0 and F2 will appear in the same format to him on
+this server (but may appear in a different format on different servers).
+F2 and F0 will see F1's client-defined distress calls.
+
+---------------
+On an old server:
+F1 will see whatever the sender likes to see (in this case the sender sends
+the pre-formatted text instead of the RC_DISTRESS short-hand).
+So a 'F' from F2 will appear to everybody as:
+'Carrying 4 lawyers. 20% fuel'
+a 'F' from F0 will appear to everybody as:
+'Carrying 4 maggots.'
+===========================
+
+
+-------------------------------------------------------------------------
+8/16/93 - jn
+New feature for default file...	
+rejectMacro:  on	(on/off) default to off, if on, BRM automatically
+			stops NEWMACROs from being sent when the server
+			has turned NEWMACROs off.  That is any
+			macro in your defaults file defined by a
+			mac.*.*:   (TEXT)    line.			
+
+Multiline macros are no-longer allowed at all.
+Primarily this is based on network traffic arguments.
+
+-------------------------------------------------------------------------
+NEWMACRO and SMARTMACRO documentation - Jeff Nelson 6/4/1993 
+
+
+*WARNING*  *WARNING*  *WARNING*  *WARNING*  *WARNING*
+
+These features default OFF in the BRM client!  A server will turn them
+on *for you* if they are allowed at that server.  The BRM client will
+inform you by sending you a message line like:
+BRM: Features enabled: NEWMACRO, SMARTMACRO
+
+If you are not at a server that allows NEWMACRO, then all targetted
+macros will be treated as normal NBT macros (no argument substitution,
+%a will broadcast as %a).  If you are not on a server that allows
+SMARTMACRO, then any conditional text or tests will *not* be evaluated,
+instead they will be sent as the macro appears in your defaults file!
+
+If you don't like this, complain to the server god!!  Make a difference!!
+
+
+Compilers:
+In order to use the below features, NBT and NEWMACRO must be defined.
+In addition, SMARTMACRO must be defined to use the most advanced
+features.
+
+
+Here is the idea:
+A player should be able to include in his/her macros whatever
+reasonable information is available.  And configuring its display
+in whatever way is desired.  In order to do this, the following
+syntax is used (while remaining completely compatible with old NBT
+macros).
+
+A key is assigned in the defaults file (ie .xtrekrc, etc)
+by a line like:
+
+mac.F.T		Help!  Carrying %a!!
+
+This defines a macro which will send a distress containing
+the number of armies a player is carrying to his team.
+
+Note, this is NOT printf syntax!  Any attempt to use formatting will
+fail miserably.  Maybe in the future someone will want to develop
+a means of formatting the variables used in macros, but the only
+means I can think of are both bulky and ugly.
+
+Here is another example:
+
+mac.f		Help!  Carrying %a!!
+
+Unlike the first, this macro will not send directly to the team,
+instead it requires that you give a third keystroke specifying the
+recipient.  For example, it could be invoked by:
+
+XfT		<- to your team
+Xf1		<- to player 1
+XfG		<- if you are desperate, send to God
+XfA		<- if you are stupid, send to ALL
+
+Old macros will still work in addition to these, thus be sure there are
+no conflicts.  These generally cause suprising results.  For example,
+if this is in your macro file:
+
+mac.E.T		Help!  I'm carrying!!
+macro.E.A	You all suck!
+mac.E		Help!  I'm a twink!!
+mac.E.T		Help!  I'm carrying again!!
+macro.E.A	You all suck even worse NOW!
+
+The suprising results would be that pressing XE would broadcast the
+first two messages, and then wait for the destination of the third.
+It would be impossible to ever use the last two.  Unfortunately, multiline
+macros also do not work if they require a destination.  There is no
+good reason for this, but since multiline macros annoy the hell out
+of me, I ain't fixing it.  You can still do something like:
+
+mac.D.A:	D
+mac.D.A:	O
+mac.D.A:	O
+mac.D.A:	S
+mac.D.A:	H
+
+This would properly broadcase 5 messages containing 1 character to all.
+If you tried to specify the destination for these by using "mac.D:",
+only 'D' would be sent.
+
+Also '?' can still not be used as a macro key.
+The following definitions will work in a macro:
+
+Standard:
+
+%a      armies carried by sender
+%d      sender damage percentage
+%s      sender shield percentage
+%f      sender fuel percentage
+%w      sender wtemp percentage
+%e      sender etemp percentage
+%t      team id character of target planet
+%T      team id character of sender team
+%c      sender id character
+%n      armies on target planet
+%E      1 if etemped, 0 if not
+%W      1 if wtemped, 0 if not
+%S      sender two character ship type
+%p      id character of target player
+%g	id char of target friendly player
+%h	id char of target enemy player
+%P      id character of player nearest sender
+%G	id char of friendly player nearest sender
+%H	id char of enemy player nearest sender
+%l      three character name of target planet
+%i	sender full player name (16 character max)
+%u	full name of target player (16 character max)
+%z	3 letter team id of target planet
+%b      sender nearest planet
+
+FULLY CAPITALIZED:
+%L	three character name of target planet
+%I	sender full player name (16 character max)
+%U	full name of target player (16 character max)
+%Z	3 letter team id of target planet
+%B      sender nearest planet
+
+Ping stats: (may differ slightly from server '!' ping stats)
+%v    average ping stat round trip time 
+%V    ping stat round trip standard deviation
+%y    percent total packet loss as calculated by server formula
+
+Miscellanous:
+%m      the last message you sent
+%M	the last message you sent in all caps
+
+As a further extension to NEWMACRO, a macro may now be sent
+to any of the following destinations:
+
+%i %I %c	send message to self
+%u %U %p	send message to player nearest mouse
+%t %z %Z	send message to team of player nearest mouse
+%g		send message to nearest friendly player to my ship
+%h		send message to nearest enemy player to my ship
+
+with a syntax like
+
+#useful for INL...
+mac.C.%i:	CAPTAIN
+mac.N.%i:	NEWGALAXY
+mac.S.%i:	START
+mac.T.%i:	%Z
+
+mac.W.%t:	SHUT UP, TWINKS!!
+mac.I.%u:	%u: det when you escort!
+mac.O.%u:	(%i) ogging
+
+What this does is allows you to send a macro to a player or
+team specified by your mouse location instead of requiring
+a 3rd character to be input.  Also, it allows you to send
+message to yourself without having to actual sit there and
+figure out who you are (they tried and failed back in the '60s).
+
+
+>>>>The above is available when NEWMACRO is defined;  from here on,
+>>>>SMARTMACRO must be defined *in addition*.
+
+Further, tests may be done within the macro system, the syntax
+for these test is as follows.
+%?	introduces a test
+=	equivalence
+>	greater
+<	less
+
+Expressions are evaluated on a character by character basis until the
+test is resolved.  The text of the test is then replaced in the macro
+by 1 or 0.
+
+Test are then fed to a syntax I call conditional text.  The best way
+to demonstrate how this works is example.
+
+1%{included if true%!included if false%}
+
+This would print:
+included if true
+
+0%{included if true%!included if false%}
+included if false
+
+Combining the whole package, a very robust macroing system is
+quickly generated.  One can easily design or mimic Distress calls,
+including the variable NBT distress of the BRM client and all the
+hardcoded message macroing built into my own client but never released.
+
+Here are a few more samples to work from:
+
+mac.F.T:	Help!  Carrying %a!!
+mac.f:		Help!  Carrying %a!!
+mac.c.T:	%p++ near %l
+mac.b.T:	%?%n>4%{bomb %l at %n%!bomb%}
+mac.d.T:	%E%{%!%W%{%!I'm fine.  How are you?  %}%}%E%{ETEMPED!!!  %}%W%{WTEMPED!!!  %}Carrying %?%a>0%{%a armies!%!NO armies.%}
+mac.a.T:        %E%{ETEMPED!!!  %}%W%{WTEMPED!!!  %}Carrying %?%a>0%{%a armies!%!NO armies.%}
+mac.R.A:	I'm a %?%S=SB%{star base!%!twink!%}
+mac.K.A:	KissMy%S
+mac.t:		thanks
+mac.y:		yes
+mac.n:		no
+mac.B:		bye, getting hungry/sleep/horny
+mac.e.T:	need escort going to %l%?%a>0%{, carrying %a armies!%}
+mac.v.%t:       %T%c PING stats: Average: %v ms, Stdv: %V ms, Loss: %y%%
+
+#My Favorite:
+mac.m:		%m

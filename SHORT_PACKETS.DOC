@@ -1,0 +1,180 @@
+Received: from plato.Chemietechnik.Uni-Dortmund.DE
+	by mail.Chemietechnik.Uni-Dortmund.DE id AA20183; Mon, 7 Jun 93 09:46:43 +0200
+From: Heiko Wengler <hw@plato.Chemietechnik.Uni-Dortmund.DE>
+Message-Id: <9306070746.AA04496@plato.Chemietechnik.Uni-Dortmund.DE>
+Subject: README for SHORT_PACKETS
+To: short@plato.chemietechnik.uni-dortmund.de
+Date: Mon, 7 Jun 1993 09:46:41 +0200 (MET DST)
+X-Mailer: ELM [version 2.4 PL13]
+Content-Type: text
+Content-Length: 6423      
+
+
+   Short Packets Code by Tedd Hadley and Heiko Wengler.
+
+  
+   Extra feature:	',' puts up a menu ('network' for your .xtrekrc) with 
+			1 toggle options and 1 integer entry field:
+   and two new keys: '-' updateSmall	'xx' (not assigned yet) updateMiddle (:-)
+   'UpdateSmall' gives you an update of all weapons+Planets+Kills. ( <400 bytes) 
+   'UpdateMiddle' is updateAll without the Stats. 	(< 700 bytes)
+    UpdateAll (<2200 bytes)
+    orig UpdateAll (4192 bytes)
+
+   MENU:
+
+   [Don't] Receive variable and short packets		(1)
+   Receive threshold:				(2)
+   Done
+
+   (1) Variable and short packets.  This tells the server to send several
+   new types of packets instead of the original types.  The technical
+   details follow at the end.
+
+   (2) Receive threshold.  This is complete experimental.  If a non-zero
+       threshold is specified the server tries to not overload the
+       connection.
+       This option could be not implemented in the server.  
+       You should give as a threshold the number of bytes per second
+       you wanna give from your bandwith.
+       For example if you set the threshold to 500 bytes. And you are
+       playing with 5 updates/sec. You have a threshold of 
+       500/updates = 100bytes/update. The server checks after every update
+       if he wrote more than the limit. If yes the server skips your 
+       next update and you get a warning from your client.
+       This can actually halve your Updates/sec. Not more. (Eg if you
+       play with 5 updates it 'slows' you down to 3 updates.)
+       Minimum limit per update is 60 bytes. (Threshold = 60 * updates then.)
+       If you set it to 0 Server ends testing.
+       ( If you wanna calculate your bandwith requirements you should count
+ 	 the tcp/ip overhead of 64 bytes to the actual data. For example
+	 if you wanna play with a 9600 Baud modem. You have a bandwith
+         of 1200 bytes. you can subtract 200 bytes for client-server
+	 communication. So you have 1000 bytes to play with. With 5 updates
+	 you need under tcp/ip (5*64=)320 bytes for headers.
+	 You have then ~650 bytes for serverdata. That means you should
+	 set the threshold to 650 bytes. ( 130 bytes per update are much.
+	 All playermovement(16 players) +SP_S_YOU + 16 Torps.) I do not
+	 think that you ever get 16 player packets in one update.
+	 That leaves you with some more "weaponsdata" :-)
+         If you have another protocol you must compute the overhead by 
+	 yourself.
+         And any limit smaller than 500 bytes /update means that after
+	 an UpdateAll the next update is skipped. 
+
+****************************************************************************   
+   Variable and short packet justification:  The three largest contributors 
+   to netrek bandwidth are the packets SP_PLAYER (all player movement), 
+   SP_YOU (information relating to your ship statistics, and your status)
+   and SP_TORP (torp movement).  In one test I got these statistics:
+
+      SP_PLAYER:      2407 K
+      SP_YOU:         1408 K
+      SP_TORP:        1118 K
+      SP_STATS:       262 K
+      SP_FLAGS:       148 K
+      SP_WARNING:     139 K
+      SP_TORP_INFO:   90 K
+      SP_MESSAGE:     82 K,
+      ... (the remaining packets account for about 50K)
+   
+   Without much doubt, the first three (SP_PLAYER, SP_YOU, SP_TORP) contribute 
+   most of the overhead. So...
+
+   NEW PACKETS:
+      
+      ORIGINAL	    	SIZE (bytes)	NEW 		SIZE (bytes)
+      --------------------------------------------------------------
+      SP_PLAYER		12		SP_S_PLAYER	4	(**)
+      SP_YOU		32		SP_S_YOU	12
+					SP_S_YOU_SS	12
+      SP_TORP		12		SP_S_TORP	~4	(***)
+      SP_TORP_INFO	8		SP_S_TORPINFO	1	
+      SP_PLANET		12		SP_S_PLANET	6	(*)
+      SP_MESSAGE	84		SP_S_MESSAGE	8-76
+      SP_WARNING	84		SP_S_WARNING	4
+   
+   (*) variable packets, each packet containing 2 bytes of type & length
+   information and some number of 6-byte entries, 
+   (**) variable packets, each packet containing 4 (or 12) bytes of type & length
+   information and some number of 4-byte entries,
+   (***) The torp packet is really a packet container for 9 bit pixelcoordinates.
+    Look into the code to figure out :-)
+ 
+   Notice that the reduction in network traffic is very close to 40-70% of
+   the original.
+
+   SP_S_PLAYER:		byte 	bit description
+			-----------------------
+			0	0-4 player number, 5 local or galactic, 6 = 9. x-bit, 7 9. y-bit 
+			1	0-3 speed, 4-7 direction of ship
+			2	0-7 low 8 bits from X-Pixelcoordinate
+			3	0-7 low 8 bits from Y-Pixelcoordinate 
+
+   SP_S_TORP:		byte	range
+			-----------------------
+			0	0-7 Packettype
+			1	0-7 Bitset describing which torps are in this packet.
+			2	0-7 Torpnumber of first torp( num*8=torpnumber)
+			3	A number of 9 Bit pairs. Each describing one 
+				torp.
+				( The 9 bit numbers are the torpcoordinates in
+				 pixel-coordinates.)
+			All rounded up to 4 byte boundaries.
+
+   SP_S_YOU and SP_S_YOU_SS are the result of dividing SP_YOU into two
+   packets.  Most of the time, SP_YOU gets sent because ship status has
+   changed, i.e. damage, fuel, or shields.  The remaining information,
+   hostile, swar, armies, and flags are not needed as often.  Therefore it
+   makes sense to split SP_YOU into two packets:
+      
+struct youshort_spacket {       /* SP_S_YOU */
+     char       type;
+
+     char       pnum;
+     char       hostile;
+     char       swar;
+
+     char       armies;
+     char       whydead;
+     char       whodead;
+
+     char       pad1;
+
+     unsigned   flags;
+};
+
+   and
+
+struct youss_spacket {          /* SP_S_YOU_SS */
+     char       type;
+     char       pad1;
+
+     unsigned short     damage;
+     unsigned short     shield;
+     unsigned short     fuel;
+     unsigned short     etemp;
+     unsigned short     wtemp;
+};
+
+The new SP_S_PLANET: All info as in the old packet but only 255 armies.
+
+struct planet_s_spacket {	/* body of SP_S_PLANET  */		
+    char pnum;
+    char owner;
+    char info;
+    uchar armies;	/* more than 255 Armies ? ...  */
+    short flags;
+};
+
+struct warning_s_spacket {		/* SP_S_WARNING */
+    char type;
+    uchar  whichmessage;
+    char  argument, argument2; /* for phaser  etc ... */
+};
+Instead of sending the strings i send only an index into an string array.
+This works also for all weapons warnings with arguments. (like Phaser.)
+(eg: old: Phaserpacket (16) + SP_WARNING = 100 bytes. now only 20.)
+
+   Limitations: Only 64 Players can be send with SP_S_PLAYER.	 
+     

@@ -1,0 +1,30 @@
+
+The whole COW source is source controled with CVS.  
+
+Server is:  cowsrc.netrek.org
+CVS path:  /cvs/cow
+
+As logins we have the following read only logins so far:
+
+Login    Password
+cow      cow
+guest    guest
+netrek   netrek
+
+To get the COW src now from the CVS tree set the CVROOT variable to
+
+:pserver:cow@cowsrc.netrek.org:/cvs
+
+Login on the server with password cow:
+
+cvs login
+
+and checkout the whole COW src tree with:
+
+cvs -z9 co cow
+
+All COW developers may request a R/W login, by sending
+the prefered login name and the password (if possible already crypted)
+to 007@netrek.org so that it can be added.
+
+

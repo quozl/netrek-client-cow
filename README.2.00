@@ -1,0 +1,105 @@
+This file contains the most recent changes to the COW client, with example
+.xtrekrc options to deal with them, and the clips from the documentation that
+explain them.  If you're upgrading from an old version of COW, this file should
+make it a painless experience.
+
+*****************************************************************
+1)  Change Log
+*****************************************************************
+
+2.00 pl0
+- LABs newest dashboard [lab]
+- cleanup dashboard .xtrekrc defaults -> newDashboard is int [siegl]
+- COW api - shared libs, java and Netscape plugin support [siegl]
+- support for WIN95 and NT [jshekter,greynite]
+- improved sound system [jshekter,siegl]
+- split up cowmain.c from main.c [siegl]
+- highlight friendly phasers [ellisj]
+- censor (obscenities filter) [ellisj]
+- Wide enemy phaser fix [koconnor]
+- Kathy replaced by stars [Kellen, majority vote]
+- Colormap Option [Kellen]
+- fix array overflow in metaserver Win [siegl]
+ 
+*****************************************************************
+2)  Cut and past changes to make COW work like it used to.
+*****************************************************************
+
+2.00 pl0
+
+The dashboard .xtrekrc defaults handling changed.
+
+The boolean
+
+	newDashboard
+
+option is now and int default and
+
+	newdashboard2
+
+default is obsolete now. So you should use now on of:
+
+# Text dashboard
+newDashboard: 0
+
+# COW style dashboard
+newDashboard: 1
+
+# KRP style dashboard
+newDashboard: 2
+
+# LABs new dashboard
+newDashboard: 3
+
+
+*****************************************************************
+3)  Cut and past changes to turn on *all* new features.
+*****************************************************************
+
+2.00 pl0
+
+	# LABs new kewl dashboard
+	newDashboard: 3
+
+The .xtrekrc entry for the highlightFriendlyPhasers option is: 
+        
+	highlightFriendlyPhasers: on
+
+What does it do?  If on, friendly phasers that hit turn white, just like your
+own phaser did before.
+
+Jon Ellis has made some patches which he describes as "what if you
+wanted your little sister to play some netrek?".  In short, if you turn on this
+option with the .xtrekrc option : 
+
+	censorMessages: on
+
+then a list of obscenities in messages are filtered out.  No change unless you
+specifically turn it on.  
+
+
+Color map option:
+
+ [-n]   use nearest colors in shared colormap
+ 
+I really hate the flicker caused by changing colormaps.  Especially when 
+the colors cow wants are already allocated (ie, Waitqueue 5 at bigbang, 
+time to kill time elsewhere).
+
+This patch adds the '-n' option, to accept the nearest match color rather 
+than allocate a whole new colormap.
+
+Michael
+
+
+****************************************************************
+4) New manual sections
+****************************************************************
+
+
+newDashboard:	(integer 0-3) new dashboard 1 and 2, has sliding bars instead of
+		numbers at the bottom of the screen, 3 uses triangle sliders,
+		definately worth a look.
+
+
+

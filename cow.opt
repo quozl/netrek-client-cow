@@ -1,0 +1,20 @@
+!
+! cow.opt - OpenVMS Linker Options File
+!           cameron@stl.dec.com 16-Jan-1998
+!
+! Force the modules containing symbols that duplicate DEC C run time library
+! entry points to be resolved first, avoiding use of the RTL.
+!
+cluster=main,,,main,newwin,stats,pingstats,getname,cflags,data,sintab
+!
+! Find all other modules here
+!
+cow/library
+!
+! Use the Xlib dynamic library
+!
+sys$library:decw$xlibshr/share
+!
+! Internet services
+!
+sys$library:ucx$ipc.olb/library

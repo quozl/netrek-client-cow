@@ -1,0 +1,61 @@
+############################################################################
+# Sample RSA Key def file for the COW client by siegl@risc.uni-linz.ac.at  #
+# Change it acording to your system.                                       #
+# Store this file along with you secret key file for further use.          #
+############################################################################
+
+ARCH 		= unix
+
+#
+# NOTE: If you have to make a key from keys.h then after you have changed
+# the following 5 params do:
+#       make convert
+#
+
+KEYSH 		= keys.h
+KEYNAME 	= $(ARCH)
+DESC 		= "$(ARCH) / Sample key"
+MAKER 		= "007@netrek.org"
+COMMENT 	= "reserved.c blessed. Located via http at cow.netrek.org"
+
+# If you have already an valid RSA key change the name of the file below.
+# Otherwise make will automaticaly generate one for you.
+
+KEYFILE         = key.cow.$(KEYNAME)
+SECKEYFILE	= $(KEYFILE).secret
+
+# How to generate cwho in cflags.h.  Some hosts fully resolve the name
+# others need to tack on the domainname.
+#
+# several possitilities:
+# CWHO		= \"`whoami`@`hostname`\"
+# CWHO		= \"`whoami`@`domainname`\"
+# CWHO		= \"`whoami`@`hostname`.`domainname`\"
+CWHO		= \"`whoami`@`hostname -f`\"
+
+
+#######################################################################
+# Here you may add and overwrite missing or wrong system definitions. #
+#######################################################################
+
+# If GMP will not be found automatically you should add
+# CONFFLAGS = --with-gmp-incdir=/pkg/gnu/include --with-gmp-libdir=/pkg/gnu/lib
+
+# If CC in configure needs some extra defines for its tests:
+# gcc sometimes needs:
+# CFLAGS = -D__STDC__=0
+
+# Additional flags for the Makefile
+# EXTRACFLAGS = -DSMALL_SCREEN -DGATEWAY -DTREKHOPD 
+# EXTRALINKFLAGS = -s -N
+# EXTRALIBS = 
+
+# For statically linked clients
+# EXTRALINKFLAGS = -static
+
+# Parallel make on Sequent machines
+# PMAKE = &
+
+# overwrite optimization flag
+# OPT = -O2 -fomit_frame_pointer
+# OPT = -g

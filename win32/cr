@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+# Convert UNIX style files to DOS style
+
+while (<STDIN>) {
+  s/\n/\r\n/g;      #  LF -> CR / LF
+  print "$_";
+}

@@ -1,0 +1,2953 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Strict//EN">
+<HTML>
+<HEAD>
+<LINK REL=StyleSheet HREF="cow.css" TYPE="text/css" MEDIA=screen>
+<META NAME="Created" CONTENT="Sat Jan 10 20:39:20 1998">
+<META NAME="Source" CONTENT="cow.txt">
+<META NAME="Author" CONTENT="Kurt Siegl">
+<TITLE>COW Reference Manual</TITLE>
+</HEAD>
+<BODY>
+<h1>COW Reference Manual</h1>
+<PRE class=title>
+                           T H E
+                _____      _____     _   _   _
+               / ____\    / ___ \    ||  ||  ||
+               | |        | | | |    \\  /\  //
+               | |___     | |_| |     \\//\\//  
+               \_____/ o  \_____/ o    \/  \/ o
+       
+                R E F E R E N C E  M A N U A L  
+</pre>
+<pre>             
+COW Written by: Chris Guthrie, Ed James, Scott Silvey, and Kevin Smith,        
+                Tedd Hadley, Andy McFadden, Eric Mehlhaff, J. Mark Noworolski, 
+                Nick Trown, Lars Bernhardsson, Sam Shen, Rick Weinstein,     
+                Jeff Nelson, Jeff Waller, Robert Kenney, Steve Sheldon,    
+                Jonathan Shekter, Dave Gosselin, Heiko Wengler, Neil Cook, Kurt Siegl 
+                and many others.
+</PRE>
+                                                                              
+<dl>                          
+<dt>Manual compiled by:
+    <dd>Jonathan Shekter (jshekter@interlog.com)
+<dt>With Material From:
+    <dd>Jeff Nelson, Dave Gosselin, Kevin Powell, 
+    <dd>and the Anonymous but Fabulous COW Documentation Team
+
+<dt>BETA revision, September 1995
+</dl>
+<hr>
+
+<h2>Contents:</h2>
+<ol>
+<li> <a href="#intro">Introduction</a>
+     <ol><li> <a href="#ack">Acknowlegments</a> </ol>  
+       
+<li> <a href="#CommandLine">Command Line Options</a>
+<li> <a href="#CommandRef">Complete Command Reference</a>
+<li> <a href="#Features">Features</a>
+     <ol>
+     <li> <a href="#ConFeature">Connection and Utility Features</a>
+     <li> <a href="#DisplayFeature">Display Features</a>
+     <li> <a href="#InterestFeature">Interesting Features</a> 
+     </ol>            
+<li> <a href="#XtrekrcOpt">Xtrekrc Options</a>
+     <ol>
+     <li> <a href="#Keymaps">Keymaps</a>          
+     <li> <a href="#CKeymaps">CKeymaps</a>         
+     <li> <a href="#Colors">Colors</a>         
+     </ol>
+<li> <a href="#Messages">Messages And Macros</a> 
+     <ol>
+     <li> <a href="#BasicMacro">Your Basic Macro</a>  
+     <li> <a href="#Newmacro">Newmacro</a>          
+     <li> <a href="#RCD">RCD</a>
+     <li> <a href="#RCM">RCM</a>
+     <li> <a href="#Distress">Default Macros And Distresses</a>
+     </ol>  
+<li> <a href="#XtrekrcRef">Xtrekrc Reference</a>
+
+<li> <a href="#XtrekrcEx"> Example .xtrekrc</a> 
+</ol>
+
+<a name="intro"><h2>1. Introduction</h2>
+
+     Welcome to COW, the Client Of Win, the best Netrek client you ever had.
+This document is the COW reference manual. It does NOT teach one how to play 
+Netrek; for that, please see the Netrek Newbie Guide.
+<p>
+     COW is a rather feature-laden (some would say &quot;bloated&quot;) client. There
+are also a lot of things that can be configured. This manual includes a complete
+xtrekrc reference and a list of every keyboard command. If you want to
+know something about COW in particular, you'll find it here. (Incidentally,
+more than 90% of the information here is also applicable to other clients,
+so this file makes a good general-purpose client manual.)
+<p>
+     Sit back, take your socks off, and enjoy!
+     
+
+<a name="ack"><h3>1.1  Acknowledgements</h3>
+
+     Many people have contributed to COW and many many others contributed
+to its ancestor clients.  Here is an undoubtedly incomplete list of credits
+presented in no particular order.  Where possible their typical netrek name is
+provided in the hope that you will ogg them:
+<pre>
+              Scott Silvey
+              Kevin Smith
+              Rick Weinstein
+              J. Mark Noworolski                Passing Wind
+              Tedd Hadley                       pteroducktyl
+              Heiko Wengler                     Musashi
+              Andy McFadden                     ShadowSpawn
+              Chris Guthrie
+              Ed James
+              Eric Mehlhaff
+              Nick Trown                        Netherworld
+              Lars Bernhardsson                 lab
+              Sam Shen
+              Rick                              Videodrome
+              Jeff Nelson                       Miles Teg
+              Jeff Waller
+              Robert Kenney                     Zhi'Gau
+              Steve Sheldon                     Ceasar
+              Dave Gosselin                     Tom Servo
+              Kurt Siegl                        007
+              Kevin Powell                      seurat
+              Alec Habig                        Entropy
+              Jonathan Shekter                  KillThemAll!
+</pre>
+
+<a name="CommandLine"><h2>2. Command Line Options</h3>
+
+   Summary of command line options available for COW:
+<pre>
+u       (existance) prints usage information for the client
+
+C       (string of chars) name to auto-login with
+
+A       (string of chars) password to auto-login with
+
+c       (existance) checking - this will check server_port-1 and spew out
+        a list of all players currently playing on that server - not all
+        servers are intelligent enough to do this
+
+s       (integer) passive port to use, useful to attempt a manual reconnect 
+        after a ghostbust. Used in conjuction with -G, see section 4.5
+
+G       (integer) passive player slot to use, useful to attempt a manual reconnect 
+        after a ghostbust. Used in conjuction with -s, see section 4.5
+
+f       (filename) file to record packets in
+
+l       (filename) file to log messages
+
+p       (integer) port to connect to server 
+
+d       (string of chars) display name
+
+m       (existance) use meta window instead of selecting a server with
+        command line options - See section 4
+
+k       (existance) use known server window instead of selecting a server
+        with command line options.
+        
+o       (existance) use reserved.c blessing for client authentification
+
+R       (existance) use RSA blessing for client authentification (default)
+
+h       (string of chars) server name
+
+H       (string of chars) Gateway name
+
+P       (existance) log packets, generally don't want to use this
+
+t       (string of chars) title- the name of the window the client makes
+
+r       (filename) netrek default file, instead of .xtrekrc
+
+D       (existance) debug mode
+
+v       (existance) display version/expiration info then exit
+</pre>
+
+
+<a name="CommandRef"><h2>3. Complete Command Reference</h2>
+
+     The following is the complete list of commands you can use while in
+play. Note that all commands are case sensitive, and a ^ denotes a control
+key, e.g. ^a means control+a, which is different from ^A, which is 
+control+A (control+shift+a, in other words.)
+<p>
+
+<h3>Combat Functions:</h3>
+
+c &nbsp;&nbsp;&nbsp;&nbsp;   Toggle cloak. <BR>
+{ &nbsp;&nbsp;&nbsp;&nbsp;   Turn cloak on. <BR>
+} &nbsp;&nbsp;&nbsp;&nbsp;   Turn cloak off. 
+<P>
+d &nbsp;&nbsp;&nbsp;&nbsp;   Detonate enemy torps. All enemy torps within a certain range will
+explode. They do as little as a quarter of their normal damage at maximum
+det range. Detting is useful for protecting another ship, causing damage to
+other ships (if you can manage to det enemy torpedos fired by one enemy 
+over another) or preventing torps from hitting you. Use it carefully, 
+though: if there are many torps nearby and only one or two will actually 
+hit you, it is better to let them hit than det, as one direct hit will do 
+less damge than say, 5 detted torps, each at minimally 1/4 normal damage, 
+probably more.
+<P>
+D &nbsp;&nbsp;&nbsp;&nbsp;   Detonate your torps. It does not do damage to anyone.
+But it will enable you to fire again if you have 8 torps active
+(the maximum.) This is not a very good idea however as you will be wastring
+gobs of fuel firing and then detting useless torps.
+<P>
+f &nbsp;&nbsp;&nbsp;&nbsp;   Fire plasma torpedo. You need at least 2 kills, and must be flying a
+BB/DD/CA to do this. Plasma torpedos are tracking, but they can be shot 
+down fairly easily by phaser. They do a lot of damage but use a lot of 
+fuel. Note also that when they are shot down they explode and ships that 
+are too close can take damage.
+<P>
+p &nbsp;&nbsp;&nbsp;&nbsp;   Fire phaser. The mouse cursor specifies direction. 
+<P>
+s &nbsp;&nbsp;&nbsp;&nbsp;   Toggle shields <BR>
+[ &nbsp;&nbsp;&nbsp;&nbsp;   Shields down <BR>
+] &nbsp;&nbsp;&nbsp;&nbsp;   Shields up 
+<P>
+t &nbsp;&nbsp;&nbsp;&nbsp;   Fire photon torpedo. The mouse cursor specifies direction. 
+<P>
+u &nbsp;&nbsp;&nbsp;&nbsp;   Toggle shields
+<P>
+T &nbsp;&nbsp;&nbsp;&nbsp;   Toggle tractor beam. The mouse indicates the target. This pulls the
+target towards you but uses a lot of fuel and raises your engine temp. 
+Since tractors are very useful and hitting shift-T is inconvenient, many 
+players map lowercase t to this function (see the section on keymaps.)
+<P>
+y &nbsp;&nbsp;&nbsp;&nbsp;   Toggle pressor beam. Same as tractor (see 'T') but pushes.
+<P>
+_ &nbsp;&nbsp;&nbsp;&nbsp;   (underscore) Turn tractor beam on. Mouse indicates target.
+^ &nbsp;&nbsp;&nbsp;&nbsp;   Turn pressor beam on. Mouse indicates target.
+<P>
+$ &nbsp;&nbsp;&nbsp;&nbsp;   Turn tractor or pressor beam off.
+
+<h3> Movement And Navigation Functions:</h3>
+
+0-9 &nbsp;&nbsp;    Set speed to 0..9 <br>
+( or ) &nbsp;&nbsp; Set speed to 10 <br>
+! &nbsp;&nbsp;&nbsp;&nbsp;      Set speed to 11 <br>
+@ &nbsp;&nbsp;&nbsp;&nbsp;      Set speed to 12 <br>
+# &nbsp;&nbsp;&nbsp;&nbsp;      Set speed to half of your maxwarp <br>
+% &nbsp;&nbsp;&nbsp;&nbsp;      Set speed to max <br>
+&gt; &nbsp;&nbsp;&nbsp;&nbsp;      Increase speed by one <br>
+&lt; &nbsp;&nbsp;&nbsp;&nbsp;      Decrease speed by one
+<p>
+k &nbsp;&nbsp;&nbsp;&nbsp;   Set course. The mouse cursor specifies direction. 
+<p>
+l &nbsp;&nbsp;&nbsp;&nbsp;   Lock onto object. The mouse cursor specifies what; it can be either a
+ship or a planet. A small triangle indicates the lock, and you will fly
+towards that object. If it is a planet or SB you will orbit / dock when you
+arrive.
+<P>
+; &nbsp;&nbsp;&nbsp;&nbsp;   Like l but only locks onto planets and starbases (things you can orbit
+or dock at)
+<P>
+* &nbsp;&nbsp;&nbsp;&nbsp;   Send in practice robot, if there's no one else playing. On many
+servers, this is also the key for starbase transwarp. This is Really Cool.
+Lock onto your SB, go no faster than warp 2, hit transwarp, and you will go
+warp 99 until you reach the SB (at which point you will dock), run out of
+fuel, or die. This is handy for reaching the front lines fast. Not all servers
+support this.
+
+
+<h3> Planet Functions:</h3>
+
+b &nbsp;&nbsp;&nbsp;&nbsp;   Bomb planet. You must be orbiting an enemy planet and in T-mode to do
+this. You only need to press it once and you will continue bombing untill
+the planet reaches 4 or less armies.
+<p>
+C &nbsp;&nbsp;&nbsp;&nbsp;   Try to coup your home planet. This is a way to get back your home planet 
+if you have no other planets.  Only possible after a genocide without a server
+reset, then everyone leaves, losing T, and people join the team that lost
+again.  You must have kills and be orbiting it.
+<p>
+o &nbsp;&nbsp;&nbsp;&nbsp;   Enter orbit or dock. You must be going no faster than warp 2 and be on
+top of a planet or starbase.
+<p>
+x &nbsp;&nbsp;&nbsp;&nbsp;   Beam armies down to planet (yours or enemy) or a starbase. You must be
+orbiting or docked to the planet or stabase in question.
+<p>
+z &nbsp;&nbsp;&nbsp;&nbsp;   Beam armies up from friendly planet or starbase. Again, you must orbit
+or dock. 
+
+
+<h3> Message Functions</h3>
+
+E &nbsp;&nbsp;&nbsp;&nbsp;   Send generic distress call.
+<p>
+F    Send armies carried report
+<p>
+m &nbsp;&nbsp;&nbsp;&nbsp;   Start sending message. After hitting this key type the destination
+(0..9 and a..j = specific player, F/R/K/O = specific team, T = your team,
+A = all) and then the body of the message. Hit enter to send or escape to
+abort.
+<p>
+X &nbsp;&nbsp;&nbsp;&nbsp;    Enter macro mode. After pressing the macro key, you can send the 
+macros you have assigned to those keys. See the section on macros. You also 
+have available all the standard distress calls. Both the distress format 
+and key can be changed (see: RCD). See the sections on Macros and RCD for 
+specifics, including what the default macros are.
+<p>
+^0..^9 <BR>
+^@ <BR>
+^# <BR>
+etc...<p>
+     The distress calls are all mapped to similar control keys. For 
+example, instead of pressing &lt;macro&gt;0 to send an armies carried report, you 
+can use ^0. See the section on RCDs for available distress calls / reports.
+ 
+
+<h3> Misc. Functions </h3>
+
+e &nbsp;&nbsp;&nbsp;&nbsp;   Toggle docking permission (when playing a starbase). This allows or
+disallows other players to dock on you and repair, refuel, beam up/down
+armies, etc. If you turn off docking while players are docked, they will be
+ejected, hence the assigned key.
+<p>
+i or I &nbsp;&nbsp;   Get information on object near mouse. Uppercase shows different 
+info than lowercase. You can use this to, for example, find out how many 
+armies are on a planet, where a player is logged in from, how many kills 
+they have, or whether a planet is agricultural.
+<p>
+K &nbsp;&nbsp;&nbsp;&nbsp;   Show Kathy Ireland
+<p>
+N &nbsp;&nbsp;&nbsp;&nbsp;   Toggle short/long planet Names display on tactical window.
+<p>
+r &nbsp;&nbsp;&nbsp;&nbsp;   Refit. Use this to change your ship type. You must be orbiting your
+home planet (Earth for Fed, Romulus for Rom, Klingus for Kli, Orion for 
+Ori) or your team's SB. After pressing r, press the key corresponding to 
+the ship type you want (s=scout, d=destroyer, c=cruiser, b=battleship, 
+a=assault, o=starbase/outpost)
+<p>
+R &nbsp;&nbsp;&nbsp;&nbsp;   Enter repair mode. This sets you at warp 0, and turns off shields and
+cloaking. Damage is repaired faster than normal in this state, but you
+cannot fire. To exit repair mode, raise shields or start moving. The 
+fastest way to repair yourself is to do this while orbiting a repair 
+planet or docked on an SB. When you are in repair mode a little R will 
+appear in your flags and you will not be able to fire or cloak.
+<p>
+w &nbsp;&nbsp;&nbsp;&nbsp;   Change war declarations. This is important. Your weapons will not lock
+or explode on ships belonging to races which you are not at war with, and
+you will take damage if you orbit planets of hostile races. So, declare war
+with your enemy and peace with everyone else (so you can use their fuel and
+repair planets.) Note that if you change your war settings while an enemy
+is on the screen you will be unable to do anything for about ten seconds
+while &quot;the computers get reprogrammed.&quot; The moral of this is: declare war
+before you go into battle. Note that you start out hostile to everyone, so
+if you forget before your first engagement it's not too critical.
+<p>
+q &nbsp;&nbsp;&nbsp;&nbsp;   Quit, don't re-read MOTD (&quot;fastquit&quot;).<br>
+Q &nbsp;&nbsp;&nbsp;&nbsp;   Quit, exiting to MOTD screen. If you hit either of these in red alert,
+a self destruct timer will start. This is so you can blow up over your
+enemy. While the countdown is in progress, any input cancels it.
+<p>
+: &nbsp;&nbsp;&nbsp;&nbsp;   Toggle message logging. Saves all messages to a file so you can laugh
+at them later.
+<p>
+- &nbsp;&nbsp;&nbsp;&nbsp;   Request partial update (see the section on UDP and Short Packets)
+<p>
+= or | Request full update (see the section on UDP and Short Packets)
+<p>
+&amp; &nbsp;&nbsp;&nbsp;&nbsp;   Re-read xtrekrc file
+
+
+<h3> Window And Display Functions:</h3>
+
+B &nbsp;&nbsp;&nbsp;&nbsp;   Cycle through galactic map planet display options. Possible options 
+are show nothing, show owner, or show resources (the most useful, as on a 
+color display you can tell owner by color.)
+<p>
+h &nbsp;&nbsp;&nbsp;&nbsp;   Toggle help window. Display a brief summary of these commands, as well
+as what key each command is currenly assigned to.
+<p>
+L &nbsp;&nbsp;&nbsp;&nbsp;   Toggle player window. This lets you see the names of the players, 
+their stats, and, most importantly for defending planets, their kills.
+<p>
+/ &nbsp;&nbsp;&nbsp;&nbsp;   Toggle between new and old playerlist format
+<p>
+M &nbsp;&nbsp;&nbsp;&nbsp;   Toggle tools window
+<p>
+O &nbsp;&nbsp;&nbsp;&nbsp;   Toggle options window. There are many neat things here, most of which
+are configurable via the xtrekrc file. Experiment! This is a really useful
+command.
+<p>
+P &nbsp;&nbsp;&nbsp;&nbsp;   Bring up the Planet window. Lists all planets, owner, who has info on
+them, number of     armies, and facilities at each.
+<p>
+S &nbsp;&nbsp;&nbsp;&nbsp;   Toggle stats window. This is a larger version of your dashboard, sort
+of. Kind of big and annoying and I don't like it but you might.
+<p>
+U &nbsp;&nbsp;&nbsp;&nbsp;   Toggle rank window. Shows you what ratings you need for promotion.
+<p>
+V &nbsp;&nbsp;&nbsp;&nbsp;   Cycle through tactical planet display options. Possible options are
+show nothing, show owner, or show resources (the most useful, as on a color
+display you can tell owner by color.)
+<p>
+~ &nbsp;&nbsp;&nbsp;&nbsp;   Toggle sound control window
+<p>
+. &nbsp;&nbsp;&nbsp;&nbsp;   Toggle network stats window
+<p>
+\ &nbsp;&nbsp;&nbsp;&nbsp;   Toggle lagmeter 
+<p>
+, &nbsp;&nbsp;&nbsp;&nbsp;   Toggle ping stats window
+<p>
+` &nbsp;&nbsp;&nbsp;&nbsp;   Toggle short packets control window
+<p>
++ &nbsp;&nbsp;&nbsp;&nbsp;   Toggle UDP control window.
+<p>
+? &nbsp;&nbsp;&nbsp;&nbsp;   Cycle through show nothing / show one big message window / show three
+message windows.
+<p>
+
+&lt;space&gt; Turn off all special windows (planet, rank, help, udp, etc.)
+
+
+
+<a name="Features"><h2>4. Features</h2>
+
+      This section describes in detail some of the newer, more interesting
+features of COW. There are many! Here is a mini index of this section:
+<pre>
+     4.1. Connection and Utility Features
+        4.1.1. The Metaserver
+        4.1.2. GhostBusts and Restarts
+     4.2. Display Features
+        4.2.1. PlayerList Configuration
+        4.2.2. BeepLite
+        4.2.3. Warning Shields
+        4.2.4. Hockey Lines
+     4.3. Interesting Features
+        4.3.1. Shell Tools
+        4.3.2. Customizable Cursors
+</pre>   
+
+
+<a name="ConFeature"><h3>4.1 Connection and Utility Features</h3>
+
+     In this section we have:
+<p>     
+     The Metaserver<br>
+     Ghostbusts and Restarts
+     
+<h4>4.1.1. The Metaserver</h4>
+     The MetaServer and the MetaServerCache are provided to help 
+you find a netrek game to join.  Both services provide a list of the 
+popular netrek servers.  The MetaServer is neat because provides information
+on the number of players at each site.  The MetaServerCache is neat
+because it is much faster if you can guess where a game will be.
+<p>
+     To access the MetaServer, use the command line switch &quot;-m&quot;.  For
+example &quot;cow -m&quot;.  To access the MetaServerCache, use the &quot;-k&quot; switch
+instead.
+<p>
+
+1) Where to find the MetaServer:
+<p>
+     You can use the options &quot;metaport&quot; and &quot;metaserver&quot; to point COW
+to a new MetaServer.  The defaults for these options are:
+<pre>
+         metaport: 3521
+         metaserver: metaserver.ecst.csuchico.edu
+</pre>
+
+2) How to create a list of known servers for the MetaServerCache:
+<p>
+     Before you can use the MetaServerCache, you must give COW a file in
+which to cache the information from the MetaServer.  Use the .xtrekrc
+option &quot;metaCache&quot; to specify this file.  The files path will be
+relative to your home directory unless you start the file name with a
+slash (/).
+<p>
+      For example, to set the cache file to &quot;~/.metaCache&quot; use:
+<pre>
+        metaCache: .metaCache
+</pre>
+     Unlike the MetaServer, the MetaServerCache will not show the number of
+people playing at a server.  If a server is contactable, it will be
+shown as &quot;Active&quot;.
+<p>
+     Warning: If &quot;metaCache&quot; is set, COW will also use a second, temporary
+file.  This file with have the name of the metaCache file with the
+last character changed to either a 'T' or an 'R'.  Eg, &quot;.metaCache&quot;
+becomes &quot;.metaCachT&quot; and &quot;BEAST&quot; becomes &quot;BEASR&quot;.  Ensure that this
+temporary file does not overwrite something important.
+<p>
+
+3) How much information will be shown:
+<p>
+     You can now control the amount of information that the MetaServer
+displays for you by setting the &quot;metaStatusLevel&quot; flag.  The default
+is:
+<pre>     
+        metaStatusLevel: 3
+</pre>        
+        
+      The status levels are coded as follows:
+<pre>
+0       Servers which have players but not a wait queue.
+1       + Servers with a wait queue.
+2       + Servers with nobody playing. (see NOTE1).
+3       + Servers which have Timed Out for the MetaServer (see NOTE2).
+4       + Servers which the MetaServer has not been able to connect to.
+</pre>
+NOTE1: When using the MetaServerCache, &quot;metaStatusLevel&quot; values of
+less than 3 are treated as the value 3.  This minimum is enforced
+because the cache does not attempt to show the number of people
+playing at a site.
+<p>
+NOTE2: If you are a long way from the MetaServer, you are advised to
+ignore TimeOut errors.  For example, the MetaServer in America may
+have difficulty contacting to a server in Holland while the link from
+England to Holland is very good.
+<p>
+
+3) The Fallback
+<p>
+     If you attempt to contact the MetaServer, and the connection times
+out, COW will try to show the MetaServerCache instead.
+<p>
+     Similarly, if you attempt to use the MetaServerCache, and your
+&quot;metaCache&quot; file does not exist, COW will attempt to call
+theMetaServer.
+
+
+<h4>4.1.2. GhostBusts and Restarts </h4>
+
+     After a client dies, or even if you kill the client on purpose,
+you can recover the game and continue playing.  In fact the
+server won't have any idea that anything but bad lag (called
+a ghostbust) has occurred.
+<p>
+     The benefits of this feature include the ability to change
+displays, recompile code (if you happen to be a code hack),
+or simply recover from a core dump.
+<p>
+     In order to use it, you have to pay attention to two numbers
+which are displayed when you connect to the server.  A line
+like this appears:<br>
+***  socket 11323, player 0  ***
+<p>
+     This indicates which player slot you have been assigned, and
+which socket number has been chosen as your ghostbust socket.
+<p>
+     Now in order to restart, just do:<br>
+netrek -G 0 -s 11323
+<p>
+     The important options are -G followed by the player slot you
+occupy, and -s followed by the ghostbust socket.  Notice that
+you don't even specify a server!
+<p>
+    This feature may NOT work on all servers.  Many server gods use
+server code which is too old to support this feature.  Also,
+keep an eye out for small details that are off.  It is NOT
+logically possible to account for everything with this feature.
+Such things as the motd are not resent by the server when you
+connect, so you won't have that around anymore.  Further, the
+client won't know who it is even connected to (see above), thus
+don't be shocked if the client claims you are connected to a
+bogus server.
+<p>
+WARNING:  Some servers have *very* short ghostbust timeout
+periods.  You must reconnect before this timeout expires or
+your slot will be given to someone else, you won't be able
+to reconnect.  On most servers it is around 6 minutes long.
+<p>
+      Note to experts:  The server will reverify clients using whatever
+available means it has, including RSA or reserved.c when a ghostbust
+occurs and therefore whenever this feature is used.
+
+
+
+<a name="DisplayFeature"><h3>4.2. Display-ish Features</h3>
+
+     In this section we have features which all control some visual aspect,
+i.e. something you see or the way information is presented. 
+
+<h4>4.2.1.  Playerlist Configuration</h4>
+
+   [ Originally by: dave, gosselin@ll.mit.edu ]
+   <p>
+    There is an .xtrekrc option called &quot;playerlist&quot;.  What it allows
+you to do is specify which columns of the player list you want to show
+and in what order.  The following is a table of the available columns.
+<pre> 
+Spc  Let   Name                 Header
+---  ---   -------------------- -------------------
+  3  'n'   Ship Number          &quot; No&quot;
+  3  'T'   Ship Type            &quot; Ty&quot;
+ 11  'R'   Rank                 &quot; Rank      &quot;
+ 17  'N'   Name                 &quot; Name            &quot;
+  6  'K'   Kills                &quot; Kills&quot;
+ 17  'l'   Login Name           &quot; Login           &quot;
+  6  'O'   Offense              &quot; Offse&quot;
+  6  'W'   Wins                 &quot;  Wins&quot;
+  6  'D'   Defense              &quot; Defse&quot;
+  6  'L'   Losses               &quot;  Loss&quot;
+  6  'S'   Total Rating (stats) &quot; Stats&quot;
+  6  'r'   Ratio                &quot; Ratio&quot;
+  8  'd'   Damage Inflicted(DI) &quot;      DI&quot;
+  1  ' '   White Space          &quot; &quot;
+  6  'B'   Bombing              &quot; Bmbng&quot;
+  6  'b'   Armies Bombed        &quot; Bmbed&quot;
+  6  'P'   Planets              &quot; Plnts&quot;
+  6  'p'   Planets Taken        &quot; Plnts&quot;
+ 17  'M'   Display/Host Machine &quot; Host Machine    &quot;
+  7  'H'   Hours Played         &quot; Hours &quot;
+  6  'k'   Max Kills            &quot; Max K&quot;
+  6  'V'   Kills per Hour       &quot;   KPH&quot;
+  6  'v'   Deaths per Hour      &quot;   DPH&quot;
+</pre> 
+So for example if you just wanted to see names and rank you'd add this
+line to your .xtrekrc:
+<p> 
+playerlist: NR
+  
+<p>
+NOTE ON SB STATS :<br>
+On servers which support the SBHOURS .feature, you will see slightly 
+different things when you info a SB, or show the SB player on the 
+playerlist.  The usual offense and defense lines are replaced with SB 
+kills/hour and deaths/hour.  The kills, deaths, hours and ratio entries
+are all the player's SB stats as long as he is in the SB, and his normal
+stats otherwise.
+<p>
+
+1) Predefined &quot;playerlist&quot; styles:
+<p>
+For your viewing pleasure we have predefined some playerlist layouts
+that you might like to try.  These predefined styles can be selected
+using the &quot;playerListStyle&quot; option in your .xtrekrc or by using the
+options menu (shift-O).
+<p>
+The &quot;playerListStyle&quot; options are:
+<pre>
+        0: Custom style         = playerlist
+        1: Old style            = &quot;nTRNKWLr O D d &quot;
+        2: COW style            = &quot;nTR N  K lrSd&quot;
+        3: Kill watch style     = &quot;nTK  RNlr Sd&quot;
+        4):BRMH style           = &quot;nTR N  K l M&quot;
+</pre>
+
+For backward compatability, the option &quot;newPlist&quot; will still select
+between the old style playerlist (off) and the COW style playerlist
+(on) if the &quot;playerListStyle&quot; option does not appear in your .xtrekrc.
+<p>
+
+2) The &quot;partitionPlist&quot; option:
+<p>
+Lets face it, the main role of the player list is so that you can keep
+track of who has kills.
+<p>
+To make life easier, the player list is sorted so that enemy and
+friendly teams are always in the same place in the list.  However, in
+mono it is not immediatly obvious where one team starts and another
+team ends.  If the &quot;partitionPlist&quot; option is &quot;on&quot;, white space will
+be added to the player list to separate your teams from the other
+teams and the players entering the game.  In color, this option is not
+usually required because the teams are distinct anyway.
+
+
+<h4>4.2.2. BeepLite</h4>
+
+     Local weenies cheat.  They talk to each other.  Those of us who have
+never met another netrek player are forced to rely heavily on the
+message window.
+<p>
+     In order to even the playing field, the current feature was proposed. 
+This feature causes certain types of RCD messages to beep or even
+highlite specific objects on the screen.  This is done via a
+macro-like interface which is highly configurable.  Further, bitmaps
+used to highlite can be substituted with your preferences.
+<p>
+1) Turning Beeping and Highliting on
+<p>
+     In order to turn message beeping and highliting on, you must include 
+the following in your .xtrekrc.
+<pre>
+UseLite: on
+</pre>
+     The above leaves you with the feature on, but nothing is automatically
+setup.  If you want to configure it yourself, go to the &quot;CONFIGURING
+VIA XTREKRC&quot; section.  You can include a set of reasonable defaults,
+instead of bothering to learn to configure it yourself by including
+the lines.
+<pre>
+DefLite: on
+</pre>
+     At any time, you can extend these simply by including some of the
+configuration syntax in your .xtrekrc as described in the &quot;CONFIGURING VIA
+XTREKRC&quot; section.
+<p>
+WARNING:  Use beep _sparingly_, people (including you) will get sick 
+very quickly of hearing your workstation beep every 5 seconds.
+<p>
+
+2) Configuring via xtrekrc
+<p>
+     Message beeps are configured as on and off.  They are turned on 
+if the proper line is in your .xtrekrc.  Otherwise they are left off.
+<p>
+     Message lites are configured in a way very similar to macros.
+However, in addition to the original set of macro arguments, a new
+class of arguments is introduced to handle the highliting.
+<p>
+     To configure message highliting, include something like the line 
+below. Here &quot;name of distress&quot; is the RCD message type.  &quot;macro&quot; is 
+the macro style syntax specifying what is to be highlited.
+<pre>
+lite.[name of distress]:  [macro]
+</pre>
+
+     Below are the configurations which are equivalent to the defaults
+which are setup for you if using DefLite.  These provide good 
+examples for how the system works.
+<pre>
+lite.taking:   /c/l
+lite.base_ogg: /g/m
+lite.pickup:   /h
+lite.help:  %?%S=SB%{/c%}
+</pre>
+     The above does the following:
+     <p>
+&quot;taking&quot; message highlites the planet and taker
+&quot;base_ogg&quot; message highlites the person to sync and your ship 
+      (to REALLY get your attention)
+&quot;pickup&quot; message highlites the enemy who picked up
+&quot;help&quot; tests to see if the player sending the distress is a base, if so
+      he is highlited
+<p>
+     You might like to change the last one to:
+<pre>  
+lite.help:  %?%S=SB%{/c%}%?%a&gt;0%{/c%}
+</pre>
+     This will highlite bases who distress AND carriers who distress.
+<p>
+     Using TTS you may change the pickup macro to:
+<pre>  
+lite.pickup:   /h/|%p++ @ %l|
+</pre>
+     This sends a big ++ message on the tactical map in addition to the light.
+<p>
+     Note that all the MACRO parsing routines are run on these, and plain 
+text left over is ignored.  Only the highlite argument matter.
+<p>
+     The following are the arguments for highliting:
+<pre>
+/c /i /I   sender
+/m /M      _your_ ship
+
+/p      target player
+/g      target friendly player
+/h      target enemy player
+/P      player nearest sender
+/G      friendly player nearest sender
+/H      enemy player nearest sender
+/b      planet nearest sender
+/l      target planet
+</pre>
+     The following are the arguments for sounds:
+<pre>
+/0      Standard window beep (incoming message sound if sound is on) 
+/1 - /9 Play nt_message1 - nt_message9 sound.
+</pre>
+     Tactical Text Solution for the Tactical Tunnel Syndrome (TTS):
+<pre>
+/| .. | displays Text in between via TTS. 
+</pre>
+     Additional defaults:
+<pre>
+planetCycleTime:        highlighting time for planets
+playerCycleTime:        highlighting time for players
+
+[ Note: while TTS works, thefollowing are Not Yet Implemented in WinCOW ]
+tts_color:              color of TTS message (should be dark)
+tts_font:               Font (large prefered)
+tts_max_len:            Max length of a message
+tts_time:               Time a TTS message is displayed
+tts_pos:                y location of the TTS message
+</pre>
+
+<h4>4.2.3. WarnHull</h4>
+
+     The warnHull extension is a direct analogue of the varyShields extension
+to the BRM client.  Like varyShields, warnHull tries to keep the player 
+informed of the state of your hull by using a bitmap.  The bitmap consists 
+of eight pixels arranged around your ship in a circle just outside you shields 
+(see diagrams below).  When warnHull is on your ship looks like it has small 
+spikes sticking out of the shields.
+<p>
+     The xtrekrc value warnHull enables this extension, the defaults value 
+is off.
+<p>
+Example xtrekrc value:
+<pre>
+warnHull:               on
+</pre>
+
+     It works by using 8 pixels arrayed at the 4 cardinal point of the 
+compass and 4 more at equal intervals between them.
+<pre>
+        o
+   o         o
+
+
+o               o       ; 100% -- neato diagram 1 :)
+
+
+   o         o
+        o
+</pre>
+     So as the hull is damaged, the pixels disappear for every 12% of 
+damage accumulated (clockwise from the top).
+
+<pre>         
+   o          
+
+
+o                       ; &lt;76% -- neato diagram 2 :)
+
+
+   o         o
+        o
+</pre>
+
+
+<h4>4.2.4. Hockey Lines</h4>
+
+     Due to popular demand, hockey lines have been added. These
+are used when playing Netrek Hockey. For those of you who want 
+to see a hockey rink on the tactical, just use the features menu 
+(shift-O) and toggle them on.
+<p>
+You get:
+<ul>
+  <li> Blue lines (blue)
+  <li> Center line (red)
+  <li> Side lines, i.e. the rink edges (grey)
+  <li> Goal lines (red)
+  <li> Goal boxes (the color of the team)
+</ul>
+     They are a little awkward at first, but once you get used to them,
+you'll wonder how you lived without them.
+<p>
+    Since this is a first pass, I'm looking for more input on what
+would make them better.  Here are some of my comments:
+<p>
+1)  Lines are hard coded into the software.  They should be 
+based upon planet location, so the hockey gods can move the
+planets around.
+<p>
+2)  You either have them all or none.  Perhaps the set of
+desired lines should be configurable from the xtrekrc.  Also,
+you cannot change the colors.
+<p>
+3)  Lines on the galactic would look pretty
+<p>
+     If you have any comments, mail them to kantner@hot.caltech.edu
+
+
+
+<a name="InterestFeature"><h3>4.3. Interesting Features</h3>
+
+     These are some of the more esoteric and questionable features.
+Still, they're there!
+
+
+<h4>4.3.1. ShellTools</h4>
+
+[Note: This is not yet implemented in WinCOW ]
+<p>
+     You may execute any Unix shell comand within the client. Read your mail 
+now within the client. To do so, just send a message to the destination 
+&quot;!&quot; and you get a shell prompt. Enter the comand and it's output will
+be displayed in the tools window. Works also with macros to &quot;!&quot;.
+You may disable it in the .xtrekrc for security reasons with shellTools: off
+CAUTION: The client will be blocked for the time the comand is executed.
+Also some programs suspend the client if it is started in the background.
+
+
+<h4>4.3.2. Personalized Cursors</h4>
+
+[ Not implemented in WinCOW ]
+<p>
+     The personalized cursor extensions allows the user to specify 
+their own cursors for the map, local, text, menus and info list windows.  
+<p>
+     This may now work on all machines. I know of at least one X terminal 
+which this doesn't work properly for.  It works fine on my sun:)
+<p>
+     For infoCursorDef, textCursorDef, arrowCursorDef an optional mask may 
+be specified.  To specify a mask, first create your new cursor, say called
+mycursor, then create the mask and call it mycursor.mask.  They both need to
+be on the same path.  Cursor and mask *must* be the same size, if not the 
+cursor cannot be used (why anybody would want to do this makes no sense, 
+but... :)
+<p>
+     These are the xtrekrc values:
+<pre>
+localCursorDef:         /usr/me/.local.xbm
+mapCursorDef:           /usr/me/.map.xbm
+infoCursorDef:          /usr/me/.info.xbm-
+textCursorDef:          /usr/me/.text.xbm  # the mask would be called /usr/me/.text.xbm.mask
+arrowCursorDef:         /usr/me/.arrow.xbm
+</pre>
+
+
+<a name="XtrekrcOpt"><h2>5. Xtrekrc Options</h2>
+
+<a name="Keymaps"><h3>5.1. Keymaps</h3>
+
+     The original key assignments were created more out of ease of
+memorization than speed of access in combat. For example, enabling the
+tractor beam is awkward, requiring the use of the shift key. Also, people
+will always have their particular preferences. For this reason, almost all
+netrek players use a keymap to change the key assignments. Its use it quite
+simple. Simply add a line of the form &quot;keymap:
+&lt;key&gt;&lt;function&gt;&lt;key&gt;&lt;function&gt;&lt;key&gt;&lt;function&gt;....&quot; to your xtrekrc file.<p>
+Each pair of characters assigns the key specified by &lt;key&gt; to perform the
+function originally assigned to the key specified by &lt;function&gt;. For
+example, to map toggle tractor (T) to 't', and set max warp (%) to 's', you
+would use
+<pre>
+     keymap: tTs%
+</pre>
+     The space bar can be remapped, but it cannot be the first key to be
+remapped in a sequence (obviously).  It is often mapped to det: 
+<pre>
+     keymap: tTs% d
+</pre>
+<a name="CKeymaps"><h3>5.2. CKeymaps</h3>
+
+     Control keymaps (ckeymap) handles the remapping of keys in an 
+analoguous manner to the normal keymap (keymap).  The control keymap 
+also allows the user to map both *upper* and *lower* case letters keys  
+when pressed with the control key.  This means that ^u and ^U are
+*different* keys when it come to mapping them.  
+<p>
+     Any combination of normal keys and control keys can be mapped to one 
+another.  In other words, you can map from control key to control key,
+control key to normal key, normal key to normal key, and normal key
+to control key.
+<p> 
+New format for ckeymap is:<br>
+c = any printable ascii character.<br>
+^ = introduce control mapping (the key '^' not control + key.)
+<p> 
+Each entry is a pair, like:
+<pre>
+cc              # regular format
+c^c             # regular-&gt;control
+^cc             # control-&gt;regular
+^c^c            # control-&gt;control
+ 
+Example ckeymap:
+ckeymap:                 ^a%r^b^m^ca%d5 tfDFf^^E
+</pre>
+Special case:<br>
+     The '^' must be mapped with a double ^ (&quot;^^&quot;) in either the bound or
+binding key position.
+<p> 
+Notes:<br>
+     If you experience difficulties (you shouldn't) you might wish to use a 
+normal keymap and a new ckeymap in combination.  Both are read in, the 
+keymap first then the ckeymap.  This means that if a key which is defined 
+in both the keymap and ckeymap, the ckeymap's definition will be the one 
+used.
+<p>
+     Analogously, control keys may be used for buttonmap, singleMacro and
+all macro and RCD definitions.
+
+
+<a name="Colors"><h3>5.3. Color</h3>
+
+     It is possible to set the color of various elements in COW. In 
+particular, any of the six standard colors, as well as the races, can
+be remapped. The settable colors are:
+<pre>
+#resource               example value
+#--------               --------------
+color.white:            seashell
+color.black:            black
+color.red:              red
+color.green:            chartreuse
+color.yellow:           #fff850
+color.cyan:             light blue
+color.light grey:       light grey
+</pre>
+     Colors can be specified as text strings, i.e. tan, chocolate, green, 
+MediumSpringGreen (all the standard X-windows colors, in other words) or as 
+the pound symbol '#' followed by six hexidecimal digits representing the red, 
+green, and blue components of the color.
+<p>
+[WinCOW only: color names should be specified without spaces]
+<p>
+     Race Colors: For those of you who like different colors than the defaults
+but are tired of going on &quot;Purple Alert&quot;, it is possible to define race 
+colors separately from the alert colors:
+<pre>
+#resource               example value
+#--------               --------------
+color.Ind:              light grey
+color.Fed:              yellow
+color.Rom:              tomato
+color.Kli:              green2
+color.Ori:              light steel blue
+</pre>
+If a race color is not set, it defaults to the usual. (ie, if you omit 
+color.Ori above, the orions will be color.cyan, which defaults to cyan)
+
+
+
+<a name="Messages"><h2>6. Macros</h2>
+
+<a name="BasicMacro"><h3>6.1. Your Basic Macro</h3>
+
+     Typing takes time. Time is critical in dogfighting or teamwork. Most 
+of the messages sent in Netrek are standard warnings, distress calls, 
+requests, notifications, etc. Also retyping that insulting message 
+everytime you doosh someone is a drag. Hence, you can put macros in your 
+xtrekrc, and allow a single keystroke to send a message. The format is:
+<pre>
+     mac.&lt;key&gt;.&lt;dest&gt;: &lt;text&gt;
+</pre>
+     &lt;key&gt; is the character you wish to assign to that macro, &lt;dest&gt; is a
+standard message destination (0-9a-j for player, F/R/K/O for teams, T for
+your team, A for all), and &lt;text&gt; is what you want to send. So, for 
+example, if you put:
+<pre>
+     mac.b.T: Bomb enemy core, please!
+</pre>
+     in your xtrekrc file, you could then press X (or whatever key you
+assigned to macro mode with the macroKey option -- I like TAB) and then b,
+and the above message would be sent to your team.
+<p>
+     You can also send multiline macros, for example:
+<pre>
+     mac.i.A: \\\\    You have just been DOOSHED!
+     mac.i.A: (o o)   Didn't that feel good?
+     mac.i.A: ( . )
+     mac.i.A:  \V/
+</pre>  
+     In this case the macro invoked by X,i will send the above to all.
+WARNING: multiline macros can be a waste of bandwidth and very annoying! 
+Use them rarely, if at all. Some servers do not support them at all, e.g. 
+you can send them but the server will not repeat it to the players.
+<p>
+     If there is some macro you want to activate without hitting the macro
+mode key first, you can add it to the singleMacro option. For example, to
+make the above two macros single key macros (which might be a bad idea as
+you would then have now way to use the info window normally activated by
+'i'):
+<pre>
+     singleMacro: bi
+</pre>
+     But, there's more! 
+
+
+<a name="Newmacro"><h3>6.2. Newmacro</h3>
+
+     (Documentation by Jeff Nelson 6/4/1993)
+<p>
+     Here is the idea: A player should be able to include in his/her macros
+whatever reasonable information is available.  And configuring its display 
+in whatever way is desired.  In order to do this, the following syntax is 
+used (while remaining completely compatible with old NBT macros).
+<p>
+     A key is assigned in the defaults file (ie .xtrekrc, etc) by a line
+like:
+<pre>
+     mac.F.T         Help!  Carrying %a!!
+</pre>
+     This defines a macro which will send a distress containing the number
+of armies a player is carrying to his team.
+<p>
+     Note, this is NOT printf syntax!  Any attempt to use formatting will
+fail miserably.  Maybe in the future someone will want to develop a means
+of formatting the variables used in macros, but the only means I can think
+of are both bulky and ugly.
+<p>
+     Here is another example:
+<pre>
+     mac.f           Help!  Carrying %a!!
+</pre>
+     Unlike the first, this macro will not send directly to the team,
+instead it requires that you give a third keystroke specifying the
+recipient.  For example, it could be invoked by:
+<pre>
+     XfT             &lt;- to your team
+     Xf1             &lt;- to player 1
+     XfG             &lt;- if you are desperate, send to God
+     XfA             &lt;- if you are stupid, send to ALL
+</pre>
+     Old macros will still work in addition to these, thus be sure there  
+are no conflicts.  These generally cause suprising results.  For example, 
+if this is in your macro file:
+<pre>
+     mac.E.T         Help!  I'm carrying!!
+     macro.E.A       You all suck!
+     mac.E           Help!  I'm a twink!!
+     mac.E.T         Help!  I'm carrying again!!
+     macro.E.A       You all suck even worse NOW!
+</pre>
+     The suprising results would be that pressing XE would broadcast the
+first two messages, and then wait for the destination of the third.  It
+would be impossible to ever use the last two.  Unfortunately, multiline
+macros also do not work if they require a destination.  There is no good
+reason for this, but since multiline macros annoy the hell out of me, I
+ain't fixing it.  You can still do something like:
+<pre>
+     mac.D.A:        D
+     mac.D.A:        O
+     mac.D.A:        O
+     mac.D.A:        S
+     mac.D.A:        H
+</pre>
+     This would properly broadcase 5 messages containing 1 character to 
+all. If you tried to specify the destination for these by using &quot;mac.D:&quot;, 
+only 'D' would be sent.
+<p>
+     Also '?' can still not be used as a macro key. The following
+definitions will work in a macro (where 'target x' = whatever x the mouse
+cursor is closest to when the macro is sent):
+<pre>
+     Standard:
+
+     %a   armies carried by sender
+     %d   sender damage percentage
+     %s   sender shield percentage
+     %f   sender fuel percentage
+     %w   sender wtemp percentage
+     %e   sender etemp percentage
+     %t   team id character of target planet
+     %T   team id character of sender team
+     %c   sender id character
+     %n   armies on target planet
+     %E   1 if etemped, 0 if not
+     %W   1 if wtemped, 0 if not
+     %S   sender two character ship type
+     %p   id character of target player
+     %g   id char of target friendly player
+     %h   id char of target enemy player
+     %P   id character of player nearest sender
+     %G   id char of friendly player nearest sender
+     %H   id char of enemy player nearest sender
+     %l   three character name of target planet
+     %i   sender full player name (16 character max)
+     %u   full name of target player (16 character max)
+     %z   3 letter team id of target planet
+     %b   planet nearest sender
+     %o   three letter team name of sender
+     %k   number of kills sender has
+     %K   number of kills target player has
+     %*   if this is encountered, the macro IS NOT PRINTED
+     %(SPACE)  this is replaced by a space, mainly useful for starting a
+message
+
+
+     FULLY CAPITALIZED:
+
+     %L   three character name of target planet
+     %I   sender full player name (16 character max)
+     %U   full name of target player (16 character max)
+     %Z   3 letter team id of target planet
+     %B   sender nearest planet
+     %O   three letter team name of sender
+
+     Ping stats: (may differ slightly from server '!' ping stats)
+
+     %v   average ping stat round trip time 
+     %V   ping stat round trip standard deviation
+     %y   percent total packet loss as calculated by server formula
+
+     Miscellanous:
+
+     %m   the last message you sent
+     %M   the last message you sent in all caps
+</pre>
+     As a further extension to NEWMACRO, a macro may now be sent to any of
+the following destinations:
+<pre>
+     %i %I %c  send message to self
+     %u %U %p  send message to player nearest mouse
+     %t %z %Z  send message to team of player nearest mouse
+     %g        send message to nearest friendly player to my ship
+     %h        send message to nearest enemy player to my ship
+
+     with a syntax like  
+
+     #useful for INL...
+     mac.C.%i: CAPTAIN
+     mac.N.%i: NEWGALAXY
+     mac.S.%i: START
+     mac.T.%i: %Z
+
+     mac.W.%t: SHUT UP, TWINKS!!
+     mac.I.%u: %u: det when you escort!
+     mac.O.%u: (%i) ogging
+</pre>
+     What this does is allows you to send a macro to a player or team
+specified by your mouse location instead of requiring a 3rd character to 
+be input.  Also, it allows you to send message to yourself without having 
+to actual sit there and figure out who you are (they tried and failed back 
+in the '60s).
+<p>
+     Further, tests may be done within the macro system, the syntax for
+these test is as follows.
+<pre>
+     %?   introduces a test
+     =    equivalence
+     &gt;    greater
+     &lt;    less
+</pre>
+     Expressions are evaluated on a character by character basis until the
+test is resolved.  The text of the test is then replaced in the macro by 1
+or 0.
+<p>
+     Test are then fed to a syntax I call conditional text.  The best way 
+to demonstrate how this works is example.
+<pre>
+     &quot;1%{included if true%!included if false%}&quot;
+
+     This would print:
+
+     &quot;included if true&quot;
+
+     whereas
+
+     &quot;0%{included if true%!included if false%}&quot;
+
+     would print:
+
+     &quot;included if false&quot;
+</pre>
+     Combining the whole package, a very robust macroing system is quickly
+generated.  One can easily design or mimic Distress calls, including the
+variable NBT distress of the BRM client and all the hardcoded message
+macroing built into my own client but never released.
+<p>
+     Here are a few more samples to work from:
+<pre>
+     mac.F.T:   Help!  Carrying %a!!
+     mac.f:     Help!  Carrying %a!!
+     mac.c.T:   %p++ near %l
+     mac.b.T:   %?%n&gt;4%{bomb %l at %n%!bomb%}
+     mac.d.T:   %E%{%!%W%{%!I'm fine.  How are you? %}%}%E%{ETEMPED!!!  %}
+                %W%{WTEMPED!!!  %}Carrying %?%a&gt;0%{%a armies!%!NO armies.%}
+     mac.a.T:   %E%{ETEMPED!!!  %}%W%{WTEMPED!!!  %}Carrying %?%a&gt;0%{%a 
+                armies! %!NO armies.%}
+     mac.R.A:   I'm a %?%S=SB%{star base!%!twink!%}
+     mac.K.A:   KissMy%S
+     mac.t:     thanks
+     mac.y:     yes
+     mac.n:     no
+     mac.B:     bye, getting hungry/sleep/horny
+     mac.e.T:   need escort going to %l%?%a&gt;0%{, carrying %a armies!%}
+     mac.v.%t   %T%c PING stats: Average: %v ms, Stdv: %V ms, Loss: %y%%
+
+     My Favorite:
+
+     mac.m:         %m
+</pre>
+
+<a name="RCD"><h3>6.3 RCD</h3>
+
+     There is an even more interestring thing that you can do with macros.
+It's called Receiver Configurable Distress (RCD). The basic idea is that
+everyone likes certain standard types of messages, such as distress, pickup,
+carrying, etc, to appear in a certain way. Unfortunately this is usually 
+not the way everyone else sends them. To make matters worse, everyone sends
+their messages in a different way and this hopelessly clutters the message
+window. Fortunately, there is help! You can configure the way certain
+standard messages and distress calls appear to you. This is an important
+point: you do not configure the way the messages are sent with RCD. 
+Instead, you are configuring how they appear to _you_.
+
+<hr>
+9/2/93 - jmn, jn (no relation 8^)
+<p>
+     Receiver configurable distress calls have been added to the client
+and use a MACRO-like syntax.
+<p>
+     In order to change which key you would like a message to map to, all
+you have to do is use either keymap like you have always done, or ckeymap,
+a new feature introduced to accomodate the massive number of new functions
+(ie message sending) that have been added in this client.  Please see the
+ckeymap section of this  document for more information on that.
+<p>
+     In order to change *how a message appears to you* a line such as the
+following should be in your defaults file:
+<pre>
+     dist.taking:   (%i) Carrying %a to %l%?%n&gt;-1%{ @ %n%}
+     dist.help:     Help!  I've fallen!  I can't get up!  %a
+
+
+     This has the format
+
+     dist.[name of distress]:          [macro]
+</pre>
+     Arguments for the macro and SMARTMACRO syntax are exactly the same as
+before.  Any argument can be used, but usually only those in the groups
+&quot;Standard&quot; and &quot;FULLY CAPITALIZED&quot; apply.
+<p>
+     You MAY NOT affect how a message appears to anyone else, this is
+against the basic concepts of RCD.
+
+<a name="RCM"><h3>6.4 RCM (Receiver Configurable Server Messages)</h3>
+
+Short packet kill messages may be freely configured using
+the macro syntax interpreter where:
+<ul>
+<li> the killed person corresponds to the sender,
+<li> the killer corresponds to the target player,
+<li> involved planet (killed by, destroyed, taken) to the target planet,
+<li> damage is int part of kills and shield fraction part.
+<li> whydead goes with wtmp.
+</ul>
+All others are undefined.
+<p>
+The format of the messages is:
+<p>
+msg.[name of message]: [RCM macro]
+<p>
+Available messages and their defaults are:
+<pre>
+msg.kill:  ........
+msg.kill:GOD-&gt;ALL %i (%S) (%T%c%?%a&gt;0%{+%a armies%!%}) was kill 
+           %?%d&gt;0%{%k%!NO CREDIT)%} for %u (%r%p) %?%w&gt;0%{%W%!%}
+msg.planet:GOD-&gt;ALL %i (%S) (%T%c%?%a&gt;0%{+%a armies%!%} killed by %l (%z) 
+            %?%w&gt;0%{%W%!%}
+msg.bomb:%N-&gt;%Z We are being attacked by %i (%T%c) who is %d%% damaged.
+msg.destroy:%N-&gt;%Z %N destroyed by %i (%T%c)
+msg.take:%N-&gt;%O %N taken by %i (%T%c)
+msg.ghostbust:GOD-&gt;ALL %i (%S) (%T%c) was kill %k for the GhostBusters
+</pre>
+
+BRMH formated kill windows may be optain by something like:
+<pre>
+msg.kill:  %i (%S) (%T%c%?%a&gt;0%{+%a armies%!%}) %&gt;30 kill 
+             %?%d&gt;0%{%k%!NO CREDIT)%} for %u (%r%p) %?%w&gt;0%{%&gt;65%W%!%}
+</pre>
+
+
+<a name="Distress"><h3>6.5 Default Macros And Distresses</h3>
+
+     Below is a table giving the name of each distress, the key it is
+assigned to, and the default macro (at the time of this writing). In the
+table below, the first character indicates which control character each of
+these messages is assigned to.  There are two exceptions, the generic
+distress call and army report are still mapped to E and F;  they do not use
+control keys. You can also of course always hit the macro key and then the
+non-control version of the key indicated. 
+<p>
+     All these examples assume: you are player F0 (%T%c), alias &quot;Twinky&quot;
+(%i), flying a CA (%S), carrying 3 (%a) armies, with the mouse closest to
+Cassiopia (%l or %L), which has 5 (%n) armies. The nearest friendly player
+to the mouse is player Fc (%T%g) and the nearest player of any team to the
+mouse cursor is player 06  (%p). You yourself are near Beta Crucis.
+<pre>
+Key Distress Name       
+
+
+t   taking       
+       %T%c-&gt;%O (%S) Carrying %a to %l%?%n&gt;-1%{ @ %n%}
+       Taking a planet. Example:
+          &quot;F0-&gt;FED (CA)  Carrying 3 to Cas @ 5&quot;
+
+
+o   ogg
+       %T%c-&gt;%O Help Ogg %p at %l
+       Tell your team to ogg a carrier. Example:
+          &quot;FO-&gt;FED Help Ogg 6 at Cas&quot;
+
+b   bomb                
+       %T%c-&gt;%O %?%n&gt;4%{bomb %l @ %n%!bomb%}
+       Tell your team to bomb a planet. Example:
+          &quot;F0-&gt;FED bomb Cas @ 5&quot;
+
+c   space_control
+       %T%c-&gt;%O Help Control at %L
+       Request space control at specified location. Example:
+          &quot;F0-&gt;FED Help Control at CAS&quot;
+
+1   save_planet
+       %T%c-&gt;%O Help at %l! %?%a&gt;0%{ (have %a arm%?%a=1 %{y%!ies%}) %} 
+           %s%% shld, %d%% dam, %f%% fuel
+       Need help NOW to take or protect a planet. Example:
+          &quot;F0-&gt;FED Help at Cas! (have 3 armies) 60% shld, 13% dam, 63% fuel&quot;
+
+2   base_ogg,   
+       %T%c-&gt;%O Sync with --]&gt; %g &lt;[-- OGG ogg OGG base!!
+       That greatest of manuevres, the Ogg, as applied to an enemy SB. 
+       Example:
+          &quot;F0-&gt;FED Sync with --] c [--- OGG ogg OGG base!!&quot;
+
+3   help1       
+       %T%c-&gt;%O Help me! %d%% dam, %s%% shd, %f%% fuel %a  armies.
+       General distress. Same for help2. Example:
+          &quot;F0-&gt;FED Help me! 13% dam, 60%shd, 63% fuel 3 armies&quot;
+
+4   help2
+       %T%c-&gt;%O Help me! %d%% dam, %s%% shd, %f%% fuel %a armies.
+          Defaults to same as above.
+
+e   escorting
+       %T%c-&gt;%O ESCORTING %g (%d%%D %s%%S %f%%F)
+       Tells your team who you are escorting. Example:
+          &quot;F0-&gt;FED ESCORTING c (13%D 60%S 62%F)&quot;
+                
+p   ogging
+       %T%c-&gt;%O Ogging %h
+       Tells your team who you are ogging. Example:
+          &quot;F0-&gt;FED Ogging 6&quot;
+
+m   bombing
+       %T%c-&gt;%O Bombing %l @ %n
+       Tells your team that you are bombing. Many players turn this message 
+       off (by inserting a %* anywhere in the message string) as they can 
+       figure out for themselves where someone is going to bomb by their 
+       course. Example:
+          &quot;F0-&gt;FED Bombing Cas @ 5&quot;
+
+l   controlling
+       %T%c-&gt;%O Controlling at %l
+       Tells your team that you are space controlling somewhere. This is 
+       the art of dominating a region of space. Example:
+          &quot;F0-&gt;FED Controlling at Cas&quot;
+
+5   asw
+       %T%c-&gt;%O Anti-bombing %p near %b.
+       Tells your team that you are doing Anti Scout (bomber) Warfare. 
+       Example:
+          &quot;F0-&gt;FED Anti-bombing 6 near Bet&quot;
+
+6   asbomb
+       %T%c-&gt;%O DON'T BOMB %l. Let me bomb it (%S)
+       Respectfully requests that you be allowed to bomb something. This is 
+       typically used if you are flying an AS as they have a much better 
+       chance of bombing a planet to a lower number, making it easier to 
+       take. Example:
+          &quot;F0-&gt;FED DON'T BOMB Cas. Let me bomb it (CA)&quot;
+
+7   doing1
+       %T%c-&gt;%O (%i)%?%a&gt;0%{ has %a arm%?%a=1%{y%!ies%}%} at lal.  
+          %d%% dam, %s%% shd, %f%% fuel
+       General information message. Example:
+          &quot;F0-&gt;FED (Twinky) has 3 armies at lal. 13% dam, 60% shd, 62% 
+           fuel&quot;
+
+
+8   doing2
+       %T%c-&gt;%O (%i)%?%a&gt;0%{ has %a arm%?%a=1%{y%!ies%}%} at lal.  
+          %d%% dam, %s%% shd, %f%% fuel
+       Same as doing1, by default
+
+f   free_beer   
+       %T%c-&gt;%O %p is free beer
+       Tells your team about a clueless player who is an easy kill. 
+       Example:
+          &quot;F0-&gt;FED 6 is free beer&quot;
+
+n   no_gas
+       %T%c-&gt;%O %p @ %l has no gas
+       Tells your team about someone who is out of fuel, good or bad. 
+       Example:
+          &quot;F0-&gt;FED 6 @ Cas has no gas&quot;
+
+h   crippled
+       %T%c-&gt;%O %p @ %l crippled
+       Tells your team that someone is crippled, i.e. badly damaged. 
+       Example:
+          &quot;F0-&gt;FED 6 @ Cas crippled&quot;
+
+9   pickup      
+       %T%c-&gt;%O %p++ @ %l
+       One of the most useful macros. Use this if you see an enemy pick up 
+       armies . Example:
+          &quot;F0-&gt;FED 6++ @ Cas&quot;
+
+0   pop 
+        %T%c-&gt;%O %l%?%n&gt;-1%{ @ %n%}!
+        Tells your team the number of armies on a planet or that it has 
+        popped or been bombed or dropped on recently. Example:
+            &quot;FO-&gt;FED Cas @ 5!&quot;
+
+F   carrying
+        %T%c-&gt;%O %?%S=SB%{Your Starbase is c%!C%}arrying 
+           %? %a&gt;0%{%a%!NO%} arm%?%a=1%{y%!ies%}.
+        Tells your team the number of armies you are carrying. Example:
+           &quot;F0-&gt;FED Carrying 3 armies.&quot;
+
+@   other1
+       %T%c-&gt;%O (%i)%?%a&gt;0%{ has %a arm%?%a=1%{y%!ies%}%} at  lal. 
+          (%d%%D, %s%%S, %f%%F)
+       Another general call. 
+
+#   other2
+        %T%c-&gt;%O (%i)%?%a&gt;0%{ has %a arm%?%a=1%{y%!ies%}%} at  lal. 
+           (%d%%D, %s%%S, %f%%F)
+        Same as above
+
+E   help
+       %T%c-&gt;%O Help(%S)! %s%% shd, %d%% dmg, %f%% fuel,
+          %?%S=SB%{ %w%% wtmp,%!%}%E%{ ETEMP!%}%W%{ WTEMP!%} %a armies!
+       General distress call. This one also reports if you are wtemped
+       or etemped, if you are an SB. Example:
+          &quot;F0-&gt;FED Help(CA)! 60%shd, 13% dam, 63% fuel, 3 armies!
+</pre>
+
+     Let's walk through two simple examples.
+<ul>
+<li> Map generic distress call (help) to 'h', make it appear as: &quot;I'm
+about to die with %a of your team's armies!&quot;
+<li> Map AS bombing (asbomb) to '^A', don't change the message.
+</ul>
+     First try to seperate in your mind the two types of configurability
+that are going on here.
+<ol>
+     <li> you are changing the key that sends the message
+     <li> you are changing how the message appears to you
+</ol>
+     In order to do (1), just use a keymap.  Nearly everyone who has tried
+to configure their netrek client has generated some form of keymap.
+<pre>
+keymap: hE
+</pre>
+     This performs the key configuration we wanted for the first example.
+<p>
+     In order to change the message,
+<pre>
+dist.help:     %T%c-&gt;%O I'm about to die with %a of your team's armies!
+</pre>
+     If you configure an RCD, you also must configure the header of that
+message.  This isn't is difficult as it sounds, just add the header to the
+beginning of the RCD.  For example, instead  of
+<pre>
+dist.T.taking:      Carrying %a to %l%?%n&gt;-1%{ @ %n%}
+
+     use
+
+dist.T.taking:      % %T%c@%b Carrying %a to %l%?%n&gt;-1%{ @ %n%}
+
+     Two headers that I recommend (the last is the default):
+
+% %T%c@%b 
+% %T%c-&gt;%O
+</pre>
+     If you want to map the asbomb distress onto control-shift-a that is
+slightly more difficult.  The asbomb distress normally is associated with
+control-6.  Since control keys are involved, we MUST use the control key 
+map feature called ckeymap.  The following line would perform the 
+operation we would like.
+<pre>
+ckeymap: ^A^6
+
+     If you *also* want control-a to be asbomb, then use
+
+ckeymap: ^A^6^a^6
+</pre>
+     If you have read all the documentation, are sure you are using the
+right syntax, and RCD (or MACRO) still is not working, then check out the
+following.
+<p>
+     1. Did you receive RC_DISTRESS when you logged in?  
+<p>
+     The server must send this to the client to tell the client that it
+understands RCD messages.  Otherwise the client will just send the standard
+formatted RCDs.
+<p>
+     Some clients have a mod which shows you whether RC_DISTRESS is on by
+looking at the first line of the macro window.  If it says, &quot;Packages
+active: NBT, NEWMACRO, SMARTMACRO&quot;,  you have no guarantee that RCD was
+turned on by the server. If it says, &quot;Packages active: NBT, NEWMACRO, 
+SMARTMACRO, RC_DISTRESS&quot; then RCD is definitely on.  Don't worry about #1, 
+go to #2.
+<p>
+
+     2. Are any MACROs assigned to the same key as the RCD you are
+configuring?
+<p>
+     If this occurs, you will see the macro and NOT the RCD.
+<p>
+     3. Are any other RCDs assigned to the same key as the RCD you are
+configuring (this includes the DEFAULT RCDS!!) ?
+<p>   
+     If this occurs, you will see whichever RCD happens to be listed first
+when the client examines the RCD list.
+
+
+<a name="XtrekrcRef"><h2>7. Xtrekrc Reference</h2>
+
+     Upon startup, Netrek looks for a configuration file called &quot;.xtrekrc&quot;
+(or, equivalently, &quot;.netrekrc&quot;, in first the current directory, then the
+user's home directory, and then in the same directory as netrek.exe. (WinCOW
+note: to keep with convention, the files checked for are named xtrekrc and
+netrekrc -- no preceding dot -- and WinCOW also checks the HOMEDRIVE and 
+HOMEPATH environment variables) You can also set the filename with the XTREKRC 
+envirinment variable. Many, many things can be set in the xtrekrc file, and its 
+proper use is essential to good Netrek play. 
+<p>
+    The following is an alphabetical list of every option that can be set in the 
+netrekrc file. The values immediately following the option names are the 
+default value of the option if not set.
+     
+<dl>     
+<dt>askForUpdate: off
+  <dd>  Get full update from server when you enter the game. This is a good
+idea when using short packets and UDP.
+<p>
+<dt>babes: on
+   <dd>   Shows a pic of Kathy Ireland when you ghostbust or 
+take over the galaxy.
+<p>
+<dt>buttonmap: 1t2p3k [whatever]
+    <dd> Maps mouse buttons to key functions.  Format: &lt;button&gt;&lt;key&gt;... like
+keymap.
+<pre>
+     Available buttons:
+     1 = left            2 = middle           3 = right
+     4 = Shift+Left      5 = Shift+Middle     6 = Shift+Right
+     7 = Control+Left    8 = Control+Middle   9 = Control+Right
+     a = Shft+Ctrl+Left  b = Shft+Ctrl+Middle c = Shft+Ctrl+Right
+     [ Windows client included netrekrc adds 4p = shift+Left for phaser. ]
+</pre>
+<dt>cloakChars: ??
+    <dd> The characters to use to show cloaked ships on the galactic map.  
+Other popular choices are &quot;()&quot; and &quot;&gt;&lt;&quot;.  They make nice crosshairs ;-) 
+<p>
+<dt>clock: 2
+    <dd> Stat clock: 0 -- no clock, 1 -- h:m, 2 -- h:m:s.
+<p>
+<dt>continueTractor: on
+    <dd> If off, only shows tractors for a short time.
+<p>
+<dt>continuousMouse: off
+    <dd> If on, if you drag the mouse while holding a button down, it will have
+the same effect as clicking rapidly while you move the mouse.  On is
+considered borgish and most servers will not allow it.
+<p>
+<dt>dashboard: off
+    <dd> Use a dashboard (LAB) style for the stats line. Try this.
+<p>
+<dt>documentation: cow.txt
+    <dd> File to display in documentation window
+<p>     
+<dt>enemyPhaser: 1
+    <dd> Width of  enemy phaser lines. Makes it MUCH easier to tell when
+enemies are phasering you.  I use a width of 5.
+<p>
+<dt>extraAlertBorder: on
+    <dd> Also uses inside border to show alert status.
+<p>
+<dt>fillTriangle: off
+    <dd> If locks are shown, whether or not to fill the triangle.
+<p>
+<dt>galacticFrequent: on
+    <dd> Update galactic map frequently. This is good for plocking cloakers.
+<p>
+<dt>ignoreCaps: on
+    <dd> Ignore the Capslock key.
+    <p>
+<dt>keymap: aabbcc
+    <dd> Maps new keys to old keys. Format: &lt;new key&gt;&lt;old key&gt;&lt;new key&gt;&lt;old
+key&gt;... see section 5.1.
+<p>
+<dt>keepInfo: 15
+    <dd> How many updates (frames) to keep the info windows (activated by i and
+I ) on the screen.
+<p>
+<dt>keepPeace: on
+    <dd> Keep peace with races after death. Useful so you don't have to reset
+your war declarations window every time you start a new ship.
+<p>
+<dt>logging: off
+    <dd> displays messages to stdout (i.e. writes them on the console) if set.
+<p>
+<dt>logfile: (filename)
+    <dd> ... or, alternatively saves messages to a text file (see above option).
+<p>
+<dt>macroKey: X
+    <dd> Name of key to use for macro escape (TAB,ESC, or &lt;key&gt;). I like using
+TAB becuase it's easy to hit, better than the default 'X' which requires two
+keystrokes.
+  <p>
+<dt>metaCache: [none]
+   <dd> Filename of metaserver cache file; this file will be sued to display a 
+serverlist if the metaserver is unreachable or -k is specified on the command
+line.
+<p>
+<dt>metaserver: metaserver.ecst.csuchico.edu
+    <dd> Computer to use as the metaserver
+<p>
+<dt>metaport: 3521
+    <dd> Port to connect to metaserver on
+     <p>
+<dt>motionThresh: 16
+    <dd> How many pixels to move (x+y) before each simulated button-press when
+using continuousMouse mode.
+<p>
+<dt>newdashboard:  off
+    <dd> Use the &quot;new&quot; dashboard. Has graphs instead of text, now the standard.
+    <dd> Needs dashboard on.
+<p>
+<dt>newdashboard2: off
+     Use new the other &quot;new &quot; dashboard (Cup half full vs. Cup half empty).
+<p>
+<dt>newDistress: on
+    <dd> Distress calls are right justified if this is on.
+     <p>
+<dt>newPlanetBitmaps: off
+    <dd> Use MOO style planet bitmaps.
+<p>
+<dt>newPlist: off
+    <dd> New playerlist, instead of total kills, deaths offense and defense it 
+shows login and stats (off+bomb+planet).
+<p>
+<dt>phaserShrink: 0
+    <dd> (integer 0-16) Don't draw the first &quot;phaserShrink&quot;/16 th of your phaser.  
+<dd>This makes it easier to see incomming torps.
+<p>
+<dt>phaserWindow: off
+    <dd> Show phaser-hit messages in seperate window.   Equivalent
+to &quot;review_phaser.mapped: on&quot;. (See section on window placements)
+<p>
+<dt>playerList: 
+    <dd> Playerlist format. See section 4.2.
+<p>
+<dt>playerListStyle: 
+    <dd> The style for the player list. See section 4.2. The options are:
+     <p>
+    <dd> (0) Custom player list as defined by the
+         playerlist variable above,
+    <dd> (1) Old player list,
+    <dd> (2) Traditional COW player list,
+    <dd> (3) Kill watch player list,
+    <dd> (4) BRMH Player list.
+   <p>        
+     If &quot;playerListStyle&quot; is set, newPlist is ignored.<br>
+     Use the options menu (shift-O) to try the different styles.
+<p>     
+<dt>rejectMacro: off
+    <dd> If on, COW automatically stops NEWMACROs from being sent when the server
+has turned NEWMACROs off.  That is any macro in your defaults file defined by a
+mac.*.*: (TEXT) line.                           
+<p>
+<dt>reportKills: on
+    <dd> Show kill messages.
+<p>
+<dt>ROMVLVS: off
+    <dd> Use &quot;ROMVLVS&quot; bitmaps for Rom team. Kinda cool.  Default rom CA 
+bitmaps are SO dorky-looking.
+     <p>
+<dt>singleMacro: FE
+    <dd> List of macros that can be invoked with a single keypress (i.e. don't
+have to press the macro key first to enter macro mode.) The defualt setting
+puts the &quot;carrying&quot; and &quot;distress&quot; macros on single keys.
+<p>
+<dt>shellTools: on
+    <dd> If off, this disables shelling out to commands from COW.
+     <p>
+<dt>shiftedMouse: on
+    <dd> Use shift and control for extra mouse buttons (e.g. buttons 4-c)
+<p>
+<dt>shortKillMesg: off
+    <dd> Shrink and line up all kill messages.
+<p>
+<dt>showFuelOnLocal:
+    <dd> Make border color indicate fuel status.
+<p>
+<dt>showGalactic:                    1
+    <dd> Map window planet bitmaps display: 0 -- show owner, 1 -- show resoures,
+2 -- show nothing.
+<p>
+<dt>showIND: off
+    <dd> Mark independent planets with X's drawn over them.
+     <p>
+<dt>showLocal: 1
+    <dd> Local window planet bitmaps display: 0 -- show owner, 1 -- show
+resoures, 2 -- show nothing.
+<p>
+<dt>showLock: 3
+    <dd> Options for lock triangle display. 0 -- dont show lock, 1 -- show on
+galactic, 2 -- show on local, 3 -- show on both.
+<p>
+<dt>showMapPlanetNames: on
+    <dd> Show planet names on map (galactic) window
+<p>
+<dt>showmotd: on
+    <dd>  Display motd if in wait queue
+<p>
+<dt>showMySpeed: off
+    <dd> Display your current speed next to player number on tactical display.
+<p>
+<dt>showPlanetNames: on
+   <dd>  Show planet names on local (tactical) window
+<p>
+<dt>showPlanetOwner: on
+    <dd> Show planet owner on local (tactical) window
+<p>     
+<dt>showPlayerStatus: off
+    <dd> Player list: also show players who are not alive.
+<p>
+<dt>showShields: on
+    <dd> Show ship shields. Why would anyone want to turn this off?
+<p>
+<dt>showStats:  on
+    <dd> Show stats window . You can accomplish the same thing with
+&quot;stats.mapped: &lt;on/off&gt;&quot; but it's here anyway.  This option is made
+superflous with the newdashboard options.
+<p>
+<dt>showTractorPressor: on
+    <dd> Show your own tractor/pressor on the screen.
+<p>
+<dt>shrinkPhaserOnMiss: off
+    <dd> Use &quot;phaserShrink&quot; and &quot;theirPhaserShrink&quot; even if a phaser misses.
+     <p>
+<dt>sortPlayers: off
+    <dd> Use sorted player list. 
+<p>
+<dt>sortMyTeamFirst: off
+   <dd>  Modifies &quot;sortPlayers&quot; so that your team is sorted immediately before 
+the enemy teams.
+<p>
+<dt>sound: on
+    <dd> Enable sound effects
+     <p>
+<dt>sounddir: ./sounds
+    <dd> Directory to look in for sound files
+<p>
+<dt>theirPhaserShrink: 0
+   <dd>&quot;phaserShrink&quot; for other player's ships.
+<p>
+<dt>useLite:
+    <dd> Use BeepLite, which highlights the planets and players that are the
+subject of people's messages when they use RCD.
+<p>
+<dt>useTNGBitmaps:
+    <dd> Use The Next Generation bitmaps for the Federation ships.
+<p>
+<dt>updatespersec: 5
+    <dd> How many frames/sec the server should send. Max is 10. Note most
+servers do not support update rates higher than 5/sec. 
+<p>
+<dt>varyShields: on
+    <dd> Change shields bitmap to reflect your damage level.
+<p>
+<dt>warnShields: on
+    <dd> Show current alert level (green, yellow, red) as shield color
+     <p>
+<dt>warnHull:
+    <dd> Warn hull state based on damage .
+<p>
+<dt>warp: off
+   <dd>  Warp the mouse to the message window during message send.  I 
+personally prefer this because you can move your mouse out of the window 
+in case something happens that you need to react to without aborting the 
+message.
+<p>
+<dt>waitMotd: on
+    <dd> Show the motd while on the wait queue.
+<p>
+<dt>whichNewPlanetBitmaps: 0
+    <dd> The actually sets the same option internally as newPlanetBitmaps.
+1  and 2 are, presumably, the Rabbit Ear bitmaps and the ZZ Minimal 
+bitmaps.
+<p>
+<dt>zeroArgUsage: on
+    <dd> If no arguments, print usage instead of connecting to default server.
+</dl>
+
+<h3>Login Options:</h3>
+
+<dl>
+<dt>defaultShip: CA
+    <dd> Default ship to use on button-click entry (SC,DD,CA,BB,AS,SB).
+<p>
+<dt>name: &lt;your_name_here&gt;
+    <dd> Your default character name.
+<p>
+<dt>password: &lt;whatever&gt;
+    <dd> Your default password. If both name and password are supplied, 
+many clients will attempt to log you in automatically.
+</dl>
+
+<h3>Server Options:</h3>
+     These can be used to set up server aliases and server-specific options
+<dl>
+<dt>port: 2592
+    <dd> Default port to use.
+<p>
+<dt>port.&lt;x.y.z&gt;: 2592
+    <dd> Default port to use with server x.y.z. NOTE: if x.y.z is aliased
+(server.alias: x.y.z), use the alias instead.
+<p>
+<dt>newMesgFlags: on
+    <dd> Server-dependent. Should be on for all new servers.
+<p>
+<dt>server:  calvin.usc.edu
+    <dd> Name of the default server to use if the -h flag isn't given.
+<p>
+<dt>server.alias:  &lt; x.y.z&gt;
+    <dd> Aliases.  Replace x.y.z with full server name, and specify &lt;alias&gt;.
+From then on you can specify that server by doing 'netrek -h &lt;alias&gt;'
+instead of the full name
+<p>
+<dt>useRSA.x.y.z: on
+    <dd> Use RSA on server x.y.z? NOTE: if x.y.z is aliased (server.alias:
+x.y.z), use the alias instead.
+</dl>
+
+<h3>Window placments:</h3>
+     These are of the form 
+<pre>
+     &lt;window&gt;.geometry: &lt;width&gt;x&lt;height&gt;+&lt;xpos+&lt;ypos&gt;
+</pre>
+     Or you can specifiy just the position:
+<pre>
+     &lt;window&gt;.geometrey: +&lt;xpos&gt;+&lt;ypos&gt;
+</pre>
+     or just the size:
+<pre>
+     &lt;window&gt;.geometry: &lt;width&gt;x&lt;height&gt;
+</pre>
+
+     Possible windows are:
+<pre>
+     netrek         - main window
+     local          - Main fighting window
+     map            - Galactic map
+     warn           - warning window
+     message        - message window
+     review         - all messages window 
+     review_all     - messages to all window
+     review_team    - messages to team window
+     review_your    - messages to individual window
+     review_kill    - kills messages window
+     review_phaser  - phaser hits window
+     planet         - planet list window
+     player         - playerlist window
+     war            - war declarations window
+     fed            - Fed selection window
+     ori            - Orion selection window
+     rom            - Romulan selection window
+     kli            - Klingon selection window
+     quit           - The quit countdown clock
+     option         - options menu window
+     rank           - rank window
+     sound          - sound options window
+     stats          - statistics window
+     tstat          - dasboard window
+     help           - help window
+     UDP            - UDP options window
+     lagMeter       - lag meter window
+     pingStats      - ping statistics window
+     buttonkeymap   - the key map window
+     xtrekrc_help   - the xtrekrc help window (duh)
+     MetaServer List- (including the space) Metaserver window
+     tools          - the shell tools window
+     DocWin         - Documentation window
+     xtrekrcWin     - xtrekrc display window
+</pre>     
+
+     You can specify whether windows are initially mapped (displayed), like
+this:
+<pre>
+     &lt;window&gt;.mapped: &lt;on/off&gt;.
+</pre>
+     You can also specify parenting of windows. If one window is a child of
+another, when that window's parent is hidden or displayed, the child window
+will also be hidden or displayed. Also, a window that is not parented may
+have a caption on it, depending on your window manager or OS.
+<p>
+     For examples of all of these, see the example netrekrc. 
+
+
+<h3>Technical Options:</h3>
+<dl>
+<dt>dontPing: off
+    <dd> Don't attempt to start ping packets from the server.
+<p>
+<dt>forceDisplay:
+    <dd> [ WinCOW only ] Force display type. This overrides the display auto-detection.
+<dd> 0 = monochrome or 16, color, 1 = 256 color, 2 = 16/24 bit color.
+<p>
+<dt>forceMono:
+    <dd> Force monochrome display. (Actually, color is still used,
+but the colors are chosen so that they map correctly to black/white.)
+<p>
+<dt>netStatFreq: 5
+    <dd> Lag stats update: 1 -- least often, 10 -- most often.
+<p>
+<dt>netstats: off
+    <dd> Keep lag statistics. Bringing up the lagmeter ('l') will toggle this
+anyway, but it's there.
+<p>
+<dt>redrawDelay:  0
+   <dd>if &gt;0,  does a screen refresh only every n/10 sec 
+<dd>(useful for slow displays and high lag). 
+<p>
+<dt>tryUdp: on
+    <dd>  Try to use UDP upon entering the game.
+<p>
+<dt>tryShort: off
+    <dd> Try using short packets upon entering the game. [Windows client: the
+default netrekrc file included turns this on as it really helps over SLIP. ]
+<p>
+<dt>udpClientRecv: 1
+    <dd> How UDP packets should be received. Possibilites are: 0 -- use TCP (no
+UDP), 1 -- use simple UDP, 2 -- use fat UDP. Try setting this to 2 if you
+are getting a lot of server to client packet loss.
+<p>
+<dt>udpClientSend: 1
+    <dd> How UDP packets should be sent. Possibilites are: 0 -- use TCP (no
+UDP), 1 -- use simple UDP, 2 -- use enforced UDP (state only), 3 -- use
+enforced UDP (state &amp; weapon). The &quot;enforced&quot; modes will repeat the UDP
+packets if the client doesn't get a response from the server, on the
+assumption that the packet got lost. Try using 2 or 3 if you are getting a
+lot of client to server packet loss.
+<p>
+<dt>udpDebug: 0
+  <dd> Level of UDP code debugging. You may enjoy seeing debug trace messages.
+<p>
+<dt>udpSequenceChk: on
+    <dd> Throw out udp packets that arrive out of order. This is a good idea.
+<p>
+<dt>updatesPerSecond: 5
+    <dd> Number of updates (frames) per second (most servers limit to 5).
+<p>
+<dt>useRSA: on
+    <dd> Use RSA binary verification. If you turn this off you will not be able
+to play on many servers.
+</dl>
+
+<a name="XtrekrcEx"><h2>8. Example .xtrekrc</h2>
+
+   Thanks to Jaime Allistair for this.
+<p>        
+   This is an insanely long netrekrc (or xtrekrc, same thing). It has 
+almost all the options available in COW in it. It is not really meant to be
+used as is! It is meant to be an example and to be edited down to what
+you need. Why shouldn't you use it? Well, you can, but there are a lot
+of lines that just set things to their defaults and this serves no purpose,
+just makes the client load slower and take up more memory.
+
+<pre>        
+# xtrekrc file for Netrek
+# version: .01
+#    date: 3-1-95
+
+# The purpose of of this xtrekrc file is to have all the options available
+# to anyone who wants to make a change to the xtrekrc.  This file will
+# bring up all the message windows.  This will help in the area of newbies
+# not reading messages because they do not know how to get a message window
+# up.
+
+# If you have any changes, typos, fixes, additions, or any things
+# that were left out, please email me.  I will try to make these files
+# grow with the clients, as the client grows.
+
+# EMAIL:  jaime@diamondmm.com
+#  NAME:  Jaime Pirnie
+
+#                                       Enjoy!
+
+
+# /-----------------------\
+# | ### Login Options ### |
+# \-----------------------/
+
+#--------------------
+# Name
+# Your automatic character login name
+
+name: allister
+
+
+#--------------------
+# Password
+# Your default character login password
+
+password: secret
+
+
+#--------------------
+# Default Ship type
+#
+# Your default ship type
+#
+#   AS = Assault Ship
+#   BB = Battleship
+#   DD = Destroyer
+#   CA = Cruiser
+#   SC = Scout
+
+defaultShip: CA
+
+
+# /------------------------\
+# | ### Server Options ### |
+# \------------------------/
+
+#--------------------
+# Default Server port
+# Default server port to use
+
+port: 2592
+
+
+#--------------------
+# New Message Flags
+# Server-dependent.  Should be on for all new servers
+
+newMesgFlags: on
+
+
+#--------------------
+# Default Server
+# Name of the default server if the -h flag is not used
+
+server: factoryx.factoryx.com
+
+
+#--------------------
+# Server Aliases
+#
+# Server aliases. Syntax: [server.alias: &lt;x.y.z&gt;] Replace x.y.z with full
+# server name, and specify &lt;alias&gt;.  From then on you can specify that
+# server by doing 'netrek -h &lt;alias&gt;' instead of the full server name.
+# Below is an alias for wormhole.
+
+server.wormhole: wormhole.ecst.csuchico.edu
+
+
+#--------------------
+# Use RSA on a specific server
+# Use RSA on server x.y.z? NOTE: if x.y.z is aliased (server.alias: x.y.z),
+# use the alias instead.
+# Below it tells it to use RSA on wormhole.
+
+useRSA.wormhole: on
+
+
+# /---------------------------\
+# | ### Technical Options ### |
+# \---------------------------/
+
+#--------------------
+# Don't Ping
+# Don't attempt to start ping packets from the server
+
+dontPing: off
+
+
+#--------------------
+# Force Display type
+#
+# Force the display type for the client
+# NOTE: Windows client ONLY
+#
+#   0 = monochrome or 16 colors
+#   1 = 256 colors
+#   2 = 16/24 bit color
+
+forceDisplay: 1
+
+
+#--------------------
+# Force monochrome display
+#   (actually, color is still used internally, but
+#    the colors are chosen so that they map correctly to black &amp; white.)
+
+forceMono:
+
+
+#--------------------
+# Network statistics frequency
+#
+# Lag stats update
+#
+#   1 = least often
+#   2 = a bit more often
+#   |
+#   |
+#  \|/
+#  10 = most often
+#
+
+netStatFreq: 3
+
+
+#--------------------
+# Network Statistics
+#
+# Keep lag statistics
+#   (Bringing up the lagmeter ('l') will toggle this anyway, but its there)
+
+netstats: off
+
+
+#--------------------
+# Try UPD packets
+# Try to use UDP upon entering the game
+
+tryUDP: on
+
+
+#--------------------
+# Try short packets
+# Try using short packets upon entering the game
+#   (Windows client: This really help for SLIP connections)
+
+tryShort: on
+
+
+#--------------------
+# UDP Client Receive
+#
+# How UDP packets should be received
+#
+#   0 = TCP
+#   1 = simple UDP
+#   2 = fat UDP
+
+udpClientReceive: 2
+
+
+#--------------------
+# UDP Client Send
+#
+# How UDP packets should be sent
+#
+#   0 = TCP
+#   1 = simple UDP
+#   2 = enforced UDP (state only)
+#   3 = enforced UDP (state &amp; weapon)
+
+udpClientSend: 3
+
+
+#--------------------
+# UDP Debugging Level
+# Level of UDP code debugging.  You may enjoy seeing debug trace messages.
+
+udpDebug: 0
+
+
+#--------------------
+# UDP Sequence Checking
+# Throw out UDP packets that arrive out of order.  This is a good idea.
+
+udpSequenceChk: on
+
+
+#--------------------
+# Updates Per Second
+# Number of updates (frames) per second (most servers limit to 5)
+
+updatesPerSecond: 5
+
+
+#---------------------
+# Use RSA binary varification.
+# If you turn this off you will not be able
+# to play on many servers.
+
+useRSA: on
+
+
+#---------------------
+# I have no idea ????? Anybody know??!
+
+useTRports:
+
+
+# /---------------------------\
+# | ### Features, options ### |
+# \---------------------------/
+
+#--------------------
+# Ask For Update
+# Get full update from server when you enter the game.  This is a good
+# idea when using UDP and/or short packets.
+
+askForUpdate: on
+
+#--------------------
+# Mouse Button Map
+#
+# Maps mouse buttons to key functions
+#   Format: &lt;button&gt;&lt;key&gt;... just like the keymap
+#   Available buttons:
+#
+#   1 = left
+#   2 = middle
+#   3 = right
+#   4 = Shift+Left
+#   5 = Shift+Middle
+#   6 = Shift+Right
+#   7 = Control+Left
+#   8 = Control+Middle
+#   9 = Control+Right
+#   a = Shft+Ctrl+Left
+#   b = Shft+Ctrl+Middle
+#   c = Shft+Ctrl+Right
+
+buttonmap: 1a2p3k
+
+
+#---------------------
+# Cloak Characters
+# The characters to use to show cloaked ships on the galactic map.
+#   Popular choices are:
+#
+#     ()
+#     &lt;&gt;
+#     &gt;&lt;
+#     ??
+
+cloakChars: ??
+
+#---------------------
+# Clock Type
+#
+# Which type of clock to show
+#
+#   0 = No clock
+#   1 = hh:mm
+#   2 = hh:mm:ss
+
+clock: 2
+
+
+#--------------------
+# Continue Tractor Beam
+# Show tractor beam at all times when locked
+# If off, it will only show tractor beam for a short time.
+
+continueTractor: on
+
+
+#--------------------
+# Continuous Mouse
+# Allows you to hold down a mouse button, it will have the same effect if
+# you hit the button rapidly.
+
+continuousMouse: on
+
+
+#--------------------
+# Dashboard
+# Use a dashboard (LAB) style for the stats line.
+
+dashboard: on
+
+
+#--------------------
+# Use alternate dashboard
+# (Cup half full vs. Cup half empty) dashboard.
+# NOTE: Requires dashboard on.
+
+newdashboard: on
+
+
+#--------------------
+# Use the new new dashboard
+
+newnewdashboard: on
+
+
+#--------------------
+# Use the new dashboard2
+
+newdashboard2: on
+
+
+#--------------------
+# Use default BeepLite RCD highlighting (?)
+
+defLite: on
+
+
+#--------------------
+# Enemy Phasers
+# Width of enemy phaser lines. Mostly useful on mono displays so you can
+# distinguish your phasers from enemy phasers.
+
+ememyPhasers: 1
+
+
+#--------------------
+# Extra Alert Border
+# Use inside border for alert status
+
+extraAlertBorder: on
+
+
+#--------------------
+# Fill Lock Triangle
+# If locks are shown, whether or not to fill the lock triangle.
+
+fillTriangle: off
+
+
+#--------------------
+# Galactic Map Updates
+# Update Galactic map frequently.  This is good for phaser locking cloakers.
+
+galacticFrequent: on
+
+
+#--------------------
+# Keyboard Keymap
+# Maps new keys to old keys. Format: &lt;new key&gt;&lt;old key&gt;&lt;new key&gt;&lt;old key&gt; 
+...
+
+keymap: attT p
+
+
+#--------------------
+# Keep Info on screen
+# How many updates (frames) to keep the info windows (activated by i and I)
+# on the screen.
+
+keepInfo: 15
+
+
+#--------------------
+# Keep Peace after Death
+# Keep peace with races after death.  Useful so you dont have to reset your
+# war declarations window every time you start a new ship.
+
+keepPeace: on
+
+
+#--------------------
+# Message Log
+# Log all messages to a file.
+
+logMessage: off
+
+
+#--------------------
+# Macro Escape Key
+# Name of the key used for macro escape (TAB,ESC, or &lt;key&gt;).  I like using
+# ESC because it is easy to hit, butter than the default 'X' which requires
+# two keystrokes.
+
+macroKey: ESC
+
+
+#--------------------
+# Meta Server List level
+#
+# Tells the client what to list when using the MetaServer.
+#
+#       0   Servers which have players but not a wait queue.
+#       1   + Servers with a wait queue.
+#       2   + Servers with nobody playing. (see NOTE1).
+#       3   + Servers which have Timed Out for the MetaServer (see NOTE2).
+#       4   + Servers which the MetaServer has not been able to connect to.
+
+metaStatusLevel: 4
+
+
+#---------------------
+# Motion Threshhold
+# How many pixels (x+y) before each simulated button-press when using
+# continuous mause mode.
+
+motionThresh: 16
+
+
+#---------------------
+# New Planet Bitmaps
+# Use MOO style planet bitmaps
+
+newPlanetBitmaps: on
+
+
+#---------------------
+# Player List Style
+#
+#       0 Custom player list
+#       1 Old player list
+#       2 Traditional COW player list
+#       3 Kill watch player list
+#       4 BRMH Player list
+
+playerListStyle: 1
+
+
+#---------------------
+# New Player List
+# Reduced stats format for the player list.
+# Can also be toggled with the '\' key.
+
+newPlayerList: off
+newPlist: off
+
+
+#---------------------
+# User Configurable Player List
+# Use ('\') to toggle between your player list, and the stock one (or
+# visa/versa depending on the status of newplist or newplayerlist).
+# With newPlayerList or newPlist set to on (depending on your client),
+# it will use the user configurable player list as the default.  If set
+# to off, it will use the stock player list as the default.  Again,
+# the ('\') key toggles between the two.
+#
+# Here are the possible columns:
+#
+#       Spc  Let   Name                 Header
+#       ---  ---   -------------------- -------------------
+#         3  'n'   Ship Number          &quot; No&quot;
+#         3  'T'   Ship Type            &quot; Ty&quot;
+#        11  'R'   Rank                 &quot; Rank      &quot;
+#        17  'N'   Name                 &quot; Name            &quot;
+#         6  'K'   Kills                &quot; Kills&quot;
+#        17  'l'   Login Name           &quot; Login           &quot;
+#         6  'O'   Offense              &quot; Offse&quot;
+#         6  'W'   Wins                 &quot;  Wins&quot;
+#         6  'D'   Defense              &quot; Defse&quot;
+#         6  'L'   Losses               &quot;  Loss&quot;
+#         6  'S'   Total Rating (stats) &quot; Stats&quot;
+#         6  'r'   Ratio                &quot; Ratio&quot;
+#         8  'd'   Damage Inflicted(DI) &quot;      DI&quot;
+#         1  ' '   White Space          &quot; &quot;
+#         6  'B'   Bombing              &quot; Bmbng&quot;
+#         6  'b'   Armies Bombed        &quot; Bmbed&quot;
+#         6  'P'   Planets              &quot; Plnts&quot;
+#         6  'p'   Planets Taken        &quot; Plnts&quot;
+#        17  'M'   Display/Host Machine &quot; Host Machine    &quot;
+#         7  'H'   Hours Played         &quot; Hours &quot;
+#         6  'k'   Max Kills            &quot; Max K&quot;
+#         6  'V'   Kills per Hour       &quot;   KPH&quot;
+#         6  'v'   Deaths per Hour      &quot;   DPH&quot;
+#
+
+playerlist: nTMSBbPpHkVv
+
+
+#---------------------
+# Phaser Messages (client dependent)
+#
+#   0 = none
+#   1 = all
+#   2 = team
+#   3 = indiv
+#   4 = kill
+#   5 = total
+
+PhaserMsg: 5
+
+
+#---------------------
+# Phaser Messages in Individual Window (See also phaserwindow)
+# Displays the phaser hit points in the individual window.
+
+phaserMsgI: on
+
+
+#---------------------
+# Phaser Window
+# Show Phaser hit messages in separate window. (See also
+# reveiw_phaser for default mapping and geometry)
+
+phaserWindow: on
+
+
+#---------------------
+# Unknown..  Anybody know?!
+
+planetCycleTime: 8
+
+#---------------------
+# Unknown..  Anybody know?!
+
+refreshInterval:
+
+
+#---------------------
+# Report Kill Messages
+# Shows kill messages
+
+reportKills: on
+
+
+#---------------------
+# ROMVLVS bitmaps for Rom Team
+
+ROMVLVS: on
+
+
+#---------------------
+# Single Macro Keys
+# List of macros that can be invoked with a single keypress
+# (i.e. dont have to press the macro key first to enter macro mode)
+
+singleMacro: FE
+
+
+#---------------------
+# Shifted Mouse buttons
+# Allows you to use shift and control keys for extra mouse buttons
+# (this would be for mouse buttons 4-c)
+
+shiftedMouse: off
+
+
+
+#---------------------
+# Short Kill Messages
+# This option shirinks and lines up all the kill messages.
+# It makes it easyer to see if somebody was killed while carrying
+# armies or not.
+
+shortKillMesg: on
+
+
+#---------------------
+# Show Fuel on Local
+# This makes the border color indicate fuel status
+
+showFuelOnLocal: off
+
+
+#---------------------
+# Show Galactic
+# This option sets what is shown on the planet bitmaps
+#
+#   0 = show owner
+#   1 = show recources
+#   2 = show nothing
+
+showGalactic: 1
+
+
+#---------------------
+# Show Local
+# This option sets what is shown on the local planet bitmaps
+#
+#   0 = show owner
+#   1 = show recources
+#   2 = show nothing
+
+showLocal: 1
+
+
+#---------------------
+# Show Lock Triangle
+#
+#       0=don't show
+#       1=galactic only
+#       2=tactical only
+#       3=both
+
+showLock: 3
+
+
+#---------------------
+# Show Map Planet Names
+# This option shows on the map (galactic) window.
+
+showMapPlanetNames: on
+
+
+#---------------------
+# Show my Speed
+# This option prints your current speed next to your player number in your
+# tactical display.
+
+showMySpeed: off
+
+
+#---------------------
+# Show Planet Names
+# This option shows the planet names on the local (tactical) window.
+
+showPlanetNames: on
+
+
+#---------------------
+# Show Player Status
+# This option, when on, shows players in the player list who are not alive.
+
+showPlayerStatus: on
+
+
+#---------------------
+# Show Shields
+# This option lets you see your ships shields.
+
+showShields: on
+
+
+#---------------------
+# Show Stats
+# Shows the stats window.  You can accomplish this same thing
+# with &quot;stats.mapped: &lt;on/off&gt;&quot; but its here as well.
+
+showStats: off
+
+
+#---------------------
+# Show Tractor / Pressor Beams
+# This option lets you see your own tractor/pressor beams.
+
+showTractorPressor: on
+
+
+#---------------------
+# Sort Player List
+# This option sorts the players in the player list according to team.
+
+sortPlayers: on
+
+
+#---------------------
+# BeepLite
+# This option turns on BeepLite.  This highlights the planets and players
+# that are the subject of people's messages when they use RCD.
+
+useLite: on
+
+
+#---------------------
+# Display last message
+# This option displays the last message in the warning message window.
+
+useMsgw: off
+
+
+#---------------------
+# Use [T]he [N]ext [G]eneration style bitmaps
+# Need I say more?
+
+useTNGBitmaps: on
+
+
+#---------------------
+# Updates Per Second
+# How many frames/sec the server should send.  Max is 10.
+
+updatesPerSecond: 10
+
+
+#---------------------
+# Vary Shields
+# This option changes the shield bitmap to reflect your shield damage.
+
+varyShields: on
+
+
+#---------------------
+# Warn Hull state
+# Warns you on hull state based off of damage.
+
+warnHull: on
+
+
+#---------------------
+# Mouse Cursor Warp
+# Warp the mouse to the message window during message send.  This
+# used to be useful when you have to have the mouse cursor in the message
+# window to type a message.
+
+warp: off
+
+
+#---------------------
+# Show MOTD
+# This option shows the [M]essage [O]f [T]he [D]ay while in the wait queue.
+
+waitMotd: on
+
+
+#---------------------
+# Which New Planet Bitmaps
+# This option actually sets the same option internally as newPlanetBitmaps.
+# 1 and 2 are, presumably, the Rabbit Ear bitmaps and the ZZ Minimal 
+bitmaps.
+
+whichNewPlanetBitmaps: 2
+
+
+#---------------------
+# Zero Argument Usage
+# This option when on: If no arguments, print usage instead of connecting
+# to the default server.
+
+zeroArgUsage: on
+
+
+# /-------------------------\
+# | ### Window Placment ### |
+# \-------------------------/
+
+#---------------------
+# Window Placment syntax (geometry)
+#
+# This displays the size, and position of the window.
+# &lt;window&gt;.geometry:&lt;width&gt;x&lt;height&gt;+&lt;xpos&gt;+&lt;ypos&gt;
+#
+# This displays just the position of the window.
+# &lt;window&gt;.geometry:+&lt;xpos&gt;+&lt;ypos&gt;
+#
+# ...or just the size
+# &lt;window&gt;.geometry:&lt;width&gt;x&lt;height&gt;
+#
+#---------------------
+# This option sets whether windows are initially mapped (displayed).
+#
+# &lt;window&gt;.mapped:&lt;on/off&gt;
+#---------------------
+# This option sets the parenting of windows.  If one window is a child of
+# another, when that window's parent is hidden or displayed, the child
+# window will also be hidden or displayed.  Also, a window that is not
+# parented will have a title bar at the top of the window.
+#
+# &lt;window&gt;.parent:&lt;parent window name&gt;
+#
+#---------------------
+# List of possible window names
+#
+#       netrek          Main Window
+#       local           Main Fighting Window
+#       map             Galactic Map
+#       warn            Warning Window
+#       message         Message Window
+#       review          All Messages Window
+#       review_all      Messages to All Window
+#       review_team     Messages to Team Window
+#       review_your     Messages to Individual Window
+#       review_kill     Kill Messages Window
+#       review_phaser   Phaser hits Window
+#       planet          Planet List Window
+#       player          Player List Window
+#       war             War Declarations Window
+#       fed             Federation Selection Window
+#       ori             Orion Selection Window
+#       rom             Romulan Selection Window
+#       kli             Klingon Selection Window
+#       quit            The Quit Countdown Clock
+#       option          Option Menu Window
+#       rank            Rank Window
+#       stats           Statistics Window
+#       sstat           Dashboard Window
+#       help            Help Window
+#       UDP             UDP Options Window
+#       lagMeter        Lag Meter Window
+#       pingStats       Ping Statistics Window
+#       buttonkeymap    Keymap Window
+#       xtrekrc_help    The xtrekrc help Window
+#       macro           Active Macros Window
+
+#-------------------
+# Actual Window placments
+
+netrek_icon.geometry:   +1031+0
+
+#netrek.geometry:        1018x740+0+0
+netrek.geometry:        +0-20
+#local.parent:           netrek
+#map.parent:             netrek
+
+#warn.parent:            netrek
+#warn.geometry:          +0+549
+
+#message.parent:         netrek
+#message.geometry:       +0+575
+
+#review.parent:          netrek
+#review.geometry:        +510+500
+review.geometry:        +512+556
+#review.mapped:          off
+
+#review_all.parent:      netrek
+#review_all.geometry:    +510+500
+review_all.geometry:    +504+556
+#review_all.mapped:      on
+
+#review_team.parent:     netrek
+#review_team.geometry:   +510+608
+#review_team.mapped:     on
+
+#review_your.parent:     netrek
+#review_your.geometry:   +510+666
+#review_your.mapped:     on
+
+#review_kill.parent:     netrek
+#review_kill.geometry:   +0+600
+#review_kill.mapped:     on
+
+#review_phaser.parent:   netrek
+#review_phaser.geometry: +0+672
+review_phaser.geometry: 81x5+0+800
+review_phaser.mapped:   off
+
+#planet.parent:          netrek
+
+#player.parent:          netrek
+#player.geometry:        +510+500
+player.geometry:        81x23+0+556
+player.mapped:          on
+
+#war.parent:             netrek
+war.geometry:           +800
+#fed.parent:             netrek
+#ori.parent:             netrek
+#rom.parent:             netrek
+#kli.parent:             netrek
+#quit.parent:            netrek
+#option.parent:          netrek
+#rank.parent:            netrek
+#stats.parent:           netrek
+#tstat.parent:           netrek
+#help.parent:            netrek
+#UDP.parent:             netrek
+#lagMeter.parent:        netrek
+#pingStats.parent:       netrek
+#buttonkeymap.parent:    netrek
+#xtrekrc_help.parent:    netrek
+#macro.parent:           netrek
+
+# /----------------\
+# | ### Macros ### |
+# \----------------/
+
+#----------------------
+# Macro syntax:
+#
+# mac.&lt;key&gt;.&lt;dest&gt;:&lt;text&gt;
+#
+# &lt;key&gt; is the character you wish to assign to the macro.
+# &lt;dest&gt; is a standard message destination
+#        (0-9a-j for player, F/R/K/O for teams, T for your team, A for ALL)
+# &lt;text&gt; is the text you want to be printed when the macro is used.
+
+# Here is two examples :
+
+mac.b.T: Bomb enemy core, please!
+
+mac.i.A:  \\\\    You have just been DOOSHED !!
+mac.i.A:  (o o)   Didn't that feel good?!
+mac.i.A:  ( . )
+mac.i.A:   \V/
+
+<!-- Converted text file ends here -->
+</PRE>
+For further information check: 
+    <a href="http://cow.netrek.org/">http://cow.netrek.org/</a><br>
+Comments, suggestions and bug reports to 
+    <a href="mailto:cow@netrek.org">cow@netrek.org</a> <br>
+      
+</BODY>
+</HTML>

@@ -1,0 +1,178 @@
+!!! PLCLEAR is set too often.  Does not need to be set for every draw,
+	just for BEEPLITE and moves
+
+
+The following are projects, ideas, and bugs for anyone who would like
+to contribute to BRM.  Please send all patches to brmbugs@crissy.berkeley.edu
+
+These are listed in approximately order of importance.
+
+BUGS:
+
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+ 
+
+
+TODO:
+
+-----------------------------------------------------------------
+
+Clean up the source!
+Move systems ifdefs to a config file!
+
+  Mostly done by Kurt Siegl COW 1.0, but still not complete.
+
+-----------------------------------------------------------------
+
+Enhance macrowindow to include a display of receiver configurable
+distress calls.
+[I think Nick Trown has finished this and will include it
+in future patches]
+
+-----------------------------------------------------------------
+
+Make a mouse button -> control key buttonmap
+
+-----------------------------------------------------------------
+
+Add a meta-command mode into the client, so that people
+can imitate what they did with macromode earlier in
+terms of RCD.  Further, sensative commands like 'q' and 'Q'
+could be mapped to a "safe" meta command mode.
+
+Ex:  Have something like the following in xtrekrc.
+
+metaCommand:  qQ^3
+
+In order to do a fast quit, you then need to hit say 'W'
+(or whatever your meta command key is) followed by 'q'.
+In order to send the ^3 RCD, need to get into meta-command
+mode, then hit ^3.
+
+-----------------------------------------------------------------
+
+Allow macros to be assigned to control keys
+
+-----------------------------------------------------------------
+
+Suggestions for new MACRO arguments:
+%* automatically abort a macro (ie don't print it) whenever this occurs
+%  that is %<SPACE>, this would be used mainly to start a macro
+      with blanks in it, ie mac.a.T: %                 BOMB!!
+
+Don't print MACROs if they reduce down via SMARTMACRO to a null message. 
+
+-----------------------------------------------------------------
+
+jeffw writes:
+>How does one map a control key to a single key macro?
+
+Not possible, needs adding.
+
+
+-----------------------------------------------------------------
+
+From: jmn@crown.berkeley.edu (J. Mark Noworolski)
+
+- See if we can steal any of hadley's or other peoples code to make BRM
+run faster.
+ 
+- Streamline the code to speed it up.
+ 
+- Reduce the size of the binary (I dunno how).
+
+[note from jn:  if removing silly features that few people use
+ is necessary in order to achieve the above, do it]
+
+-----------------------------------------------------------------
+
+Include Hadley's xtrekrc window into the client.
+Steal as much of Hadley's other cool client features as possible.
+
+-----------------------------------------------------------------
+
+From: "Joseph E. Beck" <jb8n+@andrew.cmu.edu>
+
+Just curious, do you have any idea on the status of "galaxy rotate"
+with short packets?  It would be really cool if you could get
+something like:
+galaxy-position:                lower-left
+galaxy-direction:               up
+So when you enter the game your race is in the lower left corner, and
+you will fly upwards to meet your opponents.  Granted, this is
+cosmetic but would be really neat.  Do you know if anyone is looking at
+this, or is it dead?
+
+-----------------------------------------------------------------
+
+From: "Joseph E. Beck" <jb8n+@andrew.cmu.edu>
+
+Highly related second question: is there (or could there be? :-) a way
+to have the received smartdistresses be displayed on 2 separate lines?
+Eg:
+F4->FED
+F4->FED ORG     5 armies        @3 armies
+F4->FED CAN     60% fuel        AS
+ 
+Which would be parsed as "F4 is at CAN in an AS with 60% fuel.  He is
+heading to ORG@3 with 5 armies.".  The reason for this is that I like
+to put a message board on my galactic window, but I can only have a
+partial width window (since if it was wider it would block the battle
+area).  Shouldn't be too tough, right? :-)
+
+-----------------------------------------------------------------
+
+Come up with some scheme for allowing keymaps to use control and
+meta keys, along with TAB, RETURN, DELETE, and other such keys.
+
+-----------------------------------------------------------------
+
+Rewrite and update all the documentation.
+
+-----------------------------------------------------------------
+
+Keep a team stats total in the playerlist, so that teams may
+be compared as a whole with one simple quotient.
+(idea came from Bharat.Mediratta I think, not sure)
+
+-----------------------------------------------------------------
+
+From glaurent@indri.inria.fr Fri Sep 17 05:46:15 1993
+Date: Fri, 17 Sep 1993 14:47:51 +0200
+To: brmbugs@crown.berkeley.edu
+Subject: BRM 2.99pl1: we want the old new player list
+
+Last suggestion : the help window is a mess. A bit of sorting (by themes
+for ex.) would be a good idea...
+
+-----------------------------------------------------------------
+
+Look for a way to keep metawindow data around so a player who decides
+he/she doesn't like the first server connected to, can reconnect
+without contacting the metaserver to get another listing.
+
+------------------------------------------------------------------
+
+Someone wrote:
+>Hmm.. I just tried un-keymapping the ` key.
+>I did options and `` and it still does the macro instead of the packetwindow..
+>
+>Here's what I had in .xtrekrc:
+>
+ 
+xtrekrc entry:
+#newmacro stuff
+singleMacro: `
+mac.`.A:       %p: MAJOR FUCKING TWINK
+ 
+jn responded:
+If these are the lines you have in your .xtrekrc, it is not
+possible to use the ` key for anything but the specified
+macro.  Macros override commands, and singleMacro means you
+automatically enter macro mode when that key is hit.  As of
+this patchlevel [3.0 beta], keymap is entirely ignored when it comes
+to macros and dist.key.name configured distresses.  In future patch levels
+we might provide a way to modify and remove whatever singleMacro
+is set to, right now editing and reloading xtrekrc is necessary.
+
