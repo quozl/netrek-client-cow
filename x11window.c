@@ -4,6 +4,10 @@
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
  * $Log: x11window.c,v $
+ * Revision 1.5  2001/08/21 20:52:15  siegl
+ *
+ * mouse wheel support
+ *
  * Revision 1.4  1999/08/20 18:32:45  siegl
  * WindowMaker Docking support
  *
@@ -1482,61 +1486,6 @@ int
 	  wevent->y = button->y;
 #endif
 
-#ifdef SHIFTED_MOUSE
-	  if (extended_mouse)
-	    {
-	      if (button->state & ControlMask && button->state & ShiftMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON4;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON4;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON4;
-		      break;
-		    }
-		  return (1);
-		}
-
-	      if (button->state & ShiftMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON2;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON2;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON2;
-		      break;
-		    }
-		  return (1);
-		}
-
-	      if (button->state & ControlMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON3;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON3;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON3;
-		      break;
-		    }
-		  return (1);
-		}
-	    }
-#endif
 
 #ifdef MOUSE_AS_SHIFT
 	  if (mouse_as_shift &&
@@ -1569,7 +1518,49 @@ int
 	    case Button2:
 	      wevent->key = W_MBUTTON;
 	      break;
+#ifdef Button4
+	    case Button4:
+	      wevent->key = W_WUBUTTON;
+	      break;
+#endif
+#ifdef Button5
+	    case Button5:
+	      wevent->key = W_WDBUTTON;
+	      break;
+#endif
+#ifdef Button6
+	    case Button6:
+	      wevent->key = W_X1BUTTON;
+	      break;
+#endif
+#ifdef Button7
+	    case Button7:
+	      wevent->key = W_X2BUTTON;
+	      break;
+#endif
 	    }
+
+#ifdef SHIFTED_MOUSE
+	  if (extended_mouse)
+	    {
+	      if (button->state & (ControlMask | ShiftMask))
+		{
+
+		  if (button->state & ShiftMask)
+		    {
+		      wevent->key |= W_SHIFT_BUTTON;
+		    }
+
+		  if (button->state & ControlMask)
+		    {
+		      wevent->key |= W_CTRL_BUTTON;
+		    }
+
+		  return (1);
+		}
+
+	    }
+#endif
 
 	  if (win->type == WIN_SCROLL)
 	    {
@@ -1594,62 +1585,6 @@ int
 	  prev_x = wevent->x = motion->x;
 	  prev_y = wevent->y = motion->y;
 
-#ifdef SHIFTED_MOUSE
-	  if (extended_mouse)
-	    {
-
-	      if (button->state & ControlMask && button->state & ShiftMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON4;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON4;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON4;
-		      break;
-		    }
-		  return (1);
-		}
-
-	      if (button->state & ShiftMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON2;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON2;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON2;
-		      break;
-		    }
-		  return (1);
-		}
-
-	      if (button->state & ControlMask)
-		{
-		  switch (button->button & 0xf)
-		    {
-		    case Button3:
-		      wevent->key = W_RBUTTON3;
-		      break;
-		    case Button1:
-		      wevent->key = W_LBUTTON3;
-		      break;
-		    case Button2:
-		      wevent->key = W_MBUTTON3;
-		      break;
-		    }
-		  return (1);
-		}
-	    }
-#endif
 
 #ifdef MOUSE_AS_SHIFT
 	  if (mouse_as_shift &&
@@ -1682,7 +1617,48 @@ int
 	    case Button2:
 	      wevent->key = W_MBUTTON;
 	      break;
+#ifdef Button4
+	    case Button4:
+	      wevent->key = W_WUBUTTON;
+	      break;
+#endif
+#ifdef Button5
+	    case Button5:
+	      wevent->key = W_WDBUTTON;
+	      break;
+#endif
+#ifdef Button6
+	    case Button6:
+	      wevent->key = W_X1BUTTON;
+	      break;
+#endif
+#ifdef Button7
+	    case Button7:
+	      wevent->key = W_X2BUTTON;
+	      break;
+#endif
 	    }
+
+#ifdef SHIFTED_MOUSE
+	  if (extended_mouse)
+	    {
+	      if (button->state & (ControlMask | ShiftMask))
+		{
+
+		  if (button->state & ShiftMask)
+		    {
+		      wevent->key |= W_SHIFT_BUTTON;
+		    }
+
+		  if (button->state & ControlMask)
+		    {
+		      wevent->key |= W_CTRL_BUTTON;
+		    }
+
+		  return (1);
+		}
+	    }
+#endif
 
 	  return (1);
 #endif
@@ -3281,9 +3257,11 @@ W_Event *wevent;
   switch (wevent->key)
     {
     case W_RBUTTON:
+    case W_WUBUTTON:
       scrollUp(W_Void2Window(wevent->Window), wevent->y);
       break;
     case W_LBUTTON:
+    case W_WDBUTTON:
       scrollDown(W_Void2Window(wevent->Window), wevent->y);
       break;
     case W_MBUTTON:

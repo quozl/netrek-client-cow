@@ -1,6 +1,10 @@
 /* data.c
  *
  * $Log: data.c,v $
+ * Revision 1.8  2001/08/21 20:52:15  siegl
+ *
+ * mouse wheel support
+ *
  * Revision 1.7  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.
  * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
@@ -116,8 +120,8 @@ int     extraBorder = 1;
 int     tryUdp = 1;
 int     tryUdp1 = 1;
 struct plupdate pl_update[MAXPLANETS];
-char    buttonmap[12] =
-{'\0', '\0', '\0'};
+char    buttonmap[W_BUTTON_RANGE] =
+{'\0', '\0', '\0', '\0', '\0', '\0'};
 int     lastm = 0;
 int     delay = 0;				 /* delay for decaring war */
 int     rdelay = 0;				 /* delay for refitting */

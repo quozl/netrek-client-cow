@@ -2,6 +2,10 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.7  2001/08/21 20:52:15  siegl
+ *
+ * mouse wheel support
+ *
  * Revision 1.6  2001/06/12 02:48:49  quozl
  * add single-step playback keys
  *
@@ -503,34 +507,90 @@ initkeymap(void)
 	      buttonmap[3] = getctrlkey(&str);
 	      break;
 
-#ifdef SHIFTED_MOUSE
-	    case '4':
+	    case 'd':
 	      buttonmap[4] = getctrlkey(&str);
 	      break;
-	    case '5':
+	    case 'e':
 	      buttonmap[5] = getctrlkey(&str);
 	      break;
-	    case '6':
+	    case 'f':
 	      buttonmap[6] = getctrlkey(&str);
 	      break;
-	    case '7':
+	    case 'g':
 	      buttonmap[7] = getctrlkey(&str);
 	      break;
-	    case '8':
-	      buttonmap[8] = getctrlkey(&str);
-	      break;
-	    case '9':
+
+#ifdef SHIFTED_MOUSE
+	    case '4':
 	      buttonmap[9] = getctrlkey(&str);
 	      break;
-	    case 'a':
+	    case '5':
 	      buttonmap[10] = getctrlkey(&str);
 	      break;
-	    case 'b':
+	    case '6':
 	      buttonmap[11] = getctrlkey(&str);
 	      break;
-	    case 'c':
+
+	    case 'h':
 	      buttonmap[12] = getctrlkey(&str);
 	      break;
+	    case 'i':
+	      buttonmap[13] = getctrlkey(&str);
+	      break;
+	    case 'j':
+	      buttonmap[14] = getctrlkey(&str);
+	      break;
+	    case 'k':
+	      buttonmap[15] = getctrlkey(&str);
+	      break;
+
+
+	    case '7':
+	      buttonmap[17] = getctrlkey(&str);
+	      break;
+	    case '8':
+	      buttonmap[18] = getctrlkey(&str);
+	      break;
+	    case '9':
+	      buttonmap[19] = getctrlkey(&str);
+	      break;
+
+	    case 'l':
+	      buttonmap[20] = getctrlkey(&str);
+	      break;
+	    case 'm':
+	      buttonmap[21] = getctrlkey(&str);
+	      break;
+	    case 'n':
+	      buttonmap[22] = getctrlkey(&str);
+	      break;
+	    case 'o':
+	      buttonmap[23] = getctrlkey(&str);
+	      break;
+
+	    case 'a':
+	      buttonmap[25] = getctrlkey(&str);
+	      break;
+	    case 'b':
+	      buttonmap[26] = getctrlkey(&str);
+	      break;
+	    case 'c':
+	      buttonmap[27] = getctrlkey(&str);
+	      break;
+
+	    case 'p':
+	      buttonmap[28] = getctrlkey(&str);
+	      break;
+	    case 'q':
+	      buttonmap[29] = getctrlkey(&str);
+	      break;
+	    case 'r':
+	      buttonmap[30] = getctrlkey(&str);
+	      break;
+	    case 's':
+	      buttonmap[31] = getctrlkey(&str);
+	      break;
+
 #endif
 
 	    default:
@@ -1118,7 +1178,7 @@ buttonaction(W_Event * data)
     return;
 
 #ifdef SHIFTED_MOUSE
-  if (data->key >= W_LBUTTON && data->key <= W_RBUTTON4)
+  if (data->key >= W_LBUTTON && data->key < W_BUTTON_RANGE)
 #else
   if (data->key > 0 && data->key <= 3)
 #endif
@@ -1173,7 +1233,7 @@ buttonaction(W_Event * data)
       sendPhaserReq(course);
     }
 
-#ifdef SHIFTED_MOUSE
+#ifdef NODEF /* SHIFTED_MOUSE - no defaults if not set */
   else if (data->key == W_RBUTTON2)
     {
       set_speed(me->p_ship.s_maxspeed / 2);

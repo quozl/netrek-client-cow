@@ -3,6 +3,7 @@ Patches to cow@netrek.org
 
 ?
 - minor source packaging changes [cameron]
+- mouse wheel support [siegl]
 
 3.00 pl3 Jan. 2, 2000
 - Expiry date removed [siegl]

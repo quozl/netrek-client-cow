@@ -11,6 +11,10 @@
  *     W_Red, W_Green, W_Yellow, W_Cyan, W_Grey, W_Textwidth, and W_Textheight.
  *
  * $Log: Wlib.h,v $
+ * Revision 1.2  2001/08/21 20:52:15  siegl
+ *
+ * mouse wheel support
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
  * COW 3.0 initial revision
  * */
@@ -115,22 +119,21 @@ extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 #define W_EV_CM_BUTTON	5
 #endif
 
-#define W_LBUTTON	1
-#define W_MBUTTON	2
-#define W_RBUTTON	3
+#define W_LBUTTON       1
+#define W_MBUTTON       2
+#define W_RBUTTON       3
+#define W_WUBUTTON      4    // Mouse wheel up
+#define W_WDBUTTON      5    // wheel down
+#define W_X1BUTTON      6    // future extra keys
+#define W_X2BUTTON      7
+
 
 #ifdef SHIFTED_MOUSE
-#define W_LBUTTON2	4
-#define W_MBUTTON2	5
-#define W_RBUTTON2	6
-
-#define W_LBUTTON3	7
-#define W_MBUTTON3	8
-#define W_RBUTTON3	9
-
-#define W_LBUTTON4	10
-#define W_MBUTTON4	11
-#define W_RBUTTON4	12
+#define W_SHIFT_BUTTON	0x08
+#define W_CTRL_BUTTON	0x10
+#define W_BUTTON_RANGE  0x20
+#else
+#define W_BUTTON_RANGE  8
 #endif
 
 #define W_BoldFont W_HighlightFont
