@@ -1,5 +1,5 @@
 #
-# $Id: cow.spec,v 1.6 2002/05/06 08:24:43 tanner Exp $
+# $Id: cow.spec,v 1.7 2002/05/07 04:27:56 tanner Exp $
 #
 # HOW TO COMPILE
 #
@@ -15,7 +15,7 @@
 Summary: Netrek Client
 Name: cow
 Version: 3.00_20020506
-Release: realtime.4
+Release: realtime.5
 Copyright: Undetermined
 URL: http://cow.netrek.org/
 Vendor: Real Time Enterprises, Inc. <support@real-time.com>
@@ -30,6 +30,7 @@ Source4: COW.3.00pl2.doc.tar.gz
 Source5: cow.desktop
 Source6: cow.png
 Patch0: cow-3.00-xpmfix.patch
+Patch1: cow-3.00-sound.patch
 
 #
 # Sorry, I don't distribute my key. Even with the source code, see the COW.DOC file
@@ -71,6 +72,7 @@ be displayed.
 
 %setup -q -a 2 -a 3 -a 4
 %patch0 -p1 
+%patch1 -p1
 
 %build
 
@@ -102,7 +104,7 @@ rm -rf %{buildroot}
 %{__install} %SOURCE5 %{buildroot}%{_datadir}/gnome/apps/Games/Tclug
 %{__install} %SOURCE6 %{buildroot}%{_datadir}/pixmaps
 %{__install} -m 755 -s netrek %{buildroot}%{_bindir}/cow
-%{__install} -m 755 -s sound/soundlib/bgsndplay %{buildroot}%{_bindir}
+%{__install} -m 755 -s sound/soundlib/bgsndplay.au %{buildroot}%{_bindir}/bgsndplay
 
 # Using tar to keep symlinks
 (cd sound/sounds/; tar -cf - .)|(cd %{buildroot}%{_datadir}/sounds/%{name}; tar -xf -)
@@ -121,9 +123,9 @@ rm -rf %{buildroot}
 %{_bindir}/%{name}
 %{_bindir}/bgsndplay
 %attr(0755,root,root) %dir %{_datadir}/sounds/%{name}
-%attr(0444,root,root) %{_datadir}/sounds/%{name}/*
+%attr(-,root,root) %{_datadir}/sounds/%{name}/*
 %attr(0755,root,root) %dir %{_datadir}/pixmaps/%{name}
-%attr(0444,root,root) %{_datadir}/pixmaps/%{name}/*
+%attr(-,root,root) %{_datadir}/pixmaps/%{name}/*
 %attr(0644,root,root)%{_sysconfdir}/X11/applnk/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/apps/Games/Tclug/%{name}.desktop
 %attr(0644,root,root)%{_datadir}/gnome/ximian/Programs/Games/Tclug/%{name}.desktop
@@ -134,11 +136,15 @@ rm -rf %{buildroot}
 
 %changelog
 * Sat May 06 2002 Bob Tanner <tanner@real-time.com>
+  + cow-3.00_20040504-realtime.5
+  - patch [Bug #553113] to fix sound problems under 2.4.x kernels/redhat 7.2
+
+* Sat May 06 2002 Bob Tanner <tanner@real-time.com>
   + cow-3.00_20040504-realtime.4
   - submitted keys to metaserver, recompiled binaries for those keys
   - added ability to pass into the rpm build process the location of keydef file
   - fixed permission on pixmap directory
-  - patch [Bug #552772]
+  - patch [Bug #552772] to fix configure not detecting xpm under redhat 7.2
 
 * Sat May 04 2002 Bob Tanner <tanner@real-time.com>
   + cow-3.00_20040504-realtime.2
