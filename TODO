@@ -18,6 +18,23 @@ TODO:
 
 -----------------------------------------------------------------
 
+Create an rc editor that will allow:
+	- keymap, buttonmap editing
+	- configuration of all <key>:<value> options
+	- window placement
+	- choosing fonts
+	- macro editing
+	- etc...
+
+-----------------------------------------------------------------
+
+Create a nicer gtk+ front-end alternative to the current
+metaserver window.  Allow launching clients and the rc
+editor.  Let players also choose whether they wish to 
+connect and play or just observe.
+
+-----------------------------------------------------------------
+
 Clean up the source!
 Move systems ifdefs to a config file!
 
