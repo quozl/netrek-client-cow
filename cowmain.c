@@ -2,6 +2,9 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
+ * Revision 1.13  2002/06/22 10:37:20  siegl
+ * Release 3.01
+ *
  * Revision 1.12  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -827,7 +830,7 @@ int     cowmain(char *server, int port, char *name)
 
   resetdefaults();
 
-#if defined(HAVE_SDL)
+#if defined(SOUND) && defined(HAVE_SDL)
     Init_Sound();
 #endif
 

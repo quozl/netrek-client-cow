@@ -10,11 +10,11 @@ static char version[] = "COW 2.02";
 #define LIBMINOR 2
 
 #else
-static char mvers[] = "3.00";
-static char version[] = "COW 3.00";
+static char mvers[] = "3.01";
+static char version[] = "COW 3.01";
 
 #define LIBMAJOR 3
-#define LIBMINOR 0
+#define LIBMINOR 1
 
 #if 0
 #define ALPHACODER "007"
