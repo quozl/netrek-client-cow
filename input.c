@@ -2,6 +2,12 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.5  2001/04/28 04:07:45  quozl
+ * Redirect keystrokes that would otherwise be
+ * ignored to be processed in the tactical window.  Novice users find
+ * it painful to have to put the cursor unnecessarily into the
+ * tactical window before pressing a key.
+ *
  * Revision 1.4  2000/05/19 14:24:52  jeffno
  * Improvements to playback.
  * - Can jump to any point in recording.
@@ -399,7 +405,7 @@ initkeymap(void)
   /* See if we can get macroKey to work. What a hack -SAC */
   if ((str = (unsigned char *) getdefault("macroKey")) != NULL)
     {
-      char   *p;
+      unsigned char   *p;
 
       if (strlen(str) == 1)
 	{
@@ -835,7 +841,11 @@ keyaction(W_Event * data)
 
   if (data->Window != mapw && data->Window != w && data->Window != infow
       && data->Window != scanw)
-    return;
+    {
+      /* redirect any orphaned keystrokes to main window */
+      data->Window = w;
+      data->x = data->y = TWINSIDE / 2;
+    }
 
   key = data->key;
 
