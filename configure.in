@@ -515,4 +515,20 @@ done
 
 fi
 
+#--------------------------------------------------------------------
+#       Check for SDL
+#--------------------------------------------------------------------
+
+if test "$code" = cow; then
+AM_PATH_SDL(1.2.4, AC_DEFINE(HAVE_SDL),[])
+AM_CONDITIONAL(HAVE_SDL, [test x"$no_sdl" != x"yes"])
+
+have_SDLmixer=no
+AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio, [have_SDLmixer=yes SDL_MIXER_LIBS="-lSDL_mixer"])
+if test x$have_SDLmixer != xyes; then
+  AC_MSG_ERROR([*** Can't find the SDL_mixer library Try: http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/])
+  AC_SUBST(SDL_MIXER_LIBS)
+fi
+fi
+
 AC_OUTPUT(system.mk)

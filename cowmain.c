@@ -2,12 +2,80 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
- * Revision 1.10  2002/06/14 03:13:55  tanner
- * Fix conflicts during update. This is left over problems from the commit that
- * should have been on a branch.
+ * Revision 1.11  2002/06/20 04:18:38  tanner
+ * Merged COW_SDL_MIXER_BRANCH to TRUNK.
  *
- * Revision 1.9  2002/06/13 05:05:06  tanner
- * Should back out the accidental commits to the head.
+ * Revision 1.6.2.1  2002/06/13 04:10:16  tanner
+ * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* playback.c (pbmain):  Converted enter_ship.wav
+ *
+ * 	* input.c (Key113): Converted self_destruct.wav
+ *
+ * 	* input.c (Key109): Converted message.wav
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
+ * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
+ * 	SDL_MIXER_LIBS
+ *
+ * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
+ * 	opening of audio device, and loading of 17 cow sounds.
+ *
+ * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
+ * 	moved the Init_Sound method to right after readdefaults() so the
+ * 	intro can start playing ASAP.
+ *
+ * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
+ * 	add check for SDL_mixer.
+ *
+ * 	* config.h.in: add HAVE_SDL
+ *
+ * 	* spike: See spike/README for details
+ *
+ * Revision 1.8  2002/06/13 03:45:19  tanner
+ * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
+ * Revision 1.7  2002/06/11 05:55:13  tanner
+ * Following XP made a simple change.
+ *
+ * I want cow to play the STTNG intro when started. That's it. Nothing else.
  *
  * Revision 1.6  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
@@ -756,6 +824,10 @@ int     cowmain(char *server, int port, char *name)
 
   resetdefaults();
 
+#if defined(HAVE_SDL)
+    Init_Sound();
+#endif
+
   if (censorMessages)
     initCensoring();
 
@@ -876,7 +948,12 @@ int     cowmain(char *server, int port, char *name)
     }
 #endif
 
+  /* Moved SDL sound initialization to right after readdefaults() so
+   * the intro can start playing ASAP 
+   */
+#if defined(SOUND) && !defined(HAVE_SDL)
   Init_Sound();
+#endif
 
   isFirstEntry = 1;				 /* First entry into game */
 
@@ -1022,8 +1099,12 @@ int     cowmain(char *server, int port, char *name)
 
 
 #ifdef SOUND
+#if defined(HAVE_SDL)
+      Play_Sound(ENTER_SHIP_WAV);
+#else
       Play_Sound(ENTER_SHIP_SOUND);
       Play_Sound(ENGINE_SOUND);
+#endif /* HAVE_SDL */
 #endif
 
 #ifdef HOCKEY_LINES

@@ -1,0 +1,18 @@
+Simple program to test if SDL_mixer can play the exiting 8bit PCM wave files.
+The interface is pretty simple. I just load up 17 of the cow sounds and present
+the user with the ability to under 0 to 16. The sound represented by that 
+number will be played.
+
+Users should test that multiple sounds can be played. A good test is to play 
+the intro.wav (16) and then try some of the other sounds.
+
+Control-c to exit.
+
+
+Building cow-test, you'll need to have the following installed. I do -not-
+check for it.
+
+SDL-1.2.4
+SDL-devel-1.2.4
+SDL_mixer-1.2.4
+SDL_mixer-devel-1.2.4

@@ -1,0 +1,13 @@
+My first spike solution was sdlwave. I just wanted to see some code and write
+some code to play some sort of sound on RedHat Intel 6.2/7.2/7.3 with GNOME
+or KDE.
+
+
+Building:
+
+You'll need to have the following installed. I do -not- check for it.
+
+SDL-1.2.4
+SDL-devel-1.2.4
+SDL_mixer-1.2.4
+SDL_mixer-devel-1.2.4

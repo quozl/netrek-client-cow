@@ -1,0 +1,34 @@
+What the heck is this spike directory?
+
+I started to use Extreme Programming (XP) <http://www.extremeprogramming.org>
+on my last development project and was really impressed with it.
+
+It impressed me so much, I mandated it for all development projects at Real 
+Time. 
+
+In getting cow to use SDL sound (SDL_mixer) I used XP principles, a Spike
+Solution is one such principle.
+
+You create a spike solution to reduce risk 
+<http://www.extremeprogramming.org/rules/spike.html>.
+
+Since I have never done any programming for sound, SDL, SDL_mixer, and cow 
+itself. Ripping out the existing sound system was pretty risky (to me).
+
+So I created a spike solution to learn about SDL, cow, sound, and how it all
+could work together.
+
+As I move forward I'll be adding more to the spike area.
+
+My first spike solution was sdlwave. I just wanted to see some code and write
+some code to play some sort of sound on RedHat Intel 6.2/7.2/7.3 with GNOME 
+or KDE.
+
+My second spike solution was cow-test. I wanted to see how SDL_mixer would play
+the cow sounds.
+
+The cow-test spike is the code that non-redhat users should compile and test to
+see if it works.
+
+See each sub-directory's README for details about that particular spike 
+solution.
