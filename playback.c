@@ -5,6 +5,9 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.7  2001/06/12 02:48:49  quozl
+ * add single-step playback keys
+ *
  * Revision 1.6  2001/04/26 05:58:20  quozl
  * 	* Makefile (dist): change dist and distdoc targets to generate a
  * 	.tar.gz file that unpacks to a directory below the current
@@ -117,6 +120,7 @@ int pb_index_exists;
 int pb_num_context = 0;
 int pb_num_fast_forward = 0;
 int pb_sequence_count = 0;
+int pb_stepping = 0;			/* non-zero if doing a step	*/
 
 const char *INDEX_FORMAT = "%d,%d,%d";
 const int INDEX_GRANULARITY = 100;
@@ -419,7 +423,7 @@ int
 
       intrupt();
       W_Flush();
-      usleep(pbdelay);
+      if (!pb_stepping) usleep(pbdelay);
     }
 }
 
@@ -480,6 +484,19 @@ void
     playback = PL_FORWARD;
   switch (key)
     {
+    case 0x8:	/* step backward one frame	*/
+      pb_stepping++;
+      playback = PL_REVERSE;
+      break;
+    case 0xd:	/* step forward one frame	*/
+      pb_stepping++;
+      break;
+    case ' ':	/* turn on or off single step	*/
+      if (old_playback == PL_PAUSE)
+	playback = PL_FORWARD;
+      else
+	pb_stepping++;
+      break;
     case '0':
       playback = PL_PAUSE;
       break;
@@ -778,9 +795,19 @@ readFromFile0()
         packetsme = me;
         me = displayme;
 
+        if (pb_stepping) {
+	  playback = PL_PAUSE;
+	  pb_stepping = 0;
+        }
+
         return 1;
     }
 #endif
+
+  if (pb_stepping) {
+    playback = PL_PAUSE;
+    pb_stepping = 0;
+  }
 
   /* Read packets. */
   while (1) {
@@ -1448,15 +1475,3 @@ rpb_dorev(char *buf)
 #endif REVERSE_PLAYBACK
 
 #endif /* RECORDGAME */
-
-
-
-
-
-
-
-
-
-
-
-

@@ -2,6 +2,9 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.6  2001/06/12 02:48:49  quozl
+ * add single-step playback keys
+ *
  * Revision 1.5  2001/04/28 04:07:45  quozl
  * Redirect keystrokes that would otherwise be
  * ignored to be processed in the tactical window.  Novice users find
@@ -921,6 +924,17 @@ keyaction(W_Event * data)
 	}
     }
 
+#ifdef RECORDGAME
+  if (playback)
+    switch(key)
+      {
+      case 0x8:
+      case 0xd:
+	pbsetspeed(key);
+	return;
+      }
+#endif
+
   if (key >= 32 && key < MAXKEY)
     {
       key = mystats->st_keymap[key - 32];
@@ -946,6 +960,7 @@ keyaction(W_Event * data)
 	  /* Instant Quit */
 	  terminate(0);
 	  break;
+	case ' ':
 	case '0':
 	case '1':
 	case '2':

@@ -1,3 +1,15 @@
+Tue Jun 12 12:03:42 2001  James Cameron  <quozl@us.netrek.org>
+
+	* playback.c, input.c: add single-step playback keys, enter to
+	step forward, backspace to step backward, and space to stop and
+	start.
+
+	Implemented as a flag (pb_stepping) that is non-zero when a step
+	is in progress.  Once the next frame has been displayed, the flag
+	is cleared and the playback pauses.  Required a minor change to
+	input.c to catch keys that would otherwise be rejected because
+	they were control characters.
+
 Fri Apr 27 21:46:13 2001  James Cameron  <quozl@us.netrek.org>
 
 	* socket.c: when RSA is not defined, a warning is generated for
