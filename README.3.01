@@ -1,0 +1,62 @@
+This file contains the most recent changes to the COW client, with example
+.xtrekrc options to deal with them, and the clips from the documentation that
+explain them.  If you're upgrading from an old version of COW, this file should
+make it a painless experience.
+
+*****************************************************************
+1)  Change Log
+*****************************************************************
+
+3.01 pl0 Jun. 22, 2002
+- COW_SDL_MIXER_BRANCH Jun. 11, 2002
+  + add spike solution [tanner]
+  + converted local.c to SDL_mixer
+  + added cvs commit to mailing list
+- minor source packaging changes [cameron]
+- mouse wheel support [siegl]
+
+*****************************************************************
+2)  Cut and past changes to make COW work like it used to.
+*****************************************************************
+
+	none
+
+
+*****************************************************************
+3)  Cut and past changes to turn on *all* new features.
+*****************************************************************
+
+3.01 pl0
+
+COW suports now up to 7 Mouse Buttons depending on the OS where the 
+
+	mouse wheel up is button 4
+	mouse wheel down is button 5
+
+The extra buttons can be configured in the buttonmap with digits
+
+	d e f g   for normal operations
+and
+	h-s	for shift/control combinations.
+
+
+****************************************************************
+4) New manual sections
+****************************************************************
+
+	none
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,7 +7,7 @@
 <TITLE>COW Release Notes</TITLE>
 </HEAD>
 <BODY>
-<h1>COW 3.00 Release notes</h1>
+<h1>COW 3.01 Release notes</h1>
 
 This file contains the most recent changes to the COW client, with example
 .xtrekrc options to deal with them, and the clips from the documentation that
@@ -17,351 +17,45 @@ make it a painless experience.
 <h2>Change Log</h2>
 
 <pre>
-3.00 pl3 Jan. 2, 2000
-- Expiry date removed [siegl]
-- minor bugfixes [various authors]
-
-3.00 pl2 Jan. 7, 2000
-- New default portSwap for UDP_PORTSWAP feature [siegl]
-- System wide .xtrekrc file set to "/etc/netrekrc" [siegl]
-- Cambot recording replay [koconnor]
-- various Win32 fixes [siegl]
-- V,B core dump with rabit ears fix [siegl]
-- remove DEFINES (BRMH NEW_DASHBOARD_2 RABBIT_EARS) [siegl]
-- MAX_MACRO increased to 255 [siegl]
-- -B options for automatic bug sumition [siegl]
-- new sample netrekrc file [siegl]
-- WindowMaker docking support [siegl]
-- Win32 Sound support [siegl]
-
-3.00 pl1 Mar. 27, 1999
-- Added UDP queries to the metaserver. [cameron, villalpando]
-- Added Multiple metaserver support. [cameron, villalpando]
-- Metaserver KEYGOD alias: clientkeys@clientkeys.netrek.org [villalpando]
-- New xtrekrc variables: metaverbose, metaUDPcache, metaType [cameron,
-                                                             villalpando]
-- modified behavior of metaserver to do multiple metaservers [cameron]
-- changed metaserver menu. Added age of data and refresh button [cameron]
-- new option, -M for TCP metaserver [cameron]
-- changed option -m for UDP metaserver [cameron]
-- Port to Cygnus Win32 [siegl]
-- Autoconfig detects Cygnus Win32 [siegl]
-- Win32 fixes [Gosselin]
-- Fix Pixmap transparancy [siegl]
-- Added hockey rink background XPM on galactic [siegl]
-
-3.00 pl0 Feb. 28, 1998
-- full color client [kellen]
-- metaserver defaults to: metaserver.netrek.org [sven]
-- new cow mailing list alias: cow@netrek.org [sven]
-- 32 views color pixmaps [Shawn]
--- recording feature [koconnor]
-- KDE sound support (.wav files) [siegl]
-- Tab key fixes  [koconnor]
-- OpenVMS fixes [cameron]
-- Auto upgrade via netscape [siegl]
-- whydead message fixes [siegl]
-- GMP 2 key generator fix [siegl]
+3.01 pl0 Jun. 22, 2002
+- COW_SDL_MIXER_BRANCH Jun. 11, 2002
+  + add spike solution [tanner]
+  + converted local.c to SDL_mixer
+  + added cvs commit to mailing list
+- minor source packaging changes [cameron]
+- mouse wheel support [siegl]
 </pre>
 
 <h2> Cut and past changes to make COW work like it used to.</h2>
 
-<h3>3.00 pl0</h3>
+<h3>3.01 pl0</h3>
 
-     The "-b" option disables the use of color pixmaps by the client.
+	none
 
 
 <h2>Cut and past changes to turn on *all* new features.</h2>
 
-<h3>3.00 pl1</h3>
+<h3>3.01 pl0</h3>
 
 <pre>
-WARNING: Sometimes the colored ships have color disturbences
-         when having the shields up. In this case start COW
-         with the option:
+COW suports now up to 7 Mouse Buttons depending on the OS where the 
 
-             [-n]   use nearest colors in shared colormap
+	mouse wheel up is button 4
+	mouse wheel down is button 5
+
+The extra buttons can be configured in the buttonmap with digits
+
+	d e f g   for normal operations
+and
+	h-s	for shift/control combinations.
 </pre> 
 
-<h3>3.00 pl0</h3>
-
-All new .xtrekrc entrys with defaults are:
-<pre>
-#       backgroundPix: 1
-#       cloakPix: 1
-#       explosionPix: 1
-#       fedPix: 1
-#       indPix: 1
-#       kliPix: 1
-#       mapPix: 1
-#       oriPix: 1
-#       romPix: 1
-#       shipPix: 1
-#       weaponPix: 1
-</pre>
 
 <h2>New manual sections</h2>
 
-<a name="pl0"><h3>3.00 pl0</h3>
+<a name="pl0"><h3>3.01 pl0</h3>
 <pre>
-   3.1.8  NO PIXMAPS OPTION
-
-     The "-b" option disables the use of color pixmaps by the client.
-
-
-   3.2  Pixmaps  (Full Color COW)
-
-     With the release of COW 3.00, dynamic color images are available.  No
-color images have been compiled into the client, so without the additional
-files (described below) the client will behave as before.
-
-   3.2.1  Setup
-
-     The xpm files should be available at the same site from which you got
-the client, in a file named pixmaps.tgz (PIXMAPS.ZIP for windows users).
-
->>>   YOU MUST DOWNLOAD AND UNPACK THIS FILE TO USE THE COLOR FEATURES.    <<<
-
-     It should create a subdirectory named "pixmaps" which should have several
-(obviously named) subdirectories.  There should be several XPM files in each
-(except for Planets, which has a further subdirectory).  UNIX users will see
-that they are gzipped to save space.  You do NOT need to ungzip them unless
-you do not have gzip on your machine.
-
->>>   DO NOT REARRANGE OR RENAME THESE FILES IF YOU WANT TO USE THEM.      <<<
-
-     You need to add a line to your .xtrekrc telling the client where to look
-for the pixmaps.  If you do not, it will assume that they are in a subdirectory
-of the directory you are in when you start the client.  The option is called
-"pixmapDir".  Tilde and environment variables WILL NOT WORK.  Relative paths
-will only work if you always start netrek from the same directory.
-
-     You should be ready to rock and roll.  Fire it up.  You may see some
-warnings about not being able to read some pixmaps.  Some of the pixmaps
-that the client looks for haven't been drawn yet.  Feel free to make your
-own set.  OTOH, if you see any lines which read
-
- "TYPE <type> PIXMAPS NOT AVAILABLE"
-
-it means that none of a certain type of pixmap were found.  Check to make sure
-that the pixmaps are where you told it to look.  If they are, and you are on
-a UNIX system, you may not have gzip installed.  Go get it from any GNU mirror
-and either install it or use it to ungzip the XPM files.
-
-   3.2.2  Configuration
-
-     In addition to simply creating your own XPMs with a paint program, you
-may want greater control over the pictures used.  For example, you may find
-the explosions are too pretty, and you are dying because you forgot to dodge.
-The crude approach is to just remove that pixmap.  The client will default back
-to the standard bitmaps in this case.
-
-     The more elegant approach is to turn off just those pixmaps you don't
-like and keep the rest.  This also allows you to switch back and forth WITHOUT
-having to exit and restart.  So if the machine you are playing on is busy
-today, you can turn off the pixmaps until things improve, then switch back to
-full color without losing your 5 kills.
-
-     Pixmaps can be turned on or off in groups on the new "Pixmap Menu" in the
-options window (shift-O).  Each line in the window also corresponds to an
-.xtrekrc resource which you can use to set the initial values.  If one type
-of pixmaps is not available, you will be unable to turn on that option.
-
-     resource name          default      description
-
-       indPix                on      \
-       fedPix                on       |  Control whether or not the XPMs
-       romPix                on       |  for the ships of a given team
-       kliPix                on       |  should be used
-       oriPix                on      /
-
-       weaponPix             on          Torps and plasmatorps & their clouds
-       explosionPix          on          ship and starbase explosions
-       cloakPix              on          fade-in/-out and cloak icon
-       mapPix                on          Color Planet icons on galactic
-                                         (replaces the "colorgalactic" option)
-
-       backgroundPix         on          Background stars & genocide/gb images
-                                         (replaces the "babes" option)
-
-       ownerhalo             off         Draws a colored ring around each
-                                         planet on the galactic
-
-as a convenience, the option "shipPix" may be used to control all of the
-ship XPMs in one line.
-
-         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-         +         POWER USERS                                        +
-         +                                                            +
-         +  The MegaResource "pixFlags" can be used in your .xtrekrc  +
-         +  to save a bit of typing.  Simply bitwise OR together the  +
-         +  things you want turned off:                               +
-         +                                                            +
-         +       0x0001    IND pixmaps                                +
-         +       0x0002    FED pixmaps                                +
-         +       0x0004    ROM pixmaps                                +
-         +       0x0008    KLI pixmaps                                +
-         +       0x0010    ORI pixmaps                                +
-         +                                                            +
-         +       0x0020    Weapons                                    +
-         +       0x0040    Explosions                                 +
-         +       0x0080    Cloaking                                   +
-         +       0x0100    Galactic Map Planet Icons                  +
-         +                                                            +
-         +       0x0400    Backgrounds                                +
-         +                                                            +
-         +       0x1000    Halos                                      +
-         +                                                            +
-         +  so, for exaple, no halos and no explosions would be       +
-         +  specified as:  (0x1040=4160)                              +
-         +                                                            +
-         +    pixFlags:  4160                                         +
-         +                                                            +
-         +                                                            +
-         +  (Note that this OVERRIDES all the other resources)        +
-         ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-     If you hate them all, you can either set the "pixmapDir" to "None" or
-start the client with the -b (bitmap only) command line option.  Then go ahead
-and delete all of the XPMS.  Go ahead.  We don't mind at all.  It's not like
-we put any WORK into this ...  :,-(
-
-   3.2.3  Babes/M31 and Generalized Backgrounds
-
-     Gone.  You can put up any picture you like when you GENO, GB, or just
-enter or hit shift-K.  Just specify the genocide.xpm, ghostbust.xpm and/or
-hello.xpm.  It's really none of my business what you look at in your off time.
-
-     Absolutely no picture will be shown if you do not have an XPM in the
-specified place.  It didn't belong in the client in the first place.
-
-     DEAL WITH IT.
-
-     And BTW, the ' key (quote) has the default action of retiling your local
-and galactic windows with the normal background (either black or your specified
-pixmap) to repair the damage done by the other possible pix.
-
-   3.2.4  AGRI pixmaps and FEATURE_PACKETS
-
-     The client shows a different pixmap for AGRI planets than all others.
-This was announced, voted on and overwhelmingly adopted (80%+ in favor). But
-JUST IN CASE, this option can be disabled at the server by use of the
-feature packet "AGRI_PIXMAP".
-
-     Users can choose to remove the AGRI.xpm file.  The client will default
-to using the regular planet pixmap if it is missing.
-
-********************************************************************
-March 1999
-********************************************************************
-
-(1) ------
-   Added UDP metaserver, and multiple metaserver queries to client.
-
-   Multiple metaservers is available only in UDP mode.  Multiple
-   metaservers may be listed in the metaservers variable, or a host name
-   may have multiple IPs.
-
-   Client essentially sends a '?' using UDP to the metaserver(s) and
-   waits for a response.  Client should expect anywhere from 0 to
-   infinite responses. Response comes back in the form:
-
-      r,NN\n  
-
-   Where r is the literal 'r', and NN is the nuber of servers
-   returned. Server format is 1 per line in the following format, comma
-   separated: (from the metaserver code snippet from disp_udp.c)
-
-        sprintf(bp,"%s,%d,%d,%d,%d,%d,%c\n",
-            sp->hostname,               /* host name of server          */
-            sp->port,                   /* port number of server        */
-            extendedstatus,             /* metaserver status code       */
-            now - sp->last_update,      /* age of data in seconds       */
-            sp->player_count,           /* count of players on server   */
-            sp->queue_size,             /* length of wait queue         */
-            sp->type[0] );              /* type code, B, P, etc         */
-
-   Two notes are required:
-
-      1) Line length is defind in the metaserver as:
-         MAX_HOSTNAME+1 +6+1 +3+1 +6+1 +3+1 +3+1 +1+1 +1
-            host        port stat age  play que  type \n    
-
-   where MAX_HOSTNAME is
-        #define MAX_HOSTNAME     64
-
-   An example output is:
-     
-     r,19
-     hp06.ee.ualberta.ca,2592,6,244,0,0,P
-     megalag.netrek.org,2592,4,1780,0,0,F
-     moore.machine2.dsl.psn.net,2592,6,1804,0,0,B
-     netrek.unh.edu,2592,6,524,0,0,B
-     paradise.games.uk.demon.net,2592,6,1604,0,0,P
-     tanya.ucsd.edu,2592,4,1781,0,0,P
-     defiant.theo-physik.uni-kiel.de,2592,3,630,0,0,P
-     europa.informatik.uni-frankfurt.de,2592,3,676,0,0,P
-     mit.netrek.org,2592,3,676,0,0,B
-     netrek.cs.mcgill.ca,2592,3,796,0,0,B
-     netrek.syd.att.net.au,2592,3,800,0,0,B
-     se.netrek.org,2592,3,864,0,0,B
-     soda.csua.berkeley.edu,2592,3,878,0,0,B
-     spamburger.openface.ca,2592,3,871,0,0,B
-     kirk.hal-pc.org,2592,2,121,1,0,B
-     continuum.us.netrek.org,2592,2,123,6,0,B
-     hockey.netrek.org,2592,2,123,6,0,H
-     monster.wormwood.org,2592,2,203,7,0,C
-     guinness.crhc.uiuc.edu,2592,1,323,0,4,B
-
-
- 2) In TCP mode, if a game server is dead, the metaserver will print
-    out sp->why_dead instead of sp->status.  Since metastatuslevel
-    filters out the metaserver output based on the game server status,
-    sp->status had to be expanded in the metaserver to extended status
-    when reporting back to the client.  From disp_udp.c in the
-    metaserver:
-
-        /* this if structure is to satisfy COW's server filtering based on */
-        /* the TCP ouput of the metaserver. TCP was text, this is only #s */
-        if (sp->status == SS_NOCONN )
-          extendedstatus = (sp->why_dead == WD_TIMEOUT) ? 6 : 4;
-        else
-          extendedstatus = sp->status;
-
-   And in the client, parsemeta.c:
-
-     #define SS_WORKING 0
-     #define SS_QUEUE 1
-     #define SS_OPEN 2
-     #define SS_EMPTY 3
-     #define SS_NOCONN 4
-     #define SS_INIT 5
-     /* not a real metaserver number, but overcomes a limitation of dropping */
-     /* text description of sp->why_dead */
-     #define SS_TOUT 6
-
-
-   This note is here mainly for people looking at metaserver and
-   client code at the same time.
-
-(2) ---
-    A refresh button was added to the client selection window to re-query
-    the metaservers.
-
-(3) ---
-    KEYGOD changed to clientkeys@clientkeys.netrek.org
-
-(4) ---
-    New command line option behavior was added. -m and -M set the default
-    connection type to the metaserver UNLESS metaType is defined in the
-    .xtrekrc.
-
-       -m Default to UDP
-       -M Default to TCP
-
-    Out of bounds values for metaType default to TCP.
-
+none
 </pre>
 
 <h2>Changes details</h2>
