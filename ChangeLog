@@ -1,3 +1,53 @@
+Fri Apr 27 21:46:13 2001  James Cameron  <quozl@us.netrek.org>
+
+	* socket.c: when RSA is not defined, a warning is generated for
+	the prototype of handleRSAKey because it references a struct
+	rsa_key_spacket which is not defined.  Moved the prototype into
+	the #ifdef RSA.
+
+	* socket.c: minor warning from casting in connect call.
+
+	* input.c (initkeymap): getctrlkey() was being passed a "char *"
+	instead of "unsigned char *".
+
+	* main.c: include "defs.h" for getdefault() prototype.
+
+	* docwin.c (loadxtrekrc): remove minor compiler warning.
+	
+	* config.h.in: remove superfluous definition of SIGSYS on Linux.
+
+	* Makefile (distclean): add distclean target to comply with GNU
+	package conventions.
+
+	* configure.in: change testing of BSD signals in configure to
+	shows an answer cache it.  From code contributed to Vanilla by
+	Benjamin `Quisar' Lerman <quisar@quisar.ambre.net>
+
+	* helpwin.c (help_message): rethink each help message, remove the
+	word toggle and replace with on/off, as toggle is a technical
+	term, remove mixed case descriptions in favour of lower case, move
+	some verbs to the end of the message, and change the column fit
+	algorithm to avoid overflow in normal and 800x600 mode.
+
+	* input.c (keyaction): redirect keystrokes that would otherwise be
+	ignored to be processed in the tactical window.  Novice users find
+	it painful to have to put the cursor unnecessarily into the
+	tactical window before pressing a key.
+
+	* getname.c (handleWEvents): accept keystrokes from any netrek
+	window during login, and refresh the development team text on the
+	login window as soon as a redraw is required rather than waiting
+	for the next second.
+
+	* getname.c (loaddude): if server rejects guest login, allow the
+	user to retry with a real name.  Current INL servers are coded to
+	reject guest login.  Having to restart the client is unnecessary.
+
+Fri Apr 27 11:34:50 2001  Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
+
+	* cowapi.h, data.c, data.h, defaults.c, main.c, socket.c: change
+	-U to also adopt a local port number for TCP mode.
+	
 Thu Apr 26 15:52:16 2001  James Cameron  <quozl@us.netrek.org>
 
 	* Makefile (dist): change dist and distdoc targets to generate a
