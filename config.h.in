@@ -121,7 +121,7 @@
 #define HOCKEY_LINES
 
 /*	SMALL_SCREEN		- for 800x600 resolution screens		*/
-#define SMALL_SCREEN
+/* #define SMALL_SCREEN */
 
 /*	BEEPLITE		- player and planets highlighting		*/
 #define BEEPLITE
