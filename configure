@@ -4311,9 +4311,10 @@ else
   HAVE_SDL_FALSE=
 fi
 
-have_SDLmixer=no
-echo $ac_n "checking for Mix_OpenAudio in -lSDL_mixer""... $ac_c" 1>&6
-echo "configure:4317: checking for Mix_OpenAudio in -lSDL_mixer" >&5
+if test x$no_sdl == xyes; then
+  have_SDLmixer=no
+  echo $ac_n "checking for Mix_OpenAudio in -lSDL_mixer""... $ac_c" 1>&6
+echo "configure:4318: checking for Mix_OpenAudio in -lSDL_mixer" >&5
 ac_lib_var=`echo SDL_mixer'_'Mix_OpenAudio | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -4321,7 +4322,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lSDL_mixer  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 4325 "configure"
+#line 4326 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -4332,7 +4333,7 @@ int main() {
 Mix_OpenAudio()
 ; return 0; }
 EOF
-if { (eval echo configure:4336: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:4337: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -4352,9 +4353,10 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-if test x$have_SDLmixer != xyes; then
-  { echo "configure: error: *** Can't find the SDL_mixer library Try: http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/" 1>&2; exit 1; }
-  
+  if test x$have_SDLmixer != xyes; then
+    { echo "configure: error: *** Can't find the SDL_mixer library Try: http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/" 1>&2; exit 1; }
+    
+  fi
 fi
 fi
 

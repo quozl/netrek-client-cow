@@ -1,3 +1,8 @@
+Sat Jun 22 00:36:05 2002  Bob Tanner  <tanner@real-time.com>
+
+	* configure.in: Added check for sdl_config, don't find it, don't
+	look for the SDL_mixer library.
+
 Fri Jun 21 22:41:15 2002  Bob Tanner  <tanner@real-time.com>
 
 	* newwin.c (newwin): Added code to just popup window saying SDL
