@@ -1,3 +1,23 @@
+Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+
+	* local.c (DrawMisc): Converted warning.wav
+
+	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+
+	* local.c (DrawTorps): Converted torp_hit.wav
+
+	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+	FIRE_TORP_OTHER. and the code to load these new sounds.
+
+	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+	shield_down.wav, shield_up.wav, explosion.wav,
+	explosion_other.wav, phaser.wav, phaser_other.wav
+
+	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+
+	* sound.c: added isDirectory to check that the sounddir is
+	actually a directory.
+
 Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
 
 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,

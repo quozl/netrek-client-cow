@@ -4,6 +4,27 @@
  * Functions to maintain the local map.
  *
  * $Log: local.c,v $
+ * Revision 1.4  2002/06/13 03:45:19  tanner
+ * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
  * Revision 1.3  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -244,8 +265,13 @@ static void DrawShips(void)
 	    {
 
 #ifdef SOUND
-	      if (myPlayer(j) && (j->p_cloakphase == 0))
+	      if (myPlayer(j) && (j->p_cloakphase == 0)) {
+#if defined(HAVE_SDL)
+		Play_Sound(CLOAKED_WAV);
+#else
 		Play_Sound(CLOAK_SOUND);
+#endif
+	      }
 #endif
 
 	      j->p_cloakphase++;
@@ -258,10 +284,15 @@ static void DrawShips(void)
 
 #ifdef SOUND
 	      if (myPlayer(j))
-		if (j->p_cloakphase == CLOAK_PHASES - 1)
+		if (j->p_cloakphase == CLOAK_PHASES - 1) {
+#if defined(HAVE_SDL)
+		  Play_Sound(UNCLOAK_WAV);
+#else
 		  Play_Sound(UNCLOAK_SOUND);
-		else
+#endif
+		} else {
 		  Abort_Sound(CLOAK_SOUND);
+		}
 #endif
 
 	      j->p_cloakphase--;
@@ -485,10 +516,20 @@ static void DrawShips(void)
 #ifdef SOUND
 	  if (j->p_no == me->p_no)
 	    {
-	      if ((sound_flags & PFSHIELD) && !(j->p_flags & PFSHIELD))
+	      if ((sound_flags & PFSHIELD) && !(j->p_flags & PFSHIELD)) {
+#if defined(HAVE_SDL)
+		Play_Sound(SHIELD_DOWN_WAV);
+#else
 		Play_Sound(SHIELD_DOWN_SOUND);
-	      if (!(sound_flags & PFSHIELD) && (j->p_flags & PFSHIELD))
+#endif
+	      }
+	      if (!(sound_flags & PFSHIELD) && (j->p_flags & PFSHIELD)) {
+#if defined(HAVE_SDL)
+		Play_Sound(SHIELD_UP_WAV);
+#else
 		Play_Sound(SHIELD_UP_SOUND);
+#endif
+	      }
 	    }
 #endif
 
@@ -594,7 +635,11 @@ static void DrawShips(void)
 
 #ifdef SOUND
 	  if (i == 1)
+#if defined(HAVE_SDL)
+	    Play_Sound(j == me ? EXPLOSION_WAV : EXPLOSION_OTHER_WAV);
+#else
 	    Play_Sound(j == me ? EXPLOSION_SOUND : OTHER_EXPLOSION_SOUND);
+#endif
 #endif
 
 #ifdef HAVE_XPM
@@ -647,7 +692,11 @@ static void DrawShips(void)
 #ifdef SOUND
 	  if (!sound_phaser)
 	    {
+#if defined(HAVE_SDL)
+	      Play_Sound(j == me ? PHASER_WAV : PHASER_OTHER_WAV);
+#else
 	      Play_Sound(j == me ? PHASER_SOUND : OTHER_PHASER_SOUND);
+#endif
 	      sound_phaser++;
 	    }
 #endif
@@ -1028,7 +1077,11 @@ static void
 
 #ifdef SOUND
 	      if (k->t_fuse == NUMDETFRAMES - 1)
+#if defined(HAVE_SDL)
+		Play_Sound(TORP_HIT_WAV);
+#else
 		Play_Sound(TORP_HIT_SOUND);
+#endif
 #endif
 
 	      W_WriteBitmap(dx - (cloud_width / 2), dy - (cloud_height / 2),
@@ -1178,7 +1231,11 @@ void    DrawPlasmaTorps(void)
 
 #ifdef SOUND
 	  if (pt->pt_fuse == NUMDETFRAMES - 1)
+#if defined(HAVE_SDL)
+	    Play_Sound(PLASMA_HIT_WAV);
+#else
 	    Play_Sound(PLASMA_HIT_SOUND);
+#endif
 #endif
 
 	  W_WriteBitmap(dx - (plasmacloud_width / 2),
@@ -1409,7 +1466,11 @@ static void DrawMisc(void)
 	  W_ChangeBorder(iconWin, rColor);
 
 #ifdef SOUND
+#if defined(HAVE_SDL)
+	  Play_Sound(WARNING_WAV);
+#else
 	  Play_Sound(WARNING_SOUND);
+#endif
 #endif
 
 	  break;
@@ -1417,12 +1478,21 @@ static void DrawMisc(void)
     }
 
 #ifdef SOUND
+#if defined(HAVE_SDL)
+  if (sound_torps < me->p_ntorp)
+    Play_Sound(FIRE_TORP_WAV);
+  if (sound_other_torps < num_other_torps)
+    Play_Sound(FIRE_TORP_OTHER_WAV);
+  if (sound_plasma < me->p_nplasmatorp)
+    Play_Sound(FIRE_PLASMA_WAV);
+#else
   if (sound_torps < me->p_ntorp)
     Play_Sound(FIRE_TORP_SOUND);
   if (sound_other_torps < num_other_torps)
     Play_Sound(OTHER_FIRE_TORP_SOUND);
   if (sound_plasma < me->p_nplasmatorp)
     Play_Sound(FIRE_PLASMA_SOUND);
+#endif
 
   sound_flags = me->p_flags;
   sound_torps = me->p_ntorp;

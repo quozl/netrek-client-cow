@@ -2,6 +2,27 @@
 /* sound.c - Sound stuff
  *
  * $Log: sound.c,v $
+ * Revision 1.3  2002/06/13 03:45:19  tanner
+ * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
+ *
+ * 	* local.c (DrawMisc): Converted warning.wav
+ *
+ * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
+ *
+ * 	* local.c (DrawTorps): Converted torp_hit.wav
+ *
+ * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
+ * 	FIRE_TORP_OTHER. and the code to load these new sounds.
+ *
+ * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
+ * 	shield_down.wav, shield_up.wav, explosion.wav,
+ * 	explosion_other.wav, phaser.wav, phaser_other.wav
+ *
+ * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
+ *
+ * 	* sound.c: added isDirectory to check that the sounddir is
+ * 	actually a directory.
+ *
  * Revision 1.2  2002/06/11 05:55:13  tanner
  * Following XP made a simple change.
  *
@@ -24,6 +45,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include INC_LIMITS
 #include INC_SYS_TIME
 #include "Wlib.h"
@@ -32,30 +56,20 @@
 #include "data.h"
 #include "audio.h"
 
+int isDirectory(char* dir) {
+  struct stat buf;
+
+  if (stat(dir, &buf) < 0) {
+    perror("stat failed");
+    return 0;
+  }
+
+  return S_ISDIR(buf.st_mode);
+}
+
 #if defined(HAVE_SDL)
 
 /* This is probably unix specific path */
-
-enum {
-  CLOAKED_WAV,
-  ENGINE_WAV,
-  ENTER_SHIP_WAV,
-  EXPLOSION_WAV,
-  FIRE_PLASMA_WAV,
-  FIRE_TORP_WAV,
-  INTRO_WAV,
-  MESSAGE_WAV,
-  PHASER_WAV,
-  PLASMA_HIT_WAV,
-  RED_ALERT_WAV,
-  SELF_DESTRUCT_WAV,
-  SHIELD_DOWN_WAV,
-  SHIELD_UP_WAV,
-  TORP_HIT_WAV,
-  UNCLOAK_WAV,
-  WARNING_WAV,
-  NUM_WAVES
-};
 Mix_Chunk *sounds[NUM_WAVES];
 
 #else 
@@ -114,6 +128,9 @@ static int sound_other = 1;			 /* Play other ship's sounds?
 #endif // Not SDL sound
 
 #if defined(HAVE_SDL)
+
+/* 
+ */
 char *DATAFILE(const char* wav) {
  char buf[PATH_MAX];
  strncpy(buf, sounddir, 64);
@@ -121,7 +138,8 @@ char *DATAFILE(const char* wav) {
  return strncat(buf, wav, 48);
 } 
 
-
+/*
+ */
 int loadSounds(void) {
   int i;
 
@@ -129,11 +147,14 @@ int loadSounds(void) {
   sounds[ENGINE_WAV] = Mix_LoadWAV(DATAFILE("engine.wav"));
   sounds[ENTER_SHIP_WAV] = Mix_LoadWAV(DATAFILE("enter_ship.wav"));
   sounds[EXPLOSION_WAV] = Mix_LoadWAV(DATAFILE("explosion.wav"));
+  sounds[EXPLOSION_OTHER_WAV] = Mix_LoadWAV(DATAFILE("explosion_other.wav"));
   sounds[FIRE_PLASMA_WAV] = Mix_LoadWAV(DATAFILE("fire_plasma.wav"));
   sounds[FIRE_TORP_WAV] = Mix_LoadWAV(DATAFILE("fire_torp.wav"));
+  sounds[FIRE_TORP_OTHER_WAV] = Mix_LoadWAV(DATAFILE("fire_torp_other.wav"));
   sounds[INTRO_WAV] = Mix_LoadWAV(DATAFILE("intro.wav"));
   sounds[MESSAGE_WAV] = Mix_LoadWAV(DATAFILE("message.wav"));
   sounds[PHASER_WAV] = Mix_LoadWAV(DATAFILE("phaser.wav"));
+  sounds[PHASER_OTHER_WAV] = Mix_LoadWAV(DATAFILE("phaser_other.wav"));
   sounds[PLASMA_HIT_WAV] = Mix_LoadWAV(DATAFILE("plasma_hit.wav"));
   sounds[RED_ALERT_WAV] = Mix_LoadWAV(DATAFILE("red_alert.wav"));
   sounds[SELF_DESTRUCT_WAV] = Mix_LoadWAV(DATAFILE("self_destruct.wav"));
@@ -145,7 +166,7 @@ int loadSounds(void) {
 
   for (i=0; i < NUM_WAVES; i++) {
     if (!sounds[i]) {
-      fprintf(stderr, "Mix_LoadWAV sound[%d]: %s\n", i, Mix_GetError());
+      fprintf(stderr, "Mix_LoadWAV sound[%d] could not be loaded. Check soundDir in your .netrekrc: %s\n", i, Mix_GetError());
       return(-1);
     }
   }
@@ -181,6 +202,10 @@ extern void Init_Sound(void) {
       } else {
 	sounddir = "./sounds";
       }
+    }
+
+    if (!isDirectory(sounddir)) {
+      fprintf(stderr, "%s is not a directory, sound will not work\n", sounddir);
     }
 
 #if defined(HAVE_SDL)
@@ -229,9 +254,16 @@ extern void Init_Sound(void) {
   }
 }
 
-extern void Play_Sound(int type)
-{
+extern void Play_Sound(int type) {
 #if defined(HAVE_SDL)
+
+  if ((type >= NUM_WAVES) || (type < 0)) {
+    fprintf(stderr, "Invalid sound type %d\n", type);
+  }
+
+  if (Mix_PlayChannel(-1, sounds[type], 0) < 0) {
+    fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
+  }
 #else
   char    buf[PATH_MAX];
 
