@@ -121,7 +121,7 @@
 #define HOCKEY_LINES
 
 /*	SMALL_SCREEN		- for 800x600 resolution screens		*/
-/* #define SMALL_SCREEN */
+#define SMALL_SCREEN
 
 /*	BEEPLITE		- player and planets highlighting		*/
 #define BEEPLITE
@@ -897,7 +897,7 @@ typedef unsigned long int SEMAPHORE;
 #define INC_SYS_FILIO NULLFILE
 #endif
 
-/* Define this if you have SDL libnary intalled */
+/* define this if you have the SDL library (checked by configure.in) */
 #undef HAVE_SDL
 
 #endif  /* __CONFIG_H */
