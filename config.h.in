@@ -809,11 +809,6 @@ extern long random ();
 /* Unchecked machine dependencies */
 
 #ifdef linux
-/* #define SIGBUS	SIGUNUSED 	Not required anymore */
-#define SIGSYS		SIGUSR2
-#endif
-
-#ifdef linux
 #define SHMFLAG         sizeof(struct memory)
 #else
 #define SHMFLAG         0
