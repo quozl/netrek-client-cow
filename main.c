@@ -1,9 +1,11 @@
-
-
-
 /* main.c
  *
  * $Log: main.c,v $
+ * Revision 1.11  2002/06/11 05:55:13  tanner
+ * Following XP made a simple change.
+ *
+ * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ *
  * Revision 1.10  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.
  * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>

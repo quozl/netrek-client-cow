@@ -1,4 +1,5 @@
 
+
 /* Background Sound Library
  * 
  * Copyright 1993 by Kurt Siegl <007@netrek.org> Permission to use,
@@ -6,6 +7,11 @@
  * long as this notice is left here.
  *
  * $Log: audio.c,v $
+ * Revision 1.3  2002/06/11 05:55:13  tanner
+ * Following XP made a simple change.
+ *
+ * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ *
  * Revision 1.2  2000/01/02 11:46:32  siegl
  * Audio fixes
  *
@@ -51,9 +57,7 @@ extern void
   shmctl(shmid, IPC_RMID, 0);
 }
 
-extern int
-        InitSound(void)
-{
+extern int InitSound(void) {
 
   char   *argv[5], shmids[10], mypid[10], *sound_player;
   int     argc = 0;
@@ -129,9 +133,7 @@ extern void
   kill(snd_pid, SIGUSR1);
 }
 
-extern int
-        StartSound(char *name)
-{
+extern int StartSound(char *name) {
   strcpy(shared_data->name, name);
   kill(snd_pid, SIGUSR2);
   return (0);

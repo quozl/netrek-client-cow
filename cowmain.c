@@ -2,6 +2,11 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
+ * Revision 1.7  2002/06/11 05:55:13  tanner
+ * Following XP made a simple change.
+ *
+ * I want cow to play the STTNG intro when started. That's it. Nothing else.
+ *
  * Revision 1.6  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -748,6 +753,11 @@ int     cowmain(char *server, int port, char *name)
 #endif
 
   resetdefaults();
+
+#if defined(HAVE_SDL)
+    Init_Sound();
+#endif
+
   if (censorMessages)
     initCensoring();
 
@@ -868,7 +878,10 @@ int     cowmain(char *server, int port, char *name)
     }
 #endif
 
-#ifdef SOUND
+  /* Moved SDL sound initialization to right after readdefaults() so
+   * the intro can start playing ASAP 
+   */
+#if defined(SOUND) && !defined(HAVE_SDL)
   Init_Sound();
 #endif
 
