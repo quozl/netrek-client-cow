@@ -5,6 +5,13 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.4  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.3  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -20,6 +27,7 @@
 #include INC_MACHINE_ENDIAN
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <time.h>
 #include INC_SYS_TIME
@@ -56,6 +64,20 @@ extern jmp_buf env;
 
 int     pbdelay = 200000;
 
+int *pb_index;
+int pb_num_index = 0;
+int pb_goto = 0;
+int pb_create_index;
+int pb_index_exists;
+int pb_num_context = 0;
+int pb_num_fast_forward = 0;
+int pb_sequence_count = 0;
+
+const char *INDEX_FORMAT = "%d,%d,%d";
+const int INDEX_GRANULARITY = 100;
+
+static int packet_size = 0;
+
 struct player dummyme;
 
 struct player *packetsme;
@@ -63,6 +85,10 @@ struct player *displayme;
 
 /* We want reverse-playback!!! */
 #define REVERSE_PLAYBACK
+
+void pb_read_index();
+int pb_get_index(int sequence_num, int *jump_actual, int *offset, int *num_context);
+int pb_index_compare(const void *a, const void *b);
 
 /* Forward declarations for reverse playback */
 void rpb_init(void);
@@ -86,9 +112,15 @@ int
   int     i;
   int     s_type;
 
-#ifdef REVERSE_PLAYBACK
-  rpb_init();
-#endif
+  char index_filename[FILENAME_MAX+1];
+  char context_filename[FILENAME_MAX+1];
+
+  strncpy(index_filename, recordFileName, FILENAME_MAX-4);
+  strncpy(context_filename, recordFileName, FILENAME_MAX-4);
+  index_filename[FILENAME_MAX-4] = '\0';
+  context_filename[FILENAME_MAX-4] = '\0';
+  strcat(index_filename, ".idx");
+  strcat(context_filename, ".cxt");
 
 #ifdef REVERSE_PLAYBACK
   rpb_init();
@@ -121,6 +153,7 @@ int
   /* open memory...? */
   openmem();
 
+  /* Open record file. */
   recordFile = fopen(recordFileName, "rb");
   if (recordFile == NULL)
     {
@@ -128,6 +161,46 @@ int
       return (1);
 
     }
+
+  /* Open index files of recording. */
+  pb_index_exists = 1;
+  if (!pb_create_index) {
+      recordIndexFile = fopen(index_filename, "r");
+      if (recordIndexFile == NULL)
+          {
+              perror(index_filename);
+              pb_index_exists = 0;
+          }
+
+      recordContextFile = fopen(context_filename, "rb");
+      if (recordContextFile == NULL)
+      {
+          perror(context_filename);
+          pb_index_exists = 0;
+      }
+  }
+  else
+      pb_index_exists = 0;
+
+
+  /* Create index files if we were told to index the recording. */
+  if (pb_create_index  && (recordIndexFile =
+       fopen(index_filename, "wb"))==NULL)
+  {
+      perror("Could not create index file.");
+      exit(1);
+  } 
+  if (pb_create_index && (recordContextFile =
+       fopen(context_filename, "wb"))==NULL)
+  {
+      perror("Could not create context file.");
+      exit(1);
+  }
+  if (pb_create_index) {
+      pbdelay = 0;
+      playback = PL_FORWARD;
+      printf("Creating index.\n");
+  }
 
   me = &dummyme;
   myship = &(me->p_ship);
@@ -138,6 +211,9 @@ int
   shipchange(CRUISER);
   displayme = me;
   packetsme = me;
+
+  /* Read the index file.  We do this only once. */
+  pb_read_index();
 
   /* Get first packet from file */
   readFromFile();
@@ -295,6 +371,56 @@ int
 void
         pbsetspeed(char key)
 {
+#define JUMP_MAX 7
+  static char jump_str[JUMP_MAX] = "";
+  static int jump_idx = 0;
+  static int jump_on = 0;
+  static int tmp_playback;
+  static int tmp_pbdelay = -1;
+
+  int old_playback;
+
+  /* Used at end of function. */
+  old_playback = playback;
+
+  /* Read in sequence number to jump to. */
+  if (jump_on) {
+      switch (key) {
+      case '0': case '1': case '2': case '3': case '4': case '5':
+      case '6': case '7': case '8': case '9':
+
+          /* Ignore further input if we run out of room. */
+          if (jump_idx > JUMP_MAX - 2)
+              break;
+
+          /* Get the next number. */
+          jump_str[jump_idx] = key;
+          jump_idx++;
+          jump_str[jump_idx] = '\0';
+          printf("Jump input: %s\n", jump_str);
+
+          break;
+      case 'J': /* abort jump */
+          jump_on = 0;
+          playback = tmp_playback;
+          printf("Aborting jump.\n", jump_str);
+          jump_str[0] = '\0';
+          break;
+      default: /* Done entering jump data when non-digit key hit. */
+          jump_str[jump_idx] = '\0';
+
+          /* Convert string to number. */
+          pb_goto = strtol(jump_str, NULL, 10);
+          if (pb_goto < 1)
+              pb_goto = 1;
+
+          jump_on = 0;
+          jump_str[0] = '\0';
+          break;
+      }
+      goto end;
+  }
+
   if (playback == PL_PAUSE)
     playback = PL_FORWARD;
   switch (key)
@@ -303,41 +429,47 @@ void
       playback = PL_PAUSE;
       break;
     case '1':
-      pbdelay = 800000;
+      tmp_pbdelay = pbdelay = 800000;
       break;
     case '2':
-      pbdelay = 400000;
+      tmp_pbdelay = pbdelay = 400000;
       break;
     case '3':
-      pbdelay = 200000;
+      tmp_pbdelay = pbdelay = 200000;
       break;
     case '4':
-      pbdelay = 100000;
+      tmp_pbdelay = pbdelay = 100000;
       break;
     case '5':
-      pbdelay = 50000;
+      tmp_pbdelay = pbdelay = 50000;
       break;
     case '6':
-      pbdelay = 25000;
+      tmp_pbdelay = pbdelay = 25000;
       break;
     case '7':
-      pbdelay = 12500;
+      tmp_pbdelay = pbdelay = 12500;
       break;
     case '8':
-      pbdelay = 6250;
+      tmp_pbdelay = pbdelay = 6250;
       break;
     case '9':
     case '#':
     case '!':
     case '@':
     case '%':
-      pbdelay = 0;
+      tmp_pbdelay = pbdelay = 0;
       break;
     case '<':
-      pbdelay /= 2;
+      if (tmp_pbdelay == -1)
+          tmp_pbdelay = pbdelay /= 2;
+      else
+          pbdelay = tmp_pbdelay /= 2;
       break;
     case '>':
-      pbdelay *= 2;
+      if (tmp_pbdelay == -1)
+          tmp_pbdelay = pbdelay *= 2;
+      else
+          pbdelay = tmp_pbdelay *= 2;
       break;
     case 'R':
       {
@@ -346,6 +478,7 @@ void
 #endif
   	fseek (recordFile, 0, SEEK_SET);
 	playback = PL_FORWARD;
+        pb_sequence_count = 0;
 	break;
       }
     case '(':
@@ -354,21 +487,43 @@ void
     case ')':
       playback = PL_FORWARD;
       break;
+    case 'j':
+      printf("Jumping..\n");
+      tmp_playback = playback;
+      playback = PL_PAUSE;
+      jump_on = 1;
+      jump_idx = 0;
+      jump_str[0] = '\0';
+      break;
+    }
+
+ end:
+    /* If we are paused, set the delay to something reasonable. */
+    if (playback == PL_PAUSE && old_playback != PL_PAUSE) {
+        tmp_pbdelay = pbdelay;
+        pbdelay = 100000;
+    }
+
+    /* If we were paused, but now are not, reset the original delay. */
+    if (old_playback == PL_PAUSE && playback != PL_PAUSE && tmp_pbdelay != -1) {
+        pbdelay = tmp_pbdelay;
+        tmp_pbdelay = -1;
     }
 }
 
 void
         pblockplayer(int who)
 {
-   displayme = &players[who];
+   me = displayme = &players[who];
 }
 
 void
         pblockplanet(int pl)
 {
-   displayme = &dummyme;
+   me = &dummyme;
    displayme->p_x = planets[pl].pl_x;
    displayme->p_y = planets[pl].pl_y;
+   displayme = me;
 }
 
 inline int
@@ -430,6 +585,13 @@ inline int
 
 extern struct packet_handler handlers[];
 
+/**
+ * Read the next packet from the record file and call the appropiate handler.
+ *
+ * @param buf Stores the next packet.
+ *
+ * @return 1 if EOF or error, or 0 for success.
+ */
 int
 pb_dopacket(char *buf)
 {
@@ -441,6 +603,8 @@ pb_dopacket(char *buf)
       return 1;
     }
 
+
+  /* Determine how many more bytes we need to read. */
   size = handlers[buf[0]].size;
   if (size == -1)
     {
@@ -455,15 +619,22 @@ pb_dopacket(char *buf)
 	}
       size = getvpsize(buf);
     }
+
+  packet_size = size;
+
+  /* Read the rest of the packet. */
   if (size > count)
     count += fread(buf+count, 1, size-count, recordFile);
   if (debug)
     printf("Reading packet %d\n", buf[0]);
+
+  /* If we couldn't read enough */
   if (count < size)
     {
       return 1;
     }
 
+  /* Call the packet handler and return success (zero). */
   (*(handlers[buf[0]].handler)) (buf
 #ifdef CORRUPTED_PACKETS
 				 ,recordFile
@@ -472,62 +643,297 @@ pb_dopacket(char *buf)
   return 0;
 }
 
+
+int readFromFile() {
+    int offset = ftell(recordFile);
+    int jump_actual; /* The sequence number we actually jump to. */
+    FILE *tmp_file;
+    int result;
+    int num_fast_forward;
+
+    /* If jumping to a spot in the recording, read the required number of
+       context packets first. */
+    if (pb_goto) {
+        playback = PL_FORWARD;
+        num_fast_forward = pb_get_index(pb_goto, &jump_actual,
+                                        &offset, &pb_num_context);
+
+        if (pb_num_context > 0) {
+            printf("Reading in %d context packets..\n", pb_num_context);
+            rewind(recordContextFile);
+            tmp_file = recordFile;
+            recordFile = recordContextFile;
+            pb_sequence_count = 0;
+
+            readFromFile0();
+
+            recordFile = tmp_file;
+        }
+
+        pb_sequence_count = jump_actual - 1;
+        pb_num_fast_forward = num_fast_forward;
+
+#ifdef REVERSE_PLAYBACK
+        rpb_init();
+#endif
+    }
+
+    /* Get up to the next sequence packet. */
+    fseek(recordFile, offset, SEEK_SET);
+    result = readFromFile0();
+
+    /* If we jumped pause playback and reset state back to normal. */
+    if (pb_goto) {
+        playback = PL_PAUSE;
+        pb_goto = 0;
+
+        printf("Done jumping.\n");
+    }
+
+    return result;
+}
+
+
 int
-readFromFile()
+readFromFile0()
 {
 #define MAXPACKETSIZE 128
   static uint aligned_buf[MAXPACKETSIZE/sizeof(uint)];
+  static int num_context_written = 0;
+
   char *buf = (char *) &aligned_buf;
   int diskpos;
+  int sequence_start_pos = -1;
+  int sequence_num_context = 0;
+  int read_context = 0;
+
 
   if (playback == PL_PAUSE)
-    return 0;
-  else if (playback == PL_FORWARD)
-    while (1)
-      {
-	diskpos = ftell(recordFile);
-	me = packetsme;
- 
-	if (pb_dopacket(buf))
-	  {
- 	    playback = PL_PAUSE;
- 
- 	    packetsme = me;
- 	    me = displayme;
- 
- 	    return 0;
- 	  }
+    return 1;
 #ifdef REVERSE_PLAYBACK
- 	rpb_analyze(diskpos, buf);
+    else if (playback == PL_REVERSE) {
+        diskpos = ftell(recordFile);
+        me = packetsme;
+
+        rpb_dorev(buf);
+
+        packetsme = me;
+        me = displayme;
+
+        return 1;
+    }
 #endif
- 
-	packetsme = me;
- 	me = displayme;
- 
- 	if (buf[0] == SP_SEQUENCE || buf[0] == SP_SC_SEQUENCE
- 	    || buf[0] == SP_S_SEQUENCE)
- 	  {
- 	    return 1;
- 	  }
-       }
-#ifdef REVERSE_PLAYBACK
-   else if (playback == PL_REVERSE)
-    {
+
+  /* Read packets. */
+  while (1) {
       diskpos = ftell(recordFile);
       me = packetsme;
 
-      rpb_dorev(buf);
+      if (sequence_start_pos == -1)
+          sequence_start_pos = diskpos;
+
+      /* Read a packet and call it's handler. */
+      if (pb_dopacket(buf)) {
+          /* End of file reached! */
+          playback = PL_PAUSE;
+          pb_num_fast_forward = 0;
+          packetsme = me;
+          me = displayme;
+          printf("End of file.\n");
+
+          if (pb_create_index)
+              exit(0);
+
+          return 1;
+      }
+
+#ifdef REVERSE_PLAYBACK
+      if (!pb_create_index && !pb_num_context)
+          rpb_analyze(diskpos, buf);
+#endif
+
+      /* If we are reading in context packts.. */
+      if (pb_num_context) {
+          pb_num_context--;
+
+          if (pb_num_context < 1) {
+              printf("Done reading context packets.\n");
+              return 1;
+          }
+      }
+
+      /* If we are creating an index of the recording, write packet if necessary */
+      if (pb_create_index && PB_CONTEXT(buf[0]) ) {
+          if (!fwrite(buf, 1, packet_size, recordContextFile)) {
+              perror("Bad write on context file.");
+              exit(1);
+          }
+          num_context_written++;
+          sequence_num_context++;
+      }
 
       packetsme = me;
       me = displayme;
-  
-      return 1;
-    }
-#endif
-  playback = PL_PAUSE;
-  return 0;
+
+      if (buf[0] == SP_SEQUENCE || buf[0] == SP_SC_SEQUENCE
+          || buf[0] == SP_S_SEQUENCE)
+      {
+          pb_sequence_count++;
+
+          if (pb_num_fast_forward > 0)
+              pb_num_fast_forward--;
+
+          /* If we are creating an index of the recording, write out what
+             sequence number we are on, where we are in the file, and how
+             many context packets we have to read back in to get back
+             here. */
+          if ( pb_create_index && !(pb_sequence_count % INDEX_GRANULARITY) ) {
+              fprintf(recordIndexFile, INDEX_FORMAT, pb_sequence_count,
+                      sequence_start_pos, num_context_written - sequence_num_context);
+              fprintf(recordIndexFile, "\n");
+          }
+
+          if ( pb_create_index && !(pb_sequence_count % 1000) )
+              printf("Indexed %d sequences.\n", pb_sequence_count);
+
+          /* For testing, cut this short.  A recording should be under
+             100k sequences */
+          if (pb_sequence_count > 1000000) {
+              printf("I've seen enough, exiting!\n");
+              exit(0);
+          }
+
+
+          sequence_start_pos = -1;
+          sequence_num_context = 0;
+
+          /* Return 1 if redraw needed. */
+          if (pb_create_index || pb_num_fast_forward)
+              ;
+          else
+              return 1;
+
+      } /* if sequence packet */
+
+  } /* while(1) */
+
 }
   
+void pb_read_index() {
+    const int MAXLINE = 100;
+    char line[MAXLINE+1];
+    int num_lines = 0;
+
+    if (!pb_index_exists) {
+        pb_index = NULL;
+        pb_num_index = 0;
+        return;
+    }
+
+    rewind(recordIndexFile);
+
+    /* Count how many lines we have. */
+    while (fgets(line, MAXLINE, recordIndexFile))
+        num_lines++;
+
+    pb_index = calloc(3*num_lines, sizeof(int));
+    pb_num_index = num_lines;
+
+    rewind(recordIndexFile);
+
+    {
+        int i = 0;
+        while (fscanf(recordIndexFile,
+                      INDEX_FORMAT,
+                      &pb_index[i*3], /* Sequence num */
+                      &pb_index[i*3 + 1], /* offset into file */
+                      &pb_index[i*3 + 2]) /* number of context packets */
+               > 0)
+        {
+            i++;
+        }
+    }
+
+}
+
+int pb_get_index(int sequence_num, int *p_jump_actual, int *offset, int *num_context) {
+    int *found;
+    int jump_actual;
+    int num_left;
+    int first_index_num;
+    int last_index_num;
+
+    /* If the index doesn't exist go to the beginning and fast forward */
+    if (!pb_index_exists){
+        jump_actual = 1;
+        *offset = 0;
+        *num_context = 0;
+        num_left = sequence_num - 1;
+        goto end;
+    }
+
+    first_index_num = pb_index[0];
+    last_index_num = pb_index[(pb_num_index-1) * 3];
+
+    /* Convert the sequence number they want to goto to the closest sequence
+       we have indexed that is earlier.  For example, if they want to go to
+       #801 and we index every 100 sequences, look for #700.  We go back an
+       extra 100 so we can read in recent packets that contain info like what
+       ships are cloaked, armies carried, etc. */
+    jump_actual = (sequence_num / INDEX_GRANULARITY) * INDEX_GRANULARITY - INDEX_GRANULARITY;
+
+    /* If they go before the first index, take them to the
+       beginning and fast forward. */
+    if (jump_actual < first_index_num) {
+        jump_actual = 1;
+        *offset = 0;
+        *num_context = 0;
+        num_left = sequence_num - 1;
+        goto end;
+    }
+
+    /* If they go too far ahead, take them to the last sequence indexed. */
+    if (jump_actual > last_index_num) {
+        printf("Jumping ahead to last sequence.\n");
+        jump_actual = last_index_num;
+    }
+
+    /* Calculate how many sequences we have to fast forward after jumping ahead. */
+    num_left = sequence_num - jump_actual;
+
+    found = bsearch(&jump_actual, pb_index, pb_num_index, sizeof(int)*3, pb_index_compare);
+    if (found == NULL) {
+        /* Shouldn't happen. */
+        jump_actual = 1;
+        *offset = 0;
+        *num_context = 0;
+        num_left = sequence_num - 1;
+    }
+    else {
+        int *f = (int *)found;
+        *offset = *(f+1);
+        *num_context = *(f+2);
+    }
+
+
+ end:
+    *p_jump_actual = jump_actual;
+    num_left++;
+    return num_left;
+}
+
+int pb_index_compare(const void *a, const void *b) {
+    int x = *(int *)a;
+    int y = *(int *)b;
+
+    if (x > y)
+        return 1;
+    else if (x < y)
+        return -1;
+    else
+        return 0;
+
+}
 
 #ifdef REVERSE_PLAYBACK
 
@@ -979,6 +1385,7 @@ rpb_dorev(char *buf)
 	pb_dopacket(buf);
       }
   current = startpos + 1;
+  pb_sequence_count--;
 }
 #endif REVERSE_PLAYBACK
 

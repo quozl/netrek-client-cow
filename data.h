@@ -2,6 +2,13 @@
 /* data.h
  *
  * $Log: data.h,v $
+ * Revision 1.6  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.5  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -116,7 +123,9 @@ extern int myPlanetBitmap;
 
 #ifdef RECORDGAME
 extern FILE *recordFile;			 /* recorder */
-extern int playback;
+extern FILE *recordIndexFile;   /* To jump around recordings. */
+extern FILE *recordContextFile; /* To jump around recordings. */
+extern int playback; /* State playback is in (pause, forward, reverse) */
 
 #define PL_PAUSE 1
 #define PL_FORWARD 2

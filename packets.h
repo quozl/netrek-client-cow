@@ -4,6 +4,13 @@
  * Kevin P. Smith 1/29/89
  *
  * $Log: packets.h,v $
+ * Revision 1.2  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
  * COW 3.0 initial revision
  * */
@@ -20,6 +27,20 @@
  * (note: ALL packets, whether sent on the TCP or UDP channel, will have the
  * sequence number.  Thus it's important that client & server agree on when
  * to switch.  This was done to keep critical and non-critical data in sync.) */
+
+/* When making an index of a recording, if we need to save this packet. */
+#define PB_CONTEXT(p) (\
+        p == 60 || /* handleFeature */ \
+        p == 14 || /* handleStatus */ \
+        p == 24 || /* handlePlyrLogin */ \
+        p == 2 ||  /* handlePlyrInfo */ \
+        p == 20 || /* handlePStatus */ \
+        p == 58 || /* handleVKills */ \
+        p == 15 || /* handlePlanet */ \
+        p == 26 || /* handlePlanetLoc */ \
+        p == 59 || /* handle_s_Stats */ \
+        p == 50 || /* handleVPlanet */ \
+        p == 3)    /* handleKills */
 
 #define RECORDPACKET(p) (\
         p==SP_MESSAGE ||\

@@ -1,6 +1,13 @@
 /* data.c
  *
  * $Log: data.c,v $
+ * Revision 1.5  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.4  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -208,6 +215,9 @@ FILE   *recordFile = NULL;			 /* recorder: slurp packets *
 						  * 
 						  * 
 						  * * here */
+FILE   *recordIndexFile = NULL;			  
+FILE   *recordContextFile = NULL;			 
+
 int     playback = 0;
 
 #endif

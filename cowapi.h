@@ -13,6 +13,13 @@
  * The COW development team
  *
  * $Log: cowapi.h,v $
+ * Revision 1.4  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.3  1999/08/20 18:32:45  siegl
  * WindowMaker Docking support
  *
@@ -39,6 +46,7 @@ extern int pbmain(char *name);
 
 extern char   *deffile;
 extern char   *recordFileName;
+extern int     pb_create_index;
 extern char   *logFileName;
 extern char   *display_host;
 extern int     passive;

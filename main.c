@@ -4,6 +4,13 @@
 /* main.c
  *
  * $Log: main.c,v $
+ * Revision 1.8  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.7  2000/01/07 17:36:02  siegl
  * final release infos
  *
@@ -177,6 +184,8 @@ main2(int argc, char **argv)
 #ifdef RECORDGAME
 	    case 'F':
 	      inplayback = 1;
+              if (*(ptr+1) == 'i')
+                  pb_create_index = 1;
 	      /* No break */
 	    case 'f':
 	      recordFileName = *argv;

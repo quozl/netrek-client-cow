@@ -2,6 +2,13 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.4  2000/05/19 14:24:52  jeffno
+ * Improvements to playback.
+ * - Can jump to any point in recording.
+ * - Can lock on to cloaked players.
+ * - Tactical/galactic repaint when paused.
+ * - Can lock on to different players when recording paused.
+ *
  * Revision 1.3  1999/08/05 16:44:06  siegl
  * fix B,V core dump with rabbitears
  *
@@ -919,6 +926,7 @@ keyaction(W_Event * data)
   /* What follows is a hardcoded list of commands */
   if (playback)
     {
+      extern int pb_sequence_count;
       struct obtype *target;
 
       switch (key)
@@ -947,11 +955,13 @@ keyaction(W_Event * data)
 	case '>':
 	case '@':
 	case 'R':
+        case 'j':
+        case 'J':
 	  pbsetspeed(key);
 	  return;
 	  break;
 	case 'l':
-	  target = gettarget(data->Window, data->x, data->y, TARG_PLAYER);
+	  target = gettarget(data->Window, data->x, data->y, TARG_PLAYER | TARG_CLOAK);
 	  pblockplayer(target->o_num);
 	  return;
 	  break;
@@ -960,6 +970,10 @@ keyaction(W_Event * data)
 	  pblockplanet(target->o_num);
 	  return;
 	  break;
+        case '=':
+          printf("sequence #%d\n", pb_sequence_count);
+          return;
+          break;
 	case 'I':
 	case 'i':
 	case '?':
