@@ -81,7 +81,7 @@
 #define CORRUPTED_PACKETS
 
 /*	EXPIRE=#      		- number of days this version will work for	*/
-#ifndef STABLE
+#if 0 /* ndef STABLE  expire function removed */
 #define EXPIRE 365
 #endif
 
