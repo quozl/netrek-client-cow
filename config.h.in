@@ -110,7 +110,12 @@
 #define TOOLS
 
 /*	SOUND			- support of external sound players		*/
+
+/* Autodetect may discover sound releated problems like cygwin has no shm */
+#undef SKIP_SOUND
+#ifndef SKIP_SOUND
 #define SOUND
+#endif
 
 /*      HOCKEY_LINES            - allow showing of hockey lines			*/
 #define HOCKEY_LINES
@@ -472,12 +477,6 @@ only if you have no intention of retaining stats on the server for pickup */
 #undef HAVE_WIN32
 #undef HAVE_XPM
 #undef HAVE_X11_XPM_H
-
-/* Autodetection error with GNU win32 */
-#ifdef HAVE_WIN32
-#define HAVE_STRCMPI
-#define HAVE_STRNCMPI
-#endif
 
 #endif
 

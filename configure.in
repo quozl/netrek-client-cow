@@ -141,22 +141,31 @@ AC_EGREP_CPP(PATH_MAX, [
 PATH_MAX
 ], AC_DEFINE(NO_PATH_MAX) AC_MSG_RESULT(no), AC_MSG_RESULT(yes))
 
+AC_CHECK_FUNCS(strcmpi strncmpi)
+
 #--------------------------------------------------------------------
 #	Locate the X11 header files and the X11 library archive.
 #--------------------------------------------------------------------
 
 AC_PATH_X
 
-if test -z "$no_x"; then
-  AC_DEFINE(HAVE_X11) 
+# Checking for gnu-win32 Windows libraries
+
+AC_CHECK_LIB(gdi32, main, CYGWINOS="yes", CYGWINOS="")
+
+if test -z "$CYGWINOS"; then
+  AC_DEFINE(HAVE_X11)
   NOWIN32="#"
 else
 
-# Checking for gnu-win32 Windows libraries
-AC_CYGWIN
+# Fix some autodetect errors
+AC_DEFINE(HAVE_STRCMPI)
+AC_DEFINE(HAVE_STRNCMPI)
+AC_DEFINE(SKIP_SOUND)
 
-if test -z "$CYGWIN"; then
+if test -z "$no_x"; then
   AC_DEFINE(HAVE_X11) 
+  AC_DEFINE(HAVE_X11_XPM_H)
   NOWIN32="#"
 else
   AC_DEFINE(HAVE_WIN32) 
@@ -461,7 +470,7 @@ fi
 # AC_CHECK_LIB(BSD, main, [LIBS="$LIBS -lBSD"])
 # AC_CHECK_LIB(bsd, main, [LIBS="$LIBS -lbsd"])
 
-AC_CHECK_FUNCS(usleep random setstate strftime ftime strcmpi strncmpi)
+AC_CHECK_FUNCS(usleep random setstate strftime ftime)
 
 AC_CHECK_LIB(m, main, [LIBS="$LIBS -lm"])
 AC_CHECK_FUNCS(nint)
