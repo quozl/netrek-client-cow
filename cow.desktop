@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Client of Win (COW)
+Name=COW (Netrek Client)
 Comment=COW Netrek Client
 Exec=cow
 Terminal=false

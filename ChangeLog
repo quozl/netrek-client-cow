@@ -1,3 +1,7 @@
+Mon Jul  8 01:29:36 2002  Bob Tanner  <tanner@real-time.com>
+
+	* cow.desktop: Change Name to something more descriptive.
+
 Tue Jun 25 10:28:46 2002  James Cameron  <quozl@us.netrek.org>
 
 	* socket.c: remove unused strcpy_return(), and tidy PACKET_LOG
