@@ -1,6 +1,9 @@
 
 /*
  * $Log: docwin.c,v $
+ * Revision 1.2  2001/04/28 04:05:27  quozl
+ * remove minor compiler warning.
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
  * COW 3.0 initial revision
  * */
@@ -322,7 +325,7 @@ loadxtrekrc(void)
   char    line[80], filename[256];
   int     i;
 
-  filename[0] = NULL;
+  filename[0] = '\0';
 
 #ifndef WIN32
   if (!findfile(".netrekrc", filename) && !findfile(".xtrekrc", filename))
