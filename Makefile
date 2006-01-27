@@ -1,18 +1,11 @@
 ########################################################################
-#  CHANGE THE KEYDEF LINE TO THE .def FILE OF YOUR SYSTEM AND RSA KEY  #
-########################################################################
-
-KEYDEF = sample_key.def
-
-########################################################################
 #  No editables below this point.                                      #
 ########################################################################
 
-SHELL  = /bin/sh
+include key.mk
 
 KEYGOD = clientkeys@clientkeys.netrek.org
 MAIL   = mail
-AUTOCONF = autoconf
 
 include $(KEYDEF)
 
@@ -146,7 +139,7 @@ install: netrek
 	if [ -f $(BINDIR)/netrek ] ; then \
 	  mv $(BINDIR)/netrek $(BINDIR)/netrek.old ; \
 	fi 
-	install -cs netrek $(BINDIR)
+	install -cs netrek $(DESTDIR)$(BINDIR)
 
 install.alpha: netrek
 	rm -f $(ALPHADIR)/netrek.gz

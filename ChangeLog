@@ -1,3 +1,21 @@
+Fri Jan 27 20:47:54 2006  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c: fix overloaded definition of global sock.
+
+Mon Jan  2 17:19:26 2006  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c: add multicast server packets for discovering
+	servers on a local area network.
+
+Fri Sep 30 21:33:15 2005  James Cameron  <quozl@us.netrek.org>
+
+	* config.h.in: remove server defines.
+
+	* configure.in: default configure script to --enable-unstable,
+	since this is the version that most people are playing with, if
+	they are playing a COW on UNIX at all.  Remove server code base
+	specific stuff.  Add key file option --with-key.
+
 Mon Jul  8 01:29:36 2002  Bob Tanner  <tanner@real-time.com>
 
 	* cow.desktop: Change Name to something more descriptive.

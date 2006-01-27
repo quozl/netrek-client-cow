@@ -8,6 +8,9 @@
  * Routines to allow connection to the xtrek server.
  *
  * $Log: socket.c,v $
+ * Revision 1.8  2006/01/27 09:57:27  quozl
+ * *** empty log message ***
+ *
  * Revision 1.7  2002/06/25 00:55:26  quozl
  * add verbose packet logging
  *
@@ -2287,7 +2290,7 @@ void    handleBadVersion(struct badversion_spacket *packet)
   switch (packet->why)
     {
     case 0:
-      printf("Sorry, this is an invalid client version.\n");
+      printf("Server says 'Sorry, this is an invalid client version.'\n");
       printf("You need a new version of the client code.\n");
       break;
     case 1:
@@ -2296,7 +2299,7 @@ void    handleBadVersion(struct badversion_spacket *packet)
     case 4:
     case 5:
     case 6:
-      printf("Sorry, but you cannot play xtrek now.\n");
+      printf("Server says 'Sorry, but you cannot play netrek now.'\n");
       printf("Try again later.\n");
       break;
     default:

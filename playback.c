@@ -5,6 +5,9 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.13  2006/01/27 09:57:27  quozl
+ * *** empty log message ***
+ *
  * Revision 1.12  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -1541,6 +1544,6 @@ rpb_dorev(char *buf)
   current = startpos + 1;
   pb_sequence_count--;
 }
-#endif REVERSE_PLAYBACK
+#endif /* REVERSE_PLAYBACK */
 
 #endif /* RECORDGAME */

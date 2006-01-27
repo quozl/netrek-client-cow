@@ -11,9 +11,6 @@
 ################################################################################
 */
 
-#undef COW
-#undef SERVER
-
 #undef STABLE
 
 /* 
@@ -69,7 +66,6 @@
 	 	COW only defines
    ------------------------------------------------------------
 */
-#ifdef COW
 
 /*	NBT 			- Nick trown's macro code			*/
 #define NBT
@@ -168,246 +164,7 @@
 #define PHASER_STATS
 #define RECORDGAME
 
-#endif		/* COW */
 
-
-/* 
-   ------------------------------------------------------------
-	 	SERVER only defines
-   ------------------------------------------------------------
-*/
-#ifdef SERVER
-
-                                /*  AUTOMOTD       - Updates your MOTD every
-                                                     12 hours */
-#undef AUTOMOTD
-
-                                /*  CHAIN_REACTION - Don't give credit for
-                                                     chain reactions */
-#define CHAIN_REACTION
-
-                                /*  CHECKMESG      - Check for god messages
-                                                     and/or log all messages */
-#define CHECKMESG
-
-                                /*  ERIKPLAGUE     - Define for Erik's
-                                                     Plagueing */
-#define ERIKPLAGUE
-
-                                /*  FEATURES       - Server/client
-                                                     communication */
-#define FEATURES
-
-                                /*  FULL_HOSTNAMES - Show entire player
-                                                     location (domain) */
-#define FULL_HOSTNAMES
-
-                                /*  INL_RESOURCES  - Use INL resources */
-#define INL_RESOURCES
-
-                                /*  INL_POP        - Use INL style planet
-                                                     popping scheme */
-#define INL_POP
-
-				/*  ARMYTRACK	   - Generate army tracking
-						     WRN messages in log */
-
-#define ARMYTRACK
-
-                                /*  NO_PLANET_PLAGUE -Define for plagueing
-                                                     (Don't use with
-                                                     ERIKPLAGUE) */
-#undef  NO_PLANET_PLAGUE
-
-                                /* NO_UNWARRING_BOMBING -No 3rd space bombing */
-#define NO_UNWARRING_BOMBING
-
-                                /* SHOW_RSA        - Display the client type
-                                                     at login */
-#define SHOW_RSA
-
-                                /* RESETGALAXY     - Reset the galaxy after
-                                                     each conquer */
-#define RESETGALAXY
-
-                                /* RESTRICT_BOMB   - No bombing out of t-mode */
-#define RESTRICT_BOMB
-
-                                /* SELF_RESET      - Galaxy will reset if the
-                                                     daemon dies */
-#define SELF_RESET
-
-                                /* SHORT_THRESHOLD - For Short Packets */
-#define SHORT_THRESHOLD
-
-                                /* SURRENDER_SHORT - Cut surrender time in
-                                                     half */
-#undef  SURRENDER_SHORT
-
-                                /* TWO_RACE        - Conquer only a 1/4 of the
-                                                     galaxy for reset */
-#define TWO_RACE
-
-                                /* SENDFLAGS       - Print flags set in MOTD */
-#undef  SENDFLAGS
-
-				/* SENDPATCHLEVEL - Print release and
-                                   patch level in MOTD */ 
-#define SENDPATCHLEVEL
-
-
-                                /* CHECK_ENV       - Check environment variable                                                     NTSERV_PATH for location
-                                                     of system files */
-#undef  CHECK_ENV
-
-                                /* GPPRINT         - Print which path is being
-                                                     used to find the system
-                                                     files */
-#undef  GPPRINT
-
-                                /* ONCHECK         - support for trekon player
-                                                     check */
-#undef  ONCHECK
-
-                                /* NBR             - Leave in for server. It
-                                                     tells programs like xsg
-                                                     that it is this code. */
-#define NBR
-
-                                /* NEED_EXIT       - For systems that need exit                                                     defined */
-#define NEED_EXIT
-
-                                /* SB_TRANSWARP    - starbase transwarp */
-#define SB_TRANSWARP
-
-                                /* FLAT_BONUS      - 3x bonus for killing last
-                                                     army on a planet */
-#undef FLAT_BONUS
-
-                                /* BASEPRACTICE    - trainingserver support */
-#define BASEPRACTICE
-
-                                /* NEW_CREDIT      - give 1 planet for
-                                                     destroying, two planets
-                                                     for taking.  Be sure to
-						     scale your player
-						     database's planet counts
-						     by a factor of three -
-						     running newscores as
-						     compiled with a -DCONVERT
-						     _once_ will do this
-						     scaling for you */
-#undef NEW_CREDIT
-
-                                /* FASTER_SB_MAXUPDATES - allow 10 ups/sec for
-                                                           SB's */
-#define FASTER_SB_MAXUPDATES
-
-                                /* SBFUEL_FIX      - fix starbase re-fueling */
-#define SBFUEL_FIX
-
-                                /* NEW_ETEMP       - Wreck's etemp fix */
-#undef NEW_ETEMP
-
-                                /* DOGFIGHT        - .sysdef interface
-                                                   for dogfight robot */
-				/* CLUE2	   - include harder clue
-						     questions */
-#undef CLUE2
-#define DOGFIGHT
-
-                                /* OBSERVERS       - allow players to watch */
-#define OBSERVERS
-
-                                /* VOTING          - allow voting mode */
-#define VOTING
-
-                                /* ALLOW_EJECT     - define to allow players to
-                                                     eject others */
-                                
-                                /* VICIOUS_EJECT   - free's the players slot
-                                		     after ejection */
-#ifdef VOTING
-#undef ALLOW_EJECT
-#ifdef ALLOW_EJECT
-#define VICIOUS_EJECT
-#endif
-#endif
-
-                                /* NO_BRUTALITY    - disallow fighting between
-                                                     waiting players in the
-                                                     dogfighting mode */
-#ifdef DOGFIGHT
-#define NO_BRUTALITY
-#endif
-
-                                /* AS_CLOAK        - gives cloaked AS's more
-                                                     randomness in their
-                                                     apparent positions */
-#undef AS_CLOAK
-
-                                /* GENO_COUNT      - keep track of a player's
-                                                     winning genocides, see
-						     tools/conq_vert.c for a
-						     description of how to use
-						     this define. */
-#undef GENO_COUNT
-
-#ifdef VOTING
-                                /* AUTO_INL        - starts up INL robot
-                                                     by majority vote   */
-
-/* WARNING: AUTO_INL as currently implemented may hose your player database
-because the INL server must provide cleared stats at startup.  Enable this
-only if you have no intention of retaining stats on the server for pickup */
-
-#undef AUTO_INL
-                                /* AUTO_PRACTICE   - starts up PRACTICE robot
-                                                     by majority vote   */
-#ifdef BASEPRACTICE
-#define AUTO_PRACTICE
-#endif
-                                /* AUTO_HOCKEY     - starts up HOCKEY robot
-                                                     by majority vote   */
-#define AUTO_HOCKEY
-                                /* AUTO_DOGFIGHT   - starts up DOGFIGHT robot
-                                                     by majority vote   */
-				/* DOG_RANDOM      - somewhat random player
-						     placement in arena */
-#ifdef DOGFIGHT
-#define AUTO_DOGFIGHT
-/* #define DOG_RANDOM */
-#endif
-
-                                /* TRIPLE_PLANET_MAYHEM - enable voting
-                                for the three planet cool server idea
-                                by felix@coop.com */
-#define TRIPLE_PLANET_MAYHEM
-				/* Balance vote weightings; how important each
-				t-mode stat is for calculating a player value */
-#define BALANCE_BOMBING 100
-#define BALANCE_PLANET  100
-#define BALANCE_DEFENSE   0
-#define BALANCE_OFFENSE 100
-#endif
-                                /* MESSAGES_ALL_TIME - allow messaging during
-                                freezes like twarp, refit, and war decl. 
-				required to be set for INL robot use. */
-#define MESSAGES_ALL_TIME
-				/* RANDOM_PRACTICE_ROBOT - Gives the practice
-				robot (Hoser) the option of comming out in
-				a random ship type. */
-#undef RANDOM_PRACTICE_ROBOT
-
-				/* Rolling statistics - makes the player stats
-				reflect the immediate playing history of each
-				player, for office games using BALANCE.  Set
-				slots to 20 and mask to 32767 for 18 hours. */
-#undef ROLLING_STATS
-#undef ROLLING_STATS_SLOTS
-#undef ROLLING_STATS_MASK
-
-#endif		/* SERVER */
 
 
 /*
@@ -467,31 +224,15 @@ only if you have no intention of retaining stats on the server for pickup */
 #undef size_t 
 #undef vfork 
 #if (defined(sparc) && defined(sun))
-  #define vfork fork
+#define vfork fork
 #endif
 #undef NO_PATH_MAX
 #undef inline
 
-#ifdef COW
 #undef HAVE_X11
 #undef HAVE_WIN32
 #undef HAVE_XPM
 #undef HAVE_X11_XPM_H
-
-#endif
-
-#ifdef SERVER
-#define LIBDIR "/usr/local/games/netrek"
-
-/* System dependend programs */
-#define UPTIME "/usr/ucb/uptime"
-#define NETSTAT "/bin/true"
-
-/*  UDP connection timeout fix for SYSV machines */
-#ifdef HAVE_UNISTD_H
-#define UDP_FIX
-#endif
-#endif
 
 /* System dependend macros						*/
 
@@ -577,101 +318,12 @@ extern long random ();
 #define U_LONG u_long
 #endif
 
-/*	Some Server specific programs */
-#ifdef SERVER
-#ifdef HAVE_USLEEP
-#define USLEEP(x)       usleep(x)
-#else
-#define USLEEP(x)       microsleep(x)           /* from util.c */
-#endif
-
-#include <sys/types.h>
-/* SYSV Types */
-#ifdef NO_U_INT
-#define u_char unchar
-#define u_int uint
-#define u_long ulong
-#define u_short ushort
-#endif
-
-#ifdef HAVE_UNISTD_H
-#if defined (hpux) || defined(__osf__)
-#define SETPGRP()       setsid()
-#else
-#if defined (linux) || defined(sgi) || (defined(sparc) && defined(sun))
-#define SETPGRP()       setpgrp()
-#else
-#define SETPGRP()       setpgrp (0, 0)
-#endif
-#endif
-#else
-#define SETPGRP()       setpgrp (0, getpid())
-#endif
-
-#ifdef _SEQUENT_
-#define PERMS O_RDWR | O_NOCTTY
-#else
-#define PERMS O_RDWR
-#endif
-
-#if defined(HAVE_UNISTD_H) && defined(TIOCTTY)
-#define IOCTL(i) \
-        int zero = 0;                           \
-        (void) ioctl (i, TIOCTTY, &zero);
-#else
-#if defined(TIOCNOTTY)
-#define IOCTL(i) \
-        (void) ioctl (i, TIOCNOTTY, (char *) 0);
-#else
-#define IOCTL(i)
-#endif
-#endif
-
-#define DETACH {\
-    int i;                                                      \
-    if ((i = open("/dev/tty", PERMS, 0)) >=0) {                 \
-        IOCTL(i)                                                \
-        (void) close (i);                                       \
-    }                                                           \
-    SETPGRP();                                                  \
-    }
-
-#if defined (SunOS)            /*  this core dumps with SIGSEGV on a sparc-10 */
-#define LONGJMP(x,y)    return;
-#else
-#define LONGJMP(x,y)    longjmp(x,y);
-#endif
-
-#if defined (hpux)
-#define PCLOSE(x)       fclose(x)
-#else
-#define PCLOSE(x)       pclose(x)
-#endif
-
-#if defined (__sequent__)
-#define WAIT_TYPE    union wait
-#define WSTOPSIG(foo)   0
-#else
-#define WAIT_TYPE int
-#endif
-
-#endif		/* SERVER programs */
-
-
 /*  System dependend Include files */
 
-#ifdef SERVER
-#define NULLFILE		"../null"
-#else
 #define NULLFILE        	"null"
-#endif
 
 #ifdef NEED_SYS_SELECT_H
 #define INC_SYS_SELECT <sys/select.h>
-#ifdef SERVER
-/* fd_set is used in data.h of the server */
-#include <sys/select.h>
-#endif
 #else
 #define INC_SYS_SELECT NULLFILE
 #endif
