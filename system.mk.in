@@ -111,7 +111,7 @@ CFLAGS = $(OPT) $($S) $(EXTRACFLAGS) $(SDL_CFLAGS) $(RSA_FLAGS) $(INCDIRS)
 LFLAGS = $(EXTRALINKFLAGS)
 LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS)
 
-netrek: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(RSAOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c randomize
+netrek: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c randomize
 	$(CC) $(LFLAGS) -o netrek `./randomize $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
 	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ)` $(LIBRARIES)
 
@@ -125,7 +125,8 @@ done.libcow: $(PMAKE) $(ROBJ) $(RSAOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RAND
 	$(LN) $(COWLIB) $(SL_LIB)
 	$(TOUCH) done.libcow
 
-rsa_box.c: mkkey $(SECKEYFILE)
+#rsa_box.c: mkkey $(SECKEYFILE)
+$(RSASRC): mkkey $(SECKEYFILE)
 	-$(RM) $(RSASRC)
 	./mkkey -c -k $(SECKEYFILE)
 	$(TOUCH) $(RSASRC)
