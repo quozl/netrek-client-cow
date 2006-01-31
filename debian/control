@@ -1,0 +1,39 @@
+Source: netrek-client-cow
+Section: non-free/x11
+Priority: optional
+Maintainer:  Robert J. Tanner <tanner@real-time.com>
+Uploaders: James Cameron <quozl@us.netrek.org>
+Build-Depends: debhelper (>= 4.2.32), cdbs (>= 0.4.27), build-essential (>= 10.1), libsdl1.2-dev, libsdl-mixer1.2-dev
+Standards-Version: 3.6.2
+
+Package: netrek-client-cow
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: netrek Client
+ This is a client for the multi-player game of Netrek.
+ .
+ Netrek is the probably the first video game which can accurately be
+ described as a "sport."  It has more in common with basketball than
+ with arcade games or Quake.  Its vast and expanding array of tactics
+ and strategies allows for many different play styles; the best
+ players are the ones who think fastest, not necessarily the ones who
+ twitch most effectively.  It can be enjoyed as a twitch game, since
+ the dogfighting system is extremely robust, but the things that
+ really set Netrek apart from other video games are the team and
+ strategic aspects.  Team play is dynamic and varied, with roles
+ constantly changing as the game state changes.  Strategic play is
+ explored in organized league games; after 6+ years of league play,
+ strategies are still being invented and refined.
+ .
+ The game itself has existed for over 15 years, and has a solid
+ playerbase, including some people who have been playing for nearly as
+ long as the game has existed.
+ .
+ All Netrek clients and servers are completely free of charge,
+ although there are several people working on commercial netrek
+ variants or derivatives.
+ .
+ To start the client program, run /usr/bin/netrek-client-cow, and a list of
+ servers should be displayed.
+ .
+ Homepage: http://www.netrek.org

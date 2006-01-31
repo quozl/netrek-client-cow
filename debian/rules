@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+#
+# NAME
+#   debian/rules -- Debian build rules for cow
+#
+# DESCRIPTION
+#   This Makefile uses the CDBS makefiles to wrap the common package building
+#   steps necessary to make the cow packages.
+#
+# COPYRIGHT
+#   Copyright (c) 2006 Bob Tanner <tanner@real-time.com>
+#
+# LICENSE
+#   This program is free software; you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the Free
+#   Software Foundation version 2
+#
+#   This program is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+#   more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc., 59
+#   Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+#
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+
+
+DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable 
+DEB_MAKE_ENVVARS := KEYDEF="/home/tanner/.netrek/key-debian.def"
+
+install/netrek-client-cow::
+	install netrek debian/netrek-client-cow/usr/bin/netrek-client-cow
+	rm -f debian/netrek-client-cow/netrek
+
+clean::
+	rm -rf autom4te.cache config.guess.cdbs-orig config.sub.cdbs-orig
+	rm -rf cflags.c key.cow.unix key.cow.unix.secret
