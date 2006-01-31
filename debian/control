@@ -3,7 +3,7 @@ Section: non-free/x11
 Priority: optional
 Maintainer:  Robert J. Tanner <tanner@real-time.com>
 Uploaders: James Cameron <quozl@us.netrek.org>
-Build-Depends: debhelper (>= 4.2.32), cdbs (>= 0.4.27), build-essential (>= 10.1), libsdl1.2-dev, libsdl-mixer1.2-dev
+Build-Depends: debhelper (>= 4.2.32), cdbs (>= 0.4.27), build-essential (>= 10.1), libsdl1.2-dev, libsdl-mixer1.2-dev, libgmp3-dev
 Standards-Version: 3.6.2
 
 Package: netrek-client-cow

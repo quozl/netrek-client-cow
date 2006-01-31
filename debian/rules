@@ -1,11 +1,11 @@
 #!/usr/bin/make -f
 #
 # NAME
-#   debian/rules -- Debian build rules for cow
+#   debian/rules -- Debian build rules for netrek-client-cow
 #
 # DESCRIPTION
 #   This Makefile uses the CDBS makefiles to wrap the common package building
-#   steps necessary to make the cow packages.
+#   steps necessary to make the netrek-client-cow packages.
 #
 # COPYRIGHT
 #   Copyright (c) 2006 Bob Tanner <tanner@real-time.com>
@@ -31,6 +31,14 @@ include /usr/share/cdbs/1/rules/simple-patchsys.mk
 
 
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable 
+
+# Generic key.def that will work for QA building
+#
+#DEB_MAKE_ENVVARS := KEYDEF="sample_key.def"
+
+# My personal and trusted key, won't work for you, comment out below and
+# uncomment the line above (sample_key.def) if you want to QA build 
+#
 DEB_MAKE_ENVVARS := KEYDEF="/home/tanner/.netrek/key-debian.def"
 
 install/netrek-client-cow::
