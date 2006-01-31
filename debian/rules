@@ -30,7 +30,8 @@ include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/simple-patchsys.mk
 
 
-DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable 
+DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable \
+                                --x-includes=/usr/X11R6/include
 
 # Generic key.def that will work for QA building
 #
