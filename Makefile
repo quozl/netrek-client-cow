@@ -9,11 +9,11 @@ MAIL   = mail
 
 include $(KEYDEF)
 
-all : netrek 
+all: netrek 
 
 netrek: system.mk netrekI
 
-netrekI: 
+netrekI::
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) netrek
 
 netrek.shared: name system.mk
