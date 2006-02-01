@@ -33,14 +33,10 @@ include /usr/share/cdbs/1/rules/simple-patchsys.mk
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable \
                                 --x-includes=/usr/X11R6/include
 
-# Generic key.def that will work for QA building
-#
-#DEB_MAKE_ENVVARS := KEYDEF="sample_key.def"
 
-# My personal and trusted key, won't work for you, comment out below and
-# uncomment the line above (sample_key.def) if you want to QA build 
+# Delegate finding KEYDEF find-key
 #
-DEB_MAKE_ENVVARS := KEYDEF="/home/tanner/.netrek/key-debian.def"
+DEB_MAKE_ENVVARS := KEYDEF=`debian/find-key.sh`
 
 install/netrek-client-cow::
 	install netrek debian/netrek-client-cow/usr/bin/netrek-client-cow

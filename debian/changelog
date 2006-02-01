@@ -1,3 +1,10 @@
+netrek-client-cow (3.01pl0-2) unstable; urgency=low
+
+  * At compile time figure out what RSA key to build against
+  * Created find-key.sh 
+
+ -- Robert J. Tanner <tanner@real-time.com>  Wed,  1 Feb 2006 02:20:12 -0600
+
 netrek-client-cow (3.01pl0-1) unstable; urgency=low
 
   * Initial release
