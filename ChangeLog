@@ -1,3 +1,56 @@
+2006-02-01  Bob Tanner  <tanner@real-time.com>
+
+	* debian/changelog, debian/find-key.sh, debian/rules: 
+	- At compile time figure out what RSA key to build agains. 
+	- Created find-key.sh
+
+2006-01-31  Bob Tanner  <tanner@real-time.com>
+
+	* debian/control, debian/rules:
+	- Missed the libxt-dev Build-Depdends (pbuilder rules)
+	- For some reason configure cannot find the X11 headers, so added 
+	  the location into the configure invocation
+
+	* debian/control, debian/rules: 
+	- Missed gmp develop package
+	- Little documentation in debian/rules about key.def
+
+	* Makefile:
+	- Couple GNU make specific changes to make building no dep targets 
+	  build by default. At least I believe the "::" does that under GNU 
+	  make.
+
+	* system.mk.in:
+	- cow's Makefile is pretty convoluted and under normal(?) 
+	  circumstances requires 2 builds. At least under debian. Change the 
+	  depends to make a 1 time build possible which makes using pbuilder 
+	  easier :-)
+
+	* .cvsignore: 
+	- Ignore some of the files that cdbs creates.
+
+	* CVSROOT/loginfo:
+	- Added netrek-dev@us.netrek.org too, since commits are very low 
+	  volume lately.:-P
+
+	* debian/README.Debian, debian/changelog, debian/control, debian/dirs, 
+	  debian/netrek-client-cow.copyright, debian/netrek-client-cow.docs, 
+	  debian/netrek-client-cow.examples, debian/netrek-client-cow.install, 
+	  debian/netrek-client-cow.man, debian/netrek-client-cow.manpages, 
+	  debian/rules, debian/source.lintian-overrides, debian/watch:
+	- First commit for debian sid package. NOTE: Only worked the .deb on 
+	  sid, once a few people QA build it (James?) on sid and we share out 
+	  any lintian/linda issues, I'll build it for etch and sarge.
+
+	* CVSROOT/loginfo: 
+	- Found the problems(!) First, syncmail was way out of date, I snarfed 
+	  the recommended version and installed it into CVSROOT, of course the 
+	  commit of that change failed to send an email notification 
+	  (chick-n-egg problem)
+	- Next, cvs commit to cow are failing because there is no longer a
+	  netrek-cow-cvs mailing list.
+	- Upgraded syncmail to recommend revision from sourceforge's sitedocs.
+
 Fri Jan 27 20:47:54 2006  James Cameron  <quozl@us.netrek.org>
 
 	* parsemeta.c: fix overloaded definition of global sock.
