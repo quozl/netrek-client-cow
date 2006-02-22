@@ -1,3 +1,9 @@
+Thu Feb 23 09:40:58 2006  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c (ReadMetasSend): fix regression caused by previous
+	change, resulting in bad file descriptor errors from select in
+	ReadMetasRecv().
+
 2006-02-01  Bob Tanner  <tanner@real-time.com>
 
 	* debian/changelog, debian/find-key.sh, debian/rules: 

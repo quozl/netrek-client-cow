@@ -1,6 +1,9 @@
 /* meta.c
  * 
  * $Log: parsemeta.c,v $
+ * Revision 1.9  2006/02/22 22:55:22  quozl
+ * fix ReadMetasRecv regression
+ *
  * Revision 1.8  2006/01/27 09:57:27  quozl
  * *** empty log message ***
  *
@@ -299,17 +302,19 @@ static int ReadMetasSend()
   verbose = booleanDefault("metaverbose", verbose);
 
   /* create the socket */
-  if (msock < 0) msock = socket(AF_INET, SOCK_DGRAM, 0);
-  if (msock < 0) { perror("ReadMetasSend: socket"); return 0; }
-
-  /* bind the socket to any address */
-  address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_family      = AF_INET;
-  address.sin_port        = 0;
-  if (bind(msock,(struct sockaddr *)&address, sizeof(address)) < 0) {
-    perror("ReadMetasSend: bind");
-    close(msock);
-    return 0;
+  if (msock < 0) {
+    msock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (msock < 0) { perror("ReadMetasSend: socket"); return 0; }
+    
+    /* bind the socket to any address */
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_family      = AF_INET;
+    address.sin_port        = 0;
+    if (bind(msock,(struct sockaddr *)&address, sizeof(address)) < 0) {
+      perror("ReadMetasSend: bind");
+      close(msock);
+      return 0;
+    }
   }
 
   /* send request to a multicast metaserver on local area network */
