@@ -21,7 +21,7 @@ Thu Feb 23 09:40:58 2006  James Cameron  <quozl@us.netrek.org>
 2006-02-01  Bob Tanner  <tanner@real-time.com>
 
 	* debian/changelog, debian/find-key.sh, debian/rules: 
-	- At compile time figure out what RSA key to build agains. 
+	- At compile time figure out what RSA key to build againts. 
 	- Created find-key.sh
 
 2006-01-31  Bob Tanner  <tanner@real-time.com>
