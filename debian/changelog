@@ -1,3 +1,12 @@
+netrek-client-cow (3.2.0-1) unstable; urgency=low
+
+  * Fix regression caused by previous change, resulting in bad file
+    descriptor errors from select in ReadMetasRecv(). (Quozl)
+  * Change to Quozl's new release numbering scheme, he is the official 
+    librarian you know. :-)
+
+ -- Robert J. Tanner <tanner@real-time.com>  Wed, 22 Feb 2006 22:53:25 -0600
+
 netrek-client-cow (3.2.0) unstable; urgency=low
 
   * oh wow

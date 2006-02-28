@@ -31,7 +31,7 @@ include /usr/share/cdbs/1/rules/simple-patchsys.mk
 
 
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable \
-                                --x-includes=/usr/X11R6/include
+	--x-includes=/usr/X11R6/include
 
 
 # Delegate finding KEYDEF find-key
