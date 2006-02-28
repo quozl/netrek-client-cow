@@ -21,6 +21,9 @@
 /*****************************************************************************/
 /*
  * $Log: mkcflags.c,v $
+ * Revision 1.3  2006/02/28 01:45:56  quozl
+ * prerelease
+ *
  * Revision 1.2  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -72,7 +75,7 @@ pigcallresp (pigcall, cdate, arch)
 {
   char buf[20];
 
-  sprintf (pigcall, "%spl%d, %s, %s, ", version, PATCHLEVEL, arch, cdate);
+  sprintf (pigcall, "%s.%d, %s, %s, ", version, PATCHLEVEL, arch, cdate);
   /* ack .... gross short hand fomulas for compile options!!! */
 
 #ifdef RSA

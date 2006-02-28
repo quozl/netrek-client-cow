@@ -1,3 +1,17 @@
+Tue Feb 28 12:44:24 2006  James Cameron  <quozl@us.netrek.org>
+
+	* manifest: add files since last release sufficient to enable
+	build, and remove non-source file win32/libgmp.a.
+
+Tue Feb 28 12:44:10 2006  James Cameron  <quozl@us.netrek.org>
+
+	* Makefile (dist): change source package name to netrek-client-cow.
+
+Thu Feb 23 15:55:29 2006  James Cameron  <quozl@us.netrek.org>
+
+	* dmessage.c, version.h, mkcflags.c, name.c: change version number
+	format to x.y.z.
+
 Thu Feb 23 09:40:58 2006  James Cameron  <quozl@us.netrek.org>
 
 	* parsemeta.c (ReadMetasSend): fix regression caused by previous

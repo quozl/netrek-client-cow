@@ -1,5 +1,8 @@
 /*
  * $Log: name.c,v $
+ * Revision 1.2  2006/02/28 01:45:56  quozl
+ * prerelease
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
  * COW 3.0 initial revision
  * */
@@ -27,7 +30,7 @@ main (int argc, char **argv)
     exit(0);
   }
 
-  printf ("%spl%d", mvers, PATCHLEVEL);
+  printf ("%s.%d", mvers, PATCHLEVEL);
 
 #ifdef ALPHACODER
   printf (".%s(%s)", ALPHACODER, ALPHAREF);

@@ -1,3 +1,9 @@
+netrek-client-cow (3.2.0) unstable; urgency=low
+
+  * oh wow
+
+ -- James Cameron <quozl@us.netrek.org>  Tue, 28 Feb 2006 12:26:09 +1100
+
 netrek-client-cow (3.01pl0-2) unstable; urgency=low
 
   * At compile time figure out what RSA key to build against

@@ -18,12 +18,12 @@
 #   Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 #
 
-# Scan these locations for KEYDEF entries. First entry is my personal key, the
-# second/third entries are fake, used as an example of how to add other scan
-# locations
+# Scan these locations for KEYDEF entries. First entry is my personal
+# key, the second is Quozl's, and the third is fake, used as an
+# example of how to add other scan locations
 #
 SCAN="/home/tanner/.netrek/key-debian.def \
-	/u/aussie/quozl/.netrek/vanilla.def \
+	/home/quozl/.netrek/key-debian.def \
 	/home/a/ahn/src/netrek/keydef \
      "
 

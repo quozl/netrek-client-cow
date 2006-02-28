@@ -10,8 +10,8 @@ static char version[] = "COW 2.02";
 #define LIBMINOR 2
 
 #else
-static char mvers[] = "3.01";
-static char version[] = "COW 3.01";
+static char mvers[] = "3.2";
+static char version[] = "COW 3.2";
 
 #define LIBMAJOR 3
 #define LIBMINOR 1

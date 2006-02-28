@@ -50,25 +50,27 @@ distclean: clean reallyclean
 tags: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) tags
 
+PACKAGE=netrek-client-cow
+
 dist: name
-	mkdir COW.`./name`
-	tar cf - `cat manifest` | (cd COW.`./name`;tar xf -)
-	tar cvf - COW.`./name` | gzip -9 > COW.`./name`.tar.gz
-	rm -rf COW.`./name`
+	mkdir $(PACKAGE)-`./name`
+	tar cf - `cat manifest` | (cd $(PACKAGE)-`./name`;tar xf -)
+	tar cvf - $(PACKAGE)-`./name` | gzip -9 > $(PACKAGE)-`./name`.tar.gz
+	rm -rf $(PACKAGE)-`./name`
 
 distdoc: name XTREKRC
-	mkdir COW.`./name`.doc
+	mkdir $(PACKAGE)-`./name`.doc
 	tar cf - README.* COW.DOC CHANGES XTREKRC netrekrc.example \
-		*.html *.css stars.gif | (cd COW.`./name`.doc; tar xf -)
-	tar cvf - COW.`./name`.doc | gzip -9 > COW.`./name`.doc.tar.gz
-	rm -rf COW.`./name`.doc
+		*.html *.css stars.gif | (cd $(PACKAGE)-`./name`.doc; tar xf -)
+	tar cvf - $(PACKAGE)-`./name`.doc | gzip -9 > $(PACKAGE)-`./name`.doc.tar.gz
+	rm -rf $(PACKAGE)-`./name`.doc
 
 distbin: name netrek
 	-strip netrek
-	-rm -f COW.`./name`.$(ARCH)
-	cp netrek COW.`./name`.$(ARCH)
-	-rm -f COW.`./name`.$(ARCH).gz
-	gzip -9 COW.`./name`.$(ARCH)
+	-rm -f $(PACKAGE)-`./name`.$(ARCH)
+	cp netrek $(PACKAGE)-`./name`.$(ARCH)
+	-rm -f $(PACKAGE)-`./name`.$(ARCH).gz
+	gzip -9 $(PACKAGE)-`./name`.$(ARCH)
 
 distkey: netrek $(KEYFILE)
 	echo "This is an automatic generated mail." >key.mail
