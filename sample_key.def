@@ -31,7 +31,7 @@ SECKEYFILE	= $(KEYFILE).secret
 # CWHO		= \"`whoami`@`hostname`\"
 # CWHO		= \"`whoami`@`domainname`\"
 # CWHO		= \"`whoami`@`hostname`.`domainname`\"
-CWHO		= \"`whoami`@`hostname -f`\"
+CWHO		= \"`whoami`@`uname -n`\"
 
 
 #######################################################################

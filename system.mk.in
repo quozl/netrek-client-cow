@@ -37,7 +37,7 @@ INCS		= @INCS@
 # Flags for optimizing
 # (-O, -g, -O2)
 
-OPT             = -O2
+OPT             = -g -Wall
 
 # Flags for shared libraries
 

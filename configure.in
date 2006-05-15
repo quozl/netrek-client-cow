@@ -189,6 +189,10 @@ if test "$XLIBSWLIB" = nope ; then
     XLIBSWLIB=-lX11
 fi
 else
+ if test "x$x_includes" = x ; then
+    echo "Warning: please specify --x-includes"
+    exit 1
+ fi
 XINCLUDES="-I$x_includes"
 XLIBSWDIR="-L$x_libraries"
 XLIBSWLIB="-lX11"
