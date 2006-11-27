@@ -2,6 +2,9 @@
 /* inform.c
  *
  * $Log: inform.c,v $
+ * Revision 1.2  2006/05/16 06:16:35  quozl
+ * add PLCORE
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
  * COW 3.0 initial revision
  * */
@@ -204,12 +207,12 @@ inform(W_Window ww, int x, int y, char key)
   else
     {						 /* Planet */
       /* Too close to the edge? */
-      if (mx + 20 * W_Textwidth + 2 > windowWidth)
-	mx = windowWidth - 25 * W_Textwidth - 2;
+      if (mx + 23 * W_Textwidth + 2 > windowWidth)
+	mx = windowWidth - 28 * W_Textwidth - 2;
       if (my + 3 * W_Textheight + 2 > windowHeight)
 	my = windowHeight - 3 * W_Textheight - 2;
 
-      infow = W_MakeWindow("info", mx, my, W_Textwidth * 25, W_Textheight * 3, ww,
+      infow = W_MakeWindow("info", mx, my, W_Textwidth * 28, W_Textheight * 3, ww,
 			   2, foreColor);
       W_MapWindow(infow);
       k = &planets[target->o_num];
@@ -229,10 +232,11 @@ inform(W_Window ww, int x, int y, char key)
 	  (void) sprintf(buf, "Armies %d", k->pl_armies);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, planetColor(k), buf, strlen(buf),
 		      W_RegularFont);
-	  (void) sprintf(buf, "%s %s %s %c%c%c%c",
+	  (void) sprintf(buf, "%s %s %s %s %c%c%c%c",
 			 (k->pl_flags & PLREPAIR ? "REPAIR" : "      "),
 			 (k->pl_flags & PLFUEL ? "FUEL" : "    "),
 			 (k->pl_flags & PLAGRI ? "AGRI" : "    "),
+			 (k->pl_flags & PLCORE ? "CORE" : "    "),
 			 (k->pl_info & FED ? 'F' : ' '),
 			 (k->pl_info & ROM ? 'R' : ' '),
 			 (k->pl_info & KLI ? 'K' : ' '),

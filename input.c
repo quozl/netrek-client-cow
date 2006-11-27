@@ -2,6 +2,15 @@
 /* input.c
  *
  * $Log: input.c,v $
+ * Revision 1.14  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.13  2006/05/22 13:12:48  quozl
+ * add camera frame counter
+ *
+ * Revision 1.12  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.11  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -476,7 +485,7 @@ initkeymap(void)
     {
       unsigned char   *p;
 
-      if (strlen(str) == 1)
+      if (strlen((char *)str) == 1)
 	{
 	  /* This is a little pointless, but it'll preform as per * the *
 	   * documentation */
@@ -484,12 +493,12 @@ initkeymap(void)
 	}
       else if (!strcmpi(str, "TAB"))
 	{
-	  p = "^i";
+	  p = (unsigned char *) "^i";
 	  mystats->st_keymap[getctrlkey(&p) - 32] = 'X';
 	}
       else if (!strcmpi(str, "ESC"))
 	{
-	  p = "^[";
+	  p = (unsigned char *) "^[";
 	  mystats->st_keymap[getctrlkey(&p) - 32] = 'X';
 	}
     }
@@ -1104,6 +1113,7 @@ keyaction(W_Event * data)
 	case 'R':
         case 'j':
         case 'J':
+        case 's':
 	  pbsetspeed(key);
 	  return;
 	  break;
@@ -1722,7 +1732,7 @@ Key33(void)
 
 Key34(W_Event * data)
 {
-  emptyKey();
+  W_FullScreenToggle(baseWin);
 }
 
 Key35(void)
@@ -1978,6 +1988,7 @@ Key66(void)
 Key67(void)
 {
   sendCoupReq();
+  camera_snap();
 }
 
 Key68(void)
@@ -2293,6 +2304,7 @@ Key100(void)
       lastdet = curtime;
     }
 #endif /* AUTOKEY */
+  detCircle = 1;
 
 }
 

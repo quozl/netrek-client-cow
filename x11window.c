@@ -4,6 +4,18 @@
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
  * $Log: x11window.c,v $
+ * Revision 1.10  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.9  2006/05/22 13:11:21  quozl
+ * add video mode change support
+ *
+ * Revision 1.8  2006/05/16 12:59:38  quozl
+ * tactical camera, based on Imlib2
+ *
+ * Revision 1.7  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.6  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -30,11 +42,13 @@
 
 #include "config.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include INC_SYS_SELECT
 #include INC_STRINGS
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
+#include <X11/Xatom.h>
 
 #ifdef FUNCTION_KEYS
 #include <X11/keysym.h>
@@ -51,6 +65,11 @@
 #include "teams.bitmap"
 #include "mapcursor.bitmap"
 #include "localcursor.bitmap"
+#include "smessage.h"
+#include "defaults.h"
+#include "x11window.h"
+#include "x11sprite.h"
+#include "camera.h"
 
 #ifdef VMS
 void    vms_event_window(void);
@@ -84,7 +103,7 @@ int     forceMono = 0;
 
 
 #ifdef BEEPLITE
-#define TTS_FONT        "-misc-fixed-bold-r-normal--15-*"
+#define TTS_FONT        "10x20"
 extern void init_tts(void);
 
 #endif
@@ -218,8 +237,6 @@ static XWMHints wm_hint =
   None,
 };
 
-static XSizeHints wm_size_hint;
-
 #ifdef WINDOWMAKER
   char **wm_argv;
   int wm_argc;
@@ -256,35 +273,6 @@ struct icon
 #define WIN_TEXT        2
 #define WIN_MENU        3
 #define WIN_SCROLL      4
-
-struct window
-  {
-    Window  window;
-    int     type;
-    char   *data;
-    int     mapped;
-    int     width, height;
-    char   *name;
-    W_Callback handle_keydown;
-    W_Callback handle_keyup;
-    W_Callback handle_button;
-    W_Callback handle_expose;
-
-#ifdef SHORT_PACKETS
-    int     insensitive;
-#endif
-    Cursor  cursor;
-  };
-
-struct scrollingWindow
-  {
-    int     lines;
-    int     updated;
-    int     topline;
-    struct stringList *head;
-    struct stringList *tail;
-    struct stringList *index;
-  };
 
 static void scrollUp(struct window *win, int y);
 static void scrollDown(struct window *win, int y);
@@ -391,6 +379,8 @@ static char solid[] =
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
+int full_screen_default, full_screen_enabled;
+
 /* X debugging */
 int
         _myerror(Display * d, XErrorEvent * e)
@@ -398,7 +388,7 @@ int
   abort();
 }
 
-pastebuffer(void)
+void pastebuffer(void)
 {
   int     nbytes, x;
   char   *buff, c;
@@ -449,14 +439,15 @@ void
       fprintf(stderr, "I can't open your display, twink!\n");
       terminate(1);
     }
-  /* tmp */
-  /* XSynchronize(W_Display, True); */
-  /* XSetErrorHandler(_myerror); */
+
+  // uncomment this to synchronise display for testing
+  XSynchronize(W_Display, True);
+
+  // uncomment this to enable a fatal error handler
+  // XSetErrorHandler(_myerror);
 
   W_Root = DefaultRootWindow(W_Display);
-
   W_Visual = DefaultVisual(W_Display, DefaultScreen(W_Display));
-
   W_Screen = DefaultScreen(W_Display);
   W_Colormap = DefaultColormap(W_Display, W_Screen);
   myroot.window = W_Root;
@@ -476,11 +467,12 @@ void
 #ifdef BEEPLITE
   init_tts();
 #endif
+  W_FullScreenInitialise();
 }
 
 /* Make sure the font will work, ie: that it fits in the 6x10 character cell
  * that we expect. */
-checkFont(XFontStruct * fontinfo, char *fontname)
+void checkFont(XFontStruct * fontinfo, char *fontname)
 {
 
 #ifndef SMALL_SCREEN
@@ -497,10 +489,10 @@ checkFont(XFontStruct * fontinfo, char *fontname)
 #endif
 }
 
-GetFonts(void)
+void GetFonts(void)
 {
-  Font    regular, italic, bold, big, ind;
-  int     i, j;
+  Font    regular, italic, bold, big;
+  int     i;
   XGCValues values;
   XFontStruct *fontinfo;
   char   *fontname;
@@ -657,17 +649,15 @@ static unsigned short extrablue[COLORS] =
 {0x80, 0xa0, 0xb0, 0xc0, 0x00, 0x20, 0x40, 0x60};
 
 
-GetColors(void)
+void GetColors(void)
 {
   int     i, j;
   XGCValues values;
-  XColor  foo, garbage;
+  XColor  foo;
   int     white, black;
   unsigned long pixel;
   char    defaultstring[100];
   char   *defaults;
-
-  char   *colorname;
   unsigned long extracolors[COLORS];
   XColor  colordef;
 
@@ -954,8 +944,7 @@ GetColors(void)
     }
 }
 
-W_Window
-W_RenameWindow(struct window *window, char *str)
+void W_RenameWindow(struct window *window, char *str)
 {
   XStoreName(W_Display, window->window, str);
 }
@@ -989,6 +978,10 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 #ifdef MOTION_MOUSE
   attrs.event_mask |= ButtonMotionMask;
 #endif
+  //  if (!strcmp(name, "netrek")) {
+  //    attrs.event_mask |= StructureNotifyMask;
+  //  }
+
 
   if (strcmp(name, "netrek_icon") == 0)		 /* icon should not select *
 						  * for input */
@@ -1002,6 +995,13 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 			    CWBorderPixel,
 			    &attrs),
 		      WIN_GRAPH);
+
+  if (!strcmp(name, "netrek")) {
+    if (full_screen_enabled) {
+      kde_fullscreen_on(newwin);
+    }
+  }
+
   /* top window */
   sz_hints = XAllocSizeHints();
   if (strcmp(name, "netrek") == 0 || strcmp(name, "wait") == 0 ||
@@ -1286,7 +1286,6 @@ int
 
 #endif
   unsigned char ch;
-  int     nchars, ind;
   struct window *win;
 
 #ifdef FUNCTION_KEYS
@@ -1364,9 +1363,9 @@ int
 	  if (
 
 #ifdef FUNCTION_KEYS
-	     ((XLookupString(key, &ch, 1, &sym, NULL) > 0) || sym == XK_Tab)
+	     ((XLookupString(key, (char *) &ch, 1, &sym, NULL) > 0) || sym == XK_Tab)
 #else
-	       (XLookupString(key, &ch, 1, NULL, NULL) > 0)
+	       (XLookupString(key, (char *) &ch, 1, NULL, NULL) > 0)
 #endif
 
 	      )
@@ -1743,7 +1742,7 @@ void
         W_FlushLineCaches(W_Window window)
 {
   Window  win = W_Void2Window(window)->window;
-  register i;
+  int i;
 
   for (i = 0; i < NCOLORS; i++)
     {
@@ -1776,6 +1775,20 @@ void
 
   win = W_Void2Window(window)->window;
   XDrawLine(W_Display, win, colortable[color].contexts[1], x0, y0, x1, y1);
+}
+
+void W_WriteCircle (W_Window window,
+                    int x,
+                    int y,
+                    int r,
+                    W_Color color)
+{
+  struct window *win = W_Void2Window(window);
+
+  XSetForeground(W_Display, colortable[color].contexts[0],
+		 colortable[color].pixelValue);
+  XDrawArc(W_Display, win->window, colortable[color].contexts[0],
+	   x, y, r, r, 0, 23040);
 }
 
 void
@@ -1908,7 +1921,6 @@ W_StoreBitmap(int width, int height, char *data, W_Window window)
 {
   struct icon *newicon;
   struct window *win;
-  int     black, white;
 
 #ifdef DEBUG
   printf("Storing bitmap for %d (%d x %d)\n", window, width, height);
@@ -2122,7 +2134,7 @@ struct window *
   return (NULL);
 }
 
-addToHash(struct window * win)
+void addToHash(struct window * win)
 {
   struct windowlist **new;
 
@@ -2317,8 +2329,8 @@ W_Window window;
 #ifndef NO_COPYAREA
   else
     {
-      register struct stringList *item;
-      register y;
+      struct stringList *item;
+      int y;
 
       if (win->height > sw->updated)
 	{
@@ -2357,8 +2369,8 @@ static void
 struct window *win;
 struct scrollingWindow *sw;
 {
-  register x, y, h;
-  int     savedlines, maxrow, thumbTop, thumbHeight, totalHeight, winheight;
+  int x, y, h;
+  int savedlines, maxrow, thumbTop, thumbHeight, totalHeight, winheight;
 
 /*
  * savedlines : Number of offscreen text lines,
@@ -2433,7 +2445,7 @@ struct window *win;
 }
 
 #ifdef SHORT_PACKETS
-W_SetSensitive(W_Window w, int v)
+void W_SetSensitive(W_Window w, int v)
 {
   struct window *win = W_Void2Window(w);
 
@@ -2513,7 +2525,7 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   return (W_Window2Void(newwin));
 }
 
-redrawMenu(struct window * win)
+void redrawMenu(struct window * win)
 {
   int     count;
 
@@ -2530,7 +2542,7 @@ redrawMenu(struct window * win)
     }
 }
 
-redrawMenuItem(struct window *win, int n)
+void redrawMenuItem(struct window *win, int n)
 {
   struct menuItem *items;
 
@@ -2549,10 +2561,9 @@ redrawMenuItem(struct window *win, int n)
     }
 }
 
-changeMenuItem(struct window *win, int col, int n, char *str, int len, W_Color color)
+void changeMenuItem(struct window *win, int col, int n, char *str, int len, W_Color color)
 {
   struct menuItem *items;
-  char   *news;
 
   items = (struct menuItem *) win->data;
 
@@ -3006,8 +3017,6 @@ void
   static Cursor curs;
   Pixmap  cursbits;
   Pixmap  cursmask;
-  short  *curdata;
-  short  *maskdata;
   struct window *win;
   XColor  whiteCol, blackCol;
 
@@ -3113,7 +3122,7 @@ void
 }
 
 
-deleteWindow(struct window *window)
+void deleteWindow(struct window *window)
 {
   struct windowlist **rm;
   struct windowlist *temp;
@@ -3346,7 +3355,7 @@ static int
   return XParseGeometry(geom_default, x, y, (unsigned int *) width, (unsigned int *) height);
 }
 
-checkParent(char *name, W_Window * parent)
+void checkParent(char *name, W_Window * parent)
 {
   char   *adefault;
   char    buf[100];
@@ -3378,18 +3387,16 @@ checkParent(char *name, W_Window * parent)
     }
 }
 
-checkMapped(char *name)
+int checkMapped(char *name)
 {
-  char   *adefault;
   char    buf[100];
 
   sprintf(buf, "%s.mapped", name);
   return (booleanDefault(buf, 0));
 }
 
-checkMappedPref(char *name, int preferred)
+int checkMappedPref(char *name, int preferred)
 {
-  char   *adefault;
   char    buf[100];
 
   sprintf(buf, "%s.mapped", name);
@@ -3417,7 +3424,7 @@ void
     }
 }
 
-findMouse(int *x, int *y)
+void findMouse(int *x, int *y)
 {
   Window  theRoot, theChild;
   int     wX, wY, rootX, rootY, status;
@@ -3464,7 +3471,7 @@ int
   return 0;
 }
 
-W_Flush(void)
+void W_Flush(void)
 {
   XFlush(W_Display);
 }
@@ -3476,7 +3483,7 @@ W_Flush(void)
   }
 
 #define MAKE_WINDOW_SETTER(name, part) \
-  W_Callback name(W_Window w, W_Callback c) \
+  void name(W_Window w, W_Callback c) \
   { \
     W_Void2Window(w)->part = c; \
   }
@@ -3545,7 +3552,7 @@ int
   return (XEventsQueued(W_Display, QueuedAfterReading));
 }
 
-W_ReadEvents(void)
+int W_ReadEvents(void)
 {
   XEvent  event;
   static
@@ -3657,7 +3664,7 @@ void
 
       color = getdefault("tts_color");
       if (!color)
-	color = "#777";
+	color = "grey";
 
 #ifdef SHOW_DEFAULTS
       show_defaults("TTS", "tts_color", color, "TTS msg color.");
@@ -3665,7 +3672,7 @@ void
 
       if (!XParseColor(W_Display, W_Colormap, color, &xc))
 	{
-	  fprintf(stderr, "netrek: Unknown color \"%s\"\n", color);
+	  fprintf(stderr, "netrek: Unknown tts_color \"%s\", using #777\n", color);
 	  (void) XParseColor(W_Display, W_Colormap, "#777", &xc);
 	}
       /* using the 8th color allocated in GetColors() */
@@ -3687,14 +3694,14 @@ void
 void
         W_EraseTTSText(W_Window window, int max_width, int y, int width)
 {
-  struct window *win = W_Void2Window(window);
-  register int x = (max_width - width) / 2;
+  //  struct window *win = W_Void2Window(window);
+  int x = (max_width - width) / 2;
 
   if (x < 0)
     x = 4;
   y -= W_TTSTextHeight();
 
-  W_ClearArea(w, x, y, width, W_TTSTextHeight());
+  W_ClearArea(window, x, y, width, W_TTSTextHeight());
 }
 
 void
@@ -3708,7 +3715,7 @@ void
 /* length of string */
 {
   struct window *win = W_Void2Window(window);
-  register int x = (max_width - width) / 2;
+  int x = (max_width - width) / 2;
 
   if (x < 0)
     x = 4;
@@ -3736,3 +3743,203 @@ void    W_Halo(int x, int y, W_Color color)
     }
 }
 #endif /* HAVE_XPM */
+
+void W_CameraSnap(W_Window window)
+{
+  struct window *win = W_Void2Window(window);
+  camera_snap(W_Display, win->window);
+}
+
+/* XFree86 VidMode X extension handling */
+
+#include <X11/extensions/xf86vmode.h>
+
+XF86VidModeModeInfo **video_mode_list;
+XF86VidModeModeInfo *video_mode_current;
+int video_mode_dotclock, video_mode_list_size;
+
+/* restore video mode to known previous mode */
+void video_mode_off()
+{
+  if (video_mode_current != NULL) {
+    XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_current);
+  }
+}
+
+/* check if X server has support for changing modes */
+int video_mode_initialise() {
+  int major, minor;
+  if (!XF86VidModeQueryVersion(W_Display, &major, &minor)) {
+    fprintf(stderr, "XFree86-VidMode X extension absent\n");
+    return 0;
+  }
+
+  static int done = 0;
+  if (done) return 1;
+  done++;
+
+  int line;
+  XF86VidModeModeLine current;
+
+  /* obtain the current mode line and list of known mode lines */
+  XF86VidModeGetModeLine(W_Display, W_Screen, &video_mode_dotclock, &current);
+  XF86VidModeGetAllModeLines(W_Display, W_Screen,
+			     &video_mode_list_size, &video_mode_list);
+
+  /* find the current mode within the list of known mode lines */
+  video_mode_current = NULL;
+  for (line=0; line < video_mode_list_size; line++) {
+    XF86VidModeModeInfo *mode = video_mode_list[line];
+    if (mode->hdisplay == current.hdisplay &&
+	mode->vdisplay == current.vdisplay &&
+	mode->dotclock == video_mode_dotclock &&
+	mode->htotal == current.htotal &&
+	mode->vtotal == current.vtotal &&
+	mode->flags == current.flags) {
+      video_mode_current = mode;
+    }
+  }
+
+  /* do not change if the current mode was not found */
+  if (video_mode_current == NULL) {
+    fprintf(stderr, "video_mode_begin: this mode not found, "
+	    "cannot switch back, so not switching\n");
+    return 0;
+  }
+
+  /* schedule a change-back at program end */
+  atexit(video_mode_off);
+
+  return 1;
+}
+
+void video_mode_on()
+{
+  int line;
+
+  /* if there is a mode line for 1024x768 then use it */
+  for (line=0; line < video_mode_list_size; line++) {
+    XF86VidModeModeInfo *mode = video_mode_list[line];
+    if (mode->hdisplay == 1024 && mode->vdisplay == 768) {
+      XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
+      return;
+    }
+  }
+}
+
+void view_port_warp(W_Window window)
+{
+  struct window *win = W_Void2Window(window);
+
+  /* force the video view port to cover the window */
+  int tx = 0, ty = 0;
+  Window child;
+  XTranslateCoordinates(W_Display, win->window, W_Root, 0, 0, &tx, &ty, &child);
+  XF86VidModeSetViewPort(W_Display, W_Screen, tx, ty);
+  XMoveResizeWindow(W_Display, win->window, 0, 0, 1024, 768);
+  XMapRaised(W_Display, win->window);
+  //  XEvent event;
+  //  do {
+  //    XMaskEvent(W_Display, StructureNotifyMask, &event);
+  //  } while ( (event.type != MapNotify) || (event.xmap.event != win) );
+  XRaiseWindow(W_Display, win->window);
+}
+
+/* force the cursor to stay within the window */
+void pointer_grab_on(W_Window window)
+{
+  struct window *win = W_Void2Window(window);
+
+  XGrabPointer(W_Display, win->window, True, ButtonPressMask |
+		 ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
+		 PointerMotionMask | PointerMotionHintMask |
+		 Button1MotionMask | Button2MotionMask |
+		 Button3MotionMask | Button4MotionMask |
+		 Button5MotionMask | ButtonMotionMask |
+		 KeymapStateMask, GrabModeAsync, GrabModeAsync,
+		 win->window, None, CurrentTime);
+  XGrabKeyboard(W_Display, win->window, True, GrabModeAsync,
+		GrabModeAsync, CurrentTime);
+}
+
+void pointer_grab_off(W_Window window)
+{
+  struct window *win = W_Void2Window(window);
+  XUngrabPointer(W_Display, CurrentTime);
+  XUngrabKeyboard(W_Display, CurrentTime);
+}
+
+void kde_fullscreen_on(W_Window window) {
+  struct window *win = W_Void2Window(window);
+  Atom WM_HINTS;
+  WM_HINTS = XInternAtom(W_Display, "_NET_WM_STATE", True);
+  if (WM_HINTS != None) {
+    Atom p[1]; 
+    p[0] = XInternAtom(W_Display, "_NET_WM_STATE_FULLSCREEN", True);
+    XChangeProperty(W_Display, win->window, WM_HINTS, XA_ATOM, 32,
+		    PropModeReplace, (unsigned char *)p, 1);
+  }
+}
+
+void kde_fullscreen_off(W_Window window) {
+  struct window *win = W_Void2Window(window);
+  Atom WM_HINTS;
+  WM_HINTS = XInternAtom(W_Display, "_NET_WM_STATE", True);
+  if (WM_HINTS != None) {
+    XDeleteProperty(W_Display, win->window, WM_HINTS);
+  }
+}
+
+void W_FullScreenOn(W_Window window)
+{
+  video_mode_on();
+  view_port_warp(window);
+  pointer_grab_on(window);
+  kde_fullscreen_on(window);
+}
+
+void W_FullScreenOff(W_Window window)
+{
+  pointer_grab_off(window);
+  kde_fullscreen_off(window);
+  video_mode_off();
+}
+
+int W_FullScreenInitialise() {
+  full_screen_enabled = 0;
+  full_screen_default = 0;
+  if (booleanDefault("FullScreen", 1)) {
+    full_screen_default++;
+    if (video_mode_initialise())
+      full_screen_enabled++;
+  }
+}
+
+void W_FullScreenToggle(W_Window window) {
+  if (full_screen_enabled) {
+    full_screen_enabled = 0;
+    W_FullScreenOff(window);
+  } else {
+    if (!full_screen_default) {
+      if (!video_mode_initialise()) {
+	return;
+      }
+    }
+    full_screen_enabled++;
+    W_FullScreenOn(window);
+  }
+}
+
+void W_FullScreenBegin(W_Window window) {
+  if (full_screen_enabled) {
+    W_FullScreenOn(window);
+  }
+}
+
+/* regularly enforce */
+void W_FullScreen(W_Window window) {
+  if (full_screen_enabled) {
+    view_port_warp(window);
+    pointer_grab_on(window);
+  }
+}

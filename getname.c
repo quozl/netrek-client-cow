@@ -4,6 +4,9 @@
  * Kevin P. Smith 09/28/88
  *
  * $Log: getname.c,v $
+ * Revision 1.4  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
  * Revision 1.3  2001/04/28 04:06:15  quozl
  * If server rejects guest login, allow the user to retry with a real name.
  * Current INL servers are coded to reject guest login.  Having to restart
@@ -145,6 +148,7 @@ getname(char *defname, char *defpasswd)
 	{
 
 #ifndef HAVE_WIN32
+	  W_FullScreen(baseWin);
 	  timeout.tv_sec = 1;
 	  timeout.tv_usec = 0;
 #else
@@ -212,8 +216,8 @@ getname(char *defname, char *defpasswd)
 	  if (!autolog)
 	    {
 	      sprintf(tempstr, "Seconds to go: %d ", secondsLeft);
-	      W_WriteText(w, 150, 400, textColor, tempstr, strlen(tempstr),
-			  W_BoldFont);
+	      W_WriteText(w, 100, 400, textColor, tempstr, strlen(tempstr),
+			  W_RegularFont);
 	    }
 	  if (secondsLeft == 0)
 	    {
@@ -539,21 +543,23 @@ displayStartup(char *defname)
 
   if (alf != NULL)
     W_WriteText(w, 100, 130, textColor, alf, strlen(alf), W_BoldFont);
-  sprintf(buf, "Connection established to Netrek server %s", serverName);
+  t = "Welcome to Netrek.";
+  W_WriteText(w, 100, 10, textColor, t, strlen(t), W_RegularFont);
+  sprintf(buf, "Connected to server %s", serverName);
   t = buf;
-  W_WriteText(w, 100, 150, textColor, t, strlen(t), W_BoldFont);
-  t = "Enter your name.  Use the name 'guest' for a temporary character.";
-  W_WriteText(w, 100, 30, textColor, t, strlen(t), W_BoldFont);
-  t = "Type ^D (Ctrl - D) in this window to quit.";
-  W_WriteText(w, 100, 40, textColor, t, strlen(t), W_BoldFont);
-  sprintf(s, "Your name (default = %s): %s               ", defname, tempname)
+  W_WriteText(w, 100, 20, textColor, t, strlen(t), W_RegularFont);
+  t = "Keep your mouse in this window to type.";
+  W_WriteText(w, 100, 30, textColor, t, strlen(t), W_RegularFont);
+  t = "Press Control/D to quit at this point, but use Shift/Q later.";
+  W_WriteText(w, 100, 40, textColor, t, strlen(t), W_RegularFont);
+  sprintf(s, "What is your name? [default is %s]: %s               ", defname, tempname)
       ;
-  W_WriteText(w, 100, 50, textColor, s, strlen(s), W_BoldFont);
+  W_WriteText(w, 100, 50, textColor, s, strlen(s), W_RegularFont);
   if (state == ST_GETPASS)
     {
       alf = NULL;
-      t = "Enter password: ";
-      W_WriteText(w, 100, 60, textColor, t, strlen(t), W_BoldFont);
+      t = "What is your password? : ";
+      W_WriteText(w, 100, 60, textColor, t, strlen(t), W_RegularFont);
     }
   if (state > ST_GETPASS)
     {
@@ -561,9 +567,9 @@ displayStartup(char *defname)
       t = "You need to make a password.";
       W_WriteText(w, 100, 70, textColor, t, strlen(t), W_BoldFont);
       t = "So think of a password you can remember, and enter it.";
-      W_WriteText(w, 100, 80, textColor, t, strlen(t), W_BoldFont);
+      W_WriteText(w, 100, 80, textColor, t, strlen(t), W_RegularFont);
       t = "What is your password? :";
-      W_WriteText(w, 100, 90, textColor, t, strlen(t), W_BoldFont);
+      W_WriteText(w, 100, 90, textColor, t, strlen(t), W_RegularFont);
     }
   if (state == ST_MAKEPASS2)
     {
@@ -571,7 +577,7 @@ displayStartup(char *defname)
       t = "Enter it again to make sure you typed it right.";
       W_WriteText(w, 100, 110, textColor, t, strlen(t), W_BoldFont);
       t = "Your password? :";
-      W_WriteText(w, 100, 120, textColor, t, strlen(t), W_BoldFont);
+      W_WriteText(w, 100, 120, textColor, t, strlen(t), W_RegularFont);
     }
 }
 
@@ -586,20 +592,6 @@ showreadme(void)
 {
   static char *README[] =
   {
-    "",
-    "The COW (former BRM) development group proudly presents:",
-    "",
-    "   Client Of Win (COW) the best Netrek Client you ever had :)",
-    "",
-    "Note: This client is made by humans and errors are human.",
-    "      No one takes responsibility for lost INL games etc.",
-    "      Use at your own risk! If you don't like it, don't use it.",
-    "",
-    "Comments, suggestions, bug reports to: cow@netrek.org",
-    "",
-    "Include version and architecture info in bug reports",
-    "",
-    "Patches to: cow@netrek.org",
     "",
   };
   int     i, length;

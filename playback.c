@@ -5,6 +5,12 @@
  * Routines neccessary to playback a game recording.
  *
  * $Log: playback.c,v $
+ * Revision 1.15  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.14  2006/05/22 13:12:48  quozl
+ * add camera frame counter
+ *
  * Revision 1.13  2006/01/27 09:57:27  quozl
  * *** empty log message ***
  *
@@ -189,6 +195,7 @@ int pb_num_context = 0;
 int pb_num_fast_forward = 0;
 int pb_sequence_count = 0;
 int pb_stepping = 0;			/* non-zero if doing a step	*/
+int pb_snapping = 0;			/* non-zero if taking camera snapshots	*/
 
 const char *INDEX_FORMAT = "%d,%d,%d";
 const int INDEX_GRANULARITY = 100;
@@ -214,14 +221,6 @@ void rpb_dorev(char *buf);
 
 struct player *packetsme;
 struct player *displayme;
-
-/* We want reverse-playback!!! */
-#define REVERSE_PLAYBACK
-
-/* Forward declarations for reverse playback */
-void rpb_init(void);
-void rpb_analyze(int diskpos, void *packet);
-void rpb_dorev(char *buf);
 
 int
         pbmain(char *name)
@@ -351,8 +350,6 @@ int
 
   mapAll();
 
-  (void) SIGNAL(SIGINT, SIG_IGN);
-
   /* Instructions from getname() */
   MZERO(mystats, sizeof(struct stats));
 
@@ -441,7 +438,6 @@ int
   W_ClearWindow(w);
 
   me->p_status = PALIVE;			 /* Put player in game */
-  me->p_ghostbuster = 0;
   PlistNoteUpdate(me->p_no);
 
   if (showStats)				 /* Default showstats are on. 
@@ -496,6 +492,7 @@ int
       intrupt();
       W_Flush();
       if (!pb_stepping) usleep(pbdelay);
+      if (pb_snapping) camera_snap(w);
     }
 }
 
@@ -638,6 +635,10 @@ void
       jump_on = 1;
       jump_idx = 0;
       jump_str[0] = '\0';
+      break;
+    case 's':
+      fprintf(stderr, "toggle-snap\n");
+      pb_snapping = ~pb_snapping;
       break;
     }
 

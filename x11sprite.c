@@ -1,6 +1,9 @@
 
 /*
  * $Log: x11sprite.c,v $
+ * Revision 1.4  2006/05/22 13:11:58  quozl
+ * fix compilation warnings
+ *
  * Revision 1.3  1999/06/11 16:14:17  siegl
  * cambot replay patches
  *
@@ -28,25 +31,8 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-
-struct window
-  {
-    Window  window;
-    int     type;
-    char   *data;
-    int     mapped;
-    int     width, height;
-    char   *name;
-    W_Callback handle_keydown;
-    W_Callback handle_keyup;
-    W_Callback handle_button;
-    W_Callback handle_expose;
-
-#ifdef SHORT_PACKETS
-    int     insensitive;
-#endif
-    Cursor  cursor;
-  };
+#include "x11window.h"
+#include "x11sprite.h"
 
 #define W_Void2Window(win) ((win) ? ((struct window *) (win)) : (mylocal))
 #define NoPixmapError 0
@@ -244,7 +230,7 @@ void    GetPixmaps(Display * d, struct window *win)
   if (pd != (char *) NULL)
     strcpy(pixmapDir, pd);
   else
-    strcpy(pixmapDir, "./pixmaps");
+    strcpy(pixmapDir, "/usr/share/pixmaps/netrek-client-cow");
 
   if ((strcmpi(pixmapDir, "None") == 0) || (pixMissing & NO_PIXMAPS))
     {

@@ -2,6 +2,12 @@
 /* newwin.c
  *
  * $Log: newwin.c,v $
+ * Revision 1.6  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.5  2006/05/16 06:16:35  quozl
+ * add PLCORE
+ *
  * Revision 1.4  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -135,25 +141,32 @@ static void
 newwin(char *hostmon, char *progname)
 {
   int     i;
+  int main_width = TWINSIDE + GWINSIDE + BORDER;
+  int main_height = GWINSIDE + 2 * BORDER + PLISTSIZE;
 
   W_Initialize(hostmon);
 
-  baseWin = W_MakeWindow("netrek", 0, YOFF, (TWINSIDE + GWINSIDE) + BORDER,
-		   GWINSIDE + 2 * BORDER + PLISTSIZE, NULL, BORDER, gColor);
+  if (booleanDefault("FullScreen", 1)) {
+    main_width = MAX(main_width, 1024);
+    main_height = MAX(main_height, 768);
+  }
+
+  baseWin = W_MakeWindow("netrek", 0, YOFF, main_width,
+		   main_height, NULL, BORDER, gColor);
 
   iconWin = W_MakeWindow("netrek_icon", 0, 0, icon_width, icon_height, NULL,
 			 BORDER, gColor);
   W_SetWindowExposeHandler(iconWin, drawIcon);
 
   W_SetIconWindow(baseWin, iconWin);
-  w = W_MakeWindow("local", -BORDER, -BORDER, TWINSIDE, TWINSIDE, baseWin,
+  w = W_MakeWindow("local", 0, 0, TWINSIDE, TWINSIDE, baseWin,
 		   BORDER, foreColor);
 
-  mapw = W_MakeWindow("map", TWINSIDE, -BORDER, GWINSIDE, GWINSIDE, baseWin,
+  mapw = W_MakeWindow("map", TWINSIDE+BORDER, 0, GWINSIDE, GWINSIDE, baseWin,
 		      BORDER, foreColor);
 
-  tstatw = W_MakeWindow("tstat", -BORDER, TWINSIDE, TWINSIDE, STATSIZE, baseWin,
-			BORDER, foreColor);
+  tstatw = W_MakeWindow("tstat", 0, TWINSIDE+BORDER, TWINSIDE, STATSIZE,
+			baseWin, BORDER, foreColor);
 
 #ifdef nodef					 /* 01/18/95 No messages for
 						  * * * dashdord [007] */
@@ -162,16 +175,16 @@ newwin(char *hostmon, char *progname)
 
   W_SetWindowExposeHandler(tstatw, redrawTstats);
 
-  warnw = W_MakeWindow("warn", TWINSIDE, GWINSIDE, GWINSIDE, MESSAGESIZE,
+  warnw = W_MakeWindow("warn", TWINSIDE+BORDER, GWINSIDE+BORDER, GWINSIDE, MESSAGESIZE,
 		       baseWin, BORDER, foreColor);
   W_SetWindowKeyDownHandler(warnw, handleMessageWindowKeyDown);
 
-  messagew = W_MakeWindow("message", TWINSIDE, GWINSIDE + BORDER + MESSAGESIZE,
+  messagew = W_MakeWindow("message", TWINSIDE+BORDER, GWINSIDE+BORDER+MESSAGESIZE,
 			  GWINSIDE, MESSAGESIZE, baseWin, BORDER, foreColor);
   W_SetWindowKeyDownHandler(messagew, handleMessageWindowKeyDown);
   W_SetWindowButtonHandler(messagew, handleMessageWindowButton);
 
-  planetw = W_MakeTextWindow("planet", 10, 10, 53, MAXPLANETS + 3, w, 2);
+  planetw = W_MakeTextWindow("planet", 10, 10, 57, MAXPLANETS + 3, w, 2);
   W_SetWindowExposeHandler(planetw, planetlist);
 
   rankw = W_MakeTextWindow("rank", 50, 300, 65, NUMRANKS + 9, w, 2);
@@ -183,7 +196,7 @@ newwin(char *hostmon, char *progname)
 			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
 #else
   playerw = W_MakeTextWindow("player", 0,
-			     YOFF + TWINSIDE + BORDER + STATSIZE,
+			     YOFF + TWINSIDE + BORDER + STATSIZE + BORDER,
 			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
 #endif
 
@@ -221,22 +234,22 @@ newwin(char *hostmon, char *progname)
   reviewWin = W_MakeScrollingWindow("review", 0,
 	       YOFF + TWINSIDE + BORDER + STATSIZE, 80, 2, baseWin, BORDER);
 #else
-  messwa = W_MakeScrollingWindow("review_all", TWINSIDE,
+  messwa = W_MakeScrollingWindow("review_all", TWINSIDE + BORDER,
    YOFF + GWINSIDE + 3 * BORDER + 2 * MESSAGESIZE, 80, 10, baseWin, BORDER);
-  messwt = W_MakeScrollingWindow("review_team", TWINSIDE,
+  messwt = W_MakeScrollingWindow("review_team", TWINSIDE + BORDER,
      YOFF + GWINSIDE + 4 * BORDER + 2 * MESSAGESIZE + 10 * W_Textheight + 8,
 				 80, 5, baseWin, BORDER);
-  messwi = W_MakeScrollingWindow("review_your", TWINSIDE,
+  messwi = W_MakeScrollingWindow("review_your", TWINSIDE + BORDER,
     YOFF + GWINSIDE + 5 * BORDER + 2 * MESSAGESIZE + 15 * W_Textheight + 16,
 				 80, 4, baseWin, BORDER);
-  messwk = W_MakeScrollingWindow("review_kill", TWINSIDE,
+  messwk = W_MakeScrollingWindow("review_kill", TWINSIDE + BORDER,
     YOFF + GWINSIDE + 6 * BORDER + 2 * MESSAGESIZE + 19 * W_Textheight + 24,
 				 80, 6, baseWin, BORDER);
-  phaserwin = W_MakeScrollingWindow("review_phaser", TWINSIDE,
+  phaserwin = W_MakeScrollingWindow("review_phaser", TWINSIDE + BORDER,
     YOFF + GWINSIDE + 3 * BORDER + 2 * MESSAGESIZE + 15 * W_Textheight + 16,
 				    80, 4, baseWin, BORDER);
-  reviewWin = W_MakeScrollingWindow("review", TWINSIDE,
-	      YOFF + GWINSIDE + BORDER + STATSIZE, 80, 20, baseWin, BORDER);
+  reviewWin = W_MakeScrollingWindow("review", TWINSIDE + BORDER + 1,
+	      YOFF + GWINSIDE + BORDER + STATSIZE, 81, 21, baseWin, BORDER-1);
 #endif
 
   W_SetWindowKeyDownHandler(messwa, handleMessageWindowKeyDown);
@@ -297,12 +310,11 @@ newwin(char *hostmon, char *progname)
 			    foreColor);
 #endif
 
-  for (i = 0; i < 4; i++)
-    {
-      teamWin[i] = W_MakeWindow(teamshort[1 << i], i * BOXSIDE, TWINSIDE - BOXSIDE,
-				BOXSIDE, BOXSIDE, w, 1, foreColor);
-    }
-  qwin = W_MakeWindow("quit", 4 * BOXSIDE, TWINSIDE - BOXSIDE, BOXSIDE, BOXSIDE, w, 1,
+  teamWin[0] = W_MakeWindow(teamshort[1 << 0],  -1, 400, BOXSIDE, BOXSIDE, w, 1, foreColor);
+  teamWin[1] = W_MakeWindow(teamshort[1 << 1],  -1,  -1, BOXSIDE, BOXSIDE, w, 1, foreColor);
+  teamWin[2] = W_MakeWindow(teamshort[1 << 2], 400,  -1, BOXSIDE, BOXSIDE, w, 1, foreColor);
+  teamWin[3] = W_MakeWindow(teamshort[1 << 3], 400, 400, BOXSIDE, BOXSIDE, w, 1, foreColor);
+  qwin = W_MakeWindow("quit", 200, 400, BOXSIDE, BOXSIDE, w, 1,
 		      foreColor);
 
 #ifdef ARMY_SLIDER
@@ -380,6 +392,7 @@ mapAll(void)
     W_MapWindow(messagew);
   W_MapWindow(w);
   W_MapWindow(baseWin);
+  W_FullScreenBegin();
   /* since we aren't mapping windows that have root as parent in x11window.c
    * * * (since that messes up the TransientFor feature) we have to map them
    * * * here. (If already mapped, W_MapWindow returns) */
@@ -747,14 +760,12 @@ entrywindow(int *team, int *s_type)
   /* as they are active */
   fd_set  mask;
 
-
   /* fast quit? - jn */
   if (fastQuit)
     {
       *team = -1;
       return;
     }
-
 
   /* The following allows quick choosing of teams */
 
@@ -812,9 +823,8 @@ entrywindow(int *team, int *s_type)
 	  fd_set  rfds;
 	  struct timeval tv;
 
-	  me->p_ghostbuster = 0;
-
 #ifndef HAVE_WIN32
+	  W_FullScreen(baseWin);
 	  tv.tv_sec = 1;
 #else
 	  /* Since we don't have a socket to check on Win32 for windowing *
@@ -906,6 +916,9 @@ entrywindow(int *team, int *s_type)
 	case W_EV_KEY:
 	  switch (event.key)
 	    {
+	    case 'q':
+	      *team = -1;
+	      return;
 	    case 's':
 	      *s_type = SCOUT;
 	      break;
@@ -1064,6 +1077,7 @@ entrywindow(int *team, int *s_type)
 
       sprintf(buf, "Welcome aboard %s!", ranks[me->p_stats.st_rank].name);
       warning(buf);
+      W_ClearArea(messagew, 5, 5, W_Textwidth * 80, W_Textheight);
     }
 
   if (*team == 4)

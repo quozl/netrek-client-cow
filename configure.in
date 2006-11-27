@@ -189,10 +189,6 @@ if test "$XLIBSWLIB" = nope ; then
     XLIBSWLIB=-lX11
 fi
 else
- if test "x$x_includes" = x ; then
-    echo "Warning: please specify --x-includes"
-    exit 1
- fi
 XINCLUDES="-I$x_includes"
 XLIBSWDIR="-L$x_libraries"
 XLIBSWLIB="-lX11"
@@ -203,32 +199,21 @@ fi
 AC_SUBST(NOX11)
 AC_SUBST(NOWIN32)
 
-if test "$code" = cow; then
- if test "$stable" = nope; then
-  SAVELIBS="$LIBS"
-  LIBS="$LIBS $XLIBSWDIR $XLIBSWLIB"
-  SAVEINCS="$INCS"
-  INCS="$INCS $XINCLUDES"
-  AC_CHECK_LIB(Xpm, main, [AC_DEFINE(HAVE_XPM) XPMLIBS="-lXpm"])
-  AC_CHECK_HEADERS(X11/xpm.h)
-  LIBS="$SAVELIBS"
-  INCS="$SAVEINCS"
- fi
-fi
+SAVELIBS="$LIBS"
+LIBS="$LIBS $XLIBSWDIR $XLIBSWLIB"
+SAVEINCS="$INCS"
+INCS="$INCS $XINCLUDES"
+AC_CHECK_LIB(Xpm, main, [AC_DEFINE(HAVE_XPM) XPMLIBS="-lXpm"])
+AC_CHECK_HEADERS(X11/xpm.h)
+LIBS="$SAVELIBS"
+INCS="$SAVEINCS"
 
 # Fix link order for Xpm
 XLIBSW="$XLIBSWDIR $XPMLIBS $XLIBSWLIB"
 
-if test "$code" = server; then
-  AC_SUBST(XINCLUDES)
-  AC_SUBST(XLIBSW)
-  true		# dummy line
-else
-  INCS="$INCS $XINCLUDES"
-  AC_SUBST(INCS)
-  LIBS="$LIBS $XLIBSW"
-fi
-
+INCS="$INCS $XINCLUDES"
+AC_SUBST(INCS)
+LIBS="$LIBS $XLIBSW"
 
 #--------------------------------------------------------------------
 #	Check for gmp and mp
@@ -486,7 +471,6 @@ fi
 #       Check for SDL
 #--------------------------------------------------------------------
 
-if test "$code" = cow; then
 AM_PATH_SDL(1.2.4, AC_DEFINE(HAVE_SDL),[])
 AM_CONDITIONAL(HAVE_SDL, [test x"$no_sdl" != x"yes"])
 
@@ -497,7 +481,6 @@ if test x$no_sdl != xyes; then
     AC_MSG_ERROR([*** Can't find the SDL_mixer library Try: http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/])
     AC_SUBST(SDL_MIXER_LIBS)
   fi
-fi
 fi
 
 AC_OUTPUT(system.mk key.mk)

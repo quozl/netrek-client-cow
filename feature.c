@@ -14,6 +14,9 @@
  * feature packets look like:
  *
  * $Log: feature.c,v $
+ * Revision 1.4  2006/05/20 08:48:16  quozl
+ * fix some valgrind use of uninitialised data reports
+ *
  * Revision 1.3  1999/06/11 16:14:17  siegl
  * cambot replay patches
  *
@@ -273,6 +276,7 @@ sendFeature(char *name, char feature_type, int value, char arg1, char arg2)
 {
   struct feature_cpacket packet;
 
+  bzero(&packet, sizeof(packet));
   STRNCPY(packet.name, name, sizeof(packet.name));
   packet.type = CP_FEATURE;
   packet.name[sizeof(packet.name) - 1] = 0;

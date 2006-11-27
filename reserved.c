@@ -4,6 +4,9 @@
  * Kevin P. Smith   7/3/89
  *
  * $Log: reserved.c,v $
+ * Revision 1.3  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.2  1999/03/25 20:56:26  siegl
  * CygWin32 autoconfig fixes
  *
@@ -86,7 +89,7 @@ encryptReservedPacket(struct reserved_spacket *spacket, struct reserved_cpacket 
   if (netaddr == 0)
     {
       len = sizeof(saddr);
-      if (getpeername(sock, (struct sockaddr *) &saddr, &len) < 0)
+      if (getpeername(sock, (struct sockaddr *) &saddr, (socklen_t *) &len) < 0)
 	{
 	  perror("getpeername(sock)");
 	  terminate(1);

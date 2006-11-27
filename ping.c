@@ -2,6 +2,9 @@
 /* ping.c
  *
  * $Log: ping.c,v $
+ * Revision 1.2  2006/05/22 13:13:24  quozl
+ * initialise packet buffers
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
  * COW 3.0 initial revision
  * */
@@ -117,6 +120,7 @@ sendServerPingResponse(int number)		 /* CP_PING_RESPONSE */
   else
     s = sock;
 
+  bzero(&packet, sizeof(packet));
   packet.type = CP_PING_RESPONSE;
   packet.pingme = (char) ping;
   packet.number = (unsigned char) number;

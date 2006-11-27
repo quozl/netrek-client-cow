@@ -2,6 +2,12 @@
 /* main.c
  *
  * $Log: cowmain.c,v $
+ * Revision 1.15  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.14  2006/05/20 08:48:16  quozl
+ * fix some valgrind use of uninitialised data reports
+ *
  * Revision 1.13  2002/06/22 10:37:20  siegl
  * Release 3.01
  *
@@ -119,6 +125,7 @@
 
 #include <stdio.h>
 #include INC_STRINGS
+#include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <pwd.h>
@@ -899,8 +906,6 @@ int     cowmain(char *server, int port, char *name)
 
   mapAll();
 
-  (void) SIGNAL(SIGINT, SIG_IGN);
-
 #ifndef RWATCH
   getname(pseudo, defpasswd);
 #else
@@ -1023,7 +1028,8 @@ int     cowmain(char *server, int port, char *name)
 
       if (team == -1)
 	{
-	  W_DestroyWindow(w);
+	  W_DestroyWindow(baseWin);
+	  video_mode_off();
 
 #ifdef AUTOKEY
 	  if (autoKey)
@@ -1034,9 +1040,9 @@ int     cowmain(char *server, int port, char *name)
 
 #if defined(SOUND) && !defined(HAVE_SDL)
 	  Exit_Sound();
+	  sleep(1);
 #endif
 
-	  sleep(1);
 	  if (logFile != NULL)
 	    fclose(logFile);
 	  printf("OK, bye!\n");
@@ -1064,7 +1070,6 @@ int     cowmain(char *server, int port, char *name)
       /* for (i = 0; i < NSIG; i++) { (void) SIGNAL(i, SIG_IGN); } */
 
       me->p_status = PALIVE;			 /* Put player in game */
-      me->p_ghostbuster = 0;
       PlistNoteUpdate(me->p_no);
 
       if (showStats)				 /* Default showstats are on. 

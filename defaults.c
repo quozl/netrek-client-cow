@@ -8,6 +8,12 @@
 /****************************************************************************/
 /*
  * $Log: defaults.c,v $
+ * Revision 1.6  2006/05/22 13:11:58  quozl
+ * fix compilation warnings
+ *
+ * Revision 1.5  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.4  2001/04/28 04:03:56  quozl
  * change -U to also adopt a local port number for TCP mode.
  * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
@@ -25,12 +31,14 @@
 #include "config.h"
 #include "copyright2.h"
 #include <stdio.h>
+#include <string.h>
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include <sys/file.h>
 #include "playerlist.h"
+#include "defaults.h"
 
 #include INC_IO
 #include INC_STRINGS
@@ -366,7 +374,7 @@ initDefaults(char *deffile)
 	{
 	  int     keycnt;
 
-	  if ((keycnt = strlen(keys)) == MAX_KEY - 1)
+	  if ((keycnt = strlen((char *) keys)) == MAX_KEY - 1)
 	    {
 	      fprintf(stderr, "Maximum number of keys is %d\n", MAX_KEY - 1);
 	    }

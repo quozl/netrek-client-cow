@@ -1,3 +1,28 @@
+$ DISPLAY=nestor:0 ./netrek -M -r /dev/null
+Reading defaults file /dev/null
+Attempting to observe on port 2593...
+Attempting to connect to continuum.us.netrek.org on port 2593...
+Calling continuum.us.netrek.org on port 2593.
+Got connection.
+***  socket 8882, player 17  ***
+X Error of failed request:  XF86VidModeClientNotLocal
+  Major opcode of failed request:  134 (XFree86-VidModeExtension)
+  Minor opcode of failed request:  10 (XF86VidModeSwitchToMode)
+  Serial number of failed request:  12933
+  Current serial number in output stream:  12934
+
+--
+
+Can't type control/d on password prompt to exit.
+
+--
+
+Andrew K. Bressen wrote "By the way, the docs for newbies, and maybe the server
+login prompt, should probably explicitly explain that logins are per-server;
+otherwise I think we might have folks creating, say, a warped login, and then
+being pissed when they can't get onto continuum with it."
+
+--
 !!! PLCLEAR is set too often.  Does not need to be set for every draw,
 	just for BEEPLITE and moves
 

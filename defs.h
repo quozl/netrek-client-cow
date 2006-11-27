@@ -3,6 +3,9 @@
 /* defs.h
  *
  * $Log: defs.h,v $
+ * Revision 1.3  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
  * Revision 1.2  1999/08/05 16:46:32  siegl
  * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
  *
@@ -21,17 +24,15 @@
 #define ADDRLEN 10
 
 #ifdef NBT
-#define MAX_MACRO       255
+#define MAX_MACRO       500
 #endif
 
 #ifndef MAXPLAYER
-#define MAXPLAYER 20
+#define MAXPLAYER 36            /* Defined in config.h as well */
 #endif
 
-#define TESTERS 4				 /* Priveledged slots for * * 
-						  * robots and game 'testers' 
-						  * 
-						  */
+#define TESTERS 4               /* Priveledged slots for
+                                 * robots and game 'testers' */
 #define MAXPLANETS 40
 #define MAXTORP 8
 #define MAXPLASMA 1
@@ -51,9 +52,9 @@
 						  * 
 						  * * windows */
 #define PSEUDOSIZE 16
-#define CLOAK_PHASES 7				 /* number of drawing phases
-						  * * * in a cloak * *
-						  * engage/disengage */
+#define CLOAK_PHASES 7          /* number of drawing phases
+                                 * in a cloak
+                                 * engage/disengage */
 #define NUMRANKS 9
 
 /* These are configuration definitions */
@@ -67,7 +68,7 @@
 						  * * * for 20 spaces */
 #define EXPDIST 350				 /* At this range a torp will
 						  * * * explode */
-#define DETDIST 1600				 /* At this range a player *
+#define DETDIST 1700				 /* At this range a player *
 						  * * can detonate a torp */
 #define NUM_PLANET_BITMAPS 7
 #define NUM_PLANET_BITMAPS2 8
@@ -88,31 +89,29 @@
 
 /* 6 minutes is maximum for autoquit -- anything more causes problems in the
  * server.  (?) */
-#define AUTOQUIT 9*60				 /* auto logout in 5 minutes */
+#define AUTOQUIT 9*60           /* auto logout in 5 minutes */
 
-#define VACANT -1				 /* indicates vacant port on
-						  * * * a starbase */
+#define VACANT -1               /* indicates vacant port on
+                                 * a starbase */
 #define DOCKDIST 600
-#define DOCKSPEED 2				 /* If base is moving, there
-						  * * * will be some finesse
-						  * * * involved to dock */
+#define DOCKSPEED 2             /* If base is moving, there
+                                 * will be some finesse
+                                 * involved to dock */
 #define NUMPORTS 4
-#define SBFUELMIN 10000				 /* If starbase's fuel is * * 
-						  * less than this, it will * 
-						  * 
-						  * * not refuel docked
-						  * vessels  */
-#define TRACTDIST   6000			 /* maximum effective tractor
-						  * * * beam range */
-#define TRACTEHEAT  5				 /* ammount tractor beams * * 
-						  * heat engines */
-#define TRACTCOST   20				 /* fuel cost of activated *
-						  * * tractor beam */
+#define SBFUELMIN 10000         /* If starbase's fuel is
+                                 * less than this, it will
+                                 * not refuel docked vessels */
+#define TRACTDIST   6000        /* maximum effective tractor
+                                 * beam range */
+#define TRACTEHEAT  5           /* ammount tractor beams
+                                 * heat engines */
+#define TRACTCOST   20          /* fuel cost of activated
+                                 * tractor beam */
 
 
 /* RSA stuff */
-#define RSA_VERSION "RSA v2.0 CLIENT"		 /* string must begin with *
-						  * * characters "RSA" */
+#define RSA_VERSION "RSA v2.0 CLIENT"   /* string must begin with
+                                         * characters "RSA" */
 #define KEY_SIZE 32
 #define RESERVED_SIZE 16
 #define NAME_LEN 16
@@ -144,37 +143,21 @@
 #define MAXTEAM (ORI)
 #define NUMTEAM 4
 /* * These are random configuration variables */
-#define VICTORY 3				 /* Number of systems needed
-						  * * * to conquer the galaxy 
-						  */
-#define WARNTIME 30				 /* Number of updates to have
-						  * * * a warning on the
-						  * screen */
-#define MESSTIME 30				 /* Number of updates to have
-						  * * * a message on the
-						  * screen */
+#define VICTORY 3               /* Number of systems needed
+                                 * to conquer the galaxy */
+#define WARNTIME 30             /* Number of updates to have
+                                 * a warning on the screen */
+#define MESSTIME 30             /* Number of updates to have
+                                 * a message on the screen */
 
-#define TARG_PLAYER	0x1			 /* Flags for gettarget */
+#define TARG_PLAYER	0x1     /* Flags for gettarget */
 #define TARG_PLANET	0x2
-#define TARG_CLOAK	0x4			 /* Include cloaked ships in
-						  * * * search */
+#define TARG_CLOAK	0x4     /* Include cloaked ships in
+                                 * search */
 #define TARG_SELF	0x8
 #define TARG_ENEMY      0x10
 #define TARG_FRIEND     0x20
 
-/* Data files to make the game play across daemon restarts. */
-
-
-#define GLOBAL          "/ch/ue/hadley/alternate/net/ntserv/.global"
-#define SCORES          "/ch/ue/hadley/alternate/net/ntserv/.scores"
-#define PLFILE          "/ch/ue/hadley/alternate/net/ntserv/.planets"
-#define MOTD            "/ch/ue/hadley/alternate/net/ntserv/.motd"
-#define DAEMON          "/ch/ue/hadley/alternate/net/ntserv/daemonII"
-#define ROBOT           "/ch/ue/hadley/alternate/net/ntserv/robotII"
-#define LOGFILENAME     "/ch/ue/hadley/alternate/net/ntserv/logfile"
-#define PLAYERFILE      "/ch/ue/hadley/alternate/net/ntserv/.players"
-#define CONQFILE        "/ch/ue/hadley/alternate/net/ntserv/.conquer"
-#define SYSDEF_FILE     "/ch/ue/hadley/alternate/net/ntserv/.sysdef"
 
 #define DEFAULT_PORT	2592
 
@@ -198,13 +181,14 @@
 				    ((p)->p_swar | (p)->p_hostile))) && \
 				    (!((p)->p_team & \
 				    (me->p_swar | me->p_hostile))))
-#define isAlive(p)		(((p)->p_status == PALIVE) || ((p)->p_status == PFOBSERV))
+#define isAlive(p)		(((p)->p_status == PALIVE) || ((p)->p_status == POBSERV))
 #define friendlyPlanet(p)	((p)->pl_info & me->p_team && \
 			     !((p)->pl_owner & (me->p_swar | me->p_hostile)))
 
 #define isLockPlanet(p)		((me->p_flags & PFPLLOCK) && (me->p_planet == p->pl_no))
 #define isLockPlayer(p)		((me->p_flags & PFPLOCK) && (me->p_playerl == p->p_no))
-
+#define isObsLockPlayer(p)      ((me->p_flags & PFOBSERV) && (me->p_flags & PFPLOCK) && \
+                                    (me->p_playerl == p->p_no))
 #define torpColor(t)		\
 	(myTorp(t) ? myColor : shipCol[remap[players[(t)->t_owner].p_team]])
 #define plasmatorpColor(t)		\
@@ -217,20 +201,21 @@
 	(myPlayer(p) ? myColor : shipCol[remap[(p)->p_team]])
 
 #ifdef RECORDGAME
-#define planetColor(p)		\
-	((((p)->pl_info & me->p_team) || playback) \
-	 ? shipCol[remap[(p)->pl_owner]] : unColor)
+#define planetColor(p)    \
+  ((((p)->pl_info & me->p_team) || playback) \
+   ? shipCol[remap[(p)->pl_owner]] : unColor)
 #else
 #define planetColor(p)		\
 	(((p)->pl_info & me->p_team) ? shipCol[remap[(p)->pl_owner]] : unColor)
 #endif
 
 #define planetFont(p)           \
-        (myPlanet(p) ? W_BoldFont : friendlyPlanet(p) ? W_UnderlineFont \
+        (myPlanet(p) ? W_BoldFont : friendlyPlanet(p) ? W_HighlightFont \
             : W_RegularFont)
 
+//SRS - changed this from UnderlineFont to HighlightFont
 #define shipFont(p)		\
-	(myPlayer(p) ? W_BoldFont : friendlyPlayer(p) ? W_UnderlineFont \
+	(myPlayer(p) ? W_BoldFont : friendlyPlayer(p) ? W_HighlightFont \
 	    : W_RegularFont)
 #define bombingRating(p)	\
 	((float) (p)->p_stats.st_tarmsbomb * status->timeprod / \
@@ -266,37 +251,37 @@
 #endif
 
 #ifndef ROTATERACE
-#define sendTorpReq(dir) sendShortPacket(CP_TORP, dir)
-#define sendPhaserReq(dir) sendShortPacket(CP_PHASER, dir)
-#define sendDirReq(dir) sendShortPacket(CP_DIRECTION, dir)
-#define sendPlasmaReq(dir) sendShortPacket(CP_PLASMA, dir)
+#define sendTorpReq(dir) sendShortPacket(CP_TORP, (char) dir)
+#define sendPhaserReq(dir) sendShortPacket(CP_PHASER, (char) dir)
+#define sendDirReq(dir) sendShortPacket(CP_DIRECTION, (char) dir)
+#define sendPlasmaReq(dir) sendShortPacket(CP_PLASMA, (char) dir)
 #else
-#define sendTorpReq(dir) sendShortPacket(CP_TORP, RotateDirSend(dir))
-#define sendPhaserReq(dir) sendShortPacket(CP_PHASER, RotateDirSend(dir))
-#define sendDirReq(dir) sendShortPacket(CP_DIRECTION, RotateDirSend(dir))
-#define sendPlasmaReq(dir) sendShortPacket(CP_PLASMA, RotateDirSend(dir))
+#define sendTorpReq(dir) sendShortPacket(CP_TORP, (char) RotateDirSend(dir))
+#define sendPhaserReq(dir) sendShortPacket(CP_PHASER, (char) RotateDirSend(dir))
+#define sendDirReq(dir) sendShortPacket(CP_DIRECTION, (char) RotateDirSend(dir))
+#define sendPlasmaReq(dir) sendShortPacket(CP_PLASMA, (char) RotateDirSend(dir))
 #endif /* ROTATERACE */
 
-#define sendSpeedReq(speed) sendShortPacket(CP_SPEED, speed)
-#define sendShieldReq(state) sendShortPacket(CP_SHIELD, state)
-#define sendOrbitReq(state) sendShortPacket(CP_ORBIT, state)
-#define sendRepairReq(state) sendShortPacket(CP_REPAIR, state)
-#define sendBeamReq(state) sendShortPacket(CP_BEAM, state)
-#define sendCopilotReq(state) sendShortPacket(CP_COPILOT, state)
+#define sendSpeedReq(speed) sendShortPacket(CP_SPEED, (char) speed)
+#define sendShieldReq(state) sendShortPacket(CP_SHIELD, (char) state)
+#define sendOrbitReq(state) sendShortPacket(CP_ORBIT, (char) state)
+#define sendRepairReq(state) sendShortPacket(CP_REPAIR, (char) state)
+#define sendBeamReq(state) sendShortPacket(CP_BEAM, (char) state)
+#define sendCopilotReq(state) sendShortPacket(CP_COPILOT, (char) state)
 #define sendDetonateReq() sendShortPacket(CP_DET_TORPS, 0)
-#define sendCloakReq(state) sendShortPacket(CP_CLOAK, state)
-#define sendBombReq(state) sendShortPacket(CP_BOMB, state)
+#define sendCloakReq(state) sendShortPacket(CP_CLOAK, (char) state)
+#define sendBombReq(state) sendShortPacket(CP_BOMB, (char) state)
 #define sendPractrReq() sendShortPacket(CP_PRACTR, 0)
-#define sendWarReq(mask) sendShortPacket(CP_WAR, mask)
-#define sendRefitReq(ship) {sendShortPacket(CP_REFIT, ship); shipchange(ship);}
-#define sendPlaylockReq(pnum) sendShortPacket(CP_PLAYLOCK, pnum)
-#define sendPlanlockReq(pnum) sendShortPacket(CP_PLANLOCK, pnum)
+#define sendWarReq(mask) sendShortPacket(CP_WAR, (char) mask)
+#define sendRefitReq(ship) {sendShortPacket(CP_REFIT, (char) ship); shipchange(ship);}
+#define sendPlaylockReq(pnum) sendShortPacket(CP_PLAYLOCK, (char) pnum)
+#define sendPlanlockReq(pnum) sendShortPacket(CP_PLANLOCK, (char) pnum)
 #define sendCoupReq() sendShortPacket(CP_COUP, 0)
 #define sendQuitReq() sendShortPacket(CP_QUIT, 0)
 #define sendByeReq() sendShortPacket(CP_BYE, 0)
-#define sendDockingReq(state) sendShortPacket(CP_DOCKPERM, state)
-#define sendResetStatsReq(verify) sendShortPacket(CP_RESETSTATS, verify)
-#define sendScanReq(who) sendShortPacket(CP_SCAN, who)	/* ATM */
+#define sendDockingReq(state) sendShortPacket(CP_DOCKPERM, (char) state)
+#define sendResetStatsReq(verify) sendShortPacket(CP_RESETSTATS, (char) verify)
+#define sendScanReq(who) sendShortPacket(CP_SCAN, (char) who)  /* ATM */
 
 #ifdef SHORT_PACKETS
 /* #define sendShortReq(state)   sendShortPacket(CP_S_REQ, state) */
@@ -401,18 +386,18 @@ char   *getdefault(char *str);
 
 
 #ifdef SHORT_PACKETS
-#define         SPK_VOFF        0		 /* variable packets off */
-#define         SPK_VON         1		 /* variable packets on */
-#define         SPK_MOFF        2		 /* message packets off */
-#define         SPK_MON         3		 /* message packets on */
-#define         SPK_M_KILLS     4		 /* send kill mesgs */
-#define         SPK_M_NOKILLS   5		 /* don't send kill mesgs */
-#define         SPK_THRESHOLD   6		 /* threshold */
-#define         SPK_M_WARN      7		 /* warnings */
-#define         SPK_M_NOWARN    8		 /* no warnings */
-#define SPK_SALL 9				 /* only planets,kills and *
-						  * * weapons */
-#define         SPK_ALL 10			 /* Full Update - SP_STATS */
+#define         SPK_VOFF        0       /* variable packets off */
+#define         SPK_VON         1       /* variable packets on */
+#define         SPK_MOFF        2       /* message packets off */
+#define         SPK_MON         3       /* message packets on */
+#define         SPK_M_KILLS     4       /* send kill mesgs */
+#define         SPK_M_NOKILLS   5       /* don't send kill mesgs */
+#define         SPK_THRESHOLD   6       /* threshold */
+#define         SPK_M_WARN      7       /* warnings */
+#define         SPK_M_NOWARN    8       /* no warnings */
+#define SPK_SALL 9              /* only planets,kills and
+                                 * weapons */
+#define         SPK_ALL 10      /* Full Update - SP_STATS */
 
 #define         SPK_NUMFIELDS   6
 

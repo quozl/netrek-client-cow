@@ -8,6 +8,18 @@
  * Routines to allow connection to the xtrek server.
  *
  * $Log: socket.c,v $
+ * Revision 1.12  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.11  2006/05/22 13:13:24  quozl
+ * initialise packet buffers
+ *
+ * Revision 1.10  2006/05/20 08:48:16  quozl
+ * fix some valgrind use of uninitialised data reports
+ *
+ * Revision 1.9  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.8  2006/01/27 09:57:27  quozl
  * *** empty log message ***
  *
@@ -751,7 +763,7 @@ tryagain:
       terminate(0);
     }
 
-  sock = accept(s, (struct sockaddr *) &naddr, &len);
+  sock = accept(s, (struct sockaddr *) &naddr, (socklen_t *) &len);
 
   if (sock == -1)
     {
@@ -771,7 +783,7 @@ tryagain:
    * "serverName" and "serveraddr" appropriately. */
   len = sizeof(struct sockaddr_in);
 
-  if (getpeername(sock, (struct sockaddr *) &addr, &len) < 0)
+  if (getpeername(sock, (struct sockaddr *) &addr, (socklen_t *) &len) < 0)
     {
       perror("unable to get peername");
       serverName = "nowhere";
@@ -1018,7 +1030,11 @@ readFromServer(fd_set * readfds)
       chan = sock;
       if (commMode == COMM_TCP)
 	drop_flag = 0;				 /* just in case */
-      retval += doRead(sock);
+      /* Bug fix for unnecessary redraws with UDP on - reported by TP */
+      //      if (commMode == COMM_UDP)
+      //	doRead (sock);
+      //      else
+	retval += doRead (sock);
     }
 
   dotimers();
@@ -1511,6 +1527,9 @@ void    handleSelf(struct you_spacket *packet)
   if (!F_many_self)
     {
       me = (ghoststart ? &players[ghost_pno] : pl);
+      if (log_packets) {
+	fprintf(stderr, "handleSelf: my player number is %d\n", packet->pnum);
+      }
       myship = &(me->p_ship);
       mystats = &(me->p_stats);
     }
@@ -1641,6 +1660,7 @@ sendShortPacket(char type, char state)
 {
   struct speed_cpacket speedReq;
 
+  bzero(&speedReq, sizeof(speedReq));
   speedReq.type = type;
   speedReq.speed = state;
   sendServerPacket((struct player_spacket *) &speedReq);
@@ -1938,6 +1958,7 @@ sendTeamReq(int team, int ship)
 {
   struct outfit_cpacket outfitReq;
 
+  bzero(&outfitReq, sizeof(outfitReq));
   outfitReq.type = CP_OUTFIT;
   outfitReq.team = team;
   outfitReq.ship = ship;
@@ -1953,6 +1974,7 @@ sendLoginReq(char *name, char *pass, char *login, char query)
 {
   struct login_cpacket packet;
 
+  bzero(&packet, sizeof(packet));
   strcpy(packet.name, name);
   strcpy(packet.password, pass);
   if (strlen(login) > 15)
@@ -2211,6 +2233,7 @@ sendMessage(char *mes, int group, int indiv)
 {
   struct mesg_cpacket mesPacket;
 
+  bzero(&mesPacket, sizeof(mesPacket));
 #ifdef SHORT_PACKETS
   if (recv_short)
     {
@@ -2245,6 +2268,7 @@ sendOptionsPacket(void)
 {
   struct options_cpacket optPacket;
 
+  bzero(&optPacket, sizeof(optPacket));
   optPacket.type = CP_OPTIONS;
   optPacket.flags =
       htonl(ST_MAPMODE +			 /* always on */
@@ -2274,6 +2298,7 @@ pickSocket(int old)
       else
           newsocket = (newsocket + 10687) & 32767;
     }
+  bzero(&sockPack,sizeof(sockPack));
   sockPack.type = CP_SOCKET;
   sockPack.socket = htonl(newsocket);
   sockPack.version = (char) SOCKVERSION;
@@ -2565,6 +2590,7 @@ void    handleReserved(struct reserved_spacket *packet, int sock)
 {
   struct reserved_cpacket response;
 
+  bzero(&response, sizeof(response));
 #ifdef CORRUPTED_PACKETS
   if (sock == udpSock)
     {
@@ -2644,6 +2670,7 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
 
 #endif
 
+  bzero(&response, sizeof(response));
   response.type = CP_RSA_KEY;
   /* encryptRSAPacket (packet, &response);      old style rsa-client  */
 
@@ -3965,7 +3992,7 @@ void print_packet(char *packet, int size)
        case SP_S_STATS      :                  /* see SP_STATS */
 	 fprintf(stderr, "\nS->C SP_S_STATS\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, tplanets-%d, tkills=%d, tlosses=%d, kills=%d, losses=%d, tticks=%d, tarmies=%d, sbkills=%d, sblosses=%d, armies=%d, planets=%d, maxkills=%d, sbmaxkills=%d,",
+	   fprintf(stderr, "  pnum=%d, tplanets=%d, tkills=%d, tlosses=%d, kills=%d, losses=%d, tticks=%d, tarmies=%d, sbkills=%d, sblosses=%d, armies=%d, planets=%d, maxkills=%d, sbmaxkills=%d,",
 		   ((struct stats_spacket *) packet)->pnum,
 		   ntohs(((struct stats_spacket *) packet)->tplanets),
 		   ntohs(((struct stats_spacket *) packet)->tkills),

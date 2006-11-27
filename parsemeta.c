@@ -1,6 +1,18 @@
 /* meta.c
  * 
  * $Log: parsemeta.c,v $
+ * Revision 1.13  2006/11/27 00:40:31  quozl
+ * fix segfault from comment length
+ *
+ * Revision 1.12  2006/11/27 00:36:55  quozl
+ * fix segfault from comment length
+ *
+ * Revision 1.11  2006/04/14 10:35:37  quozl
+ * fix sscanf compiler warning
+ *
+ * Revision 1.10  2006/04/14 10:29:40  quozl
+ * fix segfault
+ *
  * Revision 1.9  2006/02/22 22:55:22  quozl
  * fix ReadMetasRecv regression
  *
@@ -238,7 +250,7 @@ static void parseInput(char *in, FILE * out)
 
     /* Is this a line we want? */
 
-    if (sscanf(line, "-h %s -p %d %d %d",
+    if (sscanf(line, "-h %s -p %d %d %*d",
 	       slist->address, &(slist->port),
 	       &(slist->age)) != 3) {
       continue;
@@ -420,7 +432,7 @@ static struct servers *server_find(char *address, int port)
 
 static void version_r(struct sockaddr_in *address) {
   char *p;
-  int servers, i, j;
+  int servers, i;
   time_t now = time(NULL);
 
   /* number of servers */
@@ -439,8 +451,6 @@ static void version_r(struct sockaddr_in *address) {
 		       servers == 1 ? "" : "s" );
 
   if (servers == 0) return;
-
-  grow(servers);
 
   /* for each server listed by this metaserver packet */
   for(i=0;i<servers;i++) {
@@ -509,13 +519,14 @@ static void version_r(struct sockaddr_in *address) {
       }
     } else {
       /* not found, store it at the end of the list */
-      sp = serverlist + j;
+      grow(1);
+      sp = serverlist + num_servers;
+      num_servers++;
       strncpy(sp->address,host,LINE);
       sp->port = port;
       sp->age = age;
       sp->when = now;
       sp->lifetime = 4;
-      num_servers++;
     }
     sp->refresh = 1;
 
@@ -581,7 +592,7 @@ static void version_s(struct sockaddr_in *address)
   
   p = strtok(NULL,",");		/* comment */
   if (p == NULL) return;
-  char *comment = strdup(p);
+  char *comment = strndup(p, LINE-1);
 
   p = strtok(NULL,",");		/* number of ports */
   if (p == NULL) return;
@@ -1077,7 +1088,7 @@ static void metarefresh(int i, W_Color color)
 
   sp = serverlist + i;
 
-  sprintf(buf, "%-40s %14s ",
+  snprintf(buf, 56, "%-40s %14s ",
           strlen(sp->comment) > 0 ? sp->comment : sp->address,
           statusStrings[sp->status]);
 

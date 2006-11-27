@@ -101,7 +101,7 @@ static int sound_other = 1;			 /* Play other ship's sounds?
 #if defined(HAVE_SDL)
 
 /*
- * Build the patch to the sound files 
+ * Build the path to the sound files 
  */
 char *DATAFILE(const char* wav) {
  char buf[PATH_MAX];
@@ -175,7 +175,7 @@ extern void Init_Sound(void) {
       if (getenv("SOUNDDIR") != NULL) {
 	sounddir = strdup(getenv("SOUNDDIR"));
       } else {
-	sounddir = "./sounds";
+	sounddir = "/usr/share/sounds/netrek-client-cow";
       }
     }
 

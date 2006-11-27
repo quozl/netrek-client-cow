@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -21,6 +22,12 @@
 /*****************************************************************************/
 /*
  * $Log: mkcflags.c,v $
+ * Revision 1.5  2006/05/20 08:12:54  quozl
+ * mkcflags compilation fixes
+ *
+ * Revision 1.4  2006/05/16 06:25:25  quozl
+ * some compilation fixes
+ *
  * Revision 1.3  2006/02/28 01:45:56  quozl
  * prerelease
  *
@@ -37,7 +44,6 @@ main (argc, argv)
 {
   time_t seconds;
   struct tm *tm_date;
-  struct passwd *pw;
   char tbuff1[100], tbuff2[100];
   char pigcall[120];
   char *pigcallresp ();
@@ -60,7 +66,7 @@ main (argc, argv)
   printf ("char cflags[]=\"%s\";\n", argv[1]);
   printf ("char arch[]=\"%s\";\n", argv[2]);
   printf ("char cdate[]=\"%s\";\n", tbuff2);
-  printf ("struct timeval tv_ctime={%u,0};\n", seconds);
+  printf ("struct timeval tv_ctime={%u,0};\n", (int) seconds);
   printf ("char cbugs[]=\"Send bugs/suggestion to: cow@netrek.org\";\n");
   printf ("char cowid[]=\"%s\";\n", pigcallresp (pigcall, tbuff2, argv[2]));
   exit (0);
@@ -73,8 +79,6 @@ pigcallresp (pigcall, cdate, arch)
      char *cdate;
      char *arch;
 {
-  char buf[20];
-
   sprintf (pigcall, "%s.%d, %s, %s, ", version, PATCHLEVEL, arch, cdate);
   /* ack .... gross short hand fomulas for compile options!!! */
 

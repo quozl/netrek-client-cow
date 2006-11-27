@@ -6,6 +6,12 @@
  * Most of the unneeded stuff in the structures has been thrown away.
  *
  * $Log: struct.h,v $
+ * Revision 1.5  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.4  2006/05/16 06:20:18  quozl
+ * add PLCORE
+ *
  * Revision 1.3  2002/06/21 00:26:03  quozl
  * fix description of PFOBSERV
  *
@@ -109,6 +115,7 @@ enum dist_type
 #define PALIVE 2
 #define PEXPLODE 3
 #define PDEAD 4
+#define POBSERV 5
 
 #define PFSHIELD	0x0001
 #define PFREPAIR	0x0002
@@ -284,7 +291,6 @@ struct player
 						  * genocide */
     short   p_planets;				 /* planets taken this game */
     short   p_armsbomb;				 /* armies bombed this game */
-    int     p_ghostbuster;
     int     p_docked;				 /* If starbase, # docked to,
 						  * else pno base host */
     int     p_port[4];				 /* If starbase, pno of ship
@@ -390,7 +396,8 @@ struct rsa_key
 #define PLCOUP 0x200				 /* Coup has occured */
 #define PLCHEAP 0x400				 /* Planet was taken from 
 						  * undefended team */
-#define PLCLEAR 0x800
+#define PLCORE 0x800
+#define PLCLEAR 0x1000
 
 struct planet
   {

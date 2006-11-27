@@ -4,6 +4,9 @@
  * Functions to maintain the local map.
  *
  * $Log: local.c,v $
+ * Revision 1.8  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
  * Revision 1.7  2002/06/22 04:43:24  tanner
  * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
  *
@@ -644,6 +647,23 @@ static void DrawShips(void)
 			    dy - (shield_height / 2), shield, color);
 #endif
 	    }
+	  /* Det circle */
+	  if (detCircle)
+            {
+	      if (myPlayer(j) || isObsLockPlayer(j))
+            	{
+		  int dcr = DETDIST*2/SCALE;
+		  int dcx = dx - (dcr/2);
+		  int dcy = dy - (dcr/2);
+		  W_WriteCircle(w, dcy, dcy, dcr, W_Red);         
+		  clearzone[0][clearcount] = dcx;
+		  clearzone[1][clearcount] = dcy;
+		  clearzone[2][clearcount] = dcr + dcr;
+		  clearzone[3][clearcount] = dcr + dcr;
+		  clearcount++;
+		  detCircle--;
+                }
+            }
 	  if (j->p_flags & PFCLOAK)		 /* when cloaked stop here */
 	    continue;
 
@@ -652,7 +672,7 @@ static void DrawShips(void)
 
 	    idbuf[0] = *(shipnos + j->p_no);
 
-	    if (j == me)
+	    if (myPlayer(j) || isObsLockPlayer(j))
 	      {
 		switch (me->p_flags & (PFGREEN | PFYELLOW | PFRED))
 		  {

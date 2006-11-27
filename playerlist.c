@@ -13,6 +13,9 @@
  * Sort observers separatly: opserver if (pl->p_flags & PFOBSERV) is true.
  *
  * $Log: playerlist.c,v $
+ * Revision 1.2  2006/05/22 13:13:39  quozl
+ * change defaults
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
  * COW 3.0 initial revision
  * */
@@ -89,7 +92,7 @@ int     plistReorder = FALSE;
 int     plistStyle = 0;
 int     plistUpdated = FALSE;
 int     sortMyTeamFirst = FALSE;
-int     sortPlayers = FALSE;
+int     sortPlayers = TRUE;
 char    updatePlayer[MAXPLAYER + 1];
 
 #ifdef PLIST2

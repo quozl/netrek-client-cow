@@ -72,7 +72,7 @@ ROBJ 		= check.o colors.o data.o death.o defaults.o dmessage.o\
 	          netstat.o netstatopt.o spopt.o dashboard.o dashboard3.o \
 	          short.o distress.o senddist.o defwin.o tools.o sound.o\
 		  docwin.o cflags.o beeplite.o feature.o\
-		  string_util.o local.o censor.o cowmain.o
+		  string_util.o local.o censor.o cowmain.o camera.o
 
 RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c\
 	          enter.c findslot.c getname.c getship.c helpwin.c inform.c\
@@ -83,7 +83,7 @@ RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c\
                   lagmeter.c netstat.c netstatopt.c spopt.c dashboard.c dashboard3.c \
 		  short.c distress.c senddist.c defwin.c tools.c sound.c\
 		  docwin.c cflags.c beeplite.c feature.c reserved.c\
-		  string_util.c local.c censor.c cowmain.c
+		  string_util.c local.c censor.c cowmain.c camera.c
 
 
 INCLUDES 	= struct.h packets.h defs.h copyright.h bitmaps.h data.h\
@@ -108,12 +108,12 @@ SDL_MIXER_LIBS	= @SDL_MIXER_LIBS@
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(MPINC) $(INCS)
 CFLAGS = $(OPT) $($S) $(EXTRACFLAGS) $(SDL_CFLAGS) $(RSA_FLAGS) $(INCDIRS)
-LFLAGS = $(EXTRALINKFLAGS)
+LFLAGS = -g $(EXTRALINKFLAGS)
 LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS)
 
-netrek: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c randomize
-	$(CC) $(LFLAGS) -o netrek `./randomize $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
-	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ)` $(LIBRARIES)
+netrek: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
+	$(CC) $(LFLAGS) -o netrek $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
+	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES) -lXxf86vm -lImlib2
 
 netrek.shared: done.libcow $(MAINOBJ) $(COWAPI)
 	$(CC) $(LFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared

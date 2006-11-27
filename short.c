@@ -3,6 +3,12 @@
 /* HW 19.07.93
  *
  * $Log: short.c,v $
+ * Revision 1.5  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.4  2006/05/22 13:13:24  quozl
+ * initialise packet buffers
+ *
  * Revision 1.3  1999/06/11 16:14:17  siegl
  * cambot replay patches
  *
@@ -772,8 +778,8 @@ void    handleVPlayer(unsigned char *sbuf)
 	{					 /* S_P2 */
 	  struct player_s2_spacket *pa2 = (struct player_s2_spacket *) sbuf;
 
-	  x = SCALE * ntohs(pa2->x);
-	  y = SCALE * ntohs(pa2->y);
+	  x = SCALE * (short) ntohs(pa2->x);
+	  y = SCALE * (short) ntohs(pa2->y);
 	  new_flags(ntohl(pa2->flags), 0);
 	}
       else
@@ -1286,6 +1292,7 @@ void    sendShortReq(char state)
 {
   struct shortreq_cpacket shortReq;
 
+  bzero(&shortReq, sizeof(shortReq));
   shortReq.type = CP_S_REQ;
   shortReq.req = state;
   shortReq.version = shortversion;		 /* need a var now because 2

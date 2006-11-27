@@ -659,7 +659,7 @@ def_messages[] =
 
 #ifdef BEEPLITE
   {
-    "lite", BOOL_DEF, "Use message highliting",
+    "lite", BOOL_DEF, "Use message highlighting",
 	&UseLite,
     {
       {

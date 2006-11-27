@@ -94,11 +94,25 @@ death(void)
       /* Use deathmessage as a buffer because it will be updated in a moment
        * * anyway */
 
-      sprintf(deathmessage, "Congratulations, You have scummed up to %s",
+      sprintf(deathmessage, "Congratulations, you were promoted to %s",
 	      ranks[mystats->st_rank].name);
-      W_WriteText(w, 50, 100, W_Yellow, deathmessage, strlen(deathmessage),
+      if (warncount > 0)
+	W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
+      W_WriteText(warnw, 5, 5, W_Green, deathmessage, strlen(deathmessage),
 		  W_BoldFont);
+      warncount = strlen(deathmessage);
       promoted = 0;
+    } else {
+      static int first = 10;
+      if (first) {
+	first--;
+	sprintf(deathmessage, "Okay, you died, but that is NORMAL!  Click on your team to get a new ship.");
+	if (warncount > 0)
+	  W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
+	W_WriteText(warnw, 5, 5, W_Green, deathmessage, strlen(deathmessage),
+		    W_BoldFont);
+	warncount = strlen(deathmessage);
+      }
     }
 
 
@@ -189,7 +203,7 @@ death(void)
       break;
     }
 
-  W_WriteText(w, 50, 80, textColor, deathmessage, strlen(deathmessage),
+  W_WriteText(messagew, 5, 5, W_Yellow, deathmessage, strlen(deathmessage),
 	      deathFont);
 
   w = oldw;
@@ -219,6 +233,6 @@ updatedeath(void)
   if (deathFont != W_BoldFont)			 /* Initialise deathFont */
     deathFont = W_RegularFont;
 
-  W_WriteText(w, 50, 80, textColor, deathmessage, strlen(deathmessage),
+  W_WriteText(messagew, 5, 5, W_Yellow, deathmessage, strlen(deathmessage),
 	      deathFont);
 }

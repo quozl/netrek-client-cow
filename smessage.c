@@ -2,6 +2,9 @@
 /* smessage.c
  *
  * $Log: smessage.c,v $
+ * Revision 1.2  2006/05/22 13:11:58  quozl
+ * fix compilation warnings
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
  * COW 3.0 initial revision
  * */
@@ -16,6 +19,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "smessage.h"
 
 static int lcount;
 static int HUDoffset;

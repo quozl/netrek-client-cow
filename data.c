@@ -1,6 +1,12 @@
 /* data.c
  *
  * $Log: data.c,v $
+ * Revision 1.10  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
+ * Revision 1.9  2006/05/22 13:13:39  quozl
+ * change defaults
+ *
  * Revision 1.8  2001/08/21 20:52:15  siegl
  *
  * mouse wheel support
@@ -71,14 +77,15 @@ int     phaserShrink = 0;
 int     theirPhaserShrink = 0;
 int     shrinkPhaserOnMiss = 0;
 
-int     newDashboard = 0;			 /* use new graphic *
+int     newDashboard = 3;			 /* use new graphic *
 
 						  * 
 						  * * dashboard, 6/2/93 LAB */
-int     old_db = 0;				 /* should be same as *
+int     old_db = 3;				 /* should be same as *
 
 						  * 
 						  * * newDashboard */
+int     detCircle = 0;		/* Show det circle on tactical */
 int     fastQuit = 0;
 int     gen_distress = 0;			 /* generic distress/macro *
 
@@ -547,13 +554,19 @@ int     sizedist = sizeof(dist_defaults);
 #ifdef BEEPLITE
 char   *distlite[NUM_DIST] =
 {
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL, 
+  "/c/l/0/|%T%c Taking %L|",
+  "/|Ogg %T%c|",
+  "/|Bomb %L|",
+  "/|Control %L|",
+  "/|Save %L|",
+  NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-int     DefLite = 0;
-int     UseLite = 0;
+int     DefLite = 1;
+int     UseLite = 1;
 
 int     emph_planet_seq_n[MAXPLANETS] =
 {0,};
@@ -692,7 +705,7 @@ char   *bugURL = "http://bugzilla.us.netrek.org/cow?version=%s&pl=%i&arch=%s";
 #endif
 
 #ifdef SOUND
-int     sound_init = 0;
+int     sound_init = 1;
 int     sound_toggle = 0;
 char   *sounddir = NULL;
 W_Window soundWin = NULL;
@@ -734,5 +747,5 @@ int     F_dead_warp = 0;
 int F_many_self = 0;
 
 #ifdef UDP_PORTSWAP
-int     portSwap = 0;
+int     portSwap = 1;
 #endif

@@ -150,3 +150,18 @@ install.alpha: netrek
 	install -c -m 644 README.rel $(ALPHADIR)/rel.README
 	./netrek -v | head -1 > $(ALPHADIR)/HEADER
 	chmod 644 $(ALPHADIR)/HEADER
+
+PACKAGE=`head -1 debian/changelog|cut -f1 -d\ `
+VERSION=`head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\)`
+WWW=~/public_html/external/mine/netrek
+
+package:
+	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt
+
+upload:
+	mv ../$(PACKAGE)_$(VERSION)*{.dsc,.changes,.tar.gz,.deb} $(WWW)
+
+update:
+	(cd $(WWW);make)
+
+release: package upload update

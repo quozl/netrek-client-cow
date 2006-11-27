@@ -11,6 +11,9 @@
  *     W_Red, W_Green, W_Yellow, W_Cyan, W_Grey, W_Textwidth, and W_Textheight.
  *
  * $Log: Wlib.h,v $
+ * Revision 1.3  2006/05/22 13:12:19  quozl
+ * fix compilation warnings
+ *
  * Revision 1.2  2001/08/21 20:52:15  siegl
  *
  * mouse wheel support
@@ -46,10 +49,10 @@ extern W_Callback W_GetWindowKeyDownHandler (W_Window w);
 extern W_Callback W_GetWindowKeyUpHandler (W_Window w);
 extern W_Callback W_GetWindowButtonHandler (W_Window w);
 extern W_Callback W_GetWindowExposeHandler (W_Window w);
-extern W_Callback W_SetWindowKeyDownHandler (W_Window w, W_Callback c);
-extern W_Callback W_SetWindowKeyUpHandler (W_Window w, W_Callback c);
-extern W_Callback W_SetWindowButtonHandler (W_Window w, W_Callback c);
-extern W_Callback W_SetWindowExposeHandler (W_Window w, W_Callback c);
+extern void W_SetWindowKeyDownHandler (W_Window w, W_Callback c);
+extern void W_SetWindowKeyUpHandler (W_Window w, W_Callback c);
+extern void W_SetWindowButtonHandler (W_Window w, W_Callback c);
+extern void W_SetWindowExposeHandler (W_Window w, W_Callback c);
 
 typedef char *W_Icon;
 typedef char *W_Font;

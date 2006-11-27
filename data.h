@@ -2,6 +2,9 @@
 /* data.h
  *
  * $Log: data.h,v $
+ * Revision 1.9  2006/09/19 10:20:39  quozl
+ * ut06 full screen, det circle, quit on motd, add icon, add desktop file
+ *
  * Revision 1.8  2002/06/21 00:29:02  quozl
  * describe playback states
  *
@@ -219,6 +222,7 @@ extern int theirPhaserShrink;
 extern int shrinkPhaserOnMiss;
 extern int newDashboard, old_db;
 extern int niftyNewMessages;
+extern int detCircle;
 extern int fastQuit;
 extern int babes;
 extern int showlocal, showgalactic;

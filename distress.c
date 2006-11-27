@@ -1,6 +1,9 @@
 /* distress.c
  *
  * $Log: distress.c,v $
+ * Revision 1.2  2006/08/15 22:37:09  quozl
+ * follow bill
+ *
  * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
  * COW 3.0 initial revision
  * */
@@ -587,7 +590,7 @@ makedistress(struct distress *dist, char *cry, char *pm)
   buf3[index3] = '\0';
 
   cry[0] = '\0';
-  strncat(cry, buf3, MSG_LEN);
+  strncat(cry, buf3, MSG_LEN - 1);
 
   return (index3);
 }

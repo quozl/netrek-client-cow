@@ -1,3 +1,79 @@
+Mon May 22 23:06:52 2006  James Cameron  <quozl@us.netrek.org>
+
+	* x11window.c: add video mode change support, switches to 1024x768
+	if it is available, and switches back to previous mode on exit.
+
+	* system.mk.in: add libXxf86vm.
+	
+Mon May 22 22:59:54 2006  James Cameron  <quozl@us.netrek.org>
+
+	* x11window.c, x11window.h: fix all compilation warnings.
+
+	* defaults.h, smessage.h, defaults.h, x11sprite.h: add prototypes.
+	
+	* Wlib.h: change set handlers to void return.
+	
+Mon May 22 22:59:54 2006  James Cameron  <quozl@us.netrek.org>
+	
+	* camera.c, camera.h: add frame counter and per frame file names,
+	defer imlib2 initialisation to first use in an attempt to find
+	segfaults.
+	
+	* input.c, playback.c: during playback, 's' toggles per frame
+	camera snapshots.  During game, 'C' takes a snapshot.
+
+Mon May 22 22:59:06 2006  James Cameron  <quozl@us.netrek.org>
+	
+	* ping.c, short.c, socket.c: initialise some more packet buffers
+	before sending, to fix valgrind reports.
+
+Mon May 22 22:59:06 2006  James Cameron  <quozl@us.netrek.org>
+
+	* data.c: change default to LABs dashboard, while it isn't well
+	liked by the experienced players it is well liked by newbies, and
+	it's newbies who count.
+
+	* playerlist.c: change default to sorted player list.  Same
+	reasoning as above.
+
+Mon May 22 22:58:43 2006  James Cameron  <quozl@us.netrek.org>
+
+	* configure.in: enable XPM in build.
+
+Sat May 20 19:22:35 2006  James Cameron  <quozl@us.netrek.org>
+
+	* cowmain.c, feature.c, socket.c, ping.c, short.c: fix some
+	valgrind reports of use of uninitialised data, possible sources of
+	random information leakage in packets sent to server in situations
+	where auto (stack) variables for packets may not be initialised.
+
+Sat May 20 18:10:01 2006  James Cameron  <quozl@us.netrek.org>
+
+	* mkcflags.c (main): compilation fixes for -Wall.
+
+Tue May 16 16:21:29 2006  James Cameron  <quozl@us.netrek.org>
+
+	* x11window.c, socket.c, reserved.c, mkcflags.c, input.c, defaults.c:
+	compilation fixes.
+
+Tue May 16 15:51:12 2006  Bill Balcerski  <williamb@its.caltech.edu>
+
+	* newwin.c (newwin): enlarge planet list window.
+	* inform.c (inform): add PLCORE.
+	* planetlist.c (planetlist): add PLCORE.
+
+Fri Apr 14 20:33:28 2006  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c (parseInput): fix format string for sscanf, more
+	conversion specifiers were present than pointer arguments,
+	suggesting that the code was trying to check for non-numeric in
+	place of last specifier.  Reported by: Stephen Thorne.
+	
+Fri Apr 14 20:26:45 2006  James Cameron  <quozl@us.netrek.org>
+
+	* parsemeta.c (version_r): fix growth of server list.
+	Reported by: Stephen Thorne.
+
 Wed Mar  1 18:08:33 2006  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.0: released.
