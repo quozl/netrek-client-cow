@@ -401,6 +401,8 @@ static int ReadMetasSend()
     /* look for next host name in list */
     token = strtok(NULL,",");
   } /* while (token != NULL) */
+
+  metaWindowName = "MetaServer List";
   return sent;
 }
 
