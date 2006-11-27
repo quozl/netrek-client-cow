@@ -277,7 +277,8 @@ static void parseInput(char *in, FILE * out)
     
     slist->typeflag = *(point - 1);
     
-    
+    strcpy(slist->comment, "");
+
     /* Don't list Paradise Servers  */
     
     if (slist->typeflag != 'P') {
