@@ -402,7 +402,7 @@ static int ReadMetasSend()
     token = strtok(NULL,",");
   } /* while (token != NULL) */
 
-  metaWindowName = "MetaServer List";
+  metaWindowName = "Netrek Server List";
   return sent;
 }
 
