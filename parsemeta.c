@@ -830,7 +830,7 @@ static void LoadMetasCache()
       if (serverlist[i].lifetime-- > 0) continue;
 
       /* delete this entry by moving the ones above down */
-      for(j=i;j<num_servers-1;i++)
+      for(j=i;j<num_servers-1;j++)
 	{
 	  memcpy(&serverlist[j],&serverlist[j+1],sizeof(struct servers));
 	}
