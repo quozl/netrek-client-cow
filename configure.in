@@ -219,21 +219,30 @@ LIBS="$LIBS $XLIBSW"
 #	Check for gmp and mp
 #--------------------------------------------------------------------
 
-AC_MSG_CHECKING(for mp.h)
-AC_ARG_WITH(gmp-incdir, 
-	[  --with-gmp-incdir       GMP Include Dir], 
-	MPINC="-I$withval" search=false, MPINC=nope)
+AC_ARG_WITH(gmp,[  --with-gmp              GMP Dir], MPINC="-I$withval/include"  MPLIB="-L$withval/lib -lgmp" search=false, MPINC=nope MPLIB=nope)
 if test "$MPINC" = nope; then
-AC_EGREP_CPP( GNU_MP,[ 
+    AC_MSG_CHECKING(for mp.h)
+    AC_EGREP_CPP(GNU_MP,[ 
 #include <mp.h> 
 __GNU_MP__
-], [MPINC=nope search=true AC_MSG_RESULT(no)], [MPINC="" search=false AC_MSG_RESULT(no)] )
+],
+        [gnu_mp_ok=yes],
+        [gnu_mp_ok=no])
+    if test "x$gnu_mp_ok" = xyes; then
+        MPINC=nope
+	search=true
+	AC_MSG_RESULT(yes)
+    else
+        MPINC=""
+	search=false
+	AC_MSG_RESULT(no)
+    fi
 fi
 
 AC_MSG_CHECKING(for gmp.h)
-if test "$MPINC" = nope; then
-    AC_TRY_CPP([#include <gmp.h>], [MPINC="" search=false], MPINC=nope)
-fi
+#   if test "$MPINC" = nope; then
+#      AC_TRY_CPP([#include <gmp.h>], [MPINC="-I/usr/include" search=false], MPINC=nope)
+#   fi
 
 if test "$MPINC" = nope; then
    dirs="$srcdir/gmp-2.0.2 /usr/unsupported/include /usr/local/include \
@@ -277,9 +286,6 @@ AC_EGREP_CPP("gmp=.*2", [
   ],AC_DEFINE(HAVE_GMP2_H))
 INCS="$SAVEINCS"
 
-AC_ARG_WITH(gmp-libdir,
-	[  --with-gmp-libdir       GMP Library Dir], 
-	MPLIB="-L$withval -lgmp" search=false, MPLIB=nope)
 if test "$MPLIB" = nope; then
   if test "$search" = true; then
     MPLIB=nope
@@ -335,15 +341,15 @@ fi
 if test "$code" = server; then
  AC_MSG_CHECKING(res-rsa/configure)
  if test -r "$srcdir/res-rsa/configure"; then
-    AC_CONFIG_SUBDIRS($srcdir/res-rsa)
+    AC_CONFIG_SUBDIRS(res-rsa)
     AC_MSG_RESULT(RSA utilities found)
-    RSAINC="-I`pwd`/res-rsa"
+    RSAINC="-I${srcdir}/res-rsa"
     RSALIB="-L`pwd`/res-rsa -lrsa"
     NORSA=""
  else
-    AC_MSG_RESULT(Warning RSA utilities for server build not found, turning RSA off)
+    echo no
+    AC_MSG_RESULT(Warning: RSA utilities for server build not found, turning RSA off)
     NORSA="#"
-    echo
  fi
 fi
 
@@ -365,22 +371,6 @@ AC_CHECK_LIB(inet, main, [LIBS="$LIBS -linet"])
 AC_CHECK_LIB(nsl, main, [LIBS="$LIBS -lnsl"])
 AC_CHECK_LIB(seq, main, [LIBS="$LIBS -lseq"])
 AC_CHECK_LIB(sun, main, [LIBS="$LIBS -lsun"])
-
-if test "$code" = server; then
-AC_CHECK_LIB(ipc, main, [LIBS="$LIBS -lipc"])
-AC_CHECK_LIB(shm, main, [LIBS="$LIBS -lshm"])
-AC_CHECK_LIB(stuff, main, [LIBS="$LIBS -lstuff"])
-
-AC_CHECK_LIB(crypt, crypt, [LIBCRYPT="-lcrypt"]) 
-AC_SUBST(LIBCRYPT)
-
-AC_CHECK_LIB(termcap, main, [LIBTERMCAP="-ltermcap"]) 
-AC_SUBST(LIBTERMCAP)
-
-AC_CHECK_LIB(curses, newwin, [LIBCURSES="-lcurses"]) 
-AC_SUBST(LIBCURSES)
-
-fi
 
 #--------------------------------------------------------------------
 #    	Check for type of signals
@@ -433,39 +423,10 @@ AC_EGREP_HEADER(rint, math.h, , AC_DEFINE(NEED_RINT_DEC))
 if test "$code" = cow; then
 	AC_REPLACE_FUNCS(usleep setstate strdup rint)
 fi
-if test "$code" = server; then
-	AC_REPLACE_FUNCS(random strdup rint)
-fi
 
 #--------------------------------------------------------------------
 #       Check for system dependent programs
 #--------------------------------------------------------------------
-
-if test "$code" = server; then
-
-AC_MSG_CHECKING(for netstat)
-dirs="/bsd /usr/bsd /etc /bin /usr/bin /usr/etc"
-NETSTAT="nice -20 /usr/ucb/netstat -f inet"
-for i in $dirs; do
-  if test -x $i/netstat; then
-     NETSTAT="nice -20 ${i}/netstat -a"
-     AC_DEFINE_UNQUOTED(NETSTAT,"$NETSTAT")
-     AC_MSG_RESULT(yes)
-     break
-  fi
-done
-
-AC_MSG_CHECKING(for uptime)
-dirs="/bsd /usr/bsd /etc /bin /usr/bin /usr/etc"
-for i in $dirs; do
-  if test -x $i/uptime; then
-     AC_DEFINE_UNQUOTED(UPTIME,"${i}/uptime")
-     AC_MSG_RESULT(yes)
-     break
-  fi
-done
-
-fi
 
 #--------------------------------------------------------------------
 #       Check for SDL
