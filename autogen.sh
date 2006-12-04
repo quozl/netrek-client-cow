@@ -2,5 +2,5 @@
 aclocal
 libtoolize --copy
 autoconf
-chmod +x debian/rules debian/postinst debian/postrm debian/init
+chmod +x debian/rules tests/build
 echo "autogen.sh completed ok"

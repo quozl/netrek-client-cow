@@ -8,7 +8,7 @@ if [ ! -f autogen.sh ]; then echo "build: run in wrong directory"; exit 1; fi
 BUILDROOT=/tmp/netrek-client.$$
 
 # copy the repository there
-darcs get .. $BUILDROOT
+darcs get . $BUILDROOT
 
 # go there
 cd $BUILDROOT
@@ -23,7 +23,7 @@ sh autogen.sh
 make
 
 # install all
-make install
+# make install
 
 # report success
 echo success
