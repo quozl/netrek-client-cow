@@ -1,0 +1,1 @@
+void smessage(char ichar);
