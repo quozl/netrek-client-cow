@@ -1,3 +1,11 @@
+when server terminates TCP connection,
+client hangs, hoping for a callback,
+so add a more graceful failure response,
+such as a relogin, or re-exec,
+
+--
+
+
 $ DISPLAY=nestor:0 ./netrek -M -r /dev/null
 Reading defaults file /dev/null
 Attempting to observe on port 2593...
