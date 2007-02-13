@@ -246,7 +246,7 @@ static
 {
   char    buf[6];
 
-  sprintf(buf, "(%3d)", value);			 /* fix */
+  snprintf(buf, 6, "(%3d)", value);
 
   W_WriteText(pStats, STAT_WIDTH - TEXT_WIDTH, y, textColor,
 	      buf, 5, W_RegularFont);
