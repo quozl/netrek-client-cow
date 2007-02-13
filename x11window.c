@@ -441,7 +441,7 @@ void
     }
 
   // uncomment this to synchronise display for testing
-  XSynchronize(W_Display, True);
+  // XSynchronize(W_Display, True);
 
   // uncomment this to enable a fatal error handler
   // XSetErrorHandler(_myerror);
