@@ -439,7 +439,7 @@ if test x$no_sdl != xyes; then
   have_SDLmixer=no
   AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio, [have_SDLmixer=yes SDL_MIXER_LIBS="-lSDL_mixer"])
   if test x$have_SDLmixer != xyes; then
-    AC_MSG_ERROR([*** Can't find the SDL_mixer library Try: http://www.devolution.com/~slouken/SDL/projects/SDL_mixer/])
+    AC_MSG_ERROR([*** Can't find the SDL_mixer library Try: http://www.libsdl.org/projects/SDL_mixer/])
     AC_SUBST(SDL_MIXER_LIBS)
   fi
 fi
