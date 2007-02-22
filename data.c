@@ -749,3 +749,5 @@ int F_many_self = 0;
 #ifdef UDP_PORTSWAP
 int     portSwap = 1;
 #endif
+
+int fps = 10;

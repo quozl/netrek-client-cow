@@ -115,14 +115,6 @@ struct feature features[] =
   {"AGRI_PIXMAP", &F_agri_pix, 'C', 1, 0, 0},
 #endif
 
-#ifdef HAVE_XPM
-  {"AGRI_PIXMAP", &F_agri_pix, 'C', 1, 0, 0},
-#endif
-
-#ifdef RECORDGAME
-  {"MANY_SELF", &F_many_self, 'S', 0, 0, 0},
-#endif
-
 #ifdef RECORDGAME
   {"MANY_SELF", &F_many_self, 'S', 0, 0, 0},
 #endif
@@ -180,6 +172,11 @@ void
   /* special cases: */
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)
     reportFeatures();
+
+  if (strcmpi(packet->name, "FPS") == 0 && value != -1) {
+    fps = value;
+    fprintf(stderr, "server feature: frames per second: %d\n", fps);
+  }
 
 #ifdef HAVE_XPM
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)

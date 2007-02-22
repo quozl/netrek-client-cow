@@ -52,7 +52,7 @@
 						  * 
 						  * * windows */
 #define PSEUDOSIZE 16
-#define CLOAK_PHASES 7          /* number of drawing phases
+#define CLOAK_PHASES 12          /* number of drawing phases
                                  * in a cloak
                                  * engage/disengage */
 #define NUMRANKS 9

@@ -582,4 +582,6 @@ extern int F_many_self;
 extern int portSwap;
 #endif
 
+extern int fps;
+
 #endif /* _h_data */

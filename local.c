@@ -112,16 +112,12 @@ int     tpline = -1;
 
 static int clearcount = 0;
 static int clearzone[4][(MAXTORP + 1) * MAXPLAYER +
-			        (MAXPLASMA + 1) * MAXPLAYER + MAXPLANETS];
-
+                        (MAXPLASMA + 1) * MAXPLAYER + MAXPLANETS];
 static int clearlcount = 0;
-
 #ifdef HOCKEY_LINES
 static int clearline[4][MAXPLAYER + 2 * MAXPLAYER + NUM_HOCKEY_LINES];
-
 #else
 static int clearline[4][MAXPLAYER + 2 * MAXPLAYER];
-
 #endif
 
 #ifdef SOUND
@@ -314,9 +310,10 @@ static void DrawShips(void)
 
       /* jmn - observer support.. tried to diplay tractors but no works */
 
+      int cloak_phases = CLOAK_PHASES * fps / 10;
       if (j->p_flags & PFCLOAK)
 	{
-	  if (j->p_cloakphase < (CLOAK_PHASES - 1))
+	  if (j->p_cloakphase < (cloak_phases - 1))
 	    {
 
 #ifdef SOUND
@@ -339,7 +336,7 @@ static void DrawShips(void)
 
 #ifdef SOUND
 	      if (myPlayer(j))
-		if (j->p_cloakphase == CLOAK_PHASES - 1) {
+		if (j->p_cloakphase == cloak_phases - 1) {
 #if defined(HAVE_SDL)
 		  Play_Sound(UNCLOAK_WAV);
 #else
@@ -372,7 +369,7 @@ static void DrawShips(void)
       if ((sprite == NULL) || (pixFlags & NO_CLK_PIX))
 #endif
 
-	if (j->p_flags & PFCLOAK && (j->p_cloakphase == (CLOAK_PHASES - 1)))
+	if (j->p_flags & PFCLOAK && (j->p_cloakphase == (cloak_phases - 1)))
 	  {
 	    if (myPlayer(j)
 
@@ -703,7 +700,7 @@ static void DrawShips(void)
 	{
 	  int     i;
 
-	  i = j->p_explode;
+	  i = j->p_explode * 10 / fps;
 
 #ifdef SOUND
 	  if (i == 1)
@@ -955,7 +952,7 @@ static void DrawShips(void)
 
 	      if (tractee->p_status != PALIVE ||
 		  ((tractee->p_flags & PFCLOAK) &&
-		   (tractee->p_cloakphase == (CLOAK_PHASES - 1))))
+		   (tractee->p_cloakphase == (cloak_phases - 1))))
 		{
 		  continue;
 		}
