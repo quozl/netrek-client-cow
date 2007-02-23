@@ -27,7 +27,7 @@
 #include "data.h"
 #include "audio.h"
 
-int isDirectory(char* dir) {
+static int isDirectory(char* dir) {
   struct stat buf;
 
   if (stat(dir, &buf) < 0) {
@@ -40,10 +40,35 @@ int isDirectory(char* dir) {
 
 #if defined(HAVE_SDL)
 
-/* This is probably unix specific path */
-Mix_Chunk *sounds[NUM_WAVES];
+static enum {
+  CLOAKED_WAV,
+  ENGINE_WAV,
+  ENTER_SHIP_WAV,
+  EXPLOSION_WAV,
+  EXPLOSION_OTHER_WAV,
+  FIRE_PLASMA_WAV,
+  FIRE_TORP_WAV,
+  FIRE_TORP_OTHER_WAV,
+  INTRO_WAV,
+  MESSAGE_WAV,
+  PHASER_WAV,
+  PHASER_OTHER_WAV,
+  PLASMA_HIT_WAV,
+  RED_ALERT_WAV,
+  SELF_DESTRUCT_WAV,
+  SHIELD_DOWN_WAV,
+  SHIELD_UP_WAV,
+  TORP_HIT_WAV,
+  UNCLOAK_WAV,
+  WARNING_WAV,
+  NUM_WAVES
+};
+
+/* This is probably unix specific paths */
+static Mix_Chunk *sounds[NUM_WAVES];
 
 #else 
+
 /* Each sound has a priority which controls what can override what
  * Currently these are set as follows:
  * 
@@ -91,19 +116,16 @@ static struct Sound sounds[NUM_SOUNDS + 1] =
 
 static char sound_prefix[PATH_MAX];
 static int current_sound = NO_SOUND;
-static int sound_other = 1;			 /* Play other ship's sounds? 
+static int sound_other = 1;		 /* Play other ship's sounds?  */
 
-						  * 
-						  * 
-						  */
-#endif // Not SDL sound
+#endif /* HAVE_SDL */
 
 #if defined(HAVE_SDL)
 
 /*
  * Build the path to the sound files 
  */
-char *DATAFILE(const char* wav) {
+static char *DATAFILE(const char* wav) {
  char buf[PATH_MAX];
  strncpy(buf, sounddir, 64);
  strncat(buf, "/", 1);
@@ -113,7 +135,7 @@ char *DATAFILE(const char* wav) {
 /*
  * Load the .wave files into the sounds array
  */
-int loadSounds(void) {
+static int loadSounds(void) {
   int i;
 
   sounds[CLOAKED_WAV] = Mix_LoadWAV(DATAFILE("cloaked.wav"));
@@ -139,26 +161,28 @@ int loadSounds(void) {
 
   for (i=0; i < NUM_WAVES; i++) {
     if (!sounds[i]) {
-      fprintf(stderr, "Mix_LoadWAV sound[%d] could not be loaded. Check soundDir in your .netrekrc: %s\n", i, Mix_GetError());
-      return(-1);
+      fprintf(stderr, "Mix_LoadWAV sound[%d] could not be loaded."
+		      "Check soundDir in your .netrekrc: %s\n",
+		      i, Mix_GetError());
+      return -1;
     }
   }
 
-  return(1);
+  return 1;
 }
-#endif
 
+#endif /* HAVE_SDL */
+
+void Exit_Sound(void) {
 #if !defined(HAVE_SDL)
-extern void Exit_Sound(void)
-{
   if (sound_init)
     ExitSound();
   sound_init = 0;
   sound_toggle = 0;
-}
 #endif
+}
 
-extern void Init_Sound(void) {
+void Init_Sound(void) {
   char buf[PATH_MAX];
 
 #ifdef DEBUG
@@ -228,20 +252,69 @@ extern void Init_Sound(void) {
   }
 }
 
-extern void Play_Sound(int type) {
+void Play_Sound(int type) {
 #if defined(HAVE_SDL)
 
-    if (!sound_init) {
+    static int sound2wave[NUM_SOUNDS] = {
+	/*  0 NO_SOUND */                -1,
+	/*  1 FIRE_TORP_SOUND */         FIRE_TORP_WAV,
+	/*  2 PHASER_SOUND */            PHASER_WAV,
+	/*  3 FIRE_PLASMA_SOUND */       FIRE_PLASMA_WAV,
+	/*  4 EXPLOSION_SOUND */         EXPLOSION_WAV,
+	/*  5 CLOAK_SOUND */             CLOAKED_WAV,
+	/*  6 UNCLOAK_SOUND */           UNCLOAK_WAV,
+	/*  7 SHIELD_DOWN_SOUND */       SHIELD_DOWN_WAV,
+	/*  8 SHIELD_UP_SOUND */         SHIELD_UP_WAV,
+	/*  9 TORP_HIT_SOUND */          TORP_HIT_WAV,
+	/* 10 WARNING_SOUND */           WARNING_WAV,
+	/* text in soundrefresh() says engine sound is not supported
+	 * so we'll disable it although there is an ENGINE_WAV */
+	/* 11 ENGINE_SOUND */		 -1,
+	/* 12 ENTER_SHIP_SOUND */        ENTER_SHIP_WAV,
+	/* 13 SELF_DESTRUCT_SOUND */     SELF_DESTRUCT_WAV,
+	/* 14 PLASMA_HIT_SOUND */        PLASMA_HIT_WAV,
+	/* 15 MESSAGE_SOUND */           MESSAGE_WAV,
+	/* 16 MESSAGE1_SOUND */          MESSAGE_WAV,
+	/* 17 MESSAGE2_SOUND */          MESSAGE_WAV,
+	/* 18 MESSAGE3_SOUND */          MESSAGE_WAV,
+	/* 19 MESSAGE4_SOUND */          MESSAGE_WAV,
+	/* 10 MESSAGE5_SOUND */          MESSAGE_WAV,
+	/* 21 MESSAGE6_SOUND */          MESSAGE_WAV,
+	/* 22 MESSAGE7_SOUND */          MESSAGE_WAV,
+	/* 23 MESSAGE8_SOUND */          MESSAGE_WAV,
+	/* 24 MESSAGE9_SOUND */          MESSAGE_WAV,
+	/* 25 OTHER_FIRE_TORP_SOUND */   FIRE_TORP_OTHER_WAV,
+	/* 26 OTHER_PHASER_SOUND */      PHASER_OTHER_WAV,
+	/* 27 OTHER_FIRE_PLASMA_SOUND */ -1,
+	/* 28 OTHER_EXPLOSION_SOUND */   EXPLOSION_OTHER_WAV
+    };
+
+    if (!sound_init)
+	return;
+
+    if (type > NUM_SOUNDS) {
+#ifdef DEBUG
+	fprintf(stderr, "Programmer Error: Nonexistent _sound_ number: %i\n",
+		type);
+#endif
 	return;
     }
 
-  if ((type >= NUM_WAVES) || (type < 0)) {
-    fprintf(stderr, "Invalid sound type %d\n", type);
-  }
+    type = sound2wave[type];
+    if (type == -1)
+	return;
 
-  if (Mix_PlayChannel(-1, sounds[type], 0) < 0) {
-    fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
-  }
+    if ((type >= NUM_WAVES) || (type < 0)) {
+#ifdef DEBUG
+	fprintf(stderr, "Programmer Error: Nonexistent _wave_ number: %i\n",
+		type);
+#endif
+	return;
+    }
+
+    if (Mix_PlayChannel(-1, sounds[type], 0) < 0) {
+	fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
+    }
 #else
   char buf[PATH_MAX];
 
@@ -264,12 +337,12 @@ extern void Play_Sound(int type) {
 #endif
 }
 
+void Abort_Sound(int type) {
 #if !defined(HAVE_SDL)
-extern void Abort_Sound(int type) {
   if ((current_sound != NO_SOUND) && (type == current_sound))
     StopSound();
-}
 #endif
+}
 
 
 
@@ -282,7 +355,15 @@ extern void Abort_Sound(int type) {
 
 static void soundrefresh(int i);
 
-extern void soundwindow(void) {
+int sound_window_height(void) {
+#if defined(HAVE_SDL)
+    return 1;
+#else
+    return MESSAGE_SOUND + 4;
+#endif
+}
+
+void soundwindow(void) {
 #if defined(HAVE_SDL)
     char *buf="All or nothing with SDL sound. Sorry";
     W_WriteText(soundWin, 0, 0, textColor, buf, strlen(buf), 0);
@@ -383,14 +464,13 @@ void soundaction(W_Event * data) {
       if (sound_init)
 	sound_toggle = (sound_toggle == 1) ? 0 : 1;
       soundrefresh(SOUND_TOGGLE);
-      if (!sound_toggle)
-	{
+      /* text in soundrefresh() says engine sound is not supported
+      if (!sound_toggle) {
 	  Abort_Sound(ENGINE_SOUND);
-	}
-      else
-	{
+      } else {
 	  Play_Sound(ENGINE_SOUND);
-	}
+      }
+      */
     }
   else if (i < SOUND_OTHER)
     {
@@ -431,7 +511,7 @@ void soundaction(W_Event * data) {
 }
 
 
-extern void sounddone(void) {
+void sounddone(void) {
   W_UnmapWindow(soundWin);
 }
 

@@ -989,8 +989,10 @@ int     cowmain(char *server, int port, char *name)
     {
 #endif
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
+      /* text in sound.c:soundrefresh() says engine sound is not supported
       Abort_Sound(ENGINE_SOUND);
+      */
 #endif
 
       /* give the player the motd and find out which team he wants */
@@ -1038,7 +1040,7 @@ int     cowmain(char *server, int port, char *name)
 
 	  sendByeReq();
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
 	  Exit_Sound();
 	  sleep(1);
 #endif
@@ -1110,12 +1112,10 @@ int     cowmain(char *server, int port, char *name)
 
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-      Play_Sound(ENTER_SHIP_WAV);
-#else
       Play_Sound(ENTER_SHIP_SOUND);
+      /* text in sound.c:soundrefresh() says engine sound is not supported
       Play_Sound(ENGINE_SOUND);
-#endif /* HAVE_SDL */
+      */
 #endif
 
 #ifdef HOCKEY_LINES

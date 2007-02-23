@@ -52,7 +52,7 @@ findslot(void)
       if (isServerDead())
 	{
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
 	  Exit_Sound();
 #endif
 
@@ -98,7 +98,7 @@ findslot(void)
       if (isServerDead())
 	{
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
 	  Exit_Sound();
 #endif
 
@@ -157,7 +157,7 @@ findslot(void)
 	      else if (event.Window == qwin)
 		{
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
 		  Exit_Sound();
 #endif
 

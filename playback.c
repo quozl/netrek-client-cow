@@ -411,8 +411,10 @@ int
   if (i >= RETURNBASE)
     return (i - RETURNBASE);			 /* Terminate with retcode */
 
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND)
+  /* text in sound.c:soundrefresh() says engine sound is not supported
   Abort_Sound(ENGINE_SOUND);
+  */
 #endif
 
 #ifdef nodef
@@ -452,12 +454,10 @@ int
     redrawPStats();
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(ENTER_SHIP_WAV);
-#else
   Play_Sound(ENTER_SHIP_SOUND);
+  /* text in sound.c:soundrefresh() says engine sound is not supported
   Play_Sound(ENGINE_SOUND);
-#endif
+  */
 #endif
 
 #ifdef HOCKEY_LINES

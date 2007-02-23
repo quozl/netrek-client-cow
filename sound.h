@@ -113,7 +113,6 @@
 #define OTHER_FIRE_PLASMA_SOUND 27
 #define OTHER_EXPLOSION_SOUND   28
 
-
 #define NUM_SOUNDS 28
 
 struct Sound
@@ -125,36 +124,13 @@ struct Sound
 
 extern void sounddone(void);
 extern void soundwindow(void);
+extern int sound_window_height(void);
 
-/* extern void soundaction (W_Event * data); */
+extern void soundaction (W_Event * data);
 
 extern void Play_Sound(int type);
 extern void Abort_Sound(int type);
 extern void Init_Sound(void);
 extern void Exit_Sound(void);
-
-enum {
-  CLOAKED_WAV,
-  ENGINE_WAV,
-  ENTER_SHIP_WAV,
-  EXPLOSION_WAV,
-  EXPLOSION_OTHER_WAV,
-  FIRE_PLASMA_WAV,
-  FIRE_TORP_WAV,
-  FIRE_TORP_OTHER_WAV,
-  INTRO_WAV,
-  MESSAGE_WAV,
-  PHASER_WAV,
-  PHASER_OTHER_WAV,
-  PLASMA_HIT_WAV,
-  RED_ALERT_WAV,
-  SELF_DESTRUCT_WAV,
-  SHIELD_DOWN_WAV,
-  SHIELD_UP_WAV,
-  TORP_HIT_WAV,
-  UNCLOAK_WAV,
-  WARNING_WAV,
-  NUM_WAVES
-};
 
 #endif /* __SOUND_H */

@@ -112,11 +112,6 @@ extern void nsaction(W_Event * data);
 extern void optionaction(W_Event * data);
 extern void udpaction(W_Event * data), waraction(W_Event * data);
 
-#if defined(SOUND) && !defined(HAVE_SDL)
-extern void soundaction(W_Event * data);
-
-#endif
-
 /* Other function declarations */
 extern int smessage(char ichar);
 
@@ -282,15 +277,11 @@ newwin(char *hostmon, char *progname)
 #endif
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  soundWin = W_MakeMenu("sound", TWINSIDE + 20, -BORDER + 10, 40, 1, NULL, 2);
-#else
   soundWin = W_MakeMenu("sound", TWINSIDE + 20, -BORDER + 10, 30,
-			MESSAGE_SOUND + 4, NULL, 2);
+			sound_window_height(), NULL, 2);
   W_SetWindowKeyDownHandler(soundWin, soundaction);
   W_SetWindowButtonHandler(soundWin, soundaction);
   W_DefineArrowCursor(soundWin);
-#endif
 #endif
 
 #ifdef TOOLS

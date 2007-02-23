@@ -2408,11 +2408,7 @@ Key109(void)
 {
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(MESSAGE_WAV);
-#else
   Play_Sound(MESSAGE_SOUND);
-#endif
 #endif
 
   message_on();
@@ -2460,11 +2456,7 @@ Key113(void)
 {
 
 #ifdef SOUND
-#if defined(HAVE_SDL)
-  Play_Sound(SELF_DESTRUCT_WAV);
-#else
   Play_Sound(SELF_DESTRUCT_SOUND);
-#endif
 #endif
 
   fastQuit = 1;
