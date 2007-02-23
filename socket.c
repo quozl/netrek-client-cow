@@ -1502,7 +1502,7 @@ void    handleTorpInfo(struct torp_info_spacket *packet)
     }
   if (gather_stats) {
     /*STATS_TORP_INFO:WAR\tSTATUS\tTNUM*/
-    fprintf(statsFile, "\nSTATS_TORP_INF0:\t");
+    fprintf(statsFile, "\nSTATS_TORP_INFO:\t");
     fprintf(statsFile, "%d\t%d\t%u",
             ((struct torp_info_spacket *) packet)->war,
             ((struct torp_info_spacket *) packet)->status,
@@ -3624,7 +3624,7 @@ void print_packet(char *packet, int size)
 
 	 break;
        case SP_TORP_INFO    :                   /* torp status */
-	 fprintf(stderr, "\nS->C SP_TORP_INF0\t");
+	 fprintf(stderr, "\nS->C SP_TORP_INFO\t");
 	 if (log_packets > 1)
 	   fprintf(stderr, "  war=%d, status=%d, tnum=%u,",
 		   ((struct torp_info_spacket *) packet)->war,
