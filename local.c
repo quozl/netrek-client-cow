@@ -1002,6 +1002,7 @@ static void
 {
   register struct torp *k, *t;
   register int dx, dy;
+  int numdetframes, frame;
 
 #ifdef HAVE_XPM
   register int tno, tsub;
@@ -1105,28 +1106,29 @@ static void
 	    }
 	  else
 #endif
-
 	  if (k->t_status == TEXPLODE)
 	    {
 	      k->t_fuse--;
+              numdetframes = NUMDETFRAMES * fps / 10;
+              frame = k->t_fuse * 10 / fps;
 	      if (k->t_fuse <= 0)
 		{
 		  k->t_status = TFREE;
 		  j->p_ntorp--;
 		  continue;
 		}
-	      if (k->t_fuse >= NUMDETFRAMES)
+	      if (k->t_fuse >= numdetframes)
 		{
-		  k->t_fuse = NUMDETFRAMES - 1;
+		  k->t_fuse = numdetframes - 1;
 		}
 
 #ifdef SOUND
-	      if (k->t_fuse == NUMDETFRAMES - 1)
+	      if (k->t_fuse == numdetframes - 1)
 		Play_Sound(TORP_HIT_SOUND);
 #endif
 
 	      W_WriteBitmap(dx - (cloud_width / 2), dy - (cloud_height / 2),
-			    cloud[k->t_fuse], torpColor(k));
+			    cloud[frame], torpColor(k));
 	      clearzone[0][clearcount] = dx - (cloud_width / 2);
 	      clearzone[1][clearcount] = dy - (cloud_height / 2);
 	      clearzone[2][clearcount] = cloud_width;
@@ -1183,6 +1185,7 @@ void    DrawPlasmaTorps(void)
 {
   register struct plasmatorp *pt;
   register int dx, dy;
+  int numdetframes, frame;
 
 #ifdef HAVE_XPM
   register int ptno;
@@ -1258,6 +1261,8 @@ void    DrawPlasmaTorps(void)
       if (pt->pt_status == PTEXPLODE)
 	{
 	  pt->pt_fuse--;
+	  numdetframes = NUMDETFRAMES * fps / 10;
+	  frame = pt->pt_fuse * 10 / fps;
 	  if (pt->pt_fuse <= 0)
 	    {
 	      pt->pt_status = PTFREE;
@@ -1265,19 +1270,19 @@ void    DrawPlasmaTorps(void)
 	      continue;
 	    }
 
-	  if (pt->pt_fuse >= NUMDETFRAMES)
+	  if (pt->pt_fuse >= numdetframes)
 	    {
-	      pt->pt_fuse = NUMDETFRAMES - 1;
+	      pt->pt_fuse = numdetframes - 1;
 	    }
 
 #ifdef SOUND
-	  if (pt->pt_fuse == NUMDETFRAMES - 1)
+	  if (pt->pt_fuse == numdetframes - 1)
 	    Play_Sound(PLASMA_HIT_SOUND);
 #endif
 
 	  W_WriteBitmap(dx - (plasmacloud_width / 2),
 			dy - (plasmacloud_height / 2),
-			plasmacloud[pt->pt_fuse], plasmatorpColor(pt));
+			plasmacloud[frame], plasmatorpColor(pt));
 	  clearzone[0][clearcount] = dx - (plasmacloud_width / 2);
 	  clearzone[1][clearcount] = dy - (plasmacloud_height / 2);
 	  clearzone[2][clearcount] = plasmacloud_width;

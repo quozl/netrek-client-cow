@@ -596,23 +596,26 @@ void   *S_Torp(int torpno)
 {
   struct S_Object *sprite;
   struct torp *this = &torps[torpno];
+  int numdetframes, frame;
 
   if (this->t_status == TEXPLODE)
     {
       sprite = &torpImg[remap[players[this->t_owner].p_team]][1];
       this->t_fuse--;
+      numdetframes = NUMDETFRAMES * fps / 10;
+      frame = this->t_fuse * 10 / fps;
       if (this->t_fuse <= 0)
 	{
 	  this->t_status = PTFREE;
 	  players[this->t_owner].p_ntorp--;
 	}
-      else if (this->t_fuse >= NUMDETFRAMES)
+      else if (this->t_fuse >= numdetframes)
 	{
-	  this->t_fuse = NUMDETFRAMES - 1;
+	  this->t_fuse = numdetframes - 1;
 	}
       else
 	{
-	  sprite->view = this->t_fuse;
+	  sprite->view = frame;
 	}
     }
   else
@@ -631,23 +634,26 @@ void   *S_Plasma(int plasmatorpno)
 {
   struct S_Object *sprite;
   struct plasmatorp *this = &plasmatorps[plasmatorpno];
+  int numdetframes, frame;
 
   if (this->pt_status == PTEXPLODE)
     {
       sprite = &plasmaImg[remap[players[this->pt_owner].p_team]][1];
       this->pt_fuse--;
+      numdetframes = NUMDETFRAMES * fps / 10;
+      frame = this->pt_fuse * 10 / fps;
       if (this->pt_fuse <= 0)
 	{
 	  this->pt_status = PTFREE;
 	  players[this->pt_owner].p_nplasmatorp--;
 	}
-      else if (this->pt_fuse >= NUMDETFRAMES)
+      else if (this->pt_fuse >= numdetframes)
 	{
-	  this->pt_fuse = NUMDETFRAMES - 1;
+	  this->pt_fuse = numdetframes - 1;
 	}
       else
 	{
-	  sprite->view = this->pt_fuse;
+	  sprite->view = frame;
 	}
     }
   else
