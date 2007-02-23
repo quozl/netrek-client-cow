@@ -161,9 +161,9 @@ char    exptime[27];
 #ifdef HAVE_XPM
 #define NO_PIXMAPS 0x8000
 extern int pixMissing;
-
 #endif
 
+extern int gather_stats;
 
 #ifndef WIN32
 main(int argc, char **argv)
@@ -471,6 +471,9 @@ main2(int argc, char **argv)
 	      sprintf(url, bugURL, mvers, PATCHLEVEL, arch);
 	      break;
 #endif
+	    case 'S': /* analyse a cambot recording for visualisation */
+	      gather_stats++;
+	      break;
 
 	    default:
 	      fprintf(stderr, "%s: unknown option '%c'\n", name, *ptr);

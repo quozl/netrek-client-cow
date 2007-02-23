@@ -75,19 +75,8 @@
 #include "map.h"
 #include "local.h"
 
-/*
- * William U. Clark, Jr. netrek@wuclark.com
- * 
- * Added data output to packet handlers to allow
- * for visulization in other programs.
- * 
- * define GATHER_STATS for output
- */
-
-#define GATHER_STATS      /* Collect stats and output to statsFile */
-#ifdef GATHER_STATS
-#define statsFile stderr  /* use stderr for for stats output for now*/
-#endif
+#define statsFile stderr        /* use stderr for stats output for now */
+int gather_stats = 0;
 
 #ifdef WIN32					 /* socket garbage in case *
 						  * the client is not running 
@@ -1446,15 +1435,15 @@ void    handleTorp(struct torp_spacket *packet)
     }
 #endif
 
-#ifdef GATHER_STATS
-     /*STATS_SP_TORP:DIR,TNUM,X,Y*/
-	 fprintf(stderr, "\nSTATS_SP_TORP:\t");
-	 fprintf(stderr, "%d\t%u\t%u\t%u",
-       ((struct torp_spacket *) packet)->dir,
-       ntohs(((struct torp_spacket *) packet)->tnum),
-       ntohl(((struct torp_spacket *) packet)->x),
-       ntohl(((struct torp_spacket *) packet)->y) );
-#endif		   
+  if (gather_stats) {
+    /*STATS_SP_TORP:DIR,TNUM,X,Y*/
+    fprintf(statsFile, "\nSTATS_SP_TORP:\t");
+    fprintf(statsFile, "%d\t%u\t%u\t%u",
+            ((struct torp_spacket *) packet)->dir,
+            ntohs(((struct torp_spacket *) packet)->tnum),
+            ntohl(((struct torp_spacket *) packet)->x),
+            ntohl(((struct torp_spacket *) packet)->y));
+  }
 }
 
 void    handleTorpInfo(struct torp_info_spacket *packet)
@@ -1511,14 +1500,14 @@ void    handleTorpInfo(struct torp_info_spacket *packet)
 	  thetorp->t_fuse = NUMDETFRAMES * fps / 10;
 	}
     }
-#ifdef GATHER_STATS
-  /*STATS_TORP_INFO:WAR\tSTATUS\tTNUM*/
-  fprintf(stderr, "\nSTATS_TORP_INF0:\t");
-  fprintf(stderr, "%d\t%d\t%u",
-    ((struct torp_info_spacket *) packet)->war,
-    ((struct torp_info_spacket *) packet)->status,
-    ntohs(((struct torp_info_spacket *) packet)->tnum) );
-#endif
+  if (gather_stats) {
+    /*STATS_TORP_INFO:WAR\tSTATUS\tTNUM*/
+    fprintf(statsFile, "\nSTATS_TORP_INF0:\t");
+    fprintf(statsFile, "%d\t%d\t%u",
+            ((struct torp_info_spacket *) packet)->war,
+            ((struct torp_info_spacket *) packet)->status,
+            ntohs(((struct torp_info_spacket *) packet)->tnum));
+  }
 }
 
 void    handleStatus(struct status_spacket *packet)
@@ -1679,16 +1668,16 @@ void    handlePlayer(struct player_spacket *packet)
     }
 #endif
 
-#ifdef GATHER_STATS
-  /* SP_PLAYER:PNUN,DIR,SPEED,X,Y */
-  fprintf(statsFile, "\nSTATS_SP_PLAYER:\t");
-  fprintf(statsFile, "%d\t%u\t%d\t%ld\t%d",
-    ((struct player_spacket *) packet)->pnum,
-    ((struct player_spacket *) packet)->dir,
-    ((struct player_spacket *) packet)->speed,
-    ntohl(((struct player_spacket *) packet)->x),
-    ntohl(((struct player_spacket *) packet)->y) );  
-#endif
+  if (gather_stats) {
+    /* SP_PLAYER:PNUN,DIR,SPEED,X,Y */
+    fprintf(statsFile, "\nSTATS_SP_PLAYER:\t");
+    fprintf(statsFile, "%d\t%u\t%d\t%ld\t%d",
+            ((struct player_spacket *) packet)->pnum,
+            ((struct player_spacket *) packet)->dir,
+            ((struct player_spacket *) packet)->speed,
+            ntohl(((struct player_spacket *) packet)->x),
+            ntohl(((struct player_spacket *) packet)->y));
+  }
 }
 
 
@@ -1940,7 +1929,7 @@ void    handlePlanet(struct planet_spacket *packet)
 void    handlePhaser(struct phaser_spacket *packet)
 {
   struct phaser *phas;
-  
+
 #ifdef CORRUPTED_PACKETS
   if (packet->pnum >= MAXPLAYER)
     {
@@ -1973,18 +1962,18 @@ void    handlePhaser(struct phaser_spacket *packet)
     }
 #endif
   
-#ifdef GATHER_STATS
-     /* not getting any data?*/
-     /*STATS_SP_PHASER:\tpnum\tstats\tdir\tx\ty\ttarget*/
-	 fprintf(statsFile, "\nSTATS_SP_PHASER\t");
-	 fprintf(statsFile, "%d\t%d\t%u\t%ld\t%ld\t%ld",
-       ((struct phaser_spacket *) packet)->pnum,
-       ((struct phaser_spacket *) packet)->status,
-       ((struct phaser_spacket *) packet)->dir,
-       ntohl(((struct phaser_spacket *) packet)->x),
-       ntohl(((struct phaser_spacket *) packet)->y),
-       ntohl(((struct phaser_spacket *) packet)->target) );
-#endif
+  if (gather_stats) {
+    /* not getting any data?*/
+    /*STATS_SP_PHASER:\tpnum\tstats\tdir\tx\ty\ttarget*/
+    fprintf(statsFile, "\nSTATS_SP_PHASER\t");
+    fprintf(statsFile, "%d\t%d\t%u\t%ld\t%ld\t%ld",
+            ((struct phaser_spacket *) packet)->pnum,
+            ((struct phaser_spacket *) packet)->status,
+            ((struct phaser_spacket *) packet)->dir,
+            ntohl(((struct phaser_spacket *) packet)->x),
+            ntohl(((struct phaser_spacket *) packet)->y),
+            ntohl(((struct phaser_spacket *) packet)->target));
+  }
 }
 
 void    handleMessage(struct mesg_spacket *packet)
@@ -2004,15 +1993,15 @@ void    handleMessage(struct mesg_spacket *packet)
 
   dmessage(packet->mesg, packet->m_flags, packet->m_from, packet->m_recpt);
   
-#ifdef GATHER_STATS
-  /*STATS_SP_MESSAGE:\tFLAGS\tRECPT\tFROM\tMESG*/
-  fprintf(statsFile, "\nSTATS_SP_MESSAGE:\t");
-  fprintf(statsFile, "0x%0X\t%d\t%d\t%s", 
-    ((struct mesg_spacket *) packet)->m_flags, 
-    ((struct mesg_spacket *) packet)->m_recpt, 
-    ((struct mesg_spacket *) packet)->m_from, 
-    ((struct mesg_spacket *) packet)->mesg );
-#endif
+  if (gather_stats) {
+    /*STATS_SP_MESSAGE:\tFLAGS\tRECPT\tFROM\tMESG*/
+    fprintf(statsFile, "\nSTATS_SP_MESSAGE:\t");
+    fprintf(statsFile, "0x%0X\t%d\t%d\t%s",
+            ((struct mesg_spacket *) packet)->m_flags,
+            ((struct mesg_spacket *) packet)->m_recpt,
+            ((struct mesg_spacket *) packet)->m_from,
+            ((struct mesg_spacket *) packet)->mesg);
+  }
 }
 
 void    handleQueue(struct queue_spacket *packet)
@@ -2510,16 +2499,16 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
 
   PlistNoteUpdate(packet->pnum);
 
-#ifdef GATHER_STATS
-  /* STATS_SP_PLAYER:PNUN,RANK,NAME,MONITOR,LOGIN */
-  fprintf(statsFile, "\nSTATS_SP_PL_LOGIN:\t");
-  fprintf(statsFile, "%d\t%d\t%s\t%s\t%s",
-    ((struct plyr_login_spacket *) packet)->pnum,
-    ((struct plyr_login_spacket *) packet)->rank,
-    ((struct plyr_login_spacket *) packet)->name,
-    ((struct plyr_login_spacket *) packet)->monitor,
-    ((struct plyr_login_spacket *) packet)->login );
-#endif
+  if (gather_stats) {
+    /* STATS_SP_PLAYER:PNUN,RANK,NAME,MONITOR,LOGIN */
+    fprintf(statsFile, "\nSTATS_SP_PL_LOGIN:\t");
+    fprintf(statsFile, "%d\t%d\t%s\t%s\t%s",
+            ((struct plyr_login_spacket *) packet)->pnum,
+            ((struct plyr_login_spacket *) packet)->rank,
+            ((struct plyr_login_spacket *) packet)->name,
+            ((struct plyr_login_spacket *) packet)->monitor,
+            ((struct plyr_login_spacket *) packet)->login);
+  }
 }
 
 void    handleStats(struct stats_spacket *packet)
