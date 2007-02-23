@@ -194,7 +194,9 @@ extern int rotate_deg;
 extern int netstat;
 extern int netstatfreq;
 extern W_Window netstatWin, lMeter;
-extern int updatespeed;
+extern int client_ups;	/* client requested updates per second */
+extern int server_ups;	/* server responded updates per second */
+extern int server_fps;	/* server configured frames per second */
 
 extern int SBhours;
 
@@ -581,7 +583,5 @@ extern int F_many_self;
 #ifdef UDP_PORTSWAP
 extern int portSwap;
 #endif
-
-extern int fps;
 
 #endif /* _h_data */

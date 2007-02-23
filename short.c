@@ -1164,7 +1164,7 @@ void    handleVTorpInfo(unsigned char *sbuf)
 	      thetorp->t_status = status;
 	      if (thetorp->t_status == TEXPLODE)
 		{
-		  thetorp->t_fuse = NUMDETFRAMES * fps / 10;
+		  thetorp->t_fuse = NUMDETFRAMES * server_ups / 10;
 		}
 	    }
 	}					 /* if */

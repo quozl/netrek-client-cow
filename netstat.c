@@ -64,7 +64,7 @@ ns_record_update(int count)
   static int lastupdateSpeed;
   static int lasttime = -1;
 
-  et = 1000 / updatespeed;			 /* expected time */
+  et = 1000 / server_ups;			 /* expected time */
 
   if (!me)
     return;
@@ -110,14 +110,14 @@ ns_record_update(int count)
     }
 
   /* reset if we change updates */
-  if (updatespeed != lastupdateSpeed)
+  if (server_ups != lastupdateSpeed)
     {
       ns_init(3);
-      lastupdateSpeed = updatespeed;
+      lastupdateSpeed = server_ups;
       lastread = now;
       return;
     }
-  lastupdateSpeed = updatespeed;
+  lastupdateSpeed = server_ups;
 
   lasttime = now - lastread;
 
@@ -158,7 +158,7 @@ ns_do_stat(int v, int c)
   if (n <= 1 || nl <= 1)
     return;
 
-  uf = (updatespeed * 10) / netstatfreq;
+  uf = (server_ups * 10) / netstatfreq;
   if (uf == 0)
     uf = 1;
 

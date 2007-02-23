@@ -577,7 +577,7 @@ resetdefaults(void)
   showPlanetOwner = booleanDefault("showPlanetOwner", showPlanetOwner);
   newDashboard = intDefault("newDashboard", newDashboard);
   ROMVLVS = booleanDefault("ROMVLVS", ROMVLVS);
-  updatespeed = intDefault("updatespersec", updatespeed);
+  client_ups = intDefault("updatespersec", client_ups);
   redrawDelay = intDefault("redrawDelay", redrawDelay);
   logmess = booleanDefault("logging", logmess);
 

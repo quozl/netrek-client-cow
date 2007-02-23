@@ -165,6 +165,19 @@ void
 	  break;
 	}
     }
+
+  if (strcmpi(packet->name, "FPS") == 0 && value != -1) {
+    server_fps = client_ups = server_ups = value;
+    fprintf(stderr, "server feature: frames per second: %d\n", value);
+    return;
+  }
+
+  if (strcmpi(packet->name, "UPS") == 0 && value != -1) {
+    client_ups = server_ups = value;
+    fprintf(stderr, "server feature: updates per second: %d\n", value);
+    return;
+  }
+
   if (features[i].name == 0)
     {
       printf("Feature %s from server unknown to client!\n", packet->name);
@@ -172,11 +185,6 @@ void
   /* special cases: */
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)
     reportFeatures();
-
-  if (strcmpi(packet->name, "FPS") == 0 && value != -1) {
-    fps = value;
-    fprintf(stderr, "server feature: frames per second: %d\n", fps);
-  }
 
 #ifdef HAVE_XPM
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)

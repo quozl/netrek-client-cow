@@ -1497,7 +1497,7 @@ void    handleTorpInfo(struct torp_info_spacket *packet)
       thetorp->t_status = packet->status;
       if (thetorp->t_status == TEXPLODE)
 	{
-	  thetorp->t_fuse = NUMDETFRAMES * fps / 10;
+	  thetorp->t_fuse = NUMDETFRAMES * server_ups / 10;
 	}
     }
   if (gather_stats) {
@@ -2132,7 +2132,7 @@ void    handlePlasmaInfo(struct plasma_info_spacket *packet)
       thetorp->pt_status = packet->status;
       if (thetorp->pt_status == PTEXPLODE)
 	{
-	  thetorp->pt_fuse = NUMDETFRAMES * fps / 10;
+	  thetorp->pt_fuse = NUMDETFRAMES * server_ups / 10;
 	}
     }
 }

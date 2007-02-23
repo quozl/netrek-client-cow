@@ -337,7 +337,9 @@ int     recv_warn = 1;
 int     netstat = 0;
 int     netstatfreq = 5;
 W_Window netstatWin, lMeter;
-int     updatespeed = 5;
+int     client_ups = 50;	/* client requested updates per second */
+int     server_ups = 50;	/* server responded updates per second */
+int     server_fps = 50;	/* server configured frames per second */
 
 #ifdef META
 char   *metaserver = "metaserver.netrek.org";	 /* US metaserver. */
@@ -749,5 +751,3 @@ int F_many_self = 0;
 #ifdef UDP_PORTSWAP
 int     portSwap = 1;
 #endif
-
-int fps = 10;

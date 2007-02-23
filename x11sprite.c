@@ -602,8 +602,8 @@ void   *S_Torp(int torpno)
     {
       sprite = &torpImg[remap[players[this->t_owner].p_team]][1];
       this->t_fuse--;
-      numdetframes = NUMDETFRAMES * fps / 10;
-      frame = this->t_fuse * 10 / fps;
+      numdetframes = NUMDETFRAMES * server_ups / 10;
+      frame = this->t_fuse * 10 / server_ups;
       if (this->t_fuse <= 0)
 	{
 	  this->t_status = PTFREE;
@@ -640,8 +640,8 @@ void   *S_Plasma(int plasmatorpno)
     {
       sprite = &plasmaImg[remap[players[this->pt_owner].p_team]][1];
       this->pt_fuse--;
-      numdetframes = NUMDETFRAMES * fps / 10;
-      frame = this->pt_fuse * 10 / fps;
+      numdetframes = NUMDETFRAMES * server_ups / 10;
+      frame = this->pt_fuse * 10 / server_ups;
       if (this->pt_fuse <= 0)
 	{
 	  this->pt_status = PTFREE;

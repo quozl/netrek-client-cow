@@ -29,7 +29,6 @@ static int old_rotate, old_rotate_deg;
 
 #endif
 
-static int lastUpdateSpeed = 5;
 static char newkeys[14];
 
 #if (defined( DEBUG) || defined (BITMAP_DEBUG)) && defined(DYNAMIC_BITMAPS)
@@ -160,8 +159,8 @@ struct int_range MenuPages =
 
 
 /* updates: use of the int range thing... */
-struct int_range updates_range =
-{1, 10, 1};
+struct int_range client_ups_range =
+{1, 50, 1};
 struct int_range redraw_updates_range =
 {0, 5, 1};
 
@@ -256,7 +255,7 @@ struct option Control_Menu[] =
   {1, "use new distress", &UseNewDistress, 0, 0, 0, NULL, NULL},
   {1, "new keymap entries: %s", 0, 0, newkeys, 13, NULL, NULL},
   {1, "ignore the capslock key", &ignoreCaps, 0, 0, 0, NULL, NULL},
-  {1, "%d updates per second", &updatespeed, 0, 0, 0, 0, &updates_range},
+  {1, "%d updates per second", &client_ups, 0, 0, 0, 0, &client_ups_range},
   {1, "%d 1/10 sec screen refresh delay", &redrawDelay, 0, 0, 0, 0,
    &redraw_updates_range},
   {1, "avoid message kludge", &niftyNewMessages, 0, 0, 0, NULL, NULL},
@@ -861,15 +860,11 @@ optiondone(void)
     }
   *newkeys = '\0';
 
-  if (updatespeed != lastUpdateSpeed)
-    {
-      sendUpdatePacket(1000000 / updatespeed);
-      lastUpdateSpeed = updatespeed;
-    }
+  if (client_ups != server_ups) {
+    sendUpdatePacket(1000000 / client_ups);
+  }
 
-  sendOptionsPacket();				 /* update server as to the * 
-						  * 
-						  * * client's options */
+  sendOptionsPacket(); /* update server as to the client's options */
 }
 
 /* set up menus linked list */

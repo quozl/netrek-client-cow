@@ -310,7 +310,7 @@ static void DrawShips(void)
 
       /* jmn - observer support.. tried to diplay tractors but no works */
 
-      int cloak_phases = CLOAK_PHASES * fps / 10;
+      int cloak_phases = CLOAK_PHASES * server_ups / 10;
       if (j->p_flags & PFCLOAK)
 	{
 	  if (j->p_cloakphase < (cloak_phases - 1))
@@ -684,7 +684,7 @@ static void DrawShips(void)
 	{
 	  int     i;
 
-	  i = j->p_explode * 10 / fps;
+	  i = j->p_explode * 10 / server_ups;
 
 #ifdef SOUND
 	  if (i == 1)
@@ -1109,8 +1109,8 @@ static void
 	  if (k->t_status == TEXPLODE)
 	    {
 	      k->t_fuse--;
-              numdetframes = NUMDETFRAMES * fps / 10;
-              frame = k->t_fuse * 10 / fps;
+              numdetframes = NUMDETFRAMES * server_ups / 10;
+              frame = k->t_fuse * 10 / server_ups;
 	      if (k->t_fuse <= 0)
 		{
 		  k->t_status = TFREE;
@@ -1261,8 +1261,8 @@ void    DrawPlasmaTorps(void)
       if (pt->pt_status == PTEXPLODE)
 	{
 	  pt->pt_fuse--;
-	  numdetframes = NUMDETFRAMES * fps / 10;
-	  frame = pt->pt_fuse * 10 / fps;
+	  numdetframes = NUMDETFRAMES * server_ups / 10;
+	  frame = pt->pt_fuse * 10 / server_ups;
 	  if (pt->pt_fuse <= 0)
 	    {
 	      pt->pt_status = PTFREE;
