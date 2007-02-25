@@ -296,6 +296,9 @@ char   *w_texts[] =
 #define NUMVARITEXTS ( sizeof vari_texts / sizeof   vari_texts[0])
 #define NUMDAEMONTEXTS ( sizeof daemon_texts / sizeof daemon_texts[0])
 
+#define statsFile stderr        /* use stderr for stats output for now */
+extern int gather_stats;
+
 extern void sendShortReq(char);
 void    new_flags(unsigned int data, int which);
 
@@ -1262,6 +1265,18 @@ void    handleVPlanet(unsigned char *sbuf)
 	plan->pl_flags |= PLREDRAW;
 #endif /* ATM */
 
+      if (gather_stats) {
+      /*STATS_SP_S_PLANET:\tPNUM\tPL_OWNER\tINFO\tARMIES\tFLAGS*/
+        fprintf(statsFile, "\nSTATS_SP_S_PLANET:\t"); 
+        fprintf(statsFile, 
+           "%d\t%d\t%d\t%d\t%d", 
+           packet->pnum, 
+           packet->owner, 
+           packet->info, 
+           packet->armies,
+           ntohs(packet->flags) );
+      }
+       
     }						 /* FOR */
 }
 
