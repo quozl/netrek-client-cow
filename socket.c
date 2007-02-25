@@ -1501,8 +1501,8 @@ void    handleTorpInfo(struct torp_info_spacket *packet)
 	}
     }
   if (gather_stats) {
-    /*STATS_TORP_INFO:WAR\tSTATUS\tTNUM*/
-    fprintf(statsFile, "\nSTATS_TORP_INFO:\t");
+    /*STATS_SP_TORP_INFO:WAR\tSTATUS\tTNUM*/
+    fprintf(statsFile, "\nSTATS_SP_TORP_INFO:\t");
     fprintf(statsFile, "%d\t%d\t%u",
             ((struct torp_info_spacket *) packet)->war,
             ((struct torp_info_spacket *) packet)->status,
@@ -1529,6 +1529,19 @@ void    handleStatus(struct status_spacket *packet)
       printf("planets: %d\n", status->planets);
       printf("armsbomb: %d\n", status->armsbomb);
     }
+
+  if(gather_stats){
+  	/*STATS_SP_STATUS:\tTOURN\tARMSBOMB\tPLANETS\tKILLS\tLOSSES\tTIME\tTIMEPROD*/
+    fprintf(statsFile, "\nSTATS_SP_STATUS:\t");
+    fprintf(statsFile, "\t%d\t%u\t%u\t%u\t%u\t%u\t%lu",
+      ((struct status_spacket *) packet)->tourn,
+      ntohl(((struct status_spacket *) packet)->armsbomb),
+      ntohl(((struct status_spacket *) packet)->planets),
+      ntohl(((struct status_spacket *) packet)->kills),
+      ntohl(((struct status_spacket *) packet)->losses),
+      ntohl(((struct status_spacket *) packet)->time),
+      ntohl(((struct status_spacket *) packet)->timeprod) );
+  }
 }
 
 void    handleSelf(struct you_spacket *packet)
@@ -1875,7 +1888,7 @@ void    handlePlanet(struct planet_spacket *packet)
 #ifdef CORRUPTED_PACKETS
   if (packet->pnum >= MAXPLANETS)
     {
-      fprintf(stderr, "handlePlanet: bad index %d\n", packet->pnum);
+      fprintf(statsFile, "handlePlanet: bad index %d\n", packet->pnum);
       return;
     }
 #endif
@@ -2135,6 +2148,15 @@ void    handlePlasmaInfo(struct plasma_info_spacket *packet)
 	  thetorp->pt_fuse = NUMDETFRAMES * server_ups / 10;
 	}
     }
+    
+  if (gather_stats){
+    /*STATS_SP_PLASMA_INFO:\tWAR\tSTATUS\tPNUM*/
+    fprintf(statsFile, "\nSTATS_SP_PLASMA_INFO:\t");
+    fprintf(statsFile, "%d\t%d\t%u",
+      ((struct plasma_info_spacket *) packet)->war,
+      ((struct plasma_info_spacket *) packet)->status,
+      ntohs(((struct plasma_info_spacket *) packet)->pnum) );
+  }
 }
 
 void    handlePlasma(struct plasma_spacket *packet)
@@ -2161,6 +2183,14 @@ void    handlePlasma(struct plasma_spacket *packet)
       rotate_coord(&thetorp->pt_x, &thetorp->pt_y, rotate_deg, GWIDTH / 2, GWIDTH / 2);
     }
 #endif
+
+  if (gather_stats){
+    /*STATS_SP_PLASMA:\tPNUM\tX\tY*/
+    fprintf(statsFile, "\nSTATS_SP_PLASMA:\t%u\t%ld\t%ld",
+      ntohs(((struct plasma_spacket *) packet)->pnum),
+      ntohl(((struct plasma_spacket *) packet)->x),
+      ntohl(((struct plasma_spacket *) packet)->y) );
+  }
 }
 
 void    handleFlags(struct flags_spacket *packet)
@@ -2228,6 +2258,14 @@ void    handleKills(struct kills_spacket *packet)
 	}
 #endif /* ARMY_SLIDER */
     }
+    
+  if(gather_stats){
+  	/*STATS_SP_KILLS:\tPNUM\tKILLS*/
+    fprintf(statsFile, "\nSTATS_SP_KILLS:\t");
+    fprintf(statsFile, "%d\t%u",
+      ((struct kills_spacket *) packet)->pnum,
+      ntohl(((struct kills_spacket *) packet)->kills) );
+  }
 }
 
 void    handlePStatus(struct pstatus_spacket *packet)
@@ -2599,6 +2637,15 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
       redrawStats();				 /* TSH */
     }
   redrawPlayer[packet->pnum] = 1;
+
+  if (gather_stats) {
+    /*STATS_SP_PLAYER_INFO:\tPNUM\tSHIPTYPE\tTEAM*/
+    fprintf(stderr, "\nSTATS_SP_PLAYER_INFO:\t");
+    fprintf(stderr, "%d\t%d\t%d",
+      ((struct plyr_info_spacket *) packet)->pnum,
+      ((struct plyr_info_spacket *) packet)->shiptype,
+      ((struct plyr_info_spacket *) packet)->team );
+  }
 }
 
 sendUpdatePacket(LONG speed)
@@ -2649,6 +2696,16 @@ void    handlePlanetLoc(struct planet_loc_spacket *packet)
       rotate_coord(&pl->pl_x, &pl->pl_y, rotate_deg, GWIDTH / 2, GWIDTH / 2);
     }
 #endif
+
+  if (gather_stats){
+    /*STATS_SP_PLANET_LOC:\tPNUM\tX\tY\tNAME*/
+    fprintf(statsFile, "\nSTATS_SP_PLANET_LOC:\t"); 
+    fprintf(statsFile, "%d\t%ld\t%ld\t%s",
+      ((struct planet_loc_spacket *) packet)->pnum,
+      ntohl(((struct planet_loc_spacket *) packet)->x),
+      ntohl(((struct planet_loc_spacket *) packet)->y),
+      ((struct planet_loc_spacket *) packet)->name );
+  }
 }
 
 
