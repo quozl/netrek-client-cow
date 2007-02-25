@@ -248,7 +248,7 @@ char   *w_texts[] =
   "Helmsman: Captain, the maximum safe speed for docking or orbiting is warp 2!",	/* 79 
 											 * 
 											 */
-  "Central Command regulations prohibits you from orbiting foreign planets",	/* 80 
+  "Central Command regulations prohibit you from orbiting foreign planets",	/* 80 
 										 * 
 										 */
   "Helmsman:  Sensors read no valid targets in range to dock or orbit sir!",	/* 81 
