@@ -1267,14 +1267,14 @@ void    handleVPlanet(unsigned char *sbuf)
 
       if (gather_stats) {
       /*STATS_SP_S_PLANET:\tPNUM\tPL_OWNER\tINFO\tARMIES\tFLAGS*/
-        fprintf(statsFile, "\nSTATS_SP_S_PLANET:\t"); 
-        fprintf(statsFile, 
-           "%d\t%d\t%d\t%d\t%d", 
-           packet->pnum, 
-           packet->owner, 
-           packet->info, 
-           packet->armies,
-           ntohs(packet->flags) );
+        fprintf(statsFile, "\nSTATS_SP_S_PLANET:\t");
+        fprintf(statsFile,
+                "%d\t%d\t%d\t%d\t%d",
+                packet->pnum,
+                packet->owner,
+                packet->info,
+                packet->armies,
+                ntohs(packet->flags));
       }
        
     }						 /* FOR */

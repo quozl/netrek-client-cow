@@ -1530,17 +1530,17 @@ void    handleStatus(struct status_spacket *packet)
       printf("armsbomb: %d\n", status->armsbomb);
     }
 
-  if(gather_stats){
-  	/*STATS_SP_STATUS:\tTOURN\tARMSBOMB\tPLANETS\tKILLS\tLOSSES\tTIME\tTIMEPROD*/
+  if (gather_stats) {
+    /*STATS_SP_STATUS:\tTOURN\tARMSBOMB\tPLANETS\tKILLS\tLOSSES\tTIME\tTIMEPROD*/
     fprintf(statsFile, "\nSTATS_SP_STATUS:\t");
     fprintf(statsFile, "\t%d\t%u\t%u\t%u\t%u\t%u\t%lu",
-      ((struct status_spacket *) packet)->tourn,
-      ntohl(((struct status_spacket *) packet)->armsbomb),
-      ntohl(((struct status_spacket *) packet)->planets),
-      ntohl(((struct status_spacket *) packet)->kills),
-      ntohl(((struct status_spacket *) packet)->losses),
-      ntohl(((struct status_spacket *) packet)->time),
-      ntohl(((struct status_spacket *) packet)->timeprod) );
+            ((struct status_spacket *) packet)->tourn,
+            ntohl(((struct status_spacket *) packet)->armsbomb),
+            ntohl(((struct status_spacket *) packet)->planets),
+            ntohl(((struct status_spacket *) packet)->kills),
+            ntohl(((struct status_spacket *) packet)->losses),
+            ntohl(((struct status_spacket *) packet)->time),
+            ntohl(((struct status_spacket *) packet)->timeprod));
   }
 }
 
@@ -1888,7 +1888,7 @@ void    handlePlanet(struct planet_spacket *packet)
 #ifdef CORRUPTED_PACKETS
   if (packet->pnum >= MAXPLANETS)
     {
-      fprintf(statsFile, "handlePlanet: bad index %d\n", packet->pnum);
+      fprintf(stderr, "handlePlanet: bad index %d\n", packet->pnum);
       return;
     }
 #endif
@@ -2149,13 +2149,13 @@ void    handlePlasmaInfo(struct plasma_info_spacket *packet)
 	}
     }
     
-  if (gather_stats){
+  if (gather_stats) {
     /*STATS_SP_PLASMA_INFO:\tWAR\tSTATUS\tPNUM*/
     fprintf(statsFile, "\nSTATS_SP_PLASMA_INFO:\t");
     fprintf(statsFile, "%d\t%d\t%u",
-      ((struct plasma_info_spacket *) packet)->war,
-      ((struct plasma_info_spacket *) packet)->status,
-      ntohs(((struct plasma_info_spacket *) packet)->pnum) );
+            ((struct plasma_info_spacket *) packet)->war,
+            ((struct plasma_info_spacket *) packet)->status,
+            ntohs(((struct plasma_info_spacket *) packet)->pnum));
   }
 }
 
@@ -2184,12 +2184,12 @@ void    handlePlasma(struct plasma_spacket *packet)
     }
 #endif
 
-  if (gather_stats){
+  if (gather_stats) {
     /*STATS_SP_PLASMA:\tPNUM\tX\tY*/
     fprintf(statsFile, "\nSTATS_SP_PLASMA:\t%u\t%ld\t%ld",
-      ntohs(((struct plasma_spacket *) packet)->pnum),
-      ntohl(((struct plasma_spacket *) packet)->x),
-      ntohl(((struct plasma_spacket *) packet)->y) );
+            ntohs(((struct plasma_spacket *) packet)->pnum),
+            ntohl(((struct plasma_spacket *) packet)->x),
+            ntohl(((struct plasma_spacket *) packet)->y));
   }
 }
 
@@ -2259,12 +2259,12 @@ void    handleKills(struct kills_spacket *packet)
 #endif /* ARMY_SLIDER */
     }
     
-  if(gather_stats){
-  	/*STATS_SP_KILLS:\tPNUM\tKILLS*/
+  if (gather_stats) {
+    /*STATS_SP_KILLS:\tPNUM\tKILLS*/
     fprintf(statsFile, "\nSTATS_SP_KILLS:\t");
     fprintf(statsFile, "%d\t%u",
-      ((struct kills_spacket *) packet)->pnum,
-      ntohl(((struct kills_spacket *) packet)->kills) );
+            ((struct kills_spacket *) packet)->pnum,
+            ntohl(((struct kills_spacket *) packet)->kills));
   }
 }
 
@@ -2640,11 +2640,11 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
 
   if (gather_stats) {
     /*STATS_SP_PLAYER_INFO:\tPNUM\tSHIPTYPE\tTEAM*/
-    fprintf(stderr, "\nSTATS_SP_PLAYER_INFO:\t");
-    fprintf(stderr, "%d\t%d\t%d",
-      ((struct plyr_info_spacket *) packet)->pnum,
-      ((struct plyr_info_spacket *) packet)->shiptype,
-      ((struct plyr_info_spacket *) packet)->team );
+    fprintf(statsFile, "\nSTATS_SP_PLAYER_INFO:\t");
+    fprintf(statsFile, "%d\t%d\t%d",
+            ((struct plyr_info_spacket *) packet)->pnum,
+            ((struct plyr_info_spacket *) packet)->shiptype,
+            ((struct plyr_info_spacket *) packet)->team);
   }
 }
 
@@ -2697,14 +2697,14 @@ void    handlePlanetLoc(struct planet_loc_spacket *packet)
     }
 #endif
 
-  if (gather_stats){
+  if (gather_stats) {
     /*STATS_SP_PLANET_LOC:\tPNUM\tX\tY\tNAME*/
-    fprintf(statsFile, "\nSTATS_SP_PLANET_LOC:\t"); 
+    fprintf(statsFile, "\nSTATS_SP_PLANET_LOC:\t");
     fprintf(statsFile, "%d\t%ld\t%ld\t%s",
-      ((struct planet_loc_spacket *) packet)->pnum,
-      ntohl(((struct planet_loc_spacket *) packet)->x),
-      ntohl(((struct planet_loc_spacket *) packet)->y),
-      ((struct planet_loc_spacket *) packet)->name );
+            ((struct planet_loc_spacket *) packet)->pnum,
+            ntohl(((struct planet_loc_spacket *) packet)->x),
+            ntohl(((struct planet_loc_spacket *) packet)->y),
+            ((struct planet_loc_spacket *) packet)->name);
   }
 }
 
