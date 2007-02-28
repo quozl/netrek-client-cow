@@ -50,8 +50,9 @@
 
 #define EX_FRAMES               5
 #define SBEXPVIEWS              7
-#define NUMDETFRAMES            5		 /* # frames in torp * *
-						  * explosion */
+#define NUMDETFRAMES            5   /* number of frames in torp or plasma
+                                       explosion, must match cloud_frames and
+                                       plasmacloud_frames */
 #define ex_width                64
 #define ex_height               64
 #define sbexp_width             80

@@ -1109,6 +1109,7 @@ static void
 	      k->t_fuse--;
               numdetframes = NUMDETFRAMES * server_ups / 10;
               frame = k->t_fuse * 10 / server_ups;
+              if (frame > NUMDETFRAMES - 1) frame = NUMDETFRAMES - 1;
 	      if (k->t_fuse <= 0)
 		{
 		  k->t_status = TFREE;
@@ -1261,6 +1262,7 @@ void    DrawPlasmaTorps(void)
 	  pt->pt_fuse--;
 	  numdetframes = NUMDETFRAMES * server_ups / 10;
 	  frame = pt->pt_fuse * 10 / server_ups;
+	  if (frame > NUMDETFRAMES - 1) frame = NUMDETFRAMES - 1;
 	  if (pt->pt_fuse <= 0)
 	    {
 	      pt->pt_status = PTFREE;

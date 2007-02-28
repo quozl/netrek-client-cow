@@ -359,6 +359,7 @@ static char ex_bits[5][512] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 
 
+#define plasmacloud_frames 5
 static char plasmacloud_bits[5][26] =
 {
   {
