@@ -381,7 +381,7 @@ void    handleVTorp(unsigned char *sbuf)
   for (shift = 0, i = 0; i < 8;
        i++, thetorp++, bitset >>= 1)
     {
-      thetorp->t_updateFuse = TORP_UPDATE_FUSE;
+      thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
 
       if (bitset & 01)
 	{
@@ -1069,7 +1069,7 @@ void    handleVTorpInfo(unsigned char *sbuf)
   for (shift = 0, i = 0; i < 8;
        thetorp++, *bitset >>= 1, *infobitset >>= 1, i++)
     {
-      thetorp->t_updateFuse = TORP_UPDATE_FUSE;
+      thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
 
       if (*bitset & 01)
 	{
@@ -2027,7 +2027,10 @@ unsigned char *sbuf;
   phas->ph_y = y;
   phas->ph_target = target;
   phas->ph_fuse = 0;
-  phas->ph_updateFuse = PHASER_UPDATE_FUSE;
+#ifdef SOUND
+  phas->sound_phaser = 1;
+#endif
+  phas->ph_updateFuse = PHASER_UPDATE_FUSE * server_ups / 10;
 
 #ifdef ROTATERACE
   if (rotate)

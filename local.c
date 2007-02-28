@@ -121,8 +121,6 @@ static int clearline[4][MAXPLAYER + 2 * MAXPLAYER];
 #endif
 
 #ifdef SOUND
-static int sound_phaser = 0;
-static int sound_other_phaser = 0;
 static int sound_torps = 0;
 static int sound_other_torps = 0;
 static int num_other_torps = 0;
@@ -331,12 +329,13 @@ static void DrawShips(void)
 	    {
 
 #ifdef SOUND
-	      if (myPlayer(j))
+	      if (myPlayer(j)) {
 		if (j->p_cloakphase == cloak_phases - 1) {
 		  Play_Sound(UNCLOAK_SOUND);
 		} else {
 		  Abort_Sound(CLOAK_SOUND);
 		}
+	      }
 #endif
 
 	      j->p_cloakphase--;
@@ -497,7 +496,7 @@ static void DrawShips(void)
 	  if ((UseLite && emph_player_seq_n[j->p_no] > 0)
 	      && (liteflag & LITE_PLAYERS_LOCAL))
 	    {
-	      int     seq_n = emph_player_seq_n[j->p_no] % emph_player_seql_frames;
+	      int     seq_n = (emph_player_seq_n[j->p_no] * 10 / server_ups) % emph_player_seql_frames;
 
 	      W_WriteBitmap(dx - (emph_player_seql_width / 2),
 			    dy - (emph_player_seql_height / 2),
@@ -507,7 +506,7 @@ static void DrawShips(void)
 #endif
 
 #ifdef VARY_HULL
-	  if (j == me && vary_hull)
+	  if ((myPlayer(j) || isObsLockPlayer(j)) && vary_hull)
 	    {
 	      int     hull_left = (100 * (me->p_ship.s_maxdamage -
 		      me->p_damage)) / me->p_ship.s_maxdamage, hull_num = 7;
@@ -581,20 +580,21 @@ static void DrawShips(void)
 #ifdef VSHIELD_BITMAPS
 	      int     shieldnum;
 
-	      if (j == me && VShieldBitmaps)
+	      if ((myPlayer(j) || isObsLockPlayer(j)) && VShieldBitmaps)
 		{
-		  shieldnum = SHIELD_FRAMES * me->p_shield / me->p_ship.s_maxshield;
+		  int value;
+
+		  shieldnum =
+		    SHIELD_FRAMES * me->p_shield / me->p_ship.s_maxshield;
 		  if (shieldnum >= SHIELD_FRAMES)
 		    shieldnum = SHIELD_FRAMES - 1;
-		  color = gColor;
-		  if (shieldnum < SHIELD_FRAMES * 2 / 3)
-		    {
+		  value = 100 * me->p_shield / me->p_ship.s_maxshield;
+		  if (value < 34)
+		      color = rColor;
+		  else if (value < 67)
 		      color = yColor;
-		      if (shieldnum < SHIELD_FRAMES * 2 / 3)
-			{
-			  color = rColor;
-			}
-		    }
+		  else
+		      color = gColor;
 		}
 	      else
 		{
@@ -603,7 +603,7 @@ static void DrawShips(void)
 		}
 #endif
 
-	      if (warnShields && j == me)
+	      if (warnShields && (myPlayer(j) || isObsLockPlayer(j)))
 		{
 		  switch (me->p_flags & (PFGREEN | PFYELLOW | PFRED))
 		    {
@@ -631,7 +631,7 @@ static void DrawShips(void)
 	  /* Det circle */
 	  if (detCircle)
             {
-	      if (myPlayer(j) || isObsLockPlayer(j))
+	      if (myPlayer(j))
             	{
 		  int dcr = DETDIST*2/SCALE;
 		  int dcx = dx - (dcr/2);
@@ -728,8 +728,8 @@ static void DrawShips(void)
 		  clearzone[3][clearcount] = ex_height;
 		}
 	      clearcount++;
-	      j->p_explode++;
 	    }
+	  j->p_explode++;
 	}
 
       /* Now draw his phaser (if it exists) */
@@ -739,10 +739,10 @@ static void DrawShips(void)
 	{
 
 #ifdef SOUND
-	  if (!sound_phaser)
+	  if (php->sound_phaser)
 	    {
 	      Play_Sound(j == me ? PHASER_SOUND : OTHER_PHASER_SOUND);
-	      sound_phaser++;
+	      php->sound_phaser = 0;
 	    }
 #endif
 
@@ -756,6 +756,9 @@ static void DrawShips(void)
 #endif
 
 	      php->ph_status = PHFREE;
+#ifdef SOUND
+	      php->sound_phaser = 0;
+#endif
 	    }
 	  else
 	    {
@@ -795,7 +798,7 @@ static void DrawShips(void)
 
 	      if (shrinkPhaserOnMiss || php->ph_status != PHMISS)
 		{
-		  if (j == me)
+		  if ((myPlayer(j) || isObsLockPlayer(j)))
 		    {
 		      px = (dx * (16 - phaserShrink) + tx * phaserShrink + 8)
 			  / 16;
@@ -903,11 +906,6 @@ static void DrawShips(void)
 		}
 	    }
 	}
-
-#ifdef SOUND
-      else if (j->p_no == me->p_no)
-	sound_phaser = 0;
-#endif
 
       /* ATM - show tractor/pressor beams (modified by James Collins) */
       /* showTractorPressor is a variable set by xtrekrc. */

@@ -368,6 +368,9 @@ struct phaser
     short   ph_updateFuse;			 /* Time till expiry */
     short   ph_fuse;				 /* Life left for drawing */
     int     ph_x, ph_y;				 /* For when it hits a torp */
+#ifdef SOUND
+    int     sound_phaser;			 /* yet to play the sound */
+#endif
   };
 
 

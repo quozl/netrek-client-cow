@@ -68,6 +68,7 @@ openmem(void)
   for (i = 0; i < MAXPLAYER; i++)
     {
       phasers[i].ph_status = PHFREE;
+      phasers[i].sound_phaser = 0;
     }
   for (i = 0; i < MAXPLAYER * MAXPLASMA; i++)
     {

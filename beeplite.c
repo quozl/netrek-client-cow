@@ -61,7 +61,7 @@ litedefaults(void)
 
 liteplanet(struct planet *l)
 {
-  emph_planet_seq_n[l->pl_no] = beep_lite_cycle_time_planet;
+  emph_planet_seq_n[l->pl_no] = beep_lite_cycle_time_planet * server_ups / 10;
   l->pl_flags |= PLREDRAW;			 /* Leave redraw on until * * 
 						  * done highlighting */
   l->pl_flags |= PLCLEAR;			 /* Leave redraw on until * * 
@@ -75,7 +75,7 @@ liteplayer(struct player *j)
 
   redrawPlayer[j->p_no] = 1;
 
-  emph_player_seq_n[j->p_no] = beep_lite_cycle_time_player;
+  emph_player_seq_n[j->p_no] = beep_lite_cycle_time_player * server_ups / 10;
 }
 
 
@@ -250,7 +250,7 @@ makelite(struct distress * dist, char *pm)
 		    lastIn[tts_len] = *pm++;
 		  lastIn[tts_len] = '\0';
 		  tts_width = W_TTSTextWidth(lastIn, tts_len);
-		  tts_timer = tts_time;
+		  tts_timer = tts_time * server_ups / 10;
 		}
 	      break;
 

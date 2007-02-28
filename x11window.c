@@ -3763,6 +3763,7 @@ void video_mode_off()
 {
   if (video_mode_current != NULL) {
     XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_current);
+    video_mode_current = NULL;
   }
 }
 

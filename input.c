@@ -1325,7 +1325,7 @@ buttonaction(W_Event * data)
       if (!infomapped)
 	{
 	  inform(data->Window, data->x, data->y, 'i');
-	  opened_info = keepInfo;		 /* 5/31/93 LAB */
+	  opened_info = keepInfo * server_ups / 10;
 	}
       else
 	{
@@ -2029,7 +2029,7 @@ Key73(W_Event * data)
   if (!infomapped)
     {
       inform(data->Window, data->x, data->y, key);
-      opened_info = keepInfo;			 /* 5/31/93 LAB */
+      opened_info = keepInfo * server_ups / 10;
     }
   else
     {
@@ -2381,6 +2381,10 @@ Key106(W_Event * data)
 Key107(W_Event * data)
 {
   unsigned char course;
+
+  /* Observers can't move.  Also incorrectly removes the lock flag even though
+     you are still locked */
+  if (me->p_flags & PFOBSERV) return;
 
   course = getcourse(data->Window, data->x, data->y);
   set_course(course);

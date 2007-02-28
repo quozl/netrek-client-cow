@@ -50,9 +50,9 @@ warning(char *text)
 #endif
 
     W_WriteText(warnw, 5, 5, textColor, text, warncount, W_RegularFont);
-  warntimer = udcounter + WARNTIME;		 /* set the line to be * *
-						  * cleared */
 
+  /* set the line to be cleared */
+  warntimer = udcounter + WARNTIME * server_ups / 10;
 
   if (logmess || doPhaser)
     {
