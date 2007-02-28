@@ -236,6 +236,7 @@ void Init_Sound(void) {
     /* Open the audio device at 8000 Hz 8 bit Microsoft PCM */
     if (Mix_OpenAudio(8000, AUDIO_U8, 1, 512) < 0) {
       fprintf(stderr,"Mix_OpenAudio: %s\n", Mix_GetError());
+      sound_init = 0;
     } 
 
     /* If we successfully loaded the wav files, so shut-off sound_init and play

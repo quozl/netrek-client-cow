@@ -687,7 +687,7 @@ static void DrawShips(void)
 	  i = j->p_explode * 10 / server_ups;
 
 #ifdef SOUND
-	  if (i == 1)
+	  if (j->p_explode == 1)
 	    Play_Sound(j == me ? EXPLOSION_SOUND : OTHER_EXPLOSION_SOUND);
 #endif
 
