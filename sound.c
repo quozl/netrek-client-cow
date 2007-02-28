@@ -177,6 +177,10 @@ void sound_cleanup (void)
 {
     int i;
 
+    //Free the sound effects
+    for (i = 0; i < NUM_WAVES; i++)
+       Mix_FreeChunk(sounds[i]);
+
     //Quit SDL_mixer
     Mix_CloseAudio();
 
