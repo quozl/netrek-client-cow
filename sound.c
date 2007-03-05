@@ -171,8 +171,6 @@ static int loadSounds(void) {
   return 1;
 }
 
-#endif /* HAVE_SDL */
-
 void sound_cleanup (void)
 {
     int i;
@@ -187,6 +185,8 @@ void sound_cleanup (void)
     //Quit SDL
     SDL_Quit();
 }
+
+#endif /* HAVE_SDL */
 
 void Exit_Sound(void) {
 #if !defined(HAVE_SDL)
