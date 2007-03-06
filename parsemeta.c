@@ -58,9 +58,10 @@
 #include INC_LIMITS
 #include INC_FCNTL
 #include <stdio.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <sys/time.h>
+#include <time.h>
 #include <stdlib.h>
 #include INC_SYS_SELECT
 #include INC_STRINGS
@@ -73,6 +74,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "defaults.h"
 
 
 #ifdef WIN32 /* socket garbage in case the client is not running on NT */
@@ -302,7 +304,6 @@ static int ReadMetasSend()
   char *metaservers;		/* our copy of the metaserver host names */
   char *token;			/* current metaserver host name          */
   struct sockaddr_in address;	/* the address of the metaservers	 */
-  int length;			/* length of the address		 */
  
   /* host names of metaservers, default in data.c, comma delimited */ 
   if ((getdefault("metaserver")) != NULL)
@@ -577,7 +578,6 @@ static void version_s(struct sockaddr_in *address)
 {
   char *p;
   time_t now = time(NULL);
-  int throwaway = 0;
 
   /* use return address on packet as host address for this server,
   since it isn't practical for the server to know it's own address; as
@@ -600,7 +600,7 @@ static void version_s(struct sockaddr_in *address)
 
   p = strtok(NULL,",");		/* number of ports */
   if (p == NULL) return;
-  int ports = atoi(p);
+  int ports = atoi(p);		/* not currently used */
 
   // TODO: accept more than one port reply
   
@@ -614,7 +614,7 @@ static void version_s(struct sockaddr_in *address)
 
   p = strtok(NULL,",");		/* queue size */
   if (p == NULL) return;
-  int queue = atoi(p);
+  int queue = atoi(p);		/* not currently used */
 
   /* find in current server list? */
   struct servers *sp = server_find(host, port);
@@ -648,7 +648,6 @@ static int ReadMetasRecv(int x)
   fd_set readfds;		/* the file descriptor set for select()	 */
   struct timeval timeout;	/* timeout for select() call		 */
   char packet[MAXMETABYTES];	/* buffer for packet returned by meta'	 */
-  time_t now;			/* current time for age calculations     */
   int isawsomething = 0;        /* have I seen a response at all?        */ 
 
   /* now await and process replies */
@@ -848,7 +847,7 @@ static void LoadMetasCache()
 static int ReadFromMeta()
 /* Read from the meta-server.  Return TRUE on success and FALSE on failure. */
 {
-  FILE   *in, *out;
+  FILE   *out;
   char   *cacheName;
   char    cacheFileName[PATH_MAX];
   char    tmpFileName[PATH_MAX];
@@ -1254,8 +1253,6 @@ void    metaaction(W_Event * data)
     }
   else if (data->y == (metaHeight-2) && type == 1)
     {
-      int i;
-
       W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", 13, 0);
       W_Flush();
       ReadMetasSend();
