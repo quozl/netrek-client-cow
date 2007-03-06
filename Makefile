@@ -37,7 +37,7 @@ mkkey: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) mkkey
 
 clean:
-	-$(RM) *.o $(OBJ) $(SHAREDTARGET)
+	rm -f *.o $(OBJ) $(SHAREDTARGET)
 	cd java; $(MAKE) clean
 
 reallyclean: clean

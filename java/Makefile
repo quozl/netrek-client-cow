@@ -59,4 +59,4 @@ COWImpl.o: COWImpl.c
 	$(CC) -c $(CFLAGS) -I.. COWImpl.c
 
 clean:
-	-$(RM) $(OBJ) $(SHAREDTARGET)
+	rm -f $(OBJ) $(SHAREDTARGET)
