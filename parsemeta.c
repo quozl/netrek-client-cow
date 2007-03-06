@@ -595,7 +595,7 @@ static void version_s(struct sockaddr_in *address)
   
   p = strtok(NULL,",");		/* comment */
   if (p == NULL) return;
-  char *comment = strndup(p, LINE-1);
+  char *comment = strncpy(comment, p, LINE-1);
 
   p = strtok(NULL,",");		/* number of ports */
   if (p == NULL) return;
