@@ -35,7 +35,7 @@ void checkFont(XFontStruct *fontinfo, char *fontname);
 void GetFonts(void);
 XFontStruct *find_font(char *oldf, char **fonts);
 void GetColors(void);
-void W_RenameWindow(struct window *window, char *str);
+void W_RenameWindow(W_Window window, char *str);
 W_Window W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, int border, W_Color color);
 void W_ChangeBorder(W_Window window, int color);
 void W_MapWindow(W_Window window);
