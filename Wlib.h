@@ -69,7 +69,6 @@ extern int W_FastClear;
 extern W_Font W_MyPlanetFont, W_FriendlyPlanetFont, W_EnemyPlanetFont;
 
 extern void W_Initialize (char *str);
-extern void W_RenameWindow(W_Window window, char *str);
 extern W_Window W_MakeWindow (char *name, int x, int y, int width, int height, W_Window parent, int border, W_Color color);
 extern W_Icon W_StoreBitmap (int width, int height, char *data, W_Window window);
 extern W_Window W_MakeTextWindow (char *name, int x, int y, int width, int height, W_Window parent, int border);
