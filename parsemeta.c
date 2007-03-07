@@ -404,7 +404,7 @@ static int ReadMetasSend()
     token = strtok(NULL,",");
   } /* while (token != NULL) */
 
-  metaWindowName = "Netrek Server List";
+  metaWindowName = "Netrek Server List (UDP)";
   return sent;
 }
 
@@ -938,7 +938,7 @@ static int ReadFromMeta()
    }
 
   free(sockbuf);
-  metaWindowName = "MetaServer List";
+  metaWindowName = "Netrek Server List (TCP)";
 
   return 1;
 }
@@ -1016,7 +1016,7 @@ static int ReadFromCache()
     }
 
   free(sockbuf);
-  metaWindowName = "Known Servers";
+  metaWindowName = "Known Servers (Cache)";
 
   return 1;
 }

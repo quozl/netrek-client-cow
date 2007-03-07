@@ -944,9 +944,10 @@ void GetColors(void)
     }
 }
 
-void W_RenameWindow(struct window *window, char *str)
+void W_RenameWindow(W_Window window, char *str)
 {
-  XStoreName(W_Display, window->window, str);
+  struct window *win = W_Void2Window(window);
+  XStoreName(W_Display, win->window, str);
 }
 
 W_Window
