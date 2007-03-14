@@ -27,6 +27,9 @@
 #include "data.h"
 #include "map.h"
 
+/* debugging feature, show rectangular redraw regions on galactic */
+#undef DEBUG_SHOW_REGIONS
+
 #ifdef HAVE_XPM
 extern void *S_mPlanet(int);
 extern void *S_mArmy(int);
@@ -46,7 +49,7 @@ extern int W_DrawSprite(void *, int, int, int);
  *  Note: Detail *MUST* be a factor of GWIDTH.
  */
 
-#define DETAIL 40
+#define DETAIL 100
 #define SIZE (GWIDTH/DETAIL)
 
 
@@ -145,7 +148,7 @@ void
 }
 
 
-#ifdef none					 /* Debugging code */
+#ifdef DEBUG_SHOW_REGIONS			 /* Debugging code */
 void
         showRegions(void)
 /*
@@ -153,8 +156,8 @@ void
  *  whether a ship is possibly overlapping a planet.
  */
 {
-  int     x, y, k;
-  int     startX, startY, centre;
+  int     k;
+  int     startX, startY;
   int     endX, endY;
   struct planet *pl;
   const int pRadius = mplanet_width * GWIDTH / GWINSIDE / 2;
@@ -172,14 +175,14 @@ void
       if (startX < 0)
 	startX = 0;
 
-      if (endX > DETAIL)
-	endX = DETAIL;
+      if (endX >= DETAIL)
+	endX = DETAIL - 1;
 
       if (startY < 0)
 	startY = 0;
 
-      if (endY > DETAIL)
-	endY = DETAIL;
+      if (endY >= DETAIL)
+	endY = DETAIL - 1;
 
       startX = startX * SIZE * GWINSIDE / GWIDTH;
       startY = startY * SIZE * GWINSIDE / GWIDTH;
@@ -201,26 +204,34 @@ inline static void
  *  Compare the given location of a ship with the rough planet map created
  *  by initPlanets() to decide if part of the planet may have been erased
  *  by the ship.
+ *
+ *  Also force a redraw of every other player in the same grid square,
+ *  otherwise they will blink out of existence as a result of the
+ *  planet redraw.
  */
 {
   int     i;
+  struct player *j;
 
   x /= SIZE;
   y /= SIZE;
 
   i = roughMap[x][y];
 
-  if (i != -1)
-    {
-      planets[i].pl_flags |= PLREDRAW;
+  if (i == -1) return;
+  planets[i].pl_flags |= PLREDRAW;
 
-      i = roughMap2[x][y];
-
-      if (i != -1)
-	{
-	  planets[i].pl_flags |= PLREDRAW;
-	}
+  for (i = 0, j = &players[i]; i < MAXPLAYER; i++, j++) {
+    if (j->p_status != PALIVE) continue;
+    if (j->p_flags & PFOBSERV) continue;
+    if ((j->p_x / SIZE) == x && (j->p_y / SIZE) == y ) {
+      redrawPlayer[i] = 1;
     }
+  }
+
+  i = roughMap2[x][y];
+  if (i == -1) return;
+  planets[i].pl_flags |= PLREDRAW;
 }
 
 
@@ -521,7 +532,7 @@ void
 
 	      *update = 0;
 	    }
-	  else if (*update == 10)
+	  else if (*update == server_ups)
 	    {
 	      /* 
 	       *  Redraw stationary ships every update so that these
@@ -541,7 +552,9 @@ void
   /* Draw Planets */
 
   DrawPlanets();
-
+#ifdef DEBUG_SHOW_REGIONS			 /* Debugging code */
+  showRegions();
+#endif
 
   /* Draw ships */
 
