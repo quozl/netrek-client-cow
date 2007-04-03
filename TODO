@@ -1,3 +1,7 @@
+build static binary
+
+--
+
 when server terminates TCP connection,
 client hangs, hoping for a callback,
 so add a more graceful failure response,

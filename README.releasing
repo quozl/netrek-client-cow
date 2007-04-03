@@ -28,13 +28,13 @@ cd ~/public_html/external/
 . to-au
 http://quozl.linux.org.au/netrek/
 
-export VERSION=3.2.0
+export VERSION=3.2.2
 # sf.net upload
 ftp -n upload.sourceforge.net <<EOF
 user anonymous quozl@us.netrek.org
 cd incoming
 passive
 hash
-put netrek-server-vanilla-2.10.2.tar.gz
 put netrek-client-cow-${VERSION}.tar.gz 
+put netrek-client-cow-3.2.2.linux-i386-debian-etch.bz2
 EOF
