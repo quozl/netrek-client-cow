@@ -1,3 +1,7 @@
+Tue Apr  3 17:08:19 2007  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.2.2: released.
+
 Mon May 22 23:06:52 2006  James Cameron  <quozl@us.netrek.org>
 
 	* x11window.c: add video mode change support, switches to 1024x768

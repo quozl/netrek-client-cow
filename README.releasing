@@ -1,0 +1,40 @@
+# release process for cow
+# emacs: sh-mode
+
+# resolve any differences between working directory and repository
+
+# decide on version number
+export VERSION=3.2.2
+export TAG_VERSION=cow_`echo ${VERSION}|tr . _`
+
+# update version.h patchlevel.h cow.spec index.html
+
+# update ChangeLog and NEWS with a release date
+
+# commit
+
+# tag release
+cvs tag -F ${TAG_VERSION}
+
+# make dist
+make dist
+
+md5sum netrek-client-cow-${VERSION}.tar.gz
+31dccb5ac01f163bec310e339a984ad8  netrek-client-cow-3.2.0.tar.gz
+
+# release
+cp netrek-client-cow-${VERSION}.tar.gz ~/public_html/external/mine/netrek/
+cd ~/public_html/external/
+. to-au
+http://quozl.linux.org.au/netrek/
+
+export VERSION=3.2.0
+# sf.net upload
+ftp -n upload.sourceforge.net <<EOF
+user anonymous quozl@us.netrek.org
+cd incoming
+passive
+hash
+put netrek-server-vanilla-2.10.2.tar.gz
+put netrek-client-cow-${VERSION}.tar.gz 
+EOF
