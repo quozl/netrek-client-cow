@@ -170,6 +170,22 @@ class SP_FLAGS(SP):
 
 sp_flags = SP_FLAGS()
 
+class SP_PLANET_LOC(SP):
+    def __init__(self):
+        self.code = 26
+        self.format = "!bbxxll16s" 
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pnum, x, y, name) = struct.unpack(self.format, data)
+        print "SP_PLANET_LOC pnum=",pnum,"x=",x,"y=",y,"name=",strnul(name)
+
+sp_planet_loc = SP_PLANET_LOC()
+
+##
+
+## progress report, all packet types handled to the point of login
+
 ##
 
 s = None
