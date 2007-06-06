@@ -1,10 +1,106 @@
 #!/usr/bin/python
-import sys, socket, struct
+import sys, socket, struct, pygame
+
+verbose = 0
 
 def strnul(input):
     """ convert a NUL terminated string to a normal string
     """
     return input.split('\000')[0]
+
+def scale(x, y):
+    """ temporary coordinate scaling, galactic to screen
+    """
+    return (x/100, y/100)
+
+class IC:
+    """ an image cache
+    """
+    def __init__(self):
+        self.cache = {}
+
+    def read(self, name):
+        image = pygame.image.load(name)
+        return pygame.Surface.convert_alpha(image)
+
+    def get(self, name):
+        if name not in self.cache:
+            self.cache[name] = self.read(name)
+        return self.cache[name]
+        
+ic = IC()
+    
+class Planet:
+    """ netrek planets
+    """
+    def __init__(self, n):
+        self.n = n
+        self.x = -10000
+        self.y = -10000
+        self.name = ''
+        self.image = ic.get("romulus-1.png")
+        self.rect = self.image.get_rect()
+
+    def sp_planet_loc(self, x, y, name):
+        self.x = x
+        self.y = y
+        # FIXME: use name
+        
+    def sp_planet(self, owner, info, flags, armies):
+        # FIXME: use args
+        pass
+
+    def draw(self):
+        global screen
+        self.rect.center = scale(self.x, self.y)
+        screen.blit(self.image, self.rect)
+
+class Ship:
+    """ netrek ships
+    """
+    def __init__(self, n):
+        self.n = n
+        self.x = -10000
+        self.y = -10000
+        self.image = ic.get("netrek.png")
+        self.rect = self.image.get_rect()
+
+    def sp_player(self, dir, speed, x, y):
+        self.dir = dir
+        self.speed = speed
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        global screen
+        # FIXME: rotate image according to self.dir
+        self.rect.center = scale(self.x, self.y)
+        screen.blit(self.image, self.rect)
+
+class Galaxy:
+    def __init__(self):
+        self.planets = {}
+        self.ships = {}
+
+    def planet(self, n):
+        if not self.planets.has_key(n):
+            planet = Planet(n)
+            self.planets[n] = planet
+        return self.planets[n]
+
+    def ship(self, n):
+        if not self.ships.has_key(n):
+            self.ships[n] = Ship(n)
+        return self.ships[n]
+
+    def draw(self):
+        for n, planet in self.planets.iteritems():
+            planet.draw()
+        for n, ship in self.ships.iteritems():
+            ship.draw()
+
+galaxy = Galaxy()
+me = None
 
 FED=0x1
 ROM=0x2
@@ -38,7 +134,7 @@ class CP_SOCKET(CP):
         self.tabulate(self.code, self.format)
 
     def data(self):
-        print "CP_SOCKET"
+        if verbose: print "CP_SOCKET"
         return struct.pack(self.format, self.code, 4, 10, 0)
 
 cp_socket = CP_SOCKET()
@@ -79,6 +175,30 @@ class CP_OUTFIT(CP):
 
 cp_outfit = CP_OUTFIT()
 
+class CP_SPEED(CP):
+    def __init__(self):
+        self.code = 2
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, speed):
+        print "CP_SPEED speed=",speed
+        return struct.pack(self.format, self.code, speed)
+
+cp_speed = CP_SPEED()
+
+class CP_DIRECTION(CP):
+    def __init__(self):
+        self.code = 3
+        self.format = '!bBxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, direction):
+        print "CP_DIRECTION direction=",direction
+        return struct.pack(self.format, self.code, direction)
+
+cp_direction = CP_DIRECTION()
+
 """ server originated packets
 """
 
@@ -118,10 +238,10 @@ class SP_YOU(SP):
         self.tabulate(self.code, self.format, self)
 
     def handler(self, data):
-        print "size=", len(data)
         (ignored, pnum, hostile, swar, armies, tractor, flags, damage,
          shield, fuel, etemp, wtemp, whydead, whodead) = struct.unpack(self.format, data)
-        print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
+        if verbose: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
+        me = galaxy.ship(pnum)
         ## FIXME: handle the packet
 
 sp_you = SP_YOU()
@@ -135,7 +255,7 @@ class SP_PL_LOGIN(SP):
     def handler(self, data):
         (ignored, pnum, rank, name, monitor,
          login) = struct.unpack(self.format, data)
-        print "SP_PL_LOGIN pnum=",pnum,"rank=",rank,"name=",strnul(name),"monitor=",strnul(monitor),"login=",strnul(login)
+        if verbose: print "SP_PL_LOGIN pnum=",pnum,"rank=",rank,"name=",strnul(name),"monitor=",strnul(monitor),"login=",strnul(login)
 
 sp_pl_login = SP_PL_LOGIN()
 
@@ -147,7 +267,7 @@ class SP_HOSTILE(SP):
 
     def handler(self, data):
         (ignored, pnum, war, hostile) = struct.unpack(self.format, data)
-        print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
+        if verbose: print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
 
 sp_hostile = SP_HOSTILE()
 
@@ -159,7 +279,7 @@ class SP_PLAYER_INFO(SP):
 
     def handler(self, data):
         (ignored, pnum, shiptype, team) = struct.unpack(self.format, data)
-        print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team_decode(team)
+        if verbose: print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team_decode(team)
 
 sp_player_info = SP_PLAYER_INFO()
 
@@ -171,7 +291,7 @@ class SP_KILLS(SP):
 
     def handler(self, data):
         (ignored, pnum, kills) = struct.unpack(self.format, data)
-        print "SP_KILLS pnum=",pnum,"kills=",kills
+        if verbose: print "SP_KILLS pnum=",pnum,"kills=",kills
 
 sp_kills = SP_KILLS()
 
@@ -183,7 +303,7 @@ class SP_PSTATUS(SP):
 
     def handler(self, data):
         (ignored, pnum, status) = struct.unpack(self.format, data)
-        print "SP_PSTATUS pnum=",pnum,"status=",status
+        if verbose: print "SP_PSTATUS pnum=",pnum,"status=",status
 
 sp_pstatus = SP_PSTATUS()
 
@@ -195,7 +315,9 @@ class SP_PLAYER(SP):
 
     def handler(self, data):
         (ignored, pnum, dir, speed, x, y) = struct.unpack(self.format, data)
-        print "SP_PLAYER pnum=",pnum,"dir=",dir,"speed=",speed,"x=",x,"y=",y
+        if verbose: print "SP_PLAYER pnum=",pnum,"dir=",dir,"speed=",speed,"x=",x,"y=",y
+        ship = galaxy.ship(pnum)
+        ship.sp_player(dir, speed, x, y)
 
 sp_player = SP_PLAYER()
 
@@ -207,7 +329,7 @@ class SP_FLAGS(SP):
 
     def handler(self, data):
         (ignored, pnum, tractor, flags) = struct.unpack(self.format, data)
-        print "SP_FLAGS pnum=",pnum,"tractor=",tractor,"flags=",flags
+        if verbose: print "SP_FLAGS pnum=",pnum,"tractor=",tractor,"flags=",flags
 
 sp_flags = SP_FLAGS()
 
@@ -219,7 +341,9 @@ class SP_PLANET_LOC(SP):
 
     def handler(self, data):
         (ignored, pnum, x, y, name) = struct.unpack(self.format, data)
-        print "SP_PLANET_LOC pnum=",pnum,"x=",x,"y=",y,"name=",strnul(name)
+        if verbose: print "SP_PLANET_LOC pnum=",pnum,"x=",x,"y=",y,"name=",strnul(name)
+        planet = galaxy.planet(pnum)
+        planet.sp_planet_loc(x, y, name)
 
 sp_planet_loc = SP_PLANET_LOC()
 
@@ -231,7 +355,7 @@ class SP_LOGIN(SP):
 
     def handler(self, data):
         (ignored, accept, flags, keymap) = struct.unpack(self.format, data)
-        print "SP_LOGIN accept=",accept,"flags=",flags
+        if verbose: print "SP_LOGIN accept=",accept,"flags=",flags
 
 sp_login = SP_LOGIN()
 
@@ -243,7 +367,7 @@ class SP_MASK(SP):
 
     def handler(self, data):
         (ignored, mask) = struct.unpack(self.format, data)
-        print "SP_MASK mask=",team_decode(mask)
+        if verbose: print "SP_MASK mask=",team_decode(mask)
 
 sp_mask = SP_MASK()
 
@@ -255,7 +379,7 @@ class SP_PICKOK(SP):
 
     def handler(self, data):
         (ignored, state) = struct.unpack(self.format, data)
-        print "SP_PICKOK state=",state
+        if verbose: print "SP_PICKOK state=",state
 
 sp_pickok = SP_PICKOK()
 
@@ -268,7 +392,7 @@ class SP_RESERVED(SP):
     def handler(self, data):
         (ignored, data) = struct.unpack(self.format, data)
         data = struct.unpack('16b', data)
-        print "SP_RESERVED data=",data
+        if verbose: print "SP_RESERVED data=",data
 
 sp_reserved = SP_RESERVED()
 
@@ -280,7 +404,7 @@ class SP_TORP_INFO(SP):
 
     def handler(self, data):
         (ignored, war, status, tnum) = struct.unpack(self.format, data)
-        print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
+        if verbose: print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
 
 sp_torp_info = SP_TORP_INFO()
 
@@ -292,7 +416,7 @@ class SP_TORP(SP):
 
     def handler(self, data):
         (ignored, dir, tnum, x, y) = struct.unpack(self.format, data)
-        print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
+        if verbose: print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
 
 sp_torp = SP_TORP()
 
@@ -304,7 +428,7 @@ class SP_PLASMA_INFO(SP):
 
     def handler(self, data):
         (ignored, war, status, pnum) = struct.unpack(self.format, data)
-        print "SP_PLASMA_INFO war=",team_decode(war),"status=",status,"pnum=",pnum
+        if verbose: print "SP_PLASMA_INFO war=",team_decode(war),"status=",status,"pnum=",pnum
 
 sp_plasma_info = SP_PLASMA_INFO()
 
@@ -316,7 +440,7 @@ class SP_PLASMA(SP):
 
     def handler(self, data):
         (ignored, pnum, x, y) = struct.unpack(self.format, data)
-        print "SP_PLASMA pnum=",pnum,"x=",x,"y=",y
+        if verbose: print "SP_PLASMA pnum=",pnum,"x=",x,"y=",y
 
 sp_plasma = SP_PLASMA()
 
@@ -328,7 +452,7 @@ class SP_STATUS(SP):
 
     def handler(self, data):
         (ignored, tourn, armsbomb, planets, kills, losses, time, timeprod) = struct.unpack(self.format, data)
-        print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
+        if verbose: print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
 
 sp_status = SP_STATUS()
 
@@ -340,7 +464,7 @@ class SP_PHASER(SP):
 
     def handler(self, data):
         (ignored, pnum, status, dir, x, y, target) = struct.unpack(self.format, data)
-        print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+        if verbose: print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
 
 sp_phaser = SP_PHASER()
 
@@ -352,7 +476,9 @@ class SP_PLANET(SP):
 
     def handler(self, data):
         (ignored, pnum, owner, info, flags, armies) = struct.unpack(self.format, data)
-        print "SP_PLANET pnum=",pnum,"owner=",owner,"info=",info,"flags=",flags,"armies=",armies
+        if verbose: print "SP_PLANET pnum=",pnum,"owner=",owner,"info=",info,"flags=",flags,"armies=",armies
+        planet = galaxy.planet(pnum)
+        planet.sp_planet(owner, info, flags, armies)
 
 sp_planet = SP_PLANET()
 
@@ -364,7 +490,7 @@ class SP_MESSAGE(SP):
 
     def handler(self, data):
         (ignored, m_flags, m_recpt, m_from, mesg) = struct.unpack(self.format, data)
-        print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
+        if verbose: print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
 
 sp_message = SP_MESSAGE()
 
@@ -376,7 +502,7 @@ class SP_STATS(SP):
 
     def handler(self, data):
         (ignored, pnum, tkills, tlosses, kills, losses, tticks, tplanets, tarmies, sbkills, sblosses, armies, planets, maxkills, sbmaxkills) = struct.unpack(self.format, data)
-        print "SP_STATS pnum=",pnum,"tkills=",tkills,"tlosses=",tlosses,"kills=",kills,"losses=",losses,"tticks=",tticks,"tplanets=",tplanets,"tarmies=",tarmies,"sbkills=",sbkills,"sblosses=",sblosses,"armies=",armies,"planets=",planets,"maxkills=",maxkills,"sbmaxkills=",sbmaxkills
+        if verbose: print "SP_STATS pnum=",pnum,"tkills=",tkills,"tlosses=",tlosses,"kills=",kills,"losses=",losses,"tticks=",tticks,"tplanets=",tplanets,"tarmies=",tarmies,"sbkills=",sbkills,"sblosses=",sblosses,"armies=",armies,"planets=",planets,"maxkills=",maxkills,"sbmaxkills=",sbmaxkills
 
 sp_stats = SP_STATS()
 
@@ -413,11 +539,39 @@ def nt_recv():
         print "\n#### FIXME: UnknownPacketType ", number, "####\n"
         raise "UnknownPacketType, a packet was received from the server that is not known to this program, and since packet lengths are determined by packet types there is no reasonably way to continue operation"
         return
-    print "packet type=", number, "size=", size
+    if verbose: print "packet type=", number, "size=", size
     instance.handler(byte + s.recv(size-1))
 
-nt_connect(sys.argv[1], 2592)
-nt_send(cp_socket.data())
+def kb(key):
+    if event.key == pygame.K_SPACE:
+        nt_send(cp_login.data(0, 'guest', '', 'try'))
+    elif event.key == pygame.K_TAB:
+        nt_send(cp_outfit.data(0, 0))
+    elif event.key == pygame.K_q:
+        screen.fill(black)
+        pygame.display.flip()
+        nt_send(cp_bye.data())
+        sys.exit()
+    elif event.key == pygame.K_0:
+        nt_send(cp_speed.data(0))
+    elif event.key == pygame.K_1:
+        nt_send(cp_speed.data(1))
+    elif event.key == pygame.K_6:
+        nt_send(cp_speed.data(6))
+    elif event.key == pygame.K_9:
+        nt_send(cp_speed.data(9))
+
+def mb(position, button):
+    """ mouse button down event handler
+    position is a list of (x, y) screen coordinates
+    button is a mouse button number
+    """
+    global me
+    print position, button
+    if button == 3 and me != None:
+        print me.x, me.y
+        nt_send(cp_direction.data(0))
+    pass
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
@@ -444,28 +598,29 @@ nt_send(cp_socket.data())
 # need sizes of each packet type, make a c program to dump the sizes,
 # need structure definitions for each
 
-import pygame
 pygame.init()
 
-size = width, height = 320, 240
+size = width, height = 1000, 1000
 speed = [2, 2]
 black = 0, 0, 0
 
 screen = pygame.display.set_mode(size)
+nt_connect(sys.argv[1], 2592)
+if sys.argv[2] == 'verbose':
+    verbose = 1
+nt_send(cp_socket.data())
 
-ball = pygame.image.load("netrek.png")
+ball = ic.get("netrek.png")
 ballrect = ball.get_rect()
 while 1:
-    nt_recv()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             nt_send(cp_bye.data())
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                nt_send(cp_login.data(0, 'guest', '', 'try'))
-            elif event.key == pygame.K_TAB:
-                nt_send(cp_outfit.data(0, 0))
+            kb(event.key)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mb(event.pos, event.button)
 
     ballrect = ballrect.move(speed)
     if ballrect.left < 0 or ballrect.right > width:
@@ -474,6 +629,8 @@ while 1:
         speed[1] = -speed[1]
 
     screen.fill(black)
-    screen.blit(ball, ballrect)
+    nt_recv()
+    galaxy.draw()
+#    screen.blit(ball, ballrect)
     pygame.display.flip()
     
