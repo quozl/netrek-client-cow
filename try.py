@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import sys, socket, struct
 
 def strnul(input):
@@ -5,6 +6,20 @@ def strnul(input):
     """
     return input.split('\000')[0]
 
+FED=0x1
+ROM=0x2
+KLI=0x4
+ORI=0x8
+
+def team_decode(input):
+    """ convert a team mask to a list
+    """
+    x = []
+    if input & FED: x.append('F')
+    if input & ROM: x.append('R')
+    if input & KLI: x.append('K')
+    if input & ORI: x.append('O')
+    return x
 
 """ client originated packets
 """
@@ -23,6 +38,7 @@ class CP_SOCKET(CP):
         self.tabulate(self.code, self.format)
 
     def data(self):
+        print "CP_SOCKET"
         return struct.pack(self.format, self.code, 4, 10, 0)
 
 cp_socket = CP_SOCKET()
@@ -34,9 +50,22 @@ class CP_BYE(CP):
         self.tabulate(self.code, self.format)
 
     def data(self):
+        print "CP_BYE"
         return struct.pack(self.format, self.code)
 
 cp_bye = CP_BYE()
+
+class CP_LOGIN(CP):
+    def __init__(self):
+        self.code = 8
+        self.format = '!bbxx16s16s16s' 
+        self.tabulate(self.code, self.format)
+
+    def data(self, query, name, password, login):
+        print "CP_LOGIN query=",query,"name=",name
+        return struct.pack(self.format, self.code, query, name, password, login)
+
+cp_login = CP_LOGIN()
 
 """ server originated packets
 """
@@ -80,7 +109,7 @@ class SP_YOU(SP):
         print "size=", len(data)
         (ignored, pnum, hostile, swar, armies, tractor, flags, damage,
          shield, fuel, etemp, wtemp, whydead, whodead) = struct.unpack(self.format, data)
-        print "SP_YOU pnum=",pnum,"hostile=",hostile,"swar=",swar,"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
+        print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
         ## FIXME: handle the packet
 
 sp_you = SP_YOU()
@@ -106,7 +135,7 @@ class SP_HOSTILE(SP):
 
     def handler(self, data):
         (ignored, pnum, war, hostile) = struct.unpack(self.format, data)
-        print "SP_HOSTILE pnum=",pnum,"war=",war,"hostile=",hostile
+        print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
 
 sp_hostile = SP_HOSTILE()
 
@@ -118,7 +147,7 @@ class SP_PLAYER_INFO(SP):
 
     def handler(self, data):
         (ignored, pnum, shiptype, team) = struct.unpack(self.format, data)
-        print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team
+        print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team_decode(team)
 
 sp_player_info = SP_PLAYER_INFO()
 
@@ -182,11 +211,36 @@ class SP_PLANET_LOC(SP):
 
 sp_planet_loc = SP_PLANET_LOC()
 
+class SP_LOGIN(SP):
+    def __init__(self):
+        self.code = 17
+        self.format = "!bbxxl96s"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, accept, flags, keymap) = struct.unpack(self.format, data)
+        print "SP_LOGIN accept=",accept,"flags=",flags
+
+sp_login = SP_LOGIN()
+
+class SP_MASK(SP):
+    def __init__(self):
+        self.code = 19
+        self.format = "!bbxx"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, mask) = struct.unpack(self.format, data)
+        print "SP_MASK mask=",team_decode(mask)
+
+sp_mask = SP_MASK()
+
+##
+## progress report, all packet types handled to the point of team selection
 ##
 
-## progress report, all packet types handled to the point of login
-
-##
+""" Netrek TCP
+"""
 
 s = None
 
@@ -194,7 +248,8 @@ def nt_connect(host, port):
     global s
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
-    s.setblocking(0)
+    #s.setblocking(0)
+    s.settimeout(0.1)
 
 def nt_send(data):
     global s
@@ -209,7 +264,7 @@ def nt_recv():
     number = struct.unpack('b', byte[0])[0]
     (size, instance) = sp.find(number)
     if size == 1:
-        print "UnknownPacketType ", number
+        print "#### FIXME: UnknownPacketType ", number, "####"
         raise UnknownPacketType
         return
     print "packet type=", number, "size=", size
@@ -217,6 +272,7 @@ def nt_recv():
 
 nt_connect(sys.argv[1], 2592)
 nt_send(cp_socket.data())
+nt_send(cp_login.data(0, 'guest', '', 'try'))
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
@@ -260,6 +316,9 @@ while 1:
         if event.type == pygame.QUIT:
             nt_send(cp_bye.data())
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                nt_send(cp_login.data(0, 'guest', '', 'try'))
 
     ballrect = ballrect.move(speed)
     if ballrect.left < 0 or ballrect.right > width:
