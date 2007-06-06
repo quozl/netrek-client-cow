@@ -67,6 +67,18 @@ class CP_LOGIN(CP):
 
 cp_login = CP_LOGIN()
 
+class CP_OUTFIT(CP):
+    def __init__(self):
+        self.code = 9
+        self.format = '!bbbx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, team, ship):
+        print "CP_OUTFIT team=",team_decode(team),"ship=",ship
+        return struct.pack(self.format, self.code, team, ship)
+
+cp_outfit = CP_OUTFIT()
+
 """ server originated packets
 """
 
@@ -235,6 +247,139 @@ class SP_MASK(SP):
 
 sp_mask = SP_MASK()
 
+class SP_PICKOK(SP):
+    def __init__(self):
+        self.code = 16
+        self.format = "!bbxx"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, state) = struct.unpack(self.format, data)
+        print "SP_PICKOK state=",state
+
+sp_pickok = SP_PICKOK()
+
+class SP_RESERVED(SP):
+    def __init__(self):
+        self.code = 25
+        self.format = "!bxxx16s"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, data) = struct.unpack(self.format, data)
+        data = struct.unpack('16b', data)
+        print "SP_RESERVED data=",data
+
+sp_reserved = SP_RESERVED()
+
+class SP_TORP_INFO(SP):
+    def __init__(self):
+        self.code = 5
+        self.format = "!bbbxhxx"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, war, status, tnum) = struct.unpack(self.format, data)
+        print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
+
+sp_torp_info = SP_TORP_INFO()
+
+class SP_TORP(SP):
+    def __init__(self):
+        self.code = 6
+        self.format = "!bBhll"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, dir, tnum, x, y) = struct.unpack(self.format, data)
+        print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
+
+sp_torp = SP_TORP()
+
+class SP_PLASMA_INFO(SP):
+    def __init__(self):
+        self.code = 8
+        self.format = "!bbbxhxx"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, war, status, pnum) = struct.unpack(self.format, data)
+        print "SP_PLASMA_INFO war=",team_decode(war),"status=",status,"pnum=",pnum
+
+sp_plasma_info = SP_PLASMA_INFO()
+
+class SP_PLASMA(SP):
+    def __init__(self):
+        self.code = 9
+        self.format = "!bxhll"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pnum, x, y) = struct.unpack(self.format, data)
+        print "SP_PLASMA pnum=",pnum,"x=",x,"y=",y
+
+sp_plasma = SP_PLASMA()
+
+class SP_STATUS(SP):
+    def __init__(self):
+        self.code = 14
+        self.format = "!bbxxIIIIIL"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, tourn, armsbomb, planets, kills, losses, time, timeprod) = struct.unpack(self.format, data)
+        print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
+
+sp_status = SP_STATUS()
+
+class SP_PHASER(SP):
+    def __init__(self):
+        self.code = 7
+        self.format = "!bbbBlll" 
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pnum, status, dir, x, y, target) = struct.unpack(self.format, data)
+        print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+
+sp_phaser = SP_PHASER()
+
+class SP_PLANET(SP):
+    def __init__(self):
+        self.code = 15
+        self.format = "!bbbbhxxl" 
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pnum, owner, info, flags, armies) = struct.unpack(self.format, data)
+        print "SP_PLANET pnum=",pnum,"owner=",owner,"info=",info,"flags=",flags,"armies=",armies
+
+sp_planet = SP_PLANET()
+
+class SP_MESSAGE(SP):
+    def __init__(self):
+        self.code = 1
+        self.format = "!bBBB80s"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, m_flags, m_recpt, m_from, mesg) = struct.unpack(self.format, data)
+        print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
+
+sp_message = SP_MESSAGE()
+
+class SP_STATS(SP):
+    def __init__(self):
+        self.code = 23
+        self.format = "!bbxx13l"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pnum, tkills, tlosses, kills, losses, tticks, tplanets, tarmies, sbkills, sblosses, armies, planets, maxkills, sbmaxkills) = struct.unpack(self.format, data)
+        print "SP_STATS pnum=",pnum,"tkills=",tkills,"tlosses=",tlosses,"kills=",kills,"losses=",losses,"tticks=",tticks,"tplanets=",tplanets,"tarmies=",tarmies,"sbkills=",sbkills,"sblosses=",sblosses,"armies=",armies,"planets=",planets,"maxkills=",maxkills,"sbmaxkills=",sbmaxkills
+
+sp_stats = SP_STATS()
+
 ##
 ## progress report, all packet types handled to the point of team selection
 ##
@@ -261,18 +406,18 @@ def nt_recv():
         byte = s.recv(1)
     except:
         return
+    # FIXME: when server closes connection, we get something other than a byte
     number = struct.unpack('b', byte[0])[0]
     (size, instance) = sp.find(number)
     if size == 1:
-        print "#### FIXME: UnknownPacketType ", number, "####"
-        raise UnknownPacketType
+        print "\n#### FIXME: UnknownPacketType ", number, "####\n"
+        raise "UnknownPacketType, a packet was received from the server that is not known to this program, and since packet lengths are determined by packet types there is no reasonably way to continue operation"
         return
     print "packet type=", number, "size=", size
     instance.handler(byte + s.recv(size-1))
 
 nt_connect(sys.argv[1], 2592)
 nt_send(cp_socket.data())
-nt_send(cp_login.data(0, 'guest', '', 'try'))
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
@@ -319,6 +464,8 @@ while 1:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 nt_send(cp_login.data(0, 'guest', '', 'try'))
+            elif event.key == pygame.K_TAB:
+                nt_send(cp_outfit.data(0, 0))
 
     ballrect = ballrect.move(speed)
     if ballrect.left < 0 or ballrect.right > width:
