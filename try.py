@@ -30,52 +30,75 @@ class IC:
         
 ic = IC()
     
-class Planet:
+class Planet(pygame.sprite.Sprite):
     """ netrek planets
     """
     def __init__(self, n):
+        pygame.sprite.Sprite.__init__(self)
         self.n = n
-        self.x = -10000
-        self.y = -10000
+        self.x = self.old_x = -10000
+        self.y = self.old_y = -10000
         self.name = ''
         self.image = ic.get("romulus-1.png")
         self.rect = self.image.get_rect()
+        sprites.add(self)
 
+    def update(self):
+        if self.x != self.old_x or self.y != self.old_y:
+            self.rect.center = scale(self.x, self.y)
+            self.old_x = self.x
+            self.old_y = self.y
+        
     def sp_planet_loc(self, x, y, name):
         self.x = x
         self.y = y
         # FIXME: use name
-        
+
     def sp_planet(self, owner, info, flags, armies):
         # FIXME: use args
         pass
 
-    def draw(self):
-        global screen
-        self.rect.center = scale(self.x, self.y)
-        screen.blit(self.image, self.rect)
-
-class Ship:
+class Ship(pygame.sprite.Sprite):
     """ netrek ships
     """
     def __init__(self, n):
+        pygame.sprite.Sprite.__init__(self)
         self.n = n
-        self.x = -10000
-        self.y = -10000
+        self.x = self.old_x = -10000
+        self.y = self.old_y = -10000
         self.image = ic.get("netrek.png")
         self.rect = self.image.get_rect()
 
+    def show(self):
+        sprites.add(self)
+
+    def hide(self):
+        sprites.remove(self)
+
+    def update(self):
+        if self.x != self.old_x or self.y != self.old_y:
+            self.rect.center = scale(self.x, self.y)
+            self.old_x = self.x
+            self.old_y = self.y
+        # FIXME: render ship rotation, using pygame.transform.rotate
+        
     def sp_player(self, dir, speed, x, y):
         self.dir = dir
         self.speed = speed
         self.x = x
         self.y = y
 
-    def draw(self):
-        global screen
-        # FIXME: rotate image according to self.dir
-        self.rect.center = scale(self.x, self.y)
-        screen.blit(self.image, self.rect)
+    def sp_pstatus(self, status):
+        if status == 2:
+            self.show()
+        else:
+            self.hide()
+#define PFREE 0
+#define POUTFIT 1
+#define PALIVE 2
+#define PEXPLODE 3
+#define PDEAD 4
+#define POBSERV 5
 
 class Galaxy:
     def __init__(self):
@@ -92,12 +115,6 @@ class Galaxy:
         if not self.ships.has_key(n):
             self.ships[n] = Ship(n)
         return self.ships[n]
-
-    def draw(self):
-        for n, planet in self.planets.iteritems():
-            planet.draw()
-        for n, ship in self.ships.iteritems():
-            ship.draw()
 
 galaxy = Galaxy()
 me = None
@@ -304,6 +321,8 @@ class SP_PSTATUS(SP):
     def handler(self, data):
         (ignored, pnum, status) = struct.unpack(self.format, data)
         if verbose: print "SP_PSTATUS pnum=",pnum,"status=",status
+        ship = galaxy.ship(pnum)
+        ship.sp_pstatus(status)
 
 sp_pstatus = SP_PSTATUS()
 
@@ -519,8 +538,8 @@ def nt_connect(host, port):
     global s
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
-    #s.setblocking(0)
-    s.settimeout(0.1)
+    s.setblocking(0)
+    #s.settimeout(0.1)
 
 def nt_send(data):
     global s
@@ -560,6 +579,8 @@ def kb(key):
         nt_send(cp_speed.data(6))
     elif event.key == pygame.K_9:
         nt_send(cp_speed.data(9))
+    elif event.key == pygame.K_AT:
+        nt_send(cp_speed.data(12))
 
 def mb(position, button):
     """ mouse button down event handler
@@ -581,19 +602,27 @@ def mb(position, button):
 # python-poker2d
 # http://www.linux-games.com/castle-combat/
 
-# send CP_SOCKET version=4, udp_version=10, socket=20380,
-# TODO: send CP_FEATURE
-# receive SP_MOTD
-# receive SP_YOU
-# send C->S CP_LOGIN     query=0, name="guest", password="", login="james",
-# receive S->C SP_LOGIN     accept=1, flags=0xAF, keymap=" !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~",
-# S->C SP_YOU
+# general protocol state outline
+#
+# starting state
+# CP_SOCKET
+# CP_FEATURE (to indicate feature packets are known)
+# SP_MOTD
+# SP_FEATURE
+# SP_YOU
+# client shows name and password prompt and accepts input
+# CP_LOGIN
+# CP_FEATURE
+# SP_LOGIN
+# SP_YOU (identifies the slot number)
 # SP_PLAYER_INFO
-# S->C SP_MASK      mask=1,
-# C->S CP_OUTFIT    team=0, ship=2,
-# S->C SP_PICKOK    state=1,
-# ... play ...
-# C->S CP_QUIT      no args,
+# SP_MASK
+# client shows team selection window and accepts input
+# CP_OUTFIT
+# SP_PICKOK
+# server places ship in game and play begins
+# SP_? indicates POUTFIT state, returning client to team selection window
+# CP_QUIT
 
 # need sizes of each packet type, make a c program to dump the sizes,
 # need structure definitions for each
@@ -605,13 +634,15 @@ speed = [2, 2]
 black = 0, 0, 0
 
 screen = pygame.display.set_mode(size)
+sprites = pygame.sprite.RenderUpdates(())
+background = ic.get("stars.png")
+screen.blit(background, (0, 0))
+pygame.display.flip()
 nt_connect(sys.argv[1], 2592)
 if sys.argv[2] == 'verbose':
     verbose = 1
 nt_send(cp_socket.data())
 
-ball = ic.get("netrek.png")
-ballrect = ball.get_rect()
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -622,15 +653,9 @@ while 1:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mb(event.pos, event.button)
 
-    ballrect = ballrect.move(speed)
-    if ballrect.left < 0 or ballrect.right > width:
-        speed[0] = -speed[0]
-    if ballrect.top < 0 or ballrect.bottom > height:
-        speed[1] = -speed[1]
-
-    screen.fill(black)
     nt_recv()
-    galaxy.draw()
-#    screen.blit(ball, ballrect)
-    pygame.display.flip()
+#    galaxy.draw()
+    sprites.update()
+    pygame.display.update(sprites.draw(screen))
+#    pygame.display.flip()
     
