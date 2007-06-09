@@ -16,11 +16,26 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-    
+
 """
 import sys, socket, struct, pygame
 
 verbose = 0
+
+FED=0x1
+ROM=0x2
+KLI=0x4
+ORI=0x8
+GWIDTH=100000
+
+SCOUT=0
+DESTROYER=1
+CRUISER=2
+BATTLESHIP=3
+ASSAULT=4
+STARBASE=5
+SGALAXY=6
+ATT=7
 
 def strnul(input):
     """ convert a NUL terminated string to a normal string
@@ -31,6 +46,11 @@ def scale(x, y):
     """ temporary coordinate scaling, galactic to screen
     """
     return (x/100, y/100)
+
+def descale(x, y):
+    """ temporary coordinate scaling, screen to galactic
+    """
+    return (x*100, y*100)
 
 class IC:
     """ an image cache
@@ -57,7 +77,7 @@ class Planet(pygame.sprite.Sprite):
         self.n = n
         self.x = self.old_x = -10000
         self.y = self.old_y = -10000
-        self.name = ''
+        self.name = self.old_name = ''
         self.image = ic.get("romulus-1.png")
         self.rect = self.image.get_rect()
         sprites.add(self)
@@ -71,10 +91,12 @@ class Planet(pygame.sprite.Sprite):
     def sp_planet_loc(self, x, y, name):
         self.x = x
         self.y = y
-        # FIXME: use name
+        self.name = name
+        # FIXME: render planet name on screen
 
     def sp_planet(self, owner, info, flags, armies):
         # FIXME: use args
+        # FIXME: render planet owner, flags and armies on screen
         pass
 
 class Ship(pygame.sprite.Sprite):
@@ -135,13 +157,19 @@ class Galaxy:
             self.ships[n] = Ship(n)
         return self.ships[n]
 
+    def nearest_planet(self, x, y):
+        x, y = descale(x, y)
+        nearest = None
+        minimum = GWIDTH**2
+        for n, planet in self.planets.iteritems():
+            distance = (planet.x - x)**2 + (planet.y - y)**2
+            if distance < minimum:
+                nearest = planet
+                minimum = distance
+        return nearest
+
 galaxy = Galaxy()
 me = None
-
-FED=0x1
-ROM=0x2
-KLI=0x4
-ORI=0x8
 
 def team_decode(input):
     """ convert a team mask to a list
@@ -205,7 +233,7 @@ class CP_OUTFIT(CP):
         self.format = '!bbbx'
         self.tabulate(self.code, self.format)
 
-    def data(self, team, ship):
+    def data(self, team, ship=SCOUT):
         print "CP_OUTFIT team=",team_decode(team),"ship=",ship
         return struct.pack(self.format, self.code, team, ship)
 
@@ -234,6 +262,18 @@ class CP_DIRECTION(CP):
         return struct.pack(self.format, self.code, direction)
 
 cp_direction = CP_DIRECTION()
+
+class CP_PLANLOCK(CP):
+    def __init__(self):
+        self.code = 15
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, pnum):
+        print "CP_PLANLOCK pnum=",pnum
+        return struct.pack(self.format, self.code, pnum)
+
+cp_planlock = CP_PLANLOCK()
 
 """ server originated packets
 """
@@ -279,6 +319,10 @@ class SP_YOU(SP):
         if verbose: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
         me = galaxy.ship(pnum)
         ## FIXME: handle the packet
+        global pending_login
+        if pending_login:
+            nt_send(cp_login.data(0, 'guest', '', 'try'))
+            pending_login = False
 
 sp_you = SP_YOU()
 
@@ -406,6 +450,10 @@ class SP_MASK(SP):
     def handler(self, data):
         (ignored, mask) = struct.unpack(self.format, data)
         if verbose: print "SP_MASK mask=",team_decode(mask)
+        global pending_outfit
+        if pending_outfit:
+            nt_send(cp_outfit.data(0))
+            pending_outfit = False
 
 sp_mask = SP_MASK()
 
@@ -544,9 +592,18 @@ class SP_STATS(SP):
 
 sp_stats = SP_STATS()
 
-##
-## progress report, all packet types handled to the point of team selection
-##
+class SP_WARNING(SP):
+    def __init__(self):
+        self.code = 10
+        self.format = '!bxxx80s'
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, message) = struct.unpack(self.format, data)
+        print strnul(message)
+        # FIXME: display the warning
+
+sp_warning = SP_WARNING()
 
 """ Netrek TCP
 """
@@ -564,12 +621,8 @@ def nt_send(data):
     global s
     s.send(data)
 
-def nt_recv():
+def nt_recv_one(byte):
     global s
-    try:
-        byte = s.recv(1)
-    except:
-        return
     # FIXME: when server closes connection, we get something other than a byte
     number = struct.unpack('b', byte[0])[0]
     (size, instance) = sp.find(number)
@@ -577,29 +630,58 @@ def nt_recv():
         print "\n#### FIXME: UnknownPacketType ", number, "####\n"
         raise "UnknownPacketType, a packet was received from the server that is not known to this program, and since packet lengths are determined by packet types there is no reasonably way to continue operation"
         return
-    if verbose: print "packet type=", number, "size=", size
-    instance.handler(byte + s.recv(size-1))
+    s.setblocking(1)
+    rest = s.recv(size-1, socket.MSG_WAITALL)
+    if len(rest) != (size-1):
+        print "### asked for %d and got %d bytes" % ((size-1), len(rest))
+    instance.handler(byte + rest)
+    s.setblocking(0)
+    # FIXME: packet almalgamation may occur, s.recv second time may
+    # return something less than the expected number of bytes, so we
+    # have to wait for them.
+
+def nt_recv():
+    global s
+    while 1:
+        try:
+            byte = s.recv(1)
+            nt_recv_one(byte)
+        except:
+            return
 
 def kb(key):
+    """ keydown event handler
+    """
     if event.key == pygame.K_SPACE:
         nt_send(cp_login.data(0, 'guest', '', 'try'))
     elif event.key == pygame.K_TAB:
         nt_send(cp_outfit.data(0, 0))
     elif event.key == pygame.K_q:
-        screen.fill(black)
+        screen.fill((0, 0, 0))
         pygame.display.flip()
         nt_send(cp_bye.data())
         sys.exit()
-    elif event.key == pygame.K_0:
-        nt_send(cp_speed.data(0))
-    elif event.key == pygame.K_1:
-        nt_send(cp_speed.data(1))
-    elif event.key == pygame.K_6:
-        nt_send(cp_speed.data(6))
-    elif event.key == pygame.K_9:
-        nt_send(cp_speed.data(9))
-    elif event.key == pygame.K_AT:
-        nt_send(cp_speed.data(12))
+    elif event.key == pygame.K_LSHIFT: pass
+    elif event.key == pygame.K_0: nt_send(cp_speed.data(0))
+    elif event.key == pygame.K_1: nt_send(cp_speed.data(1))
+    elif event.key == pygame.K_2 and (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT): nt_send(cp_speed.data(12))
+    elif event.key == pygame.K_2: nt_send(cp_speed.data(2))
+    elif event.key == pygame.K_3: nt_send(cp_speed.data(3))
+    elif event.key == pygame.K_4: nt_send(cp_speed.data(4))
+    elif event.key == pygame.K_5: nt_send(cp_speed.data(5))
+    elif event.key == pygame.K_6: nt_send(cp_speed.data(6))
+    elif event.key == pygame.K_7: nt_send(cp_speed.data(7))
+    elif event.key == pygame.K_8: nt_send(cp_speed.data(8))
+    elif event.key == pygame.K_9: nt_send(cp_speed.data(9))
+    elif event.key == pygame.K_SEMICOLON:
+        x, y = pygame.mouse.get_pos()
+        nearest = galaxy.nearest_planet(x, y)
+        if nearest != None:
+            nt_send(cp_planlock.data(nearest.n))
+        else:
+            print "no nearest"
+    else:
+        print "kb: unhandled keydown, key=", event.key, "mod=", event.mod
 
 def mb(position, button):
     """ mouse button down event handler
@@ -617,7 +699,7 @@ def mb(position, button):
 # struct http://docs.python.org/lib/module-struct.html
 # built-ins http://docs.python.org/lib/built-in-funcs.html
 
-# packages the may do network in pygame
+# packages that may do network in pygame
 # python-poker2d
 # http://www.linux-games.com/castle-combat/
 
@@ -649,14 +731,18 @@ def mb(position, button):
 pygame.init()
 
 size = width, height = 1000, 1000
-speed = [2, 2]
-black = 0, 0, 0
 
 screen = pygame.display.set_mode(size)
-sprites = pygame.sprite.RenderUpdates(())
-background = ic.get("stars.png")
-screen.blit(background, (0, 0))
-pygame.display.flip()
+sprites = pygame.sprite.OrderedUpdates(())
+
+#background = ic.get("stars.png")
+#screen.blit(background, (0, 0))
+# FIXME: tile the background
+#pygame.display.flip()
+
+pending_login = True
+pending_outfit = True
+
 nt_connect(sys.argv[1], 2592)
 if sys.argv[2] == 'verbose':
     verbose = 1
@@ -672,9 +758,9 @@ while 1:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mb(event.pos, event.button)
 
+    # FIXME: select for *either* pygame events or network events
+    # currently the code checks for network events at high rate
+    # consuming CPU unnecessarily
     nt_recv()
-#    galaxy.draw()
     sprites.update()
     pygame.display.update(sprites.draw(screen))
-#    pygame.display.flip()
-    
