@@ -262,11 +262,10 @@ class Planet(pygame.sprite.Sprite):
             if self.armies > 4:
                 self.image = self.image_closed
                 self.rect = self.rect_closed
-                self.rect.center = scale(self.x, self.y)
             else:
                 self.image = self.image_open
                 self.rect = self.rect_open
-                self.rect.center = scale(self.x, self.y)
+            self.rect.center = scale(self.x, self.y)
             self.old_armies = self.armies
         if self.x != self.old_x or self.y != self.old_y:
             self.rect.center = scale(self.x, self.y)
@@ -1066,6 +1065,8 @@ def pygame_event_sink():
         elif event.type == pygame.QUIT:
             nt.send(cp_bye.data())
             sys.exit()
+    # FIXME: watch for MOUSEMOTION and update object information panes
+    # for planets or ships
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
@@ -1109,6 +1110,7 @@ background.fill((255, 255, 255))
 #background.fill((0, 0, 0))
 screen.blit(background, (0, 0))
 # FIXME: tile the background
+# FIXME: allow user to select graphics theme, default on XO is to be white with oysters, otherwise use stars, planets, and ships.
 pygame.display.flip()
 
 pending_login = True
@@ -1116,6 +1118,11 @@ pending_outfit = True
 
 for argv in sys.argv:
     if argv == 'verbose': verbose = 1
+# FIXME: use getopt or optparse
+# FIXME: usage "-h host -p port"
+# FIXME: [--verbose] [--theme name] [--updates n] [--metaserver] [--port port] [--host host] [host]
+
+# FIXME: metaserver query and metaserver list
 
 nt = Client()
 nt.connect(sys.argv[1], 2592)
@@ -1132,3 +1139,6 @@ while 1:
     sprites.clear(screen, background)
     sprites.update()
     pygame.display.update(sprites.draw(screen))
+
+# FIXME: multiple display modes, tactical, galactic, selection, login, queue, servers
+# FIXME: planets to be partial alpha in tactical view as ships close in?
