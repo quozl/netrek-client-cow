@@ -147,6 +147,36 @@ PEXPLODE=3
 PDEAD=4
 POBSERV=5
 
+PFSHIELD           = 0x0001
+PFREPAIR           = 0x0002
+PFBOMB             = 0x0004
+PFORBIT            = 0x0008
+PFCLOAK            = 0x0010
+PFWEP              = 0x0020
+PFENG              = 0x0040
+PFROBOT            = 0x0080
+PFBEAMUP           = 0x0100
+PFBEAMDOWN         = 0x0200
+PFSELFDEST         = 0x0400
+PFGREEN            = 0x0800
+PFYELLOW           = 0x1000
+PFRED              = 0x2000
+PFPLOCK            = 0x4000
+PFPLLOCK           = 0x8000
+PFCOPILOT         = 0x10000
+PFWAR             = 0x20000
+PFPRACTR          = 0x40000
+PFDOCK            = 0x80000
+PFREFIT          = 0x100000
+PFREFITTING      = 0x200000
+PFTRACT          = 0x400000
+PFPRESS          = 0x800000
+PFDOCKOK        = 0x1000000
+PFSEEN          = 0x2000000
+PFOBSERV        = 0x8000000
+PFTWARP        = 0x40000000
+PFBPROBOT      = 0x80000000
+
 SCOUT=0
 DESTROYER=1
 CRUISER=2
@@ -232,9 +262,12 @@ class Planet(pygame.sprite.Sprite):
             if self.armies > 4:
                 self.image = self.image_closed
                 self.rect = self.rect_closed
+                self.rect.center = scale(self.x, self.y)
             else:
                 self.image = self.image_open
                 self.rect = self.rect_open
+                self.rect.center = scale(self.x, self.y)
+            self.old_armies = self.armies
         if self.x != self.old_x or self.y != self.old_y:
             self.rect.center = scale(self.x, self.y)
             self.old_x = self.x
@@ -261,7 +294,7 @@ class Ship(pygame.sprite.Sprite):
         self.x = self.old_x = -10000
         self.y = self.old_y = -10000
         self.dir = self.old_dir = 0
-        self.image = ic.get("fish-1.png")
+        self.image = ic.get("fish-2.png")
         self.rect = self.image.get_rect()
 
     def show(self):
@@ -272,28 +305,62 @@ class Ship(pygame.sprite.Sprite):
 
     def update(self):
         if self.dir != self.old_dir:
-            self.image = ic.get_rotated("fish-1.png", self.dir)
+            if self.team == FED:
+                self.image = ic.get_rotated("fish-2.png", self.dir)
+            else:
+                self.image = ic.get_rotated("fish-3.png", self.dir)
             self.rect = self.image.get_rect()
             self.old_dir = self.dir
         if self.x != self.old_x or self.y != self.old_y:
             self.rect.center = scale(self.x, self.y)
             self.old_x = self.x
             self.old_y = self.y
-        
+
+    def sp_you(self, hostile, swar, armies, tractor, flags, damage, shield, fuel, etemp, wtemp, whydead, whodead):
+        # FIXME: handle other arguments
+        self.flags = flags
+        global me
+        if not me:
+            me = self
+            print "SP_YOU me is set"
+        else:
+            if me != self:
+                me = self
+                print "SP_YOU me has changed"
+
+    def sp_pl_login(self, rank, name, monitor, login):
+        self.rank = rank
+        self.name = name
+        self.monitor = monitor
+        self.login = login
+        # FIXME: display this data
+
+    def sp_hostile(self, war, hostile):
+        self.war = war
+        self.hostile = hostile
+        # FIXME: display this data
+    
     def sp_player_info(self, shiptype, team):
         self.shiptype = shiptype
         self.team = team
-        # FIXME: display shiptype and team
+        # FIXME: display this data
 
     def sp_kills(self, kills):
         self.kills = kills
-        # FIXME: display kills
+        # FIXME: display this data
 
     def sp_player(self, dir, speed, x, y):
         self.dir = dir_to_angle(dir)
         self.speed = speed
         self.x = x
         self.y = y
+        # FIXME: display speed
+
+    def sp_flags(self, tractor, flags):
+        self.tractor = tractor
+        self.flags = flags
+        # FIXME: display this data
+        # FIXME: figure out if flags in SP_FLAGS is same as flags in SP_YOU
 
     def sp_pstatus(self, status):
         if status == PALIVE:
@@ -383,7 +450,7 @@ class CP_OUTFIT(CP):
         self.format = '!bbbx'
         self.tabulate(self.code, self.format)
 
-    def data(self, team, ship=SCOUT):
+    def data(self, team, ship=ASSAULT):
         print "CP_OUTFIT team=",team_decode(team),"ship=",ship
         return struct.pack(self.format, self.code, team, ship)
 
@@ -437,6 +504,42 @@ class CP_UPDATES(CP):
 
 cp_updates = CP_UPDATES()
 
+class CP_BOMB(CP):
+    def __init__(self):
+        self.code = 17
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_BOMB state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_bomb = CP_BOMB()
+
+class CP_BEAM(CP):
+    def __init__(self):
+        self.code = 18
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_BEAM state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_beam = CP_BEAM()
+
+class CP_CLOAK(CP):
+    def __init__(self):
+        self.code = 19
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_CLOAK state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_cloak = CP_CLOAK()
+
 """ server originated packets
 """
 
@@ -466,6 +569,7 @@ class SP_MOTD(SP):
     def handler(self, data):
         (ignored, message) = struct.unpack(self.format, data)
         print strnul(message)
+        # FIXME: present MOTD on pygame screen
 
 sp_motd = SP_MOTD()
 
@@ -479,8 +583,8 @@ class SP_YOU(SP):
         (ignored, pnum, hostile, swar, armies, tractor, flags, damage,
          shield, fuel, etemp, wtemp, whydead, whodead) = struct.unpack(self.format, data)
         if verbose: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
-        me = galaxy.ship(pnum)
-        ## FIXME: handle the packet
+        ship = galaxy.ship(pnum)
+        ship.sp_you(hostile, swar, armies, tractor, flags, damage, shield, fuel, etemp, wtemp, whydead, whodead)
         global pending_login
         if pending_login:
             nt.send(cp_updates.data(1000000/updates_per_second))
@@ -488,6 +592,19 @@ class SP_YOU(SP):
             pending_login = False
 
 sp_you = SP_YOU()
+
+class SP_QUEUE(SP):
+    def __init__(self):
+        self.code = 13
+        self.format = '!bxh'
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, pos) = struct.unpack(self.format, data)
+        if verbose: print "SP_QUEUE pos=",pos
+        # FIXME: present on pygame screen
+
+sp_queue = SP_QUEUE()
 
 class SP_PL_LOGIN(SP):
     def __init__(self):
@@ -499,6 +616,8 @@ class SP_PL_LOGIN(SP):
         (ignored, pnum, rank, name, monitor,
          login) = struct.unpack(self.format, data)
         if verbose: print "SP_PL_LOGIN pnum=",pnum,"rank=",rank,"name=",strnul(name),"monitor=",strnul(monitor),"login=",strnul(login)
+        ship = galaxy.ship(pnum)
+        ship.sp_pl_login(rank, name, monitor, login)
 
 sp_pl_login = SP_PL_LOGIN()
 
@@ -511,6 +630,8 @@ class SP_HOSTILE(SP):
     def handler(self, data):
         (ignored, pnum, war, hostile) = struct.unpack(self.format, data)
         if verbose: print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
+        ship = galaxy.ship(pnum)
+        ship.sp_hostile(war, hostile)
 
 sp_hostile = SP_HOSTILE()
 
@@ -579,6 +700,8 @@ class SP_FLAGS(SP):
     def handler(self, data):
         (ignored, pnum, tractor, flags) = struct.unpack(self.format, data)
         if verbose: print "SP_FLAGS pnum=",pnum,"tractor=",tractor,"flags=",flags
+        ship = galaxy.ship(pnum)
+        ship.sp_flags(tractor, flags)
 
 sp_flags = SP_FLAGS()
 
@@ -605,6 +728,7 @@ class SP_LOGIN(SP):
     def handler(self, data):
         (ignored, accept, flags, keymap) = struct.unpack(self.format, data)
         if verbose: print "SP_LOGIN accept=",accept,"flags=",flags
+        # FIXME: note protocol phase change
 
 sp_login = SP_LOGIN()
 
@@ -621,6 +745,8 @@ class SP_MASK(SP):
         if pending_outfit:
             nt.send(cp_outfit.data(0))
             pending_outfit = False
+        # FIXME: note protocol phase change
+        # FIXME: update team selection icons
 
 sp_mask = SP_MASK()
 
@@ -633,6 +759,8 @@ class SP_PICKOK(SP):
     def handler(self, data):
         (ignored, state) = struct.unpack(self.format, data)
         if verbose: print "SP_PICKOK state=",state
+        # FIXME: handle bad state reply
+        # FIXME: note protocol phase change
 
 sp_pickok = SP_PICKOK()
 
@@ -646,6 +774,7 @@ class SP_RESERVED(SP):
         (ignored, data) = struct.unpack(self.format, data)
         data = struct.unpack('16b', data)
         if verbose: print "SP_RESERVED data=",data
+        # FIXME: handle the request by returning a CP_RESERVED
 
 sp_reserved = SP_RESERVED()
 
@@ -706,6 +835,7 @@ class SP_STATUS(SP):
     def handler(self, data):
         (ignored, tourn, armsbomb, planets, kills, losses, time, timeprod) = struct.unpack(self.format, data)
         if verbose: print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
+        # FIXME: display t-mode state
 
 sp_status = SP_STATUS()
 
@@ -744,6 +874,8 @@ class SP_MESSAGE(SP):
     def handler(self, data):
         (ignored, m_flags, m_recpt, m_from, mesg) = struct.unpack(self.format, data)
         if verbose: print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
+        print strnul(mesg)
+        # FIXME: display the message
 
 sp_message = SP_MESSAGE()
 
@@ -767,6 +899,7 @@ class SP_WARNING(SP):
 
     def handler(self, data):
         (ignored, message) = struct.unpack(self.format, data)
+        if verbose: print "SP_WARNING message=",message
         print strnul(message)
         # FIXME: display the warning
 
@@ -780,6 +913,7 @@ class SP_FEATURE(SP):
 
     def handler(self, data):
         (ignored, type, arg1, arg2, value, name) = struct.unpack(self.format, data)
+        if verbose: print "SP_FEATURE type=",type,"arg1=",arg1,"arg2=",arg2,"value=",value,"name=",name
         # FIXME: process the packet
 
 sp_feature = SP_FEATURE()
@@ -889,6 +1023,16 @@ def kb(event):
     elif event.key == pygame.K_7: nt.send(cp_speed.data(7))
     elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
     elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
+    elif event.key == pygame.K_b: nt.send(cp_bomb.data())
+    elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
+    elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
+    elif event.key == pygame.K_c:
+        global me
+        if me:
+            if me.flags & PFCLOAK:
+                nt.send(cp_cloak.data(0))
+            else:
+                nt.send(cp_cloak.data(1))
     elif event.key == pygame.K_SEMICOLON:
         x, y = pygame.mouse.get_pos()
         nearest = galaxy.nearest_planet(x, y)
