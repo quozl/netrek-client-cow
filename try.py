@@ -998,75 +998,203 @@ class Client:
         # return something less than the expected number of bytes, so we
         # have to wait for them.
 
-def kb(event):
-    """ keydown event handler
-    """
-    if event.key == pygame.K_SPACE:
-        nt.send(cp_login.data(0, 'guest', '', 'try'))
-    elif event.key == pygame.K_TAB:
-        nt.send(cp_outfit.data(0, 0))
-    elif event.key == pygame.K_q:
-        screen.fill((0, 0, 0))
-        pygame.display.flip()
-        nt.send(cp_bye.data())
-        sys.exit()
-    elif event.key == pygame.K_LSHIFT: pass
-    elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
-    elif event.key == pygame.K_1: nt.send(cp_speed.data(1))
-    elif event.key == pygame.K_2 and (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT): nt.send(cp_speed.data(12))
-    elif event.key == pygame.K_2: nt.send(cp_speed.data(2))
-    elif event.key == pygame.K_3: nt.send(cp_speed.data(3))
-    elif event.key == pygame.K_4: nt.send(cp_speed.data(4))
-    elif event.key == pygame.K_5: nt.send(cp_speed.data(5))
-    elif event.key == pygame.K_6: nt.send(cp_speed.data(6))
-    elif event.key == pygame.K_7: nt.send(cp_speed.data(7))
-    elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
-    elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
-    elif event.key == pygame.K_b: nt.send(cp_bomb.data())
-    elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
-    elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
-    elif event.key == pygame.K_c:
-        global me
-        if me:
-            if me.flags & PFCLOAK:
-                nt.send(cp_cloak.data(0))
-            else:
-                nt.send(cp_cloak.data(1))
-    elif event.key == pygame.K_SEMICOLON:
-        x, y = pygame.mouse.get_pos()
-        nearest = galaxy.nearest_planet(x, y)
-        if nearest != None:
-            nt.send(cp_planlock.data(nearest.n))
-        else:
-            print "no nearest"
-    else:
-        print "kb: unhandled keydown, key=", event.key, "mod=", event.mod
+""" display phases
+"""
 
-def mb(position, button):
-    """ mouse button down event handler
-    position is a list of (x, y) screen coordinates
-    button is a mouse button number
-    """
-    global me
-    print position, button
-    if button == 3 and me != None:
-        print me.x, me.y
-        nt.send(cp_direction.data(0))
-    pass
-
-def pygame_event_sink():
-    """ read and process all pygame events
-    """
-    for event in pygame.event.get():
+class Phase:
+    def network_sink(self):
+        # FIXME: select for *either* pygame events or network events.
+        # Currently the code is suboptimal because it waits on network
+        # events with a timeout of a twentieth of a second, after which it
+        # checks for pygame events.  Therefore pygame events are delayed
+        # by up to a twentieth of a second.
+        nt.recv()
+        
+    def display_sink_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mb(event.pos, event.button)
+            self.mb(event)
         elif event.type == pygame.KEYDOWN:
-            kb(event)
+            self.kb(event)
         elif event.type == pygame.QUIT:
             nt.send(cp_bye.data())
             sys.exit()
-    # FIXME: watch for MOUSEMOTION and update object information panes
-    # for planets or ships
+        # FIXME: watch for MOUSEMOTION and update object information panes
+        # for planets or ships
+        
+    def display_sink(self):
+        for event in pygame.event.get():
+            self.display_sink_event(event)
+
+    def display_sink_wait(self):
+        event = pygame.event.wait()
+        self.display_sink_event(event)
+
+    def kb(self, event):
+        if event.key == pygame.K_SPACE:
+            nt.send(cp_login.data(0, 'guest', '', 'try'))
+        elif event.key == pygame.K_TAB:
+            nt.send(cp_outfit.data(0, 0))
+        elif event.key == pygame.K_q:
+            screen.fill((0, 0, 0))
+            pygame.display.flip()
+            nt.send(cp_bye.data())
+            sys.exit()
+
+class PhaseSplash(Phase):
+    def __init__(self, screen):
+        # tile a background image onto the screen
+        background = ic.get("stars.png")
+        bh = background.get_height()
+        bw = background.get_width()
+        for y in range(screen.get_height() / bh + 1):
+            for x in range(screen.get_width() / bw + 1):
+                screen.blit(background, (x*bw, y*bh))
+        # place a title on the background
+        font = pygame.font.Font(None, 144)
+        text = font.render("pynetrek", 1, (64, 64, 64))
+        textpos = text.get_rect(center=(screen.get_width()/2,
+                                        screen.get_height()/2))
+        # update the screen
+        screen.blit(text, textpos)
+        pygame.display.flip()
+
+        # spin waiting for mouse click
+        self.run = True
+        self.cycle()
+
+    def mb(self, event):
+        self.run = False
+        
+    def cycle(self):
+        # FIXME: proceed after a short time rather than wait for a click
+        while self.run:
+            self.display_sink_wait()
+    
+class PhaseLogin(Phase):
+    def __init__(self, screen):
+        self.fn = fn = pygame.font.Font(None, 36)
+        self.sw = sw = screen.get_width()
+        self.sh = sh = screen.get_height()
+        # place prompt on screen
+        self.ps = ps = fn.render("Type a name ? ", 1, (127, 127, 127))
+        self.pc = pc = [sw/2, sh-(sh/4)]
+        self.pr = pr = ps.get_rect(center=pc)
+        r1 = screen.blit(ps, pr)
+        # highlight entry area
+        self.br = pygame.Rect(pr.right,pr.top,sw - pr.right,pr.height)
+        self.bg = screen.subsurface(self.br).copy()
+        r2 = self.highlight_name()
+        pygame.display.update([r1, r2])
+        
+        self.name = ""
+        self.run = True
+        self.cycle()
+
+    def highlight_name(self):
+        return screen.fill((0,127,0), self.br)
+
+    def unhighlight_name(self):
+        return screen.blit(self.bg, self.br)
+
+    def draw_name(self):
+        as = self.fn.render(self.name, 1, (255, 255, 255))
+        ar = as.get_rect(center=self.pc)
+        ar.left = self.pr.right
+        return screen.blit(as, ar)
+        
+    def redraw_name(self):
+        r1 = self.highlight_name()
+        r2 = self.draw_name()
+        pygame.display.update([r1, r2])
+
+    def append_name(self, char):
+        self.name = self.name + char
+        r1 = self.draw_name()
+        pygame.display.update(r1)
+        
+    def delete_name(self):
+        self.name = ""
+        self.redraw_name()
+
+    def kb(self, event):
+        if event.key == pygame.K_LSHIFT: pass
+        elif event.key == pygame.K_RETURN:
+            # FIXME: terminate entry
+            r1 = self.unhighlight_name()
+            r2 = self.draw_name()
+            pygame.display.update([r1, r2])
+            # FIXME: add password prompt
+            # FIXME: actually use the entered username
+            self.run = False
+        elif event.key == pygame.K_BACKSPACE:
+            # FIXME: backspace
+            self.delete_name()
+        elif event.key > 31 and event.key < 255:
+            self.append_name(event.unicode)
+        
+    def cycle(self):
+        while self.run:
+            self.display_sink_wait()
+    
+class PhaseFlight(Phase):
+    def mb(self, event):
+        """ mouse button down event handler
+        position is a list of (x, y) screen coordinates
+        button is a mouse button number
+        """
+        global me
+        print event.pos, event.button
+        if event.button == 3 and me != None:
+            print me.x, me.y
+            nt.send(cp_direction.data(0))
+    
+    def kb(self, event):
+        if event.key == pygame.K_LSHIFT: pass
+        elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
+        elif event.key == pygame.K_1: nt.send(cp_speed.data(1))
+        elif event.key == pygame.K_2 and (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT): nt.send(cp_speed.data(12))
+        elif event.key == pygame.K_2: nt.send(cp_speed.data(2))
+        elif event.key == pygame.K_3: nt.send(cp_speed.data(3))
+        elif event.key == pygame.K_4: nt.send(cp_speed.data(4))
+        elif event.key == pygame.K_5: nt.send(cp_speed.data(5))
+        elif event.key == pygame.K_6: nt.send(cp_speed.data(6))
+        elif event.key == pygame.K_7: nt.send(cp_speed.data(7))
+        elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
+        elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
+        elif event.key == pygame.K_b: nt.send(cp_bomb.data())
+        elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
+        elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
+        elif event.key == pygame.K_c:
+            global me
+            if me:
+                if me.flags & PFCLOAK:
+                    nt.send(cp_cloak.data(0))
+                else:
+                    nt.send(cp_cloak.data(1))
+        elif event.key == pygame.K_SEMICOLON:
+            x, y = pygame.mouse.get_pos()
+            nearest = galaxy.nearest_planet(x, y)
+            if nearest != None:
+                nt.send(cp_planlock.data(nearest.n))
+            else:
+                print "no nearest"
+        else:
+            return Phase.kb(self, event)
+    
+class PhaseFlightGalactic(PhaseFlight):
+    def kb(self, event):
+        if event.key == pygame.K_RETURN:
+            # FIXME: phase change to tactical
+            pass
+        else:
+            return PhaseFlight.kb(self, event)
+
+    def cycle(self):
+        self.network_sink()
+        self.display_sink()
+        sprites.clear(screen, background)
+        sprites.update()
+        pygame.display.update(sprites.draw(screen))
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
@@ -1104,16 +1232,13 @@ size = width, height = 1000, 1000
 screen = pygame.display.set_mode(size)
 sprites = pygame.sprite.OrderedUpdates(())
 
-#background = ic.get("stars.png")
 background = screen.copy()
 background.fill((255, 255, 255))
-#background.fill((0, 0, 0))
 screen.blit(background, (0, 0))
-# FIXME: tile the background
 # FIXME: allow user to select graphics theme, default on XO is to be white with oysters, otherwise use stars, planets, and ships.
 pygame.display.flip()
 
-pending_login = True
+pending_login = False
 pending_outfit = True
 
 for argv in sys.argv:
@@ -1123,22 +1248,22 @@ for argv in sys.argv:
 # FIXME: [--verbose] [--theme name] [--updates n] [--metaserver] [--port port] [--host host] [host]
 
 # FIXME: metaserver query and metaserver list
+ph_splash = PhaseSplash(screen)
+
+if not pending_login:
+    ph_login = PhaseLogin(screen)
+    
+ph_galactic = PhaseFlightGalactic()
+
+screen.blit(background, (0, 0))
+pygame.display.flip()
 
 nt = Client()
 nt.connect(sys.argv[1], 2592)
 nt.send(cp_socket.data())
 
 while 1:
-    # FIXME: select for *either* pygame events or network events.
-    # Currently the code is suboptimal because it waits on network
-    # events with a timeout of a twentieth of a second, after which it
-    # checks for pygame events.  Therefore pygame events are delayed
-    # by up to a twentieth of a second.
-    nt.recv()
-    pygame_event_sink()
-    sprites.clear(screen, background)
-    sprites.update()
-    pygame.display.update(sprites.draw(screen))
+    ph_galactic.cycle()
 
-# FIXME: multiple display modes, tactical, galactic, selection, login, queue, servers
+# FIXME: display modes, servers, queue, login, selection, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
