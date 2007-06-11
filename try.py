@@ -539,6 +539,30 @@ class CP_CLOAK(CP):
 
 cp_cloak = CP_CLOAK()
 
+class CP_REPAIR(CP):
+    def __init__(self):
+        self.code = 13
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_REPAIR state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_repair = CP_REPAIR()
+
+class CP_SHIELD(CP):
+    def __init__(self):
+        self.code = 12
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_SHIELD state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_shield = CP_SHIELD()
+
 """ server originated packets
 """
 
@@ -584,10 +608,12 @@ class SP_YOU(SP):
         if verbose: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
         ship = galaxy.ship(pnum)
         ship.sp_you(hostile, swar, armies, tractor, flags, damage, shield, fuel, etemp, wtemp, whydead, whodead)
-        global pending_login
+        global pending_login, pending_login_name, pending_login_password
         if pending_login:
             nt.send(cp_updates.data(1000000/updates_per_second))
-            nt.send(cp_login.data(0, 'guest', '', 'try'))
+            print "name = %s" % pending_login_name
+            print "pass = %s" % pending_login_password
+            nt.send(cp_login.data(0, str(pending_login_name), str(pending_login_password), 'pynetrek'))
             pending_login = False
 
 sp_you = SP_YOU()
@@ -723,11 +749,20 @@ class SP_LOGIN(SP):
         self.code = 17
         self.format = "!bbxxl96s"
         self.tabulate(self.code, self.format, self)
+        self.uncatch()
+
+    def uncatch(self):
+        self.callback = None
+
+    def catch(self, callback):
+        self.callback = callback
 
     def handler(self, data):
         (ignored, accept, flags, keymap) = struct.unpack(self.format, data)
         if verbose: print "SP_LOGIN accept=",accept,"flags=",flags
-        # FIXME: note protocol phase change
+        if self.callback:
+            self.callback(accept, flags, keymap)
+            self.uncatch()
 
 sp_login = SP_LOGIN()
 
@@ -1002,6 +1037,34 @@ class Client:
 """
 
 class Phase:
+    def __init__(self):
+        self.warning_on = False
+        
+    def warning(self, message):
+        font = pygame.font.Font(None, 36)
+        text = font.render(message, 1, (255, 127, 127))
+        self.warning_br = text.get_rect(center=(screen.get_width()/2,
+                                                  screen.get_height()-100))
+        self.warning_bg = screen.subsurface(self.warning_br).copy()
+        r1 = screen.blit(text, self.warning_br)
+        pygame.display.update(r1)
+        self.warning_on = True
+
+    def unwarning(self):
+        if self.warning_on:
+            r1 = screen.blit(self.warning_bg, self.warning_br)
+            pygame.display.update(r1)
+            self.warning_on = False
+        
+    def background(self):
+        # tile a background image onto the screen
+        background = ic.get("stars.png")
+        bh = background.get_height()
+        bw = background.get_width()
+        for y in range(screen.get_height() / bh + 1):
+            for x in range(screen.get_width() / bw + 1):
+                screen.blit(background, (x*bw, y*bh))
+
     def network_sink(self):
         # FIXME: select for *either* pygame events or network events.
         # Currently the code is suboptimal because it waits on network
@@ -1030,11 +1093,7 @@ class Phase:
         self.display_sink_event(event)
 
     def kb(self, event):
-        if event.key == pygame.K_SPACE:
-            nt.send(cp_login.data(0, 'guest', '', 'try'))
-        elif event.key == pygame.K_TAB:
-            nt.send(cp_outfit.data(0, 0))
-        elif event.key == pygame.K_q:
+        if event.key == pygame.K_q:
             screen.fill((0, 0, 0))
             pygame.display.flip()
             nt.send(cp_bye.data())
@@ -1042,13 +1101,7 @@ class Phase:
 
 class PhaseSplash(Phase):
     def __init__(self, screen):
-        # tile a background image onto the screen
-        background = ic.get("stars.png")
-        bh = background.get_height()
-        bw = background.get_width()
-        for y in range(screen.get_height() / bh + 1):
-            for x in range(screen.get_width() / bw + 1):
-                screen.blit(background, (x*bw, y*bh))
+        self.background()
         # place a title on the background
         font = pygame.font.Font(None, 144)
         text = font.render("pynetrek", 1, (64, 64, 64))
@@ -1069,73 +1122,180 @@ class PhaseSplash(Phase):
         # FIXME: proceed after a short time rather than wait for a click
         while self.run:
             self.display_sink_wait()
-    
-class PhaseLogin(Phase):
-    def __init__(self, screen):
+
+class Field:
+    def __init__(self, prompt, value, fx, fy):
+        self.value = value
         self.fn = fn = pygame.font.Font(None, 36)
         self.sw = sw = screen.get_width()
         self.sh = sh = screen.get_height()
         # place prompt on screen
-        self.ps = ps = fn.render("Type a name ? ", 1, (127, 127, 127))
-        self.pc = pc = [sw/2, sh-(sh/4)]
+        self.ps = ps = fn.render(prompt, 1, (127, 127, 127))
+        self.pc = pc = [sw*fx, sh*fy]
         self.pr = pr = ps.get_rect(center=pc)
         r1 = screen.blit(ps, pr)
         # highlight entry area
         self.br = pygame.Rect(pr.right,pr.top,sw - pr.right,pr.height)
         self.bg = screen.subsurface(self.br).copy()
-        r2 = self.highlight_name()
-        pygame.display.update([r1, r2])
+        pygame.display.update(r1)
+        self.enter()
         
-        self.name = ""
-        self.run = True
-        self.cycle()
-
-    def highlight_name(self):
+    def highlight(self):
         return screen.fill((0,127,0), self.br)
 
-    def unhighlight_name(self):
+    def unhighlight(self):
         return screen.blit(self.bg, self.br)
 
-    def draw_name(self):
-        as = self.fn.render(self.name, 1, (255, 255, 255))
+    def draw(self):
+        as = self.fn.render(self.value, 1, (255, 255, 255))
         ar = as.get_rect(center=self.pc)
         ar.left = self.pr.right
         return screen.blit(as, ar)
         
-    def redraw_name(self):
-        r1 = self.highlight_name()
-        r2 = self.draw_name()
+    def redraw(self):
+        r1 = self.highlight()
+        r2 = self.draw()
         pygame.display.update([r1, r2])
 
-    def append_name(self, char):
-        self.name = self.name + char
-        r1 = self.draw_name()
+    def leave(self):
+        r1 = self.unhighlight()
+        r2 = self.draw()
+        pygame.display.update([r1, r2])
+        
+    def enter(self):
+        r1 = self.highlight()
+        r2 = self.draw()
+        pygame.display.update([r1, r2])
+        
+    def append(self, char):
+        self.value = self.value + char
+        r1 = self.draw()
         pygame.display.update(r1)
         
-    def delete_name(self):
-        self.name = ""
-        self.redraw_name()
+    def delete(self):
+        self.value = ""
+        self.redraw()
+
+class PhaseLogin(Phase):
+    def __init__(self, screen):
+        self.name = Field("Type a name ? ", "", 0.5, 0.75)
+        self.focused = self.name
+        self.password = None
+        self.run = True
+        self.warning('connected to server')
+        self.cycle()
+
+    def tab(self):
+        """ move to next field """
+        self.focused.leave()
+        if self.focused == self.password:
+            self.chuck_cp_login()
+        elif self.focused == self.name:
+            if self.password == None:
+                self.password = Field("Password ? ", "", 0.5, 0.80)
+                # FIXME: password prompt appears momentarily if guest selected
+                # FIXME: force no echo for password
+            else:
+                self.password.enter()
+            self.focused = self.password
+            if self.name.value == 'guest' or self.name.value == 'Guest':
+                self.password.leave()
+                self.password.value = ''
+                self.chuck_cp_login()
+            else:
+                self.chuck_cp_login_attempt()
+
+    def chuck_cp_login_attempt(self):
+        self.catch_sp_login_attempt()
+        nt.send(cp_login.data(1, str(self.name.value), str(self.password.value), 'pynetrek'))
+
+    def throw_sp_login_attempt(self, accept, flags, keymap):
+        if accept == 1:
+            self.warning('server has this name listed')
+        else:
+            self.warning('server ignorant of this name')
+        
+    def catch_sp_login_attempt(self):
+        global sp_login
+        sp_login.catch(self.throw_sp_login_attempt)
+                
+    def chuck_cp_login(self):
+        self.catch_sp_login()
+        nt.send(cp_updates.data(1000000/updates_per_second))
+        nt.send(cp_login.data(0, str(self.name.value), str(self.password.value), 'pynetrek'))
+
+    def throw_sp_login(self, accept, flags, keymap):
+        if accept == 1:
+            self.run = False
+        else:
+            self.warning('name and password refused by server')
+            self.password.value = ''
+            self.password.unhighlight()
+            self.focused = self.name
+            self.focused.enter()
+        
+    def catch_sp_login(self):
+        global sp_login
+        sp_login.catch(self.throw_sp_login)
+                
+    def untab(self):
+        if self.focused == self.password:
+            self.focused.leave()
+            self.focused = self.name
+            self.focused.redraw()
 
     def kb(self, event):
+        self.unwarning()
         if event.key == pygame.K_LSHIFT: pass
-        elif event.key == pygame.K_RETURN:
-            # FIXME: terminate entry
-            r1 = self.unhighlight_name()
-            r2 = self.draw_name()
-            pygame.display.update([r1, r2])
-            # FIXME: add password prompt
-            # FIXME: actually use the entered username
-            self.run = False
+        elif event.key == pygame.K_RSHIFT: pass
+        elif event.key == pygame.K_TAB and (event.mod == pygame.KMOD_LSHIFT or event.mod == pygame.KMOD_RSHIFT):
+            self.untab()
+        elif event.key == pygame.K_TAB or event.key == pygame.K_RETURN:
+            self.tab()
         elif event.key == pygame.K_BACKSPACE:
-            # FIXME: backspace
-            self.delete_name()
+            # FIXME: per character backspace rather than delete word
+            self.focused.delete()
         elif event.key > 31 and event.key < 255:
-            self.append_name(event.unicode)
+            self.focused.append(event.unicode)
         
     def cycle(self):
         while self.run:
-            self.display_sink_wait()
+            self.network_sink()
+            self.display_sink()
     
+class PhaseRefit(Phase):
+    def __init__(self, screen):
+        self.run = True
+        self.background()
+        pygame.display.flip()
+        # FIXME: display list of ship classes with current selection
+        # FIXME: display race corners
+        # FIXME: display "in netrek all races are equal" message
+        self.cycle()
+
+    def cycle(self):
+        while self.run:
+            self.network_sink()
+            self.display_sink()
+        # FIXME: receipt of SP_PICKOK should exit this loop
+
+    def team(self, team):
+        # FIXME: send CP_OUTFIT
+        pass
+    
+    def mb(self, event):
+        # FIXME: click on team selects team with currently selected ship class
+        pass
+        
+    def kb(self, event):
+        # FIXME: if cursor over team icon, keys are ship class
+        # FIXME: on arrow keys, change selected ship class
+        # FIXME: if cursor not over team icon, keys are team name
+        if event.key == pygame.K_f: self.team(FED)
+        elif event.key == pygame.K_r: self.team(ROM)
+        elif event.key == pygame.K_k: self.team(KLI)
+        elif event.key == pygame.K_o: self.team(ORI)
+        
 class PhaseFlight(Phase):
     def mb(self, event):
         """ mouse button down event handler
@@ -1149,10 +1309,11 @@ class PhaseFlight(Phase):
             nt.send(cp_direction.data(0))
     
     def kb(self, event):
+        shift = (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT or event.mod == pygame.KMOD_RSHIFT)
         if event.key == pygame.K_LSHIFT: pass
         elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
         elif event.key == pygame.K_1: nt.send(cp_speed.data(1))
-        elif event.key == pygame.K_2 and (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT): nt.send(cp_speed.data(12))
+        elif event.key == pygame.K_2 and shift: nt.send(cp_speed.data(12))
         elif event.key == pygame.K_2: nt.send(cp_speed.data(2))
         elif event.key == pygame.K_3: nt.send(cp_speed.data(3))
         elif event.key == pygame.K_4: nt.send(cp_speed.data(4))
@@ -1161,6 +1322,14 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_7: nt.send(cp_speed.data(7))
         elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
         elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
+        elif event.key == pygame.K_u:
+            global me
+            if me:
+                if me.flags & PFSHIELD:
+                    nt.send(cp_shield.data(0))
+                else:
+                    nt.send(cp_shield.data(1))
+        elif event.key == pygame.K_r and shift: nt.send(cp_repair.data(1))
         elif event.key == pygame.K_b: nt.send(cp_bomb.data())
         elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
         elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
@@ -1250,17 +1419,16 @@ for argv in sys.argv:
 # FIXME: metaserver query and metaserver list
 ph_splash = PhaseSplash(screen)
 
+nt = Client()
+nt.connect(sys.argv[1], 2592)
+nt.send(cp_socket.data())
+
 if not pending_login:
     ph_login = PhaseLogin(screen)
     
 ph_galactic = PhaseFlightGalactic()
-
 screen.blit(background, (0, 0))
 pygame.display.flip()
-
-nt = Client()
-nt.connect(sys.argv[1], 2592)
-nt.send(cp_socket.data())
 
 while 1:
     ph_galactic.cycle()
