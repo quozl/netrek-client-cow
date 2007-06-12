@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-    pygame netrek lurk
+    netrek lurk, version 1.0
     Copyright (C) 2007  James Cameron (quozl@us.netrek.org)
 
     This program is free software; you can redistribute it and/or modify
@@ -36,13 +36,10 @@ password = ''
 login = 'lurker'
 
 # whether to exit the program when t-mode starts
-exit_on_t_mode = False
+exit_on_t_mode = True
 
 # what update rate to request of server
 updates_per_second = 1
-
-# whether to explain some packets more fully
-verbose = 0
 
 """ utility functions """
 
@@ -113,7 +110,7 @@ class CP_SOCKET(CP):
         self.tabulate(self.code, self.format)
 
     def data(self):
-        if verbose: print "CP_SOCKET"
+        print "CP_SOCKET"
         return struct.pack(self.format, self.code, 4, 10, 0)
 
 cp_socket = CP_SOCKET()
@@ -358,7 +355,7 @@ class SP_MASK(SP):
 
     def handler(self, data):
         (ignored, mask) = struct.unpack(self.format, data)
-        if verbose: print "SP_MASK"
+        print "SP_MASK"
         # automatically join first available team
         if self.armed:
             if mask & 0x1: nt.send(cp_outfit.data(0))
