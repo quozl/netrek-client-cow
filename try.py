@@ -304,6 +304,7 @@ class Ship(pygame.sprite.Sprite):
 
     def update(self):
         if self.dir != self.old_dir:
+            # select image according to team, prototype code
             if self.team == FED:
                 self.image = ic.get_rotated("fish-2.png", self.dir)
             else:
@@ -396,6 +397,51 @@ class Galaxy:
 
 galaxy = Galaxy()
 me = None
+
+""" netrek protocol documentation, from server include/packets.h
+
+	general protocol state outline
+
+	starting state
+
+	CP_SOCKET
+	CP_FEATURE, optional, to indicate feature packets are known
+	SP_MOTD
+	SP_FEATURE, only if CP_FEATURE was seen
+	SP_QUEUE, optional, repeats until slot is available
+	SP_YOU, indicates slot number assigned
+
+	login state, player slot status is POUTFIT
+	client shows name and password prompt and accepts input
+
+	CP_LOGIN
+	CP_FEATURE
+	SP_LOGIN
+	SP_YOU
+	SP_PLAYER_INFO
+	various other server packets
+
+	outfit state, player slot status is POUTFIT
+	client shows team selection window
+
+	SP_MASK, sent regularly during outfit
+
+	client accepts team selection input
+	CP_OUTFIT
+	SP_PICKOK, signals server acceptance of alive state
+
+	alive state,
+	server places ship in game and play begins
+
+	SP_PSTATUS, indicates PDEAD state
+	client animates explosion
+
+	SP_PSTATUS, indicates POUTFIT state
+	clients returns to team selection window
+
+	CP_QUIT
+	CP_BYE
+"""
 
 """ client originated packets
 """
@@ -491,6 +537,18 @@ class CP_PLANLOCK(CP):
 
 cp_planlock = CP_PLANLOCK()
 
+class CP_PLAYLOCK(CP):
+    def __init__(self):
+        self.code = 16
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, pnum):
+        print "CP_PLAYLOCK pnum=",pnum
+        return struct.pack(self.format, self.code, pnum)
+
+cp_playlock = CP_PLAYLOCK()
+
 class CP_UPDATES(CP):
     def __init__(self):
         self.code = 31
@@ -562,6 +620,246 @@ class CP_SHIELD(CP):
         return struct.pack(self.format, self.code, state)
 
 cp_shield = CP_SHIELD()
+
+class CP_MESSAGE(CP):
+    def __init__(self):
+        self.code = 1
+        self.format = "!bBBx80s"
+        self.tabulate(self.code, self.format)
+
+    def data(self, group, indiv, mesg):
+        print "CP_MESSAGE group=",group,"indiv=",indiv,"mesg=",mesg
+        return struct.pack(self.format, self.code, group, indiv, mesg)
+
+cp_message = CP_MESSAGE()
+
+class CP_PHASER(CP):
+    def __init__(self):
+        self.code = 4
+        self.format = '!bBxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, direction):
+        print "CP_PHASER direction=",direction
+        return struct.pack(self.format, self.code, direction)
+
+cp_phaser = CP_PHASER()
+
+class CP_PLASMA(CP):
+    def __init__(self):
+        self.code = 5
+        self.format = '!bBxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, direction):
+        print "CP_PLASMA direction=",direction
+        return struct.pack(self.format, self.code, direction)
+
+cp_plasma = CP_PLASMA()
+
+class CP_TORP(CP):
+    def __init__(self):
+        self.code = 6
+        self.format = '!bBxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, direction):
+        print "CP_TORP direction=",direction
+        return struct.pack(self.format, self.code, direction)
+
+cp_torp = CP_TORP()
+
+class CP_QUIT(CP):
+    def __init__(self):
+        self.code = 7
+        self.format = '!bxxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self):
+        print "CP_QUIT"
+        return struct.pack(self.format, self.code)
+
+cp_quit = CP_QUIT()
+
+class CP_WAR(CP):
+    def __init__(self):
+        self.code = 10
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, newmask):
+        print "CP_WAR newmask=",newmask
+        return struct.pack(self.format, self.code, newmask)
+
+cp_war = CP_WAR()
+
+class CP_PRACTR(CP):
+    def __init__(self):
+        self.code = 11
+        self.format = '!bxxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self):
+        print "CP_PRACTR"
+        return struct.pack(self.format, self.code)
+
+cp_practr = CP_PRACTR()
+
+class CP_ORBIT(CP):
+    def __init__(self):
+        self.code = 14
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_ORBIT =",state
+        return struct.pack(self.format, self.code, state)
+
+cp_orbit = CP_ORBIT()
+
+class CP_DET_TORPS(CP):
+    def __init__(self):
+        self.code = 20
+        self.format = '!bxxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self):
+        print "CP_DET_TORPS"
+        return struct.pack(self.format, self.code)
+
+cp_det_torps = CP_DET_TORPS()
+
+class CP_DET_MYTORP(CP):
+    def __init__(self):
+        self.code = 21
+        self.format = '!bxh'
+        self.tabulate(self.code, self.format)
+
+    def data(self, tnum):
+        print "CP_DET_MYTORP"
+        return struct.pack(self.format, self.code, tnum)
+
+cp_det_mytorp = CP_DET_MYTORP()
+
+class CP_COPILOT(CP):
+    def __init__(self):
+        self.code = 22
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state=1):
+        print "CP_COPILOT"
+        return struct.pack(self.format, self.code, state)
+
+cp_copilot = CP_COPILOT()
+
+class CP_REFIT(CP):
+    def __init__(self):
+        self.code = 23
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, ship):
+        print "CP_REFIT ship=",ship
+        return struct.pack(self.format, self.code, ship)
+
+cp_refit = CP_REFIT()
+
+class CP_TRACTOR(CP):
+    def __init__(self):
+        self.code = 24
+        self.format = '!bbbx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state, pnum):
+        print "CP_TRACTOR state=",state,"pnum=",pnum
+        return struct.pack(self.format, self.code, state, pnum)
+
+cp_tractor = CP_TRACTOR()
+
+class CP_REPRESS(CP):
+    def __init__(self):
+        self.code = 25
+        self.format = '!bbbx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state, pnum):
+        print "CP_REPRESS state=",state,"pnum=",pnum
+        return struct.pack(self.format, self.code, state, pnum)
+
+cp_repress = CP_REPRESS()
+
+class CP_COUP(CP):
+    def __init__(self):
+        self.code = 26
+        self.format = '!bxxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self):
+        print "CP_COUP"
+        return struct.pack(self.format, self.code)
+
+cp_coup = CP_COUP()
+
+class CP_OPTIONS(CP):
+    def __init__(self):
+        self.code = 28
+        self.format = "!bxxxI96s"
+        self.tabulate(self.code, self.format)
+
+    def data(self, flags, keymap):
+        print "CP_OPTIONS flags=",flags,"keymap=",keymap
+        return struct.pack(self.format, self.code, flags, keymap)
+
+cp_options = CP_OPTIONS()
+
+class CP_DOCKPERM(CP):
+    def __init__(self):
+        self.code = 30
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, state):
+        print "CP_DOCKPERM state=",state
+        return struct.pack(self.format, self.code, state)
+
+cp_dockperm = CP_DOCKPERM()
+
+class CP_RESETSTATS(CP):
+    def __init__(self):
+        self.code = 32
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, verify):
+        print "CP_RESETSTATS verify=",verify
+        return struct.pack(self.format, self.code, verify)
+
+cp_resetstats = CP_RESETSTATS()
+
+class CP_RESERVED(CP):
+    def __init__(self):
+        self.code = 33
+        self.format = "!bxxx16s16s" 
+        self.tabulate(self.code, self.format)
+
+    def data(self, data, resp):
+        print "CP_RESERVED"
+        return struct.pack(self.format, self.code, data, resp)
+
+cp_reserved = CP_RESERVED()
+
+class CP_SCAN(CP):
+    def __init__(self):
+        self.code = 34
+        self.format = '!bbxx'
+        self.tabulate(self.code, self.format)
+
+    def data(self, pnum):
+        print "CP_SCAN pnum=",pnum
+        return struct.pack(self.format, self.code, pnum)
+
+cp_scan = CP_SCAN()
 
 """ server originated packets
 """
@@ -771,6 +1069,13 @@ class SP_MASK(SP):
         self.code = 19
         self.format = "!bbxx"
         self.tabulate(self.code, self.format, self)
+        self.uncatch()
+
+    def uncatch(self):
+        self.callback = None
+
+    def catch(self, callback):
+        self.callback = callback
 
     def handler(self, data):
         (ignored, mask) = struct.unpack(self.format, data)
@@ -779,6 +1084,9 @@ class SP_MASK(SP):
         if pending_outfit:
             nt.send(cp_outfit.data(0))
             pending_outfit = False
+        if self.callback:
+            self.callback(mask)
+            self.uncatch()
         # FIXME: note protocol phase change
         # FIXME: update team selection icons
 
@@ -952,6 +1260,19 @@ class SP_FEATURE(SP):
 
 sp_feature = SP_FEATURE()
 
+class SP_BADVERSION(SP):
+    def __init__(self):
+        self.code = 21
+        self.format = "!bbxx"
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, why) = struct.unpack(self.format, data)
+        print "SP_BADVERSION why=",why
+        # FIXME: process the packet
+
+sp_badversion = SP_BADVERSION()
+
 ## end of server packets
 
 ## from Xlib.display import Display
@@ -1119,6 +1440,7 @@ class PhaseSplash(Phase):
         self.run = False
         
     def cycle(self):
+        # FIXME: add nice animation or graphic here
         # FIXME: proceed after a short time rather than wait for a click
         while self.run:
             self.display_sink_wait()
@@ -1263,7 +1585,7 @@ class PhaseLogin(Phase):
             self.network_sink()
             self.display_sink()
     
-class PhaseRefit(Phase):
+class PhaseOutfit(Phase):
     def __init__(self, screen):
         self.run = True
         self.background()
@@ -1297,6 +1619,13 @@ class PhaseRefit(Phase):
         elif event.key == pygame.K_o: self.team(ORI)
         
 class PhaseFlight(Phase):
+    def __init__(self):
+        self.run = True
+        sp_mask.catch(self.throw_sp_mask)
+
+    def throw_sp_mask(self, mask):
+        self.run = False
+        
     def mb(self, event):
         """ mouse button down event handler
         position is a list of (x, y) screen coordinates
@@ -1350,7 +1679,19 @@ class PhaseFlight(Phase):
         else:
             return Phase.kb(self, event)
     
+    def cycle(self):
+        while self.run:
+            self.network_sink()
+            self.display_sink()
+            self.update()
+
 class PhaseFlightGalactic(PhaseFlight):
+    def __init__(self):
+        PhaseFlight.__init__(self)
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
+        self.cycle()
+        
     def kb(self, event):
         if event.key == pygame.K_RETURN:
             # FIXME: phase change to tactical
@@ -1358,9 +1699,7 @@ class PhaseFlightGalactic(PhaseFlight):
         else:
             return PhaseFlight.kb(self, event)
 
-    def cycle(self):
-        self.network_sink()
-        self.display_sink()
+    def update(self):
         sprites.clear(screen, background)
         sprites.update()
         pygame.display.update(sprites.draw(screen))
@@ -1372,28 +1711,6 @@ class PhaseFlightGalactic(PhaseFlight):
 # packages that may do network in pygame
 # python-poker2d
 # http://www.linux-games.com/castle-combat/
-
-# general protocol state outline
-#
-# starting state
-# CP_SOCKET
-# CP_FEATURE (to indicate feature packets are known)
-# SP_MOTD
-# SP_FEATURE
-# SP_YOU
-# client shows name and password prompt and accepts input
-# CP_LOGIN
-# CP_FEATURE
-# SP_LOGIN
-# SP_YOU (identifies the slot number)
-# SP_PLAYER_INFO
-# SP_MASK
-# client shows team selection window and accepts input
-# CP_OUTFIT
-# SP_PICKOK
-# server places ship in game and play begins
-# SP_? indicates POUTFIT state, returning client to team selection window
-# CP_QUIT
 
 pygame.init()
 
@@ -1419,19 +1736,25 @@ for argv in sys.argv:
 # FIXME: metaserver query and metaserver list
 ph_splash = PhaseSplash(screen)
 
+# ph_servers = PhaseServers(screen)
+# FIXME: discover servers from cache, metaserver, local multicast
+
+# PhaseConnect
 nt = Client()
 nt.connect(sys.argv[1], 2592)
+# FIXME: handle connection failure gracefully
 nt.send(cp_socket.data())
+
+# PhaseQueue
 
 if not pending_login:
     ph_login = PhaseLogin(screen)
-    
-ph_galactic = PhaseFlightGalactic()
-screen.blit(background, (0, 0))
-pygame.display.flip()
 
 while 1:
-    ph_galactic.cycle()
+#    ph_outfit = PhaseOutfit(screen)
+    ph_galactic = PhaseFlightGalactic()
 
-# FIXME: display modes, servers, queue, login, selection, tactical, galactic
+# FIXME: display modes, servers, queue, login, outfit, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
+
+# FIXME: mode to lurk as obs on a server until t-mode, then join.
