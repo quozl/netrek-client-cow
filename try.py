@@ -131,8 +131,26 @@ markiel@callisto.pas.rochester.edu
 """
 import sys, socket, select, struct, pygame
 
-verbose = 0
-updates_per_second = 5
+from optparse import OptionParser
+parser= OptionParser()
+parser.add_option("-s", "--server", dest="server",
+                  help="netrek server to connect to")
+parser.add_option("-p", "--port", type="int", dest="port", default="2592",
+                  help="netrek player port number to connect to")
+parser.add_option("--name", dest="name", default="",
+                  help="character name, default guest")
+parser.add_option("--password", dest="password", default="",
+                  help="password for character name")
+parser.add_option("--login", dest="login", default="pynt",
+                  help="username to show on player list")
+parser.add_option("--updates",
+                  type="int", dest="updates", default="5",
+                  help="updates per second from server, default 5")
+parser.add_option("--dump",
+                  action="store_true", dest="dump", default=False,
+                  help="dump packet stream")
+(opt, args) = parser.parse_args()
+# FIXME: [--theme name] [--metaserver] [host]
 
 FED=0x1
 ROM=0x2
@@ -460,7 +478,7 @@ class CP_SOCKET(CP):
         self.tabulate(self.code, self.format)
 
     def data(self):
-        if verbose: print "CP_SOCKET"
+        if opt.dump: print "CP_SOCKET"
         return struct.pack(self.format, self.code, 4, 10, 0)
 
 cp_socket = CP_SOCKET()
@@ -901,18 +919,16 @@ class SP_YOU(SP):
         self.tabulate(self.code, self.format, self)
 
     def handler(self, data):
+        global opt
         (ignored, pnum, hostile, swar, armies, tractor, flags, damage,
          shield, fuel, etemp, wtemp, whydead, whodead) = struct.unpack(self.format, data)
-        if verbose: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
+        if opt.dump: print "SP_YOU pnum=",pnum,"hostile=",team_decode(hostile),"swar=",team_decode(swar),"armies=",armies,"tractor=",tractor,"flags=",flags,"damage=",damage,"shield=",shield,"fuel=",fuel,"etemp=",etemp,"wtemp=",wtemp,"whydead=",whydead,"whodead=",whodead
         ship = galaxy.ship(pnum)
         ship.sp_you(hostile, swar, armies, tractor, flags, damage, shield, fuel, etemp, wtemp, whydead, whodead)
-        global pending_login, pending_login_name, pending_login_password
-        if pending_login:
-            nt.send(cp_updates.data(1000000/updates_per_second))
-            print "name = %s" % pending_login_name
-            print "pass = %s" % pending_login_password
-            nt.send(cp_login.data(0, str(pending_login_name), str(pending_login_password), 'pynetrek'))
-            pending_login = False
+        if opt.name:
+            nt.send(cp_updates.data(1000000/opt.updates))
+            nt.send(cp_login.data(0, opt.name, opt.password, opt.login))
+            opt.name = None
 
 sp_you = SP_YOU()
 
@@ -924,7 +940,7 @@ class SP_QUEUE(SP):
 
     def handler(self, data):
         (ignored, pos) = struct.unpack(self.format, data)
-        if verbose: print "SP_QUEUE pos=",pos
+        if opt.dump: print "SP_QUEUE pos=",pos
         # FIXME: present on pygame screen
 
 sp_queue = SP_QUEUE()
@@ -938,7 +954,7 @@ class SP_PL_LOGIN(SP):
     def handler(self, data):
         (ignored, pnum, rank, name, monitor,
          login) = struct.unpack(self.format, data)
-        if verbose: print "SP_PL_LOGIN pnum=",pnum,"rank=",rank,"name=",strnul(name),"monitor=",strnul(monitor),"login=",strnul(login)
+        if opt.dump: print "SP_PL_LOGIN pnum=",pnum,"rank=",rank,"name=",strnul(name),"monitor=",strnul(monitor),"login=",strnul(login)
         ship = galaxy.ship(pnum)
         ship.sp_pl_login(rank, name, monitor, login)
 
@@ -952,7 +968,7 @@ class SP_HOSTILE(SP):
 
     def handler(self, data):
         (ignored, pnum, war, hostile) = struct.unpack(self.format, data)
-        if verbose: print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
+        if opt.dump: print "SP_HOSTILE pnum=",pnum,"war=",team_decode(war),"hostile=",team_decode(hostile)
         ship = galaxy.ship(pnum)
         ship.sp_hostile(war, hostile)
 
@@ -966,7 +982,7 @@ class SP_PLAYER_INFO(SP):
 
     def handler(self, data):
         (ignored, pnum, shiptype, team) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team_decode(team)
+        if opt.dump: print "SP_PLAYER_INFO pnum=",pnum,"shiptype=",shiptype,"team=",team_decode(team)
         ship = galaxy.ship(pnum)
         ship.sp_player_info(shiptype, team)
 
@@ -980,7 +996,7 @@ class SP_KILLS(SP):
 
     def handler(self, data):
         (ignored, pnum, kills) = struct.unpack(self.format, data)
-        if verbose: print "SP_KILLS pnum=",pnum,"kills=",kills
+        if opt.dump: print "SP_KILLS pnum=",pnum,"kills=",kills
         ship = galaxy.ship(pnum)
         ship.sp_kills(kills)
 
@@ -994,7 +1010,7 @@ class SP_PSTATUS(SP):
 
     def handler(self, data):
         (ignored, pnum, status) = struct.unpack(self.format, data)
-        if verbose: print "SP_PSTATUS pnum=",pnum,"status=",status
+        if opt.dump: print "SP_PSTATUS pnum=",pnum,"status=",status
         ship = galaxy.ship(pnum)
         ship.sp_pstatus(status)
 
@@ -1008,7 +1024,7 @@ class SP_PLAYER(SP):
 
     def handler(self, data):
         (ignored, pnum, dir, speed, x, y) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLAYER pnum=",pnum,"dir=",dir,"speed=",speed,"x=",x,"y=",y
+        if opt.dump: print "SP_PLAYER pnum=",pnum,"dir=",dir,"speed=",speed,"x=",x,"y=",y
         ship = galaxy.ship(pnum)
         ship.sp_player(dir, speed, x, y)
 
@@ -1022,7 +1038,7 @@ class SP_FLAGS(SP):
 
     def handler(self, data):
         (ignored, pnum, tractor, flags) = struct.unpack(self.format, data)
-        if verbose: print "SP_FLAGS pnum=",pnum,"tractor=",tractor,"flags=",flags
+        if opt.dump: print "SP_FLAGS pnum=",pnum,"tractor=",tractor,"flags=",flags
         ship = galaxy.ship(pnum)
         ship.sp_flags(tractor, flags)
 
@@ -1036,7 +1052,7 @@ class SP_PLANET_LOC(SP):
 
     def handler(self, data):
         (ignored, pnum, x, y, name) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLANET_LOC pnum=",pnum,"x=",x,"y=",y,"name=",strnul(name)
+        if opt.dump: print "SP_PLANET_LOC pnum=",pnum,"x=",x,"y=",y,"name=",strnul(name)
         planet = galaxy.planet(pnum)
         planet.sp_planet_loc(x, y, name)
 
@@ -1057,7 +1073,7 @@ class SP_LOGIN(SP):
 
     def handler(self, data):
         (ignored, accept, flags, keymap) = struct.unpack(self.format, data)
-        if verbose: print "SP_LOGIN accept=",accept,"flags=",flags
+        if opt.dump: print "SP_LOGIN accept=",accept,"flags=",flags
         if self.callback:
             self.callback(accept, flags, keymap)
             self.uncatch()
@@ -1079,7 +1095,7 @@ class SP_MASK(SP):
 
     def handler(self, data):
         (ignored, mask) = struct.unpack(self.format, data)
-        if verbose: print "SP_MASK mask=",team_decode(mask)
+        if opt.dump: print "SP_MASK mask=",team_decode(mask)
         global pending_outfit
         if pending_outfit:
             nt.send(cp_outfit.data(0))
@@ -1100,7 +1116,7 @@ class SP_PICKOK(SP):
 
     def handler(self, data):
         (ignored, state) = struct.unpack(self.format, data)
-        if verbose: print "SP_PICKOK state=",state
+        if opt.dump: print "SP_PICKOK state=",state
         # FIXME: handle bad state reply
         # FIXME: note protocol phase change
 
@@ -1115,7 +1131,7 @@ class SP_RESERVED(SP):
     def handler(self, data):
         (ignored, data) = struct.unpack(self.format, data)
         data = struct.unpack('16b', data)
-        if verbose: print "SP_RESERVED data=",data
+        if opt.dump: print "SP_RESERVED data=",data
         # FIXME: handle the request by returning a CP_RESERVED
 
 sp_reserved = SP_RESERVED()
@@ -1128,7 +1144,7 @@ class SP_TORP_INFO(SP):
 
     def handler(self, data):
         (ignored, war, status, tnum) = struct.unpack(self.format, data)
-        if verbose: print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
+        if opt.dump: print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
 
 sp_torp_info = SP_TORP_INFO()
 
@@ -1140,7 +1156,7 @@ class SP_TORP(SP):
 
     def handler(self, data):
         (ignored, dir, tnum, x, y) = struct.unpack(self.format, data)
-        if verbose: print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
+        if opt.dump: print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
 
 sp_torp = SP_TORP()
 
@@ -1152,7 +1168,7 @@ class SP_PLASMA_INFO(SP):
 
     def handler(self, data):
         (ignored, war, status, pnum) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLASMA_INFO war=",team_decode(war),"status=",status,"pnum=",pnum
+        if opt.dump: print "SP_PLASMA_INFO war=",team_decode(war),"status=",status,"pnum=",pnum
 
 sp_plasma_info = SP_PLASMA_INFO()
 
@@ -1164,7 +1180,7 @@ class SP_PLASMA(SP):
 
     def handler(self, data):
         (ignored, pnum, x, y) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLASMA pnum=",pnum,"x=",x,"y=",y
+        if opt.dump: print "SP_PLASMA pnum=",pnum,"x=",x,"y=",y
 
 sp_plasma = SP_PLASMA()
 
@@ -1176,7 +1192,7 @@ class SP_STATUS(SP):
 
     def handler(self, data):
         (ignored, tourn, armsbomb, planets, kills, losses, time, timeprod) = struct.unpack(self.format, data)
-        if verbose: print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
+        if opt.dump: print "SP_STATUS tourn=",tourn,"armsbomb=",armsbomb,"planets=",planets,"kills=",kills,"losses=",losses,"time=",time,"timepro=",timeprod
         # FIXME: display t-mode state
 
 sp_status = SP_STATUS()
@@ -1189,7 +1205,7 @@ class SP_PHASER(SP):
 
     def handler(self, data):
         (ignored, pnum, status, dir, x, y, target) = struct.unpack(self.format, data)
-        if verbose: print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+        if opt.dump: print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
 
 sp_phaser = SP_PHASER()
 
@@ -1201,7 +1217,7 @@ class SP_PLANET(SP):
 
     def handler(self, data):
         (ignored, pnum, owner, info, flags, armies) = struct.unpack(self.format, data)
-        if verbose: print "SP_PLANET pnum=",pnum,"owner=",owner,"info=",info,"flags=",flags,"armies=",armies
+        if opt.dump: print "SP_PLANET pnum=",pnum,"owner=",owner,"info=",info,"flags=",flags,"armies=",armies
         planet = galaxy.planet(pnum)
         planet.sp_planet(owner, info, flags, armies)
 
@@ -1215,7 +1231,7 @@ class SP_MESSAGE(SP):
 
     def handler(self, data):
         (ignored, m_flags, m_recpt, m_from, mesg) = struct.unpack(self.format, data)
-        if verbose: print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
+        if opt.dump: print "SP_MESSAGE m_flags=",m_flags,"m_recpt=",m_recpt,"m_from=",m_from,"mesg=",strnul(mesg)
         print strnul(mesg)
         # FIXME: display the message
 
@@ -1229,7 +1245,7 @@ class SP_STATS(SP):
 
     def handler(self, data):
         (ignored, pnum, tkills, tlosses, kills, losses, tticks, tplanets, tarmies, sbkills, sblosses, armies, planets, maxkills, sbmaxkills) = struct.unpack(self.format, data)
-        if verbose: print "SP_STATS pnum=",pnum,"tkills=",tkills,"tlosses=",tlosses,"kills=",kills,"losses=",losses,"tticks=",tticks,"tplanets=",tplanets,"tarmies=",tarmies,"sbkills=",sbkills,"sblosses=",sblosses,"armies=",armies,"planets=",planets,"maxkills=",maxkills,"sbmaxkills=",sbmaxkills
+        if opt.dump: print "SP_STATS pnum=",pnum,"tkills=",tkills,"tlosses=",tlosses,"kills=",kills,"losses=",losses,"tticks=",tticks,"tplanets=",tplanets,"tarmies=",tarmies,"sbkills=",sbkills,"sblosses=",sblosses,"armies=",armies,"planets=",planets,"maxkills=",maxkills,"sbmaxkills=",sbmaxkills
 
 sp_stats = SP_STATS()
 
@@ -1241,7 +1257,7 @@ class SP_WARNING(SP):
 
     def handler(self, data):
         (ignored, message) = struct.unpack(self.format, data)
-        if verbose: print "SP_WARNING message=",message
+        if opt.dump: print "SP_WARNING message=",message
         print strnul(message)
         # FIXME: display the warning
 
@@ -1255,7 +1271,7 @@ class SP_FEATURE(SP):
 
     def handler(self, data):
         (ignored, type, arg1, arg2, value, name) = struct.unpack(self.format, data)
-        if verbose: print "SP_FEATURE type=",type,"arg1=",arg1,"arg2=",arg2,"value=",value,"name=",name
+        if opt.dump: print "SP_FEATURE type=",type,"arg1=",arg1,"arg2=",arg2,"value=",value,"name=",name
         # FIXME: process the packet
 
 sp_feature = SP_FEATURE()
@@ -1272,6 +1288,17 @@ class SP_BADVERSION(SP):
         # FIXME: process the packet
 
 sp_badversion = SP_BADVERSION()
+
+class SP_PING(SP):
+    def __init__(self):
+        self.code = 46
+        self.format = "!bBHBBBB" 
+        self.tabulate(self.code, self.format, self)
+
+    def handler(self, data):
+        (ignored, number, lag, tloss_sc, tloss_cs, iloss_sc, iloss_cs) = struct.unpack(self.format, data)
+
+sp_ping = SP_PING()
 
 ## end of server packets
 
@@ -1299,8 +1326,72 @@ sp_badversion = SP_BADVERSION()
 ##             handle_event(event)
 ##             return
 
+class MetaClient:
+    """ Netrek UDP MetaClient
+        for connection to metaservers to obtain list of games in play
+        References: server/ntserv/solicit.c server/tools/players.c
+        metaserver/*.c client/parsemeta.c
+    """
+    def __init__(self, callback=None):
+        self.socket = None
+        self.callback = callback
+        self.servers = {}
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        metaservers = ("127.0.0.1", "224.0.0.1", "metaserver.netrek.org")
+        for x in metaservers:
+            try:
+                self.socket.sendto('?', (x, 3521))
+            except:
+                print x, "bad"
+                pass
+        # FIXME: iterate through the IPs against metaserver.netrek.org
+    
+    def recv(self):
+        while 1:
+            is_readable = [self.socket]
+            is_writable = []
+            is_error = []
+            r, w, e = select.select(is_readable, is_writable, is_error, 0.1)
+            if not r: return
+            try:
+                (text, address) = self.socket.recvfrom(2048)
+                break
+            except:
+                return
+        if text[0] == 's': self.version_s(text, address)
+        elif text[0] == 'r': self.version_r(text)
+
+    def version_s(self, text, address):
+        unpack = text.split(',')
+        server = {}
+        server['name'] = address[0]
+        server['type'] = unpack[1]
+        server['comment'] = unpack[2]
+        server['port'] = int(unpack[4])
+        server['players'] = int(unpack[5])
+        server['queue'] = int(unpack[6].strip())
+        server['status'] = 2
+        if server['type'] == 'unknown': server['status'] = 3
+        server['age'] = 0
+        self.servers[server['name']] = server
+        if self.callback: self.callback(server['name'])
+
+    def version_r(self, text):
+        lines = text.split('\n')
+        (version, n) = lines[0].split(',')
+        for x in range(int(n)):
+            server = {}
+            (server['name'], port, server['status'], age, players, queue, server['type']) = lines[x+1].split(',')
+            server['port'] = int(port)
+            server['age'] = int(age)
+            server['players'] = int(players)
+            server['queue'] = int(queue)
+            self.servers[server['name']] = server
+            if self.callback: self.callback(server['name'])
+
 class Client:
     """ Netrek TCP Client
+        for connection to a server to play or observe the game.
     """
     def __init__(self):
         self.socket = None
@@ -1354,7 +1445,7 @@ class Client:
         # return something less than the expected number of bytes, so we
         # have to wait for them.
 
-""" display phases
+""" user interface display phases
 """
 
 class Phase:
@@ -1379,6 +1470,7 @@ class Phase:
         
     def background(self):
         # tile a background image onto the screen
+        screen.fill((0,0,0))
         background = ic.get("stars.png")
         bh = background.get_height()
         bw = background.get_width()
@@ -1386,6 +1478,12 @@ class Phase:
             for x in range(screen.get_width() / bw + 1):
                 screen.blit(background, (x*bw, y*bh))
 
+    def text(self, text, x, y, size=72, colour=(255, 255, 255)):
+        font = pygame.font.Font(None, size)
+        ts = font.render(text, 1, colour)
+        tr = ts.get_rect(center=(x, y))
+        screen.blit(ts, tr)
+        
     def network_sink(self):
         # FIXME: select for *either* pygame events or network events.
         # Currently the code is suboptimal because it waits on network
@@ -1417,47 +1515,93 @@ class Phase:
         if event.key == pygame.K_q:
             screen.fill((0, 0, 0))
             pygame.display.flip()
-            nt.send(cp_bye.data())
             sys.exit()
 
+    def cycle(self):
+        while self.run:
+            self.network_sink()
+            self.display_sink()
+    
 class PhaseSplash(Phase):
     def __init__(self, screen):
         self.background()
-        # place a title on the background
-        font = pygame.font.Font(None, 144)
-        text = font.render("pynetrek", 1, (64, 64, 64))
-        textpos = text.get_rect(center=(screen.get_width()/2,
-                                        screen.get_height()/2))
-        # update the screen
-        screen.blit(text, textpos)
+        self.text("netrek", screen.get_width()/2, screen.get_height()/2, 144)
+        pygame.display.flip()
+        pygame.time.wait(250)
+        # FIXME: add neat animation
+
+class PhaseServers(Phase):
+    def __init__(self, screen):
+        self.background()
+        self.text('netrek', 500, 100, 144)
+        self.text('server list', 500, 175, 72)
         pygame.display.flip()
 
-        # spin waiting for mouse click
+        self.fn = pygame.font.Font(None, 36)
+        # FIXME: cache fonts like we cache images
+        self.dy = 40 # vertical spacing
+        self.n = 0 # number of servers shown so far
+        self.mc = MetaClient(self.add)
         self.run = True
         self.cycle()
+        
+    def add(self, name):
+        """ called by MetaClient for each server listed
+        """
+        server = self.mc.servers[name]
+        y = 300 + self.dy * self.n
+        r = []
+        # per server icon
+        # FIXME: icon per server type?
+        # FIXME: icon better than this one
+        cs = ic.get("netrek.png")
+        cr = cs.get_rect(left=50, centery=y)
+        r.append(screen.blit(cs, cr))
+        # server name
+        ss = self.fn.render(name, 1, (255, 255, 255))
+        sr = ss.get_rect(left=100, centery=y)
+        r.append(screen.blit(ss, sr))
+        # per player icon
+        # FIXME: icon better than this one
+        # FIXME: icon should not convey team
+        for x in range(server['players']):
+            ps = ic.get("netrek.png") # per player icon
+            pr = ps.get_rect(left=500+(x*36), centery=y)
+            r.append(screen.blit(ps, pr))
+                     
+        self.mc.servers[name]['y'] = y
+        self.n = self.n + 1
+        pygame.display.update(r)
+    
+    def network_sink(self):
+        self.mc.recv()
 
     def mb(self, event):
+        if event.button != 1: return
+        y = event.pos[1]
+        distance = screen.get_height()
+        chosen = None
+        for k, v in self.mc.servers.iteritems():
+            dy = abs(v['y'] - y)
+            if dy < distance:
+                distance = dy
+                chosen = v['name']
+        self.chosen = chosen
         self.run = False
         
-    def cycle(self):
-        # FIXME: add nice animation or graphic here
-        # FIXME: proceed after a short time rather than wait for a click
-        while self.run:
-            self.display_sink_wait()
-
 class Field:
-    def __init__(self, prompt, value, fx, fy):
+    def __init__(self, prompt, value, x, y):
         self.value = value
         self.fn = fn = pygame.font.Font(None, 36)
         self.sw = sw = screen.get_width()
         self.sh = sh = screen.get_height()
         # place prompt on screen
         self.ps = ps = fn.render(prompt, 1, (127, 127, 127))
-        self.pc = pc = [sw*fx, sh*fy]
-        self.pr = pr = ps.get_rect(center=pc)
+        self.pc = pc = (x, y)
+        self.pr = pr = ps.get_rect(topright=pc)
         r1 = screen.blit(ps, pr)
         # highlight entry area
-        self.br = pygame.Rect(pr.right,pr.top,sw - pr.right,pr.height)
+        self.br = pygame.Rect(pr.right, pr.top, sw - pr.right - 300, pr.height)
         self.bg = screen.subsurface(self.br).copy()
         pygame.display.update(r1)
         self.enter()
@@ -1470,7 +1614,7 @@ class Field:
 
     def draw(self):
         as = self.fn.render(self.value, 1, (255, 255, 255))
-        ar = as.get_rect(center=self.pc)
+        ar = as.get_rect(topleft=self.pc)
         ar.left = self.pr.right
         return screen.blit(as, ar)
         
@@ -1494,13 +1638,22 @@ class Field:
         r1 = self.draw()
         pygame.display.update(r1)
         
+    def backspace(self):
+        self.value = self.value[:-1]
+        self.redraw()
+
     def delete(self):
         self.value = ""
         self.redraw()
 
 class PhaseLogin(Phase):
-    def __init__(self, screen):
-        self.name = Field("Type a name ? ", "", 0.5, 0.75)
+    def __init__(self, screen, name):
+        self.background()
+        self.text('netrek', 500, 100, 144)
+        self.text(name, 500, 185, 72)
+        pygame.display.flip()
+        # FIXME: display MOTD below name in smaller text
+        self.name = Field("Type a name ? ", "", 500, 750)
         self.focused = self.name
         self.password = None
         self.run = True
@@ -1514,7 +1667,7 @@ class PhaseLogin(Phase):
             self.chuck_cp_login()
         elif self.focused == self.name:
             if self.password == None:
-                self.password = Field("Password ? ", "", 0.5, 0.80)
+                self.password = Field("Password ? ", "", 500, 800)
                 # FIXME: password prompt appears momentarily if guest selected
                 # FIXME: force no echo for password
             else:
@@ -1543,7 +1696,7 @@ class PhaseLogin(Phase):
                 
     def chuck_cp_login(self):
         self.catch_sp_login()
-        nt.send(cp_updates.data(1000000/updates_per_second))
+        nt.send(cp_updates.data(1000000/opt.updates))
         nt.send(cp_login.data(0, str(self.name.value), str(self.password.value), 'pynetrek'))
 
     def throw_sp_login(self, accept, flags, keymap):
@@ -1568,22 +1721,34 @@ class PhaseLogin(Phase):
 
     def kb(self, event):
         self.unwarning()
-        if event.key == pygame.K_LSHIFT: pass
-        elif event.key == pygame.K_RSHIFT: pass
-        elif event.key == pygame.K_TAB and (event.mod == pygame.KMOD_LSHIFT or event.mod == pygame.KMOD_RSHIFT):
+        shift = (event.mod == pygame.KMOD_SHIFT or
+                 event.mod == pygame.KMOD_LSHIFT or
+                 event.mod == pygame.KMOD_RSHIFT)
+        control = (event.mod == pygame.KMOD_CTRL or
+                   event.mod == pygame.KMOD_LCTRL or
+                   event.mod == pygame.KMOD_RCTRL)
+        if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT: pass
+        elif event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL: pass
+        elif event.key == pygame.K_d and control:
+            sys.exit()
+        elif event.key == pygame.K_w and control:
+            self.focused.delete()
+        elif event.key == pygame.K_TAB and shift:
             self.untab()
         elif event.key == pygame.K_TAB or event.key == pygame.K_RETURN:
             self.tab()
         elif event.key == pygame.K_BACKSPACE:
-            # FIXME: per character backspace rather than delete word
-            self.focused.delete()
-        elif event.key > 31 and event.key < 255:
+            self.focused.backspace()
+        elif event.key > 31 and event.key < 255 and not control:
             self.focused.append(event.unicode)
         
     def cycle(self):
         while self.run:
             self.network_sink()
             self.display_sink()
+    
+    def mb(self):
+        pass
     
 class PhaseOutfit(Phase):
     def __init__(self, screen):
@@ -1638,7 +1803,10 @@ class PhaseFlight(Phase):
             nt.send(cp_direction.data(0))
     
     def kb(self, event):
-        shift = (event.mod == pygame.KMOD_SHIFT or event.mod == pygame.KMOD_LSHIFT or event.mod == pygame.KMOD_RSHIFT)
+        global me
+        shift = (event.mod == pygame.KMOD_SHIFT or
+                 event.mod == pygame.KMOD_LSHIFT or
+                 event.mod == pygame.KMOD_RSHIFT)
         if event.key == pygame.K_LSHIFT: pass
         elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
         elif event.key == pygame.K_1: nt.send(cp_speed.data(1))
@@ -1652,7 +1820,6 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
         elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
         elif event.key == pygame.K_u:
-            global me
             if me:
                 if me.flags & PFSHIELD:
                     nt.send(cp_shield.data(0))
@@ -1663,7 +1830,6 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
         elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
         elif event.key == pygame.K_c:
-            global me
             if me:
                 if me.flags & PFCLOAK:
                     nt.send(cp_cloak.data(0))
@@ -1704,13 +1870,8 @@ class PhaseFlightGalactic(PhaseFlight):
         sprites.update()
         pygame.display.update(sprites.draw(screen))
 
-# socket http://docs.python.org/lib/socket-objects.html
-# struct http://docs.python.org/lib/module-struct.html
-# built-ins http://docs.python.org/lib/built-in-funcs.html
-
-# packages that may do network in pygame
-# python-poker2d
-# http://www.linux-games.com/castle-combat/
+""" Main Program
+"""
 
 pygame.init()
 
@@ -1724,37 +1885,38 @@ screen.blit(background, (0, 0))
 # FIXME: allow user to select graphics theme, default on XO is to be white with oysters, otherwise use stars, planets, and ships.
 pygame.display.flip()
 
-pending_login = False
 pending_outfit = True
 
-for argv in sys.argv:
-    if argv == 'verbose': verbose = 1
-# FIXME: use getopt or optparse
-# FIXME: usage "-h host -p port"
-# FIXME: [--verbose] [--theme name] [--updates n] [--metaserver] [--port port] [--host host] [host]
-
-# FIXME: metaserver query and metaserver list
 ph_splash = PhaseSplash(screen)
 
-# ph_servers = PhaseServers(screen)
-# FIXME: discover servers from cache, metaserver, local multicast
+print opt
+if opt.server == None:
+    ph_servers = PhaseServers(screen)
+    # FIXME: discover servers from a cache
+    opt.server = ph_servers.chosen
 
 # PhaseConnect
-nt = Client()
-nt.connect(sys.argv[1], 2592)
+# FIXME: do not block and hang during connect, do it asynchronously
 # FIXME: handle connection failure gracefully
+# FIXME: place connection attempt inside a PhaseConnect
+nt = Client()
+nt.connect(opt.server, opt.port)
 nt.send(cp_socket.data())
 
 # PhaseQueue
+# FIXME: if an SP_QUEUE packet is received, present this phase
+# FIXME: allow play on another server even while queued? [grin]
 
-if not pending_login:
-    ph_login = PhaseLogin(screen)
+if opt.name == '':
+    ph_login = PhaseLogin(screen, opt.server)
 
 while 1:
-#    ph_outfit = PhaseOutfit(screen)
+#   ph_outfit = PhaseOutfit(screen)
     ph_galactic = PhaseFlightGalactic()
 
 # FIXME: display modes, servers, queue, login, outfit, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
 
-# FIXME: mode to lurk as obs on a server until t-mode, then join.
+# socket http://docs.python.org/lib/socket-objects.html
+# struct http://docs.python.org/lib/module-struct.html
+# built-ins http://docs.python.org/lib/built-in-funcs.html
