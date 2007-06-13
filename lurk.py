@@ -24,23 +24,6 @@ Usage: lurk.py server-name [verbose]
 """
 import sys, socket, select, struct
 
-""" configuration settings """
-
-# character name to log in with
-name = 'guest'
-
-# password to log in with
-password = ''
-
-# login name to show in player list
-login = 'lurker'
-
-# whether to exit the program when t-mode starts
-exit_on_t_mode = True
-
-# what update rate to request of server
-updates_per_second = 1
-
 """ utility functions """
 
 def strnul(input):
@@ -255,9 +238,9 @@ class SP_YOU(SP):
     def handler(self, data):
         # send one CP_LOGIN when the first SP_YOU is seen
         if self.armed:
-            global name, password, login
-            nt.send(cp_login.data(0, name, password, login))
-            nt.send(cp_updates.data(1000000/updates_per_second))
+            global opt
+            nt.send(cp_login.data(0, opt.name, opt.password, opt.login))
+            nt.send(cp_updates.data(1000000/opt.updates))
             self.armed = False
 
 sp_you = SP_YOU()
@@ -422,9 +405,10 @@ class SP_STATUS(SP):
 
     def handler(self, data):
         (ignored, tourn, armsbomb, planets, kills, losses, time, timeprod) = struct.unpack(self.format, data)
-        # exit on t-mode if directed to do so
-        global exit_on_t_mode
-        if tourn == 1 and exit_on_t_mode: sys.exit()
+        global opt
+        # exit on t-mode transition if directed to do so
+        if tourn == 1 and opt.twu: sys.exit()
+        if tourn == 0 and opt.twd: sys.exit()
 
 sp_status = SP_STATUS()
 
@@ -557,10 +541,33 @@ class Client:
         # return something less than the expected number of bytes, so we
         # have to wait for them.
 
+from optparse import OptionParser
+parser= OptionParser()
+parser.add_option("-s", "--server", dest="server",
+                  help="netrek server to connect to")
+parser.add_option("-p", "--port", type="int", dest="port", default="2593",
+                  help="netrek observer port number to connect to")
+parser.add_option("--name", dest="name", default="guest",
+                  help="character name to show, default guest")
+parser.add_option("--password", dest="password", default="",
+                  help="password for character name")
+parser.add_option("--login", dest="login", default="lurker",
+                  help="username to show on player list")
+parser.add_option("-u", "--tournament-wait-up", "--for-fun",
+                  action="store_true", dest="twu", default="False",
+                  help="exit when t-mode begins or if already begun")
+parser.add_option("-d", "--tournament-wait-down", "--for-aid",
+                  action="store_true", dest="twd", default="False",
+                  help="exit when t-mode ends or if not yet t-mode")
+parser.add_option("-r", "--updates",
+                  type="int", dest="updates", default="1",
+                  help="updates per second from server, default 1")
+(opt, args) = parser.parse_args()
+
 def main():
     global nt
     nt = Client()
-    nt.connect(sys.argv[1], 2593)
+    nt.connect(opt.server, int(opt.port))
     nt.send(cp_socket.data())
     try:
         while 1:
