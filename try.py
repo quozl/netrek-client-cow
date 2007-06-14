@@ -158,6 +158,28 @@ KLI=0x4
 ORI=0x8
 GWIDTH=100000
 
+# artwork specifications
+
+# tactical is 20000 x 20000 galactic pixels,
+# shown by regular client on 500 x 500,
+# therefore a ratio of 40
+
+# ships are 20 x 20 on regular client,
+# therefore 800 x 800 galactic pixels
+
+# regular client galactic of 500 x 500 means a ratio of 200,
+# therefore a ship size of 4 x 4 pixels (text shown instead)
+
+# torpedo explosion range is 350 galactic pixels,
+# therefore 8.75 regular client pixels,
+# which is just inside the drawn shield radius
+
+# upscaling to 1000 x 1000 tactical means a new ratio of 80,
+# therefore ship size of 40 x 40 pixels
+
+# upscaling to 1000 x 1000 galactic means a new ratio of 100,
+# therefore a ship size of 8 x 8 pixels
+
 PFREE=0
 POUTFIT=1
 PALIVE=2
@@ -234,6 +256,15 @@ def team_decode(input):
     if input & ORI: x.append('O')
     return x
 
+def race_decode(input):
+    """ convert a race number to letter
+    """
+    if input == 0: return 'F'
+    elif input == 1: return 'R'
+    elif input == 2: return 'K'
+    elif input == 3: return 'O'
+    return 'I'
+
 class IC:
     """ an image cache
     """
@@ -273,7 +304,7 @@ class Planet(pygame.sprite.Sprite):
         self.rect = self.rect_closed = self.image.get_rect()
         self.image_open = ic.get("oyster-open.png")
         self.rect_open = self.image_open.get_rect()
-        sprites.add(self)
+        galactic.add(self)
 
     def update(self):
         if self.armies != self.old_armies:
@@ -311,22 +342,23 @@ class Ship(pygame.sprite.Sprite):
         self.x = self.old_x = -10000
         self.y = self.old_y = -10000
         self.dir = self.old_dir = 0
+        self.status = PFREE
         self.image = ic.get("fish-2.png")
         self.rect = self.image.get_rect()
 
     def show(self):
-        sprites.add(self)
+        galactic.add(self)
 
     def hide(self):
-        sprites.remove(self)
+        galactic.remove(self)
 
     def update(self):
         if self.dir != self.old_dir:
             # select image according to team, prototype code
-            if self.team == FED:
-                self.image = ic.get_rotated("fish-2.png", self.dir)
-            else:
-                self.image = ic.get_rotated("fish-3.png", self.dir)
+            shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
+            # teams = ['0', 'fed-', 'rom-', '3', 'kli-', '5', '6', '7', 'ori-']
+            teams = ['0', 'fed-', 'rom-', '3', 'fed-', '5', '6', '7', 'rom-']
+            self.image = ic.get_rotated(teams[self.team]+shiptypes[self.shiptype]+"40x40.png", self.dir)
             self.rect = self.image.get_rect()
             self.old_dir = self.dir
         if self.x != self.old_x or self.y != self.old_y:
@@ -381,6 +413,7 @@ class Ship(pygame.sprite.Sprite):
         # FIXME: figure out if flags in SP_FLAGS is same as flags in SP_YOU
 
     def sp_pstatus(self, status):
+        self.status = status
         if status == PALIVE:
             self.show()
         else:
@@ -513,9 +546,9 @@ class CP_OUTFIT(CP):
         self.format = '!bbbx'
         self.tabulate(self.code, self.format)
 
-    def data(self, team, ship=ASSAULT):
-        print "CP_OUTFIT team=",team_decode(team),"ship=",ship
-        return struct.pack(self.format, self.code, team, ship)
+    def data(self, race, ship=ASSAULT):
+        print "CP_OUTFIT team=",race_decode(race),"ship=",ship
+        return struct.pack(self.format, self.code, race, ship)
 
 cp_outfit = CP_OUTFIT()
 
@@ -1113,10 +1146,20 @@ class SP_PICKOK(SP):
         self.code = 16
         self.format = "!bbxx"
         self.tabulate(self.code, self.format, self)
+        self.uncatch()
+
+    def uncatch(self):
+        self.callback = None
+
+    def catch(self, callback):
+        self.callback = callback
 
     def handler(self, data):
         (ignored, state) = struct.unpack(self.format, data)
         if opt.dump: print "SP_PICKOK state=",state
+        if self.callback:
+            self.callback(state)
+            self.uncatch()
         # FIXME: handle bad state reply
         # FIXME: note protocol phase change
 
@@ -1524,6 +1567,7 @@ class Phase:
     
 class PhaseSplash(Phase):
     def __init__(self, screen):
+        Phase.__init__(self)
         self.background()
         self.text("netrek", screen.get_width()/2, screen.get_height()/2, 144)
         pygame.display.flip()
@@ -1532,6 +1576,7 @@ class PhaseSplash(Phase):
 
 class PhaseServers(Phase):
     def __init__(self, screen):
+        Phase.__init__(self)
         self.background()
         self.text('netrek', 500, 100, 144)
         self.text('server list', 500, 175, 72)
@@ -1647,10 +1692,11 @@ class Field:
         self.redraw()
 
 class PhaseLogin(Phase):
-    def __init__(self, screen, name):
+    def __init__(self, screen):
+        Phase.__init__(self)
         self.background()
         self.text('netrek', 500, 100, 144)
-        self.text(name, 500, 185, 72)
+        self.text(opt.server, 500, 185, 72)
         pygame.display.flip()
         # FIXME: display MOTD below name in smaller text
         self.name = Field("Type a name ? ", "", 500, 750)
@@ -1730,6 +1776,7 @@ class PhaseLogin(Phase):
         if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT: pass
         elif event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL: pass
         elif event.key == pygame.K_d and control:
+            nt.send(cp_bye.data())
             sys.exit()
         elif event.key == pygame.K_w and control:
             self.focused.delete()
@@ -1742,55 +1789,127 @@ class PhaseLogin(Phase):
         elif event.key > 31 and event.key < 255 and not control:
             self.focused.append(event.unicode)
         
-    def cycle(self):
-        while self.run:
-            self.network_sink()
-            self.display_sink()
-    
     def mb(self):
         pass
     
 class PhaseOutfit(Phase):
     def __init__(self, screen):
+        Phase.__init__(self)
+        self.run = True
+        
+    def do(self):
         self.run = True
         self.background()
         pygame.display.flip()
-        # FIXME: display list of ship classes with current selection
+        self.text('netrek', 500, 100, 144)
+        self.text(opt.server, 500, 185, 72)
+        self.text('ship and race', 500, 255, 72)
+        # FIXME: show whydead
+        pygame.display.flip()
         # FIXME: display race corners
-        # FIXME: display "in netrek all races are equal" message
+        r = []
+        rs = ic.get("netrek.png")
+        rr = rs.get_rect(center=(212, 375))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("netrek.png")
+        rr = rs.get_rect(center=(788, 375))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("netrek.png")
+        rr = rs.get_rect(center=(212, 950))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("netrek.png")
+        rr = rs.get_rect(center=(788, 950))
+        r.append(screen.blit(rs, rr))
+        # FIXME: display list of ship classes with current selection
+        dx = 115
+        lx = 212+(dx/2)
+        rs = ic.get("fed-sc.png")
+        rr = rs.get_rect(center=(lx+dx*0, 662))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("fed-dd.png")
+        rr = rs.get_rect(center=(lx+dx*1, 662))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("fed-ca.png")
+        rr = rs.get_rect(center=(lx+dx*2, 662))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("fed-bb.png")
+        rr = rs.get_rect(center=(lx+dx*3, 662))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("fed-as.png")
+        rr = rs.get_rect(center=(lx+dx*4, 662))
+        r.append(screen.blit(rs, rr))
+        rs = ic.get("fed-sb.png")
+        rr = rs.get_rect(center=(lx+dx*4, 662))
+        r.append(screen.blit(rs, rr))
+        # FIXME: alternate display #1, all ships in an X formation,
+        # from centre in order CA AS SC BB DD SB, with message
+        # explaining each
+        # FIXME: alternate display #2, minature galactic, showing
+        # ownership, player positions if any, with ships to choose in
+        # each race space or just outside the corner,
+        # FIXME: display "in netrek all races are equal"
+        # FIXME: display "in bronco you should remain with your team"
+        # FIXME: show logged in players
+        # FIXME: show planet status
+        pygame.display.update(r)
         self.cycle()
 
-    def cycle(self):
-        while self.run:
-            self.network_sink()
-            self.display_sink()
-        # FIXME: receipt of SP_PICKOK should exit this loop
+    def team(self, team, ship=CRUISER):
+        sp_pickok.catch(self.sp_pickok)
+        nt.send(cp_outfit.data(team, ship))
 
-    def team(self, team):
-        # FIXME: send CP_OUTFIT
-        pass
+    def sp_pickok(self, state):
+        if state == 1:
+            self.run = False
+        else:
+            self.warning('outfit request refused by server')
     
     def mb(self, event):
-        # FIXME: click on team selects team with currently selected ship class
-        pass
+        self.unwarning()
+        # FIXME: click on team icon sends CP_OUTFIT most recent ship
+        # FIXME: click on ship icon requests CP_OUTFIT with team and ship
+        print event.pos
+        self.warning('doh, only f r k and o works at the moment')
         
     def kb(self, event):
+        self.unwarning()
+        shift = (event.mod == pygame.KMOD_SHIFT or
+                 event.mod == pygame.KMOD_LSHIFT or
+                 event.mod == pygame.KMOD_RSHIFT)
+        control = (event.mod == pygame.KMOD_CTRL or
+                   event.mod == pygame.KMOD_LCTRL or
+                   event.mod == pygame.KMOD_RCTRL)
+        if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT: pass
+        elif event.key == pygame.K_LCTRL or event.key == pygame.K_RCTRL: pass
+        elif event.key == pygame.K_d and control:
+            nt.send(cp_bye.data())
+            sys.exit()
+        elif event.key == pygame.K_q:
+            nt.send(cp_bye.data())
+            sys.exit()
         # FIXME: if cursor over team icon, keys are ship class
         # FIXME: on arrow keys, change selected ship class
         # FIXME: if cursor not over team icon, keys are team name
-        if event.key == pygame.K_f: self.team(FED)
-        elif event.key == pygame.K_r: self.team(ROM)
-        elif event.key == pygame.K_k: self.team(KLI)
-        elif event.key == pygame.K_o: self.team(ORI)
+        elif event.key == pygame.K_f: self.team(0)
+        elif event.key == pygame.K_r: self.team(1)
+        elif event.key == pygame.K_k: self.team(2)
+        elif event.key == pygame.K_o: self.team(3)
         
 class PhaseFlight(Phase):
     def __init__(self):
-        self.run = True
+        Phase.__init__(self)
         sp_mask.catch(self.throw_sp_mask)
+        self.run = True
 
     def throw_sp_mask(self, mask):
         self.run = False
         
+    def cycle(self):
+        while self.run:
+            self.network_sink()
+            self.display_sink()
+            self.update()
+
     def mb(self, event):
         """ mouse button down event handler
         position is a list of (x, y) screen coordinates
@@ -1845,30 +1964,48 @@ class PhaseFlight(Phase):
         else:
             return Phase.kb(self, event)
     
-    def cycle(self):
-        while self.run:
-            self.network_sink()
-            self.display_sink()
-            self.update()
-
 class PhaseFlightGalactic(PhaseFlight):
     def __init__(self):
         PhaseFlight.__init__(self)
+        
+    def do(self):
+        self.run = True
         screen.blit(background, (0, 0))
         pygame.display.flip()
         self.cycle()
         
     def kb(self, event):
         if event.key == pygame.K_RETURN:
-            # FIXME: phase change to tactical
-            pass
+            self.run = False
         else:
             return PhaseFlight.kb(self, event)
 
     def update(self):
-        sprites.clear(screen, background)
-        sprites.update()
-        pygame.display.update(sprites.draw(screen))
+        galactic.clear(screen, background)
+        galactic.update()
+        pygame.display.update(galactic.draw(screen))
+
+
+class PhaseFlightTactical(PhaseFlight):
+    def __init__(self):
+        PhaseFlight.__init__(self)
+
+    def do(self):
+        self.run = True
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
+        self.cycle()
+        
+    def kb(self, event):
+        if event.key == pygame.K_RETURN:
+            self.run = False
+        else:
+            return PhaseFlight.kb(self, event)
+
+    def update(self):
+        tactical.clear(screen, background)
+        tactical.update()
+        pygame.display.update(tactical.draw(screen))
 
 """ Main Program
 """
@@ -1877,15 +2014,17 @@ pygame.init()
 
 size = width, height = 1000, 1000
 screen = pygame.display.set_mode(size)
-sprites = pygame.sprite.OrderedUpdates(())
+tactical = pygame.sprite.OrderedUpdates(())
+galactic = pygame.sprite.OrderedUpdates(())
 
 background = screen.copy()
-background.fill((255, 255, 255))
+background.fill((0, 0, 0))
+#background.fill((255, 255, 255))
 screen.blit(background, (0, 0))
 # FIXME: allow user to select graphics theme, default on XO is to be white with oysters, otherwise use stars, planets, and ships.
 pygame.display.flip()
 
-pending_outfit = True
+pending_outfit = False
 
 ph_splash = PhaseSplash(screen)
 
@@ -1908,11 +2047,22 @@ nt.send(cp_socket.data())
 # FIXME: allow play on another server even while queued? [grin]
 
 if opt.name == '':
-    ph_login = PhaseLogin(screen, opt.server)
+    ph_login = PhaseLogin(screen)
+
+ph_outfit = PhaseOutfit(screen)
+ph_galactic = PhaseFlightGalactic()
+ph_tactical = PhaseFlightTactical()
 
 while 1:
-#   ph_outfit = PhaseOutfit(screen)
-    ph_galactic = PhaseFlightGalactic()
+    ph_outfit.do()
+    print "galactic"
+    ph_galactic.do()
+    # FIXME: needs rethink
+    if me.status == POUTFIT:
+        print "dead"
+        continue
+    print "tactical"
+    ph_tactical.do()
 
 # FIXME: display modes, servers, queue, login, outfit, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
