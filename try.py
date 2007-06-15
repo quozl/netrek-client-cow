@@ -152,6 +152,7 @@ parser.add_option("--dump",
 (opt, args) = parser.parse_args()
 # FIXME: [--theme name] [--metaserver] [host]
 
+IND=0x0
 FED=0x1
 ROM=0x2
 KLI=0x4
@@ -231,16 +232,32 @@ def strnul(input):
     """
     return input.split('\000')[0]
 
-def scale(x, y):
+def galactic_scale(x, y):
     """ temporary coordinate scaling, galactic to screen
     """
     return (x/100, y/100)
 
-def descale(x, y):
+def tactical_scale(x, y):
+    """ temporary coordinate scaling, tactical to screen
+    """
+    return ((x - me.x) / 20 + 500, (y - me.y) / 20 + 500)
+
+def galactic_descale(x, y):
     """ temporary coordinate scaling, screen to galactic
     """
     return (x*100, y*100)
 
+def tactical_descale(x, y):
+    """ temporary coordinate scaling, screen to tactical
+    """
+    return ((x - 500) * 20 + me.x, (y - 500) * 20 + me.y)
+
+def descale(x, y):
+    if ph_flight == ph_galactic:
+        return galactic_descale(x, y)
+    else:
+        return tactical_descale(x, y)
+    
 def dir_to_angle(dir):
     """ convert netrek direction to angle, approximate
     """
@@ -265,64 +282,7 @@ def race_decode(input):
     elif input == 3: return 'O'
     return 'I'
 
-class IC:
-    """ an image cache
-    """
-    def __init__(self):
-        self.cache = {}
-        self.cache_rotated = {}
-
-    def read(self, name):
-        image = pygame.image.load(name)
-        return pygame.Surface.convert_alpha(image)
-
-    def get(self, name):
-        if name not in self.cache:
-            self.cache[name] = self.read(name)
-        return self.cache[name]
-
-    def get_rotated(self, name, angle):
-        if (name, angle) not in self.cache_rotated:
-            unrotated = self.get(name)
-            rotated = pygame.transform.rotate(unrotated, -angle)
-            self.cache_rotated[(name, angle)] = rotated
-        return self.cache_rotated[(name, angle)]
-        
-ic = IC()
-    
-class PlanetSprite(pygame.sprite.Sprite):
-    """ netrek planet sprites
-    """
-    def __init__(self):
-        self.old_armies = self.armies
-        self.old_name = self.name
-        self.old_x = self.x
-        self.old_y = self.y
-        pygame.sprite.Sprite.__init__(self)
-        self.image = self.image_closed = ic.get("oyster-closed.png")
-        self.rect = self.rect_closed = self.image.get_rect()
-        self.image_open = ic.get("oyster-open.png")
-        self.rect_open = self.image_open.get_rect()
-        galactic.add(self)
-        # FIXME: render planet name on screen
-        # FIXME: render planet owner, flags and armies on screen
-
-    def update(self):
-        if self.armies != self.old_armies:
-            if self.armies > 4:
-                self.image = self.image_closed
-                self.rect = self.rect_closed
-            else:
-                self.image = self.image_open
-                self.rect = self.rect_open
-            self.rect.center = scale(self.x, self.y)
-            self.old_armies = self.armies
-        if self.x != self.old_x or self.y != self.old_y:
-            self.rect.center = scale(self.x, self.y)
-            self.old_x = self.x
-            self.old_y = self.y
-        
-class Planet(PlanetSprite):
+class Planet:
     """ netrek planets
         instances created as packets about the planets are received
         instances are listed in a dictionary of planets in the galaxy instance
@@ -331,7 +291,8 @@ class Planet(PlanetSprite):
         self.n = n
         self.sp_planet_loc(-10000, -10000, '')
         self.sp_planet(0, 0, 0, 0)
-        PlanetSprite.__init__(self)
+        self.tactical = PlanetTacticalSprite(self)
+        self.galactic = PlanetGalacticSprite(self)
 
     def sp_planet_loc(self, x, y, name):
         self.x = x
@@ -344,48 +305,7 @@ class Planet(PlanetSprite):
         self.flags = flags
         self.armies = armies
 
-class ShipSprite(pygame.sprite.Sprite):
-    """ netrek ship sprites
-    """
-    def __init__(self):
-        self.old_x = self.x
-        self.old_y = self.y
-        self.old_dir = self.dir
-        self.old_team = self.team
-        self.old_shiptype = self.shiptype
-        pygame.sprite.Sprite.__init__(self)
-        self.pick()
-
-    def pick(self):
-        # select image according to team, prototype code
-        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
-        # FIXME: obtain imagery for KLI and ORI
-        # FIXME: obtain imagery for galactic view
-        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
-        try:
-            self.image = ic.get_rotated(teams[self.team]+shiptypes[self.shiptype]+"40x40.png", self.dir)
-        except:
-            self.image = ic.get('netrek.png')
-        self.rect = self.image.get_rect()
-        
-    def show(self):
-        galactic.add(self)
-
-    def hide(self):
-        galactic.remove(self)
-
-    def update(self):
-        if self.dir != self.old_dir or self.team != self.old_team or self.shiptype != self.old_shiptype:
-            self.old_dir = self.dir
-            self.old_team = self.team
-            self.old_shiptype = self.shiptype
-            self.pick()
-        if self.x != self.old_x or self.y != self.old_y:
-            self.rect.center = scale(self.x, self.y)
-            self.old_x = self.x
-            self.old_y = self.y
-
-class Ship(ShipSprite):
+class Ship:
     """ netrek ships
         instances created as packets about the ships are received
         instances are listed in a dictionary of ships in the galaxy instance
@@ -399,7 +319,8 @@ class Ship(ShipSprite):
         self.sp_player(0, 0, -10000, -10000)
         self.sp_flags(0, 0)
         self.sp_pstatus(PFREE)
-        ShipSprite.__init__(self)
+        self.tactical = ShipTacticalSprite(self)
+        self.galactic = ShipGalacticSprite(self)
 
     def sp_you(self, hostile, swar, armies, tractor, flags, damage, shield,
                fuel, etemp, wtemp, whydead, whodead):
@@ -450,10 +371,20 @@ class Ship(ShipSprite):
 
     def sp_pstatus(self, status):
         self.status = status
-        if status == PALIVE:
-            self.show()
-        else:
-            self.hide()
+        # ship sprite visibility is brutally controlled by status
+        # FIXME: PEXPLODE needs to be shown as an explosion
+        # FIXME: do not show cloaked ships
+        # FIXME: move visibility check to sprite class
+        try:
+            if status == PALIVE:
+                self.galactic.show()
+                self.tactical.show()
+            else:
+                self.galactic.hide()
+                self.tactical.hide()
+        except:
+            # sprites do not exist on first call from own __init__
+            print "sp_pstatus no show or hide first time for ship ", self.n
 
 class Galaxy:
     def __init__(self):
@@ -472,6 +403,8 @@ class Galaxy:
         return self.ships[n]
 
     def nearest_planet(self, x, y):
+        """ return the nearest planet to input screen coordinates
+        """
         x, y = descale(x, y)
         nearest = None
         minimum = GWIDTH**2
@@ -484,6 +417,188 @@ class Galaxy:
 
 galaxy = Galaxy()
 me = None
+
+class IC:
+    """ an image cache
+    """
+    def __init__(self):
+        self.cache = {}
+        self.cache_rotated = {}
+
+    def read(self, name):
+        image = pygame.image.load(name)
+        return pygame.Surface.convert_alpha(image)
+
+    def get(self, name):
+        if name not in self.cache:
+            self.cache[name] = self.read(name)
+        return self.cache[name]
+
+    def get_rotated(self, name, angle):
+        if (name, angle) not in self.cache_rotated:
+            unrotated = self.get(name)
+            rotated = pygame.transform.rotate(unrotated, -angle)
+            self.cache_rotated[(name, angle)] = rotated
+        return self.cache_rotated[(name, angle)]
+        
+ic = IC()
+    
+class PlanetSprite(pygame.sprite.Sprite):
+    """ netrek planet sprites
+    """
+    def __init__(self, planet):
+        self.planet = planet
+        self.old_armies = planet.armies
+        self.old_name = planet.name
+        self.old_x = planet.x
+        self.old_y = planet.y
+        self.old_owner = planet.owner
+        pygame.sprite.Sprite.__init__(self)
+        
+
+class PlanetGalacticSprite(PlanetSprite):
+    def __init__(self, planet):
+        PlanetSprite.__init__(self, planet)
+        self.pick()
+        galactic.add(self)
+
+    def pick(self):
+        self.image = self.image_closed = ic.get("oyster-closed.png")
+        self.rect = self.rect_closed = self.image.get_rect()
+        self.image_open = ic.get("oyster-open.png")
+        self.rect_open = self.image_open.get_rect()
+        # FIXME: render planet name on screen
+        # FIXME: render planet owner, flags and armies on screen
+
+    def update(self):
+        if self.planet.armies != self.old_armies:
+            if self.planet.armies > 4:
+                self.image = self.image_closed
+                self.rect = self.rect_closed
+            else:
+                self.image = self.image_open
+                self.rect = self.rect_open
+            self.rect.center = galactic_scale(self.planet.x, self.planet.y)
+            self.old_armies = self.planet.armies
+        if self.planet.x != self.old_x or self.planet.y != self.old_y:
+            self.rect.center = galactic_scale(self.planet.x, self.planet.y)
+            self.old_x = self.planet.x
+            self.old_y = self.planet.y
+            
+class PlanetTacticalSprite(PlanetSprite):
+    def __init__(self, planet):
+        self.me_old_x = -1
+        self.me_old_y = -1
+        PlanetSprite.__init__(self, planet)
+        self.pick()
+        tactical.add(self)
+
+    def pick(self):
+        rocks = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
+        try:
+            self.image = ic.get("rock-" + rocks[self.planet.owner] + ".png")
+        except:
+            self.image = ic.get('netrek.png')
+        self.rect = self.image.get_rect()
+        
+    def update(self):
+        if self.planet.owner != self.old_owner:
+            self.pick()
+            self.old_owner = self.planet.owner
+        if self.planet.x != self.old_x or self.planet.y != self.old_y or me.x != self.me_old_x or me.y != self.me_old_y:
+            self.rect.center = tactical_scale(self.planet.x, self.planet.y)
+            self.old_x = self.planet.x
+            self.old_y = self.planet.y
+            self.me_old_x = me.x
+            self.me_old_y = me.y
+        # FIXME: performance note, all planets are on the tactical
+        # sprite list, but are off the screen, so there is processing
+        # for all planets happening.  it may prove worthwhile to only
+        # include planets on the tactical sprite list if they are
+        # nearby.
+            
+class ShipSprite(pygame.sprite.Sprite):
+    def __init__(self, ship):
+        self.ship = ship
+        self.old_x = ship.x
+        self.old_y = ship.y
+        self.old_dir = ship.dir
+        self.old_team = ship.team
+        self.old_shiptype = ship.shiptype
+        pygame.sprite.Sprite.__init__(self)
+
+class ShipGalacticSprite(ShipSprite):
+    """ netrek ship sprites
+    """
+    def __init__(self, ship):
+        ShipSprite.__init__(self, ship)
+        self.pick()
+
+    def update(self):
+        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype:
+            self.old_dir = self.ship.dir
+            self.old_team = self.ship.team
+            self.old_shiptype = self.ship.shiptype
+            self.pick()
+        if self.ship.x != self.old_x or self.ship.y != self.old_y:
+            self.rect.center = galactic_scale(self.ship.x, self.ship.y)
+            self.old_x = self.ship.x
+            self.old_y = self.ship.y
+
+    def pick(self):
+        # select image according to team, prototype code
+        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
+        # FIXME: obtain imagery for KLI and ORI
+        # FIXME: obtain imagery for galactic view
+        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+        try:
+            self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
+        except:
+            self.image = ic.get('netrek.png')
+        self.image = pygame.transform.scale(self.image, (8, 8))
+        self.rect = self.image.get_rect()
+        
+    def show(self):
+        galactic.add(self)
+
+    def hide(self):
+        galactic.remove(self)
+
+class ShipTacticalSprite(ShipSprite):
+    """ netrek ship sprites
+    """
+    def __init__(self, ship):
+        ShipSprite.__init__(self, ship)
+        self.pick()
+
+    def update(self):
+        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype:
+            self.old_dir = self.ship.dir
+            self.old_team = self.ship.team
+            self.old_shiptype = self.ship.shiptype
+            self.pick()
+        if self.ship.x != self.old_x or self.ship.y != self.old_y:
+            self.rect.center = tactical_scale(self.ship.x, self.ship.y)
+            self.old_x = self.ship.x
+            self.old_y = self.ship.y
+
+    def pick(self):
+        # select image according to team, prototype code
+        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
+        # FIXME: obtain imagery for KLI and ORI
+        # FIXME: obtain imagery for galactic view
+        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+        try:
+            self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
+        except:
+            self.image = ic.get('netrek.png')
+        self.rect = self.image.get_rect()
+        
+    def show(self):
+        tactical.add(self)
+
+    def hide(self):
+        tactical.remove(self)
 
 """ netrek protocol documentation, from server include/packets.h
 
@@ -1934,17 +2049,14 @@ class PhaseOutfit(Phase):
 class PhaseFlight(Phase):
     def __init__(self):
         Phase.__init__(self)
-        sp_mask.catch(self.throw_sp_mask)
         self.run = True
 
-    def throw_sp_mask(self, mask):
-        self.run = False
-        
     def cycle(self):
         while self.run:
             self.network_sink()
             self.display_sink()
             self.update()
+            if me.status == POUTFIT: break
 
     def mb(self, event):
         """ mouse button down event handler
@@ -2011,7 +2123,9 @@ class PhaseFlightGalactic(PhaseFlight):
         self.cycle()
         
     def kb(self, event):
+        global ph_flight
         if event.key == pygame.K_RETURN:
+            ph_flight = ph_tactical
             self.run = False
         else:
             return PhaseFlight.kb(self, event)
@@ -2033,7 +2147,9 @@ class PhaseFlightTactical(PhaseFlight):
         self.cycle()
         
     def kb(self, event):
+        global ph_flight
         if event.key == pygame.K_RETURN:
+            ph_flight = ph_galactic
             self.run = False
         else:
             return PhaseFlight.kb(self, event)
@@ -2091,15 +2207,26 @@ ph_tactical = PhaseFlightTactical()
 
 while 1:
     ph_outfit.do()
-    print "galactic"
-    ph_galactic.do()
-    # FIXME: needs rethink
-    if me.status == POUTFIT:
-        print "dead"
-        continue
-    print "tactical"
-    ph_tactical.do()
-
+    print "pause until not in outfit"
+    while me.status == POUTFIT:
+        print "nt.recv()"
+        nt.recv()
+    print "not in outfit now"
+    ph_flight = ph_galactic
+    while 1:
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
+        ph_flight.do()
+        if ph_flight == ph_galactic:
+            print "flight phase shift to galactic"
+        else:
+            print "flight phase shift to tactical"
+                
+        if me.status == POUTFIT:
+            print "seen in outfit"
+            break
+    print "flight phase end"
+    
 # FIXME: display modes, servers, queue, login, outfit, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
 
