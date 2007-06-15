@@ -188,6 +188,13 @@ PEXPLODE=3
 PDEAD=4
 POBSERV=5
 
+TFREE=0
+TMOVE=1
+TEXPLODE=2
+TDET=3
+TOFF=4
+TSTRAIGHT=5
+
 PFSHIELD           = 0x0001
 PFREPAIR           = 0x0002
 PFBOMB             = 0x0004
@@ -263,7 +270,7 @@ def dir_to_angle(dir):
     """
     return dir * 360 / 256 / 10 * 10
 
-def coordinate_to_dir(x, y):
+def xy_to_dir(x, y):
     global me
     if ph_flight == ph_galactic:
         (mx, my) = galactic_scale(me.x, me.y)
@@ -394,10 +401,39 @@ class Ship:
             # sprites do not exist on first call from own __init__
             print "sp_pstatus no show or hide first time for ship ", self.n
 
+class Torp:
+    """ netrek torps
+        instances created as packets about the torps are received
+        instances are listed in a dictionary of torps in the galaxy instance
+    """
+    def __init__(self, n):
+        self.n = n
+        self.sp_torp_info(0, 0)
+        self.sp_torp(0, 0, 0)
+        self.tactical = TorpTacticalSprite(self)
+        #self.galactic = TorpGalacticSprite(self)
+
+    def sp_torp_info(self, war, status):
+        self.war = war
+        self.status = status
+        try:
+            if status == TMOVE:
+                self.tactical.show()
+            else:
+                self.tactical.hide()
+        except:
+            pass
+
+    def sp_torp(self, dir, x, y):
+        self.dir = dir
+        self.x = x
+        self.y = y
+
 class Galaxy:
     def __init__(self):
         self.planets = {}
         self.ships = {}
+        self.torps = {}
 
     def planet(self, n):
         if not self.planets.has_key(n):
@@ -409,6 +445,11 @@ class Galaxy:
         if not self.ships.has_key(n):
             self.ships[n] = Ship(n)
         return self.ships[n]
+
+    def torp(self, n):
+        if not self.torps.has_key(n):
+            self.torps[n] = Torp(n)
+        return self.torps[n]
 
     def nearest_planet(self, x, y):
         """ return the nearest planet to input screen coordinates
@@ -607,6 +648,37 @@ class ShipTacticalSprite(ShipSprite):
 
     def hide(self):
         tactical.remove(self)
+
+class TorpSprite(pygame.sprite.Sprite):
+    def __init__(self, torp):
+        self.torp = torp
+        self.old_x = torp.x
+        self.old_y = torp.y
+        pygame.sprite.Sprite.__init__(self)
+
+class TorpTacticalSprite(TorpSprite):
+    """ netrek torp sprites
+    """
+    def __init__(self, torp):
+        TorpSprite.__init__(self, torp)
+        self.pick()
+
+    def update(self):
+        if self.torp.x != self.old_x or self.torp.y != self.old_y:
+            self.rect.center = tactical_scale(self.torp.x, self.torp.y)
+            self.old_x = self.torp.x
+            self.old_y = self.torp.y
+
+    def pick(self):
+        self.image = ic.get('torp.png')
+        self.rect = self.image.get_rect()
+        
+    def show(self):
+        tactical.add(self)
+
+    def hide(self):
+        tactical.remove(self)
+
 
 """ netrek protocol documentation, from server include/packets.h
 
@@ -1347,6 +1419,8 @@ class SP_TORP_INFO(SP):
     def handler(self, data):
         (ignored, war, status, tnum) = struct.unpack(self.format, data)
         if opt.dump: print "SP_TORP_INFO war=",team_decode(war),"status=",status,"tnum=",tnum
+        torp = galaxy.torp(tnum)
+        torp.sp_torp_info(war, status)
 
 sp_torp_info = SP_TORP_INFO()
 
@@ -1359,6 +1433,8 @@ class SP_TORP(SP):
     def handler(self, data):
         (ignored, dir, tnum, x, y) = struct.unpack(self.format, data)
         if opt.dump: print "SP_TORP dir=",dir,"tnum=",tnum,"x=",x,"y=",y
+        torp = galaxy.torp(tnum)
+        torp.sp_torp(dir, x, y)
 
 sp_torp = SP_TORP()
 
@@ -2075,7 +2151,10 @@ class PhaseFlight(Phase):
         print event.pos, event.button
         if event.button == 3 and me != None:
             (x, y) = event.pos
-            nt.send(cp_direction.data(coordinate_to_dir(x, y)))
+            nt.send(cp_direction.data(xy_to_dir(x, y)))
+        if event.button == 1 and me != None:
+            (x, y) = event.pos
+            nt.send(cp_torp.data(xy_to_dir(x, y)))
     
     def kb(self, event):
         global me
