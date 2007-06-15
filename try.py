@@ -129,7 +129,7 @@ markiel@callisto.pas.rochester.edu
 
 
 """
-import sys, socket, select, struct, pygame
+import sys, socket, select, struct, pygame, math
 
 from optparse import OptionParser
 parser= OptionParser()
@@ -263,6 +263,14 @@ def dir_to_angle(dir):
     """
     return dir * 360 / 256 / 10 * 10
 
+def coordinate_to_dir(x, y):
+    global me
+    if ph_flight == ph_galactic:
+        (mx, my) = galactic_scale(me.x, me.y)
+        return int((math.atan2(x - mx, my - y) / math.pi * 128.0 + 0.5))
+    else:
+        return int((math.atan2(x - 500, 500 - y) / math.pi * 128.0 + 0.5))
+            
 def team_decode(input):
     """ convert a team mask to a list
     """
@@ -2066,8 +2074,8 @@ class PhaseFlight(Phase):
         global me
         print event.pos, event.button
         if event.button == 3 and me != None:
-            print me.x, me.y
-            nt.send(cp_direction.data(0))
+            (x, y) = event.pos
+            nt.send(cp_direction.data(coordinate_to_dir(x, y)))
     
     def kb(self, event):
         global me
