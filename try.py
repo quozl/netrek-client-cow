@@ -290,21 +290,22 @@ class IC:
         
 ic = IC()
     
-class Planet(pygame.sprite.Sprite):
-    """ netrek planets
+class PlanetSprite(pygame.sprite.Sprite):
+    """ netrek planet sprites
     """
-    def __init__(self, n):
+    def __init__(self):
+        self.old_armies = self.armies
+        self.old_name = self.name
+        self.old_x = self.x
+        self.old_y = self.y
         pygame.sprite.Sprite.__init__(self)
-        self.n = n
-        self.x = self.old_x = -10000
-        self.y = self.old_y = -10000
-        self.armies = self.old_armies = 50
-        self.name = self.old_name = ''
         self.image = self.image_closed = ic.get("oyster-closed.png")
         self.rect = self.rect_closed = self.image.get_rect()
         self.image_open = ic.get("oyster-open.png")
         self.rect_open = self.image_open.get_rect()
         galactic.add(self)
+        # FIXME: render planet name on screen
+        # FIXME: render planet owner, flags and armies on screen
 
     def update(self):
         if self.armies != self.old_armies:
@@ -321,31 +322,52 @@ class Planet(pygame.sprite.Sprite):
             self.old_x = self.x
             self.old_y = self.y
         
+class Planet(PlanetSprite):
+    """ netrek planets
+        instances created as packets about the planets are received
+        instances are listed in a dictionary of planets in the galaxy instance
+    """
+    def __init__(self, n):
+        self.n = n
+        self.sp_planet_loc(-10000, -10000, '')
+        self.sp_planet(0, 0, 0, 0)
+        PlanetSprite.__init__(self)
+
     def sp_planet_loc(self, x, y, name):
         self.x = x
         self.y = y
         self.name = name
-        # FIXME: render planet name on screen
 
     def sp_planet(self, owner, info, flags, armies):
+        self.owner = owner
+        self.info = info
+        self.flags = flags
         self.armies = armies
-        # FIXME: use args
-        # FIXME: render planet owner, flags and armies on screen
-        pass
 
-class Ship(pygame.sprite.Sprite):
-    """ netrek ships
+class ShipSprite(pygame.sprite.Sprite):
+    """ netrek ship sprites
     """
-    def __init__(self, n):
+    def __init__(self):
+        self.old_x = self.x
+        self.old_y = self.y
+        self.old_dir = self.dir
+        self.old_team = self.team
+        self.old_shiptype = self.shiptype
         pygame.sprite.Sprite.__init__(self)
-        self.n = n
-        self.x = self.old_x = -10000
-        self.y = self.old_y = -10000
-        self.dir = self.old_dir = 0
-        self.status = PFREE
-        self.image = ic.get("fish-2.png")
-        self.rect = self.image.get_rect()
+        self.pick()
 
+    def pick(self):
+        # select image according to team, prototype code
+        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
+        # FIXME: obtain imagery for KLI and ORI
+        # FIXME: obtain imagery for galactic view
+        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+        try:
+            self.image = ic.get_rotated(teams[self.team]+shiptypes[self.shiptype]+"40x40.png", self.dir)
+        except:
+            self.image = ic.get('netrek.png')
+        self.rect = self.image.get_rect()
+        
     def show(self):
         galactic.add(self)
 
@@ -353,20 +375,34 @@ class Ship(pygame.sprite.Sprite):
         galactic.remove(self)
 
     def update(self):
-        if self.dir != self.old_dir:
-            # select image according to team, prototype code
-            shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
-            # teams = ['0', 'fed-', 'rom-', '3', 'kli-', '5', '6', '7', 'ori-']
-            teams = ['0', 'fed-', 'rom-', '3', 'fed-', '5', '6', '7', 'rom-']
-            self.image = ic.get_rotated(teams[self.team]+shiptypes[self.shiptype]+"40x40.png", self.dir)
-            self.rect = self.image.get_rect()
+        if self.dir != self.old_dir or self.team != self.old_team or self.shiptype != self.old_shiptype:
             self.old_dir = self.dir
+            self.old_team = self.team
+            self.old_shiptype = self.shiptype
+            self.pick()
         if self.x != self.old_x or self.y != self.old_y:
             self.rect.center = scale(self.x, self.y)
             self.old_x = self.x
             self.old_y = self.y
 
-    def sp_you(self, hostile, swar, armies, tractor, flags, damage, shield, fuel, etemp, wtemp, whydead, whodead):
+class Ship(ShipSprite):
+    """ netrek ships
+        instances created as packets about the ships are received
+        instances are listed in a dictionary of ships in the galaxy instance
+    """
+    def __init__(self, n):
+        self.n = n
+        self.sp_pl_login(0, '', '', '')
+        self.sp_hostile(0, 0)
+        self.sp_player_info(0, 0)
+        self.sp_kills(0)
+        self.sp_player(0, 0, -10000, -10000)
+        self.sp_flags(0, 0)
+        self.sp_pstatus(PFREE)
+        ShipSprite.__init__(self)
+
+    def sp_you(self, hostile, swar, armies, tractor, flags, damage, shield,
+               fuel, etemp, wtemp, whydead, whodead):
         # FIXME: handle other arguments
         self.flags = flags
         global me
