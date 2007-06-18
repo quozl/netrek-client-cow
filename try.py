@@ -398,7 +398,7 @@ class Ship:
         # FIXME: do not show cloaked ships
         # FIXME: move visibility check to sprite class
         try:
-            if status == PALIVE:
+            if status == PALIVE or status == PEXPLODE:
                 self.galactic.show()
                 self.tactical.show()
             else:
@@ -658,6 +658,7 @@ class ShipSprite(pygame.sprite.Sprite):
         self.old_dir = ship.dir
         self.old_team = ship.team
         self.old_shiptype = ship.shiptype
+        self.old_status = ship.status
         pygame.sprite.Sprite.__init__(self)
 
 class ShipGalacticSprite(ShipSprite):
@@ -705,10 +706,11 @@ class ShipTacticalSprite(ShipSprite):
         self.pick()
 
     def update(self):
-        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype:
+        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype or self.ship.status != self.old_status:
             self.old_dir = self.ship.dir
             self.old_team = self.ship.team
             self.old_shiptype = self.ship.shiptype
+            self.old_status = self.ship.status
             self.pick()
         if self.ship.x != self.old_x or self.ship.y != self.old_y:
             self.rect.center = tactical_scale(self.ship.x, self.ship.y)
@@ -716,15 +718,20 @@ class ShipTacticalSprite(ShipSprite):
             self.old_y = self.ship.y
 
     def pick(self):
-        # select image according to team, prototype code
-        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
-        # FIXME: obtain imagery for KLI and ORI
-        # FIXME: obtain imagery for galactic view
-        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
-        try:
-            self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
-        except:
-            self.image = ic.get('netrek.png')
+        if self.ship.status == PEXPLODE:
+            # FIXME: animate explosion
+            # FIXME: initial frames to show explosion developing over ship
+            self.image = ic.get('explosion.png')
+        else:
+            # select image according to team, prototype code
+            shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
+            # FIXME: obtain imagery for KLI and ORI
+            # FIXME: obtain imagery for galactic view
+            teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+            try:
+                self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
+            except:
+                self.image = ic.get('netrek.png')
         self.rect = self.image.get_rect()
         
     def show(self):
@@ -1595,8 +1602,7 @@ class SP_PHASER(SP):
 
     def handler(self, data):
         (ignored, pnum, status, dir, x, y, target) = struct.unpack(self.format, data)
-        # if opt.dump:
-        print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+        if opt.dump: print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
         phaser = galaxy.phaser(pnum)
         phaser.sp_phaser(status, dir, x, y, target)
 
@@ -2218,7 +2224,6 @@ class PhaseOutfit(Phase):
         self.unwarning()
         # FIXME: click on team icon sends CP_OUTFIT most recent ship
         # FIXME: click on ship icon requests CP_OUTFIT with team and ship
-        print event.pos
         self.warning('doh, only f r k and o works at the moment')
         
     def kb(self, event):
