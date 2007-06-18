@@ -234,6 +234,11 @@ STARBASE=5
 SGALAXY=6
 ATT=7
 
+PHFREE=0x00
+PHHIT =0x01 # ship
+PHMISS=0x02 # whiff
+PHHIT2=0x04 # plasma
+
 def strnul(input):
     """ convert a NUL terminated string to a normal string
     """
@@ -299,6 +304,7 @@ def race_decode(input):
 
 class Planet:
     """ netrek planets
+        each server has a number of planets
         instances created as packets about the planets are received
         instances are listed in a dictionary of planets in the galaxy instance
     """
@@ -322,6 +328,7 @@ class Planet:
 
 class Ship:
     """ netrek ships
+        each server has a number of netrek ships, normally 32 (MAXPLAYER)
         instances created as packets about the ships are received
         instances are listed in a dictionary of ships in the galaxy instance
     """
@@ -403,6 +410,7 @@ class Ship:
 
 class Torp:
     """ netrek torps
+        each netrek ship has eight netrek torps
         instances created as packets about the torps are received
         instances are listed in a dictionary of torps in the galaxy instance
     """
@@ -418,6 +426,7 @@ class Torp:
         self.status = status
         try:
             if status == TMOVE:
+                # FIXME: also show torp explosions
                 self.tactical.show()
             else:
                 self.tactical.hide()
@@ -429,11 +438,69 @@ class Torp:
         self.x = x
         self.y = y
 
+class Phaser:
+    """ netrek phasers
+        each netrek ship has one netrek phaser
+        instances created as packets about the phasers are received
+        instances are listed in a dictionary of phasers in the galaxy instance
+    """
+    def __init__(self, n):
+        self.n = n
+        self.ship = galaxy.ship(n)
+        self.status = PHFREE
+        self.want = False
+        self.have = False
+        self.sp_phaser(0, 0, 0, 0, 0)
+
+    def draw(self):
+        self.have = True
+        if self.status == PHMISS:
+            s_phaserdamage = 100 # FIXME: CA is 100, others are different
+            phasedist = 6000
+            factor = phasedist * s_phaserdamage / 100
+            angle = ( self.dir - 64 ) / 128.0 * math.pi
+            tx = factor * math.cos(angle)
+            ty = factor * math.sin(angle)
+            (fx, fy) = (self.ship.x, self.ship.y)
+            (tx, ty) = tactical_scale(fx + tx, fy + ty)
+            (fx, fy) = tactical_scale(fx, fy)
+        elif self.status == PHHIT2:
+            (fx, fy) = (self.ship.x, self.ship.y)
+            plasma.x = 100000 # FIXME: track plasma packets
+            plasma.y = 100000
+            (tx, ty) = tactical_scale(plasma.x, plasma.y)
+        elif self.status == PHHIT:
+            target = galaxy.ship(self.target)
+            (tx, ty) = tactical_scale(target.x, target.y)
+            (fx, fy) = tactical_scale(self.ship.x, self.ship.y)
+        self.txty = (tx, ty)
+        self.fxfy = (fx, fy)
+        return pygame.draw.line(screen, (255, 255, 255), (fx, fy), (tx, ty))
+
+    def undraw(self):
+        self.have = False
+        return pygame.draw.line(screen, (0, 0, 0), self.fxfy, self.txty)
+        
+    def sp_phaser(self, status, dir, x, y, target):
+        old = self.status
+        
+        self.status = status
+        self.dir = dir
+        self.x = x
+        self.y = y
+        self.target = target
+
+        if old == PHFREE:
+            if self.status != PHFREE: self.want = True
+        else:
+            if self.status == PHFREE: self.want = False
+        
 class Galaxy:
     def __init__(self):
         self.planets = {}
         self.ships = {}
         self.torps = {}
+        self.phasers = {}
 
     def planet(self, n):
         if not self.planets.has_key(n):
@@ -451,6 +518,23 @@ class Galaxy:
             self.torps[n] = Torp(n)
         return self.torps[n]
 
+    def phaser(self, n):
+        if not self.phasers.has_key(n):
+            self.phasers[n] = Phaser(n)
+        return self.phasers[n]
+
+    def phasers_undraw(self):
+        r = []
+        for n, phaser in self.phasers.iteritems():
+            if phaser.have: r.append(phaser.undraw())
+        return r
+            
+    def phasers_draw(self):
+        r = []
+        for n, phaser in self.phasers.iteritems():
+            if phaser.want: r.append(phaser.draw())
+        return r
+    
     def nearest_planet(self, x, y):
         """ return the nearest planet to input screen coordinates
         """
@@ -671,6 +755,9 @@ class TorpTacticalSprite(TorpSprite):
 
     def pick(self):
         self.image = ic.get('torp.png')
+        # FIXME: animate torps
+        # FIXME: show friendly vs hostile torps
+        # FIXME: show torpedo explosions
         self.rect = self.image.get_rect()
         
     def show(self):
@@ -679,6 +766,31 @@ class TorpTacticalSprite(TorpSprite):
     def hide(self):
         tactical.remove(self)
 
+
+class PhaserSprite(pygame.sprite.Sprite):
+    def __init__(self, phaser):
+        self.phaser = phaser
+        pygame.sprite.Sprite.__init__(self)
+
+class PhaserTacticalSprite(PhaserSprite):
+    """ netrek phaser sprites
+    """
+    def __init__(self, phaser):
+        PhaserSprite.__init__(self, phaser)
+        self.old_x = phaser.x
+        self.old_y = phaser.y
+        self.pick()
+
+    def update(self):
+        if self.phaser.x != self.old_x or self.phaser.y != self.old_y:
+            self.rect.center = tactical_scale(self.phaser.x, self.phaser.y)
+            self.old_x = self.phaser.x
+            self.old_y = self.phaser.y
+
+    def pick(self):
+        self.image = ic.get('torp.png')
+        self.rect = self.image.get_rect()
+        
 
 """ netrek protocol documentation, from server include/packets.h
 
@@ -1483,7 +1595,10 @@ class SP_PHASER(SP):
 
     def handler(self, data):
         (ignored, pnum, status, dir, x, y, target) = struct.unpack(self.format, data)
-        if opt.dump: print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+        # if opt.dump:
+        print "SP_PHASER pnum=",pnum,"status=",status,"dir=",dir,"x=",x,"y=",y,"target=",target
+        phaser = galaxy.phaser(pnum)
+        phaser.sp_phaser(status, dir, x, y, target)
 
 sp_phaser = SP_PHASER()
 
@@ -2148,11 +2263,13 @@ class PhaseFlight(Phase):
         button is a mouse button number
         """
         global me
-        print event.pos, event.button
         if event.button == 3 and me != None:
             (x, y) = event.pos
             nt.send(cp_direction.data(xy_to_dir(x, y)))
-        if event.button == 1 and me != None:
+        elif event.button == 2 and me != None:
+            (x, y) = event.pos
+            nt.send(cp_phaser.data(xy_to_dir(x, y)))
+        elif event.button == 1 and me != None:
             (x, y) = event.pos
             nt.send(cp_torp.data(xy_to_dir(x, y)))
     
@@ -2242,9 +2359,12 @@ class PhaseFlightTactical(PhaseFlight):
             return PhaseFlight.kb(self, event)
 
     def update(self):
+        r = galaxy.phasers_undraw()
         tactical.clear(screen, background)
         tactical.update()
-        pygame.display.update(tactical.draw(screen))
+        s = tactical.draw(screen)
+        t = galaxy.phasers_draw()
+        pygame.display.update(r+s+t)
 
 """ Main Program
 """
@@ -2314,8 +2434,8 @@ while 1:
             break
     print "flight phase end"
     
-# FIXME: display modes, servers, queue, login, outfit, tactical, galactic
 # FIXME: planets to be partial alpha in tactical view as ships close in?
+# FIXME: ships joining appear on tactical incorrectly
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
