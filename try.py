@@ -681,16 +681,12 @@ class ShipGalacticSprite(ShipSprite):
         self.rect.center = galactic_scale(self.ship.x, self.ship.y)
 
     def pick(self):
-        # select image according to team, prototype code
-        shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
-        # FIXME: obtain imagery for KLI and ORI
         # FIXME: obtain imagery for galactic view
-        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'kil-', ORI: 'ori-'}
         try:
-            self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
+            self.image = ic.get_rotated(teams[self.ship.team]+"8x8.png", self.ship.dir)
         except:
             self.image = ic.get('netrek.png')
-        self.image = pygame.transform.scale(self.image, (8, 8))
         self.rect = self.image.get_rect()
         
     def show(self):
