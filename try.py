@@ -416,20 +416,25 @@ class Torp:
     """
     def __init__(self, n):
         self.n = n
-        self.sp_torp_info(0, 0)
+        self.status = TFREE
+        self.sp_torp_info(0, self.status)
         self.sp_torp(0, 0, 0)
         self.tactical = TorpTacticalSprite(self)
         #self.galactic = TorpGalacticSprite(self)
 
     def sp_torp_info(self, war, status):
+        old = self.status
+        
         self.war = war
         self.status = status
+        
         try:
-            if status == TMOVE:
-                # FIXME: also show torp explosions
-                self.tactical.show()
+            if old == TFREE:
+                if status != TFREE:
+                    self.tactical.show()
             else:
-                self.tactical.hide()
+                if status == TFREE:
+                    self.tactical.hide()
         except:
             pass
 
@@ -624,7 +629,7 @@ class PlanetTacticalSprite(PlanetSprite):
         self.me_old_y = -1
         PlanetSprite.__init__(self, planet)
         self.pick()
-        tactical.add(self)
+        t_planets.add(self)
 
     def pick(self):
         rocks = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
@@ -653,8 +658,6 @@ class PlanetTacticalSprite(PlanetSprite):
 class ShipSprite(pygame.sprite.Sprite):
     def __init__(self, ship):
         self.ship = ship
-        self.old_x = ship.x
-        self.old_y = ship.y
         self.old_dir = ship.dir
         self.old_team = ship.team
         self.old_shiptype = ship.shiptype
@@ -669,15 +672,13 @@ class ShipGalacticSprite(ShipSprite):
         self.pick()
 
     def update(self):
-        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype:
+        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype or self.ship.status != self.old_status:
             self.old_dir = self.ship.dir
             self.old_team = self.ship.team
             self.old_shiptype = self.ship.shiptype
+            self.old_status = self.ship.status
             self.pick()
-        if self.ship.x != self.old_x or self.ship.y != self.old_y:
-            self.rect.center = galactic_scale(self.ship.x, self.ship.y)
-            self.old_x = self.ship.x
-            self.old_y = self.ship.y
+        self.rect.center = galactic_scale(self.ship.x, self.ship.y)
 
     def pick(self):
         # select image according to team, prototype code
@@ -712,10 +713,7 @@ class ShipTacticalSprite(ShipSprite):
             self.old_shiptype = self.ship.shiptype
             self.old_status = self.ship.status
             self.pick()
-        if self.ship.x != self.old_x or self.ship.y != self.old_y:
-            self.rect.center = tactical_scale(self.ship.x, self.ship.y)
-            self.old_x = self.ship.x
-            self.old_y = self.ship.y
+        self.rect.center = tactical_scale(self.ship.x, self.ship.y)
 
     def pick(self):
         if self.ship.status == PEXPLODE:
@@ -735,16 +733,15 @@ class ShipTacticalSprite(ShipSprite):
         self.rect = self.image.get_rect()
         
     def show(self):
-        tactical.add(self)
+        t_players.add(self)
 
     def hide(self):
-        tactical.remove(self)
+        t_players.remove(self)
 
 class TorpSprite(pygame.sprite.Sprite):
     def __init__(self, torp):
         self.torp = torp
-        self.old_x = torp.x
-        self.old_y = torp.y
+        self.old_status = torp.status
         pygame.sprite.Sprite.__init__(self)
 
 class TorpTacticalSprite(TorpSprite):
@@ -755,24 +752,32 @@ class TorpTacticalSprite(TorpSprite):
         self.pick()
 
     def update(self):
-        if self.torp.x != self.old_x or self.torp.y != self.old_y:
-            self.rect.center = tactical_scale(self.torp.x, self.torp.y)
-            self.old_x = self.torp.x
-            self.old_y = self.torp.y
-
+        if self.torp.status != self.old_status:
+            self.old_status = self.torp.status
+            self.pick()
+        self.rect.center = tactical_scale(self.torp.x, self.torp.y)
+            
     def pick(self):
-        self.image = ic.get('torp.png')
+        torps = { TFREE: 'netrek.png',
+                  TMOVE: 'torp.png',
+                  TEXPLODE: 'torp-explode.png',
+                  TDET: 'torp-det.png',
+                  TOFF: 'torp-off.png',
+                  TSTRAIGHT: 'torp-straight.png' }
+        try:
+            image = torps[self.torp.status]
+            self.image = ic.get(image)
+        except:
+            self.image = ic.get('netrek.png')
         # FIXME: animate torps
         # FIXME: show friendly vs hostile torps
-        # FIXME: show torpedo explosions
         self.rect = self.image.get_rect()
         
     def show(self):
-        tactical.add(self)
+        t_weapons.add(self)
 
     def hide(self):
-        tactical.remove(self)
-
+        t_weapons.remove(self)
 
 class PhaserSprite(pygame.sprite.Sprite):
     def __init__(self, phaser):
@@ -2284,6 +2289,7 @@ class PhaseFlight(Phase):
                  event.mod == pygame.KMOD_LSHIFT or
                  event.mod == pygame.KMOD_RSHIFT)
         if event.key == pygame.K_LSHIFT: pass
+        elif event.key == pygame.K_8 and shift: nt.send(cp_practr.data())
         elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
         elif event.key == pygame.K_1: nt.send(cp_speed.data(1))
         elif event.key == pygame.K_2 and shift: nt.send(cp_speed.data(12))
@@ -2305,6 +2311,15 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_b: nt.send(cp_bomb.data())
         elif event.key == pygame.K_z: nt.send(cp_beam.data(1))
         elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
+        elif event.key == pygame.K_d and shift:
+            if me:
+                maxtorp = 8
+                base = me.n*maxtorp
+                for x in range(base, base+maxtorp):
+                    torp = galaxy.torp(x)
+                    if torp.status == TMOVE or torp.status == TSTRAIGHT:
+                        nt.send(cp_det_mytorp.data(x))
+        elif event.key == pygame.K_d: nt.send(cp_det_torps.data())
         elif event.key == pygame.K_c:
             if me:
                 if me.flags & PFCLOAK:
@@ -2318,6 +2333,7 @@ class PhaseFlight(Phase):
                 nt.send(cp_planlock.data(nearest.n))
             else:
                 print "no nearest"
+        elif event.key == pygame.K_o: nt.send(cp_orbit.data(1))
         else:
             return Phase.kb(self, event)
     
@@ -2363,13 +2379,33 @@ class PhaseFlightTactical(PhaseFlight):
         else:
             return PhaseFlight.kb(self, event)
 
+    def special(self):
+        r = []
+        font = pygame.font.Font(None, 24)
+        for n, ship in galaxy.ships.iteritems():
+            if ship.status != PALIVE and ship.status != PEXPLODE: continue
+            #message = "%d (%d, %d)" % (ship.status, ship.x, ship.y)
+            # ship number
+            message = "%d" % (ship.n)
+            text = font.render(message, 1, (255, 255, 255))
+            rect = text.get_rect(center=tactical_scale(ship.x, ship.y))
+            r.append(screen.blit(text, rect))
+        return r
+        
     def update(self):
-        r = galaxy.phasers_undraw()
-        tactical.clear(screen, background)
-        tactical.update()
-        s = tactical.draw(screen)
-        t = galaxy.phasers_draw()
-        pygame.display.update(r+s+t)
+        o_phasers = galaxy.phasers_undraw()
+        t_weapons.clear(screen, background)
+        t_players.clear(screen, background)
+        t_planets.clear(screen, background)
+        t_planets.update()
+        t_players.update()
+        t_weapons.update()
+        r_planets = t_planets.draw(screen)
+        r_players = t_players.draw(screen)
+        r_weapons = t_weapons.draw(screen)
+        r_phasers = galaxy.phasers_draw()
+        r_special = self.special()
+        pygame.display.update(o_phasers+r_planets+r_players+r_weapons+r_phasers+r_special)
 
 """ Main Program
 """
@@ -2378,7 +2414,11 @@ pygame.init()
 
 size = width, height = 1000, 1000
 screen = pygame.display.set_mode(size)
-tactical = pygame.sprite.OrderedUpdates(())
+
+t_planets = pygame.sprite.OrderedUpdates(())
+t_players = pygame.sprite.OrderedUpdates(())
+t_weapons = pygame.sprite.OrderedUpdates(())
+
 galactic = pygame.sprite.OrderedUpdates(())
 
 background = screen.copy()
