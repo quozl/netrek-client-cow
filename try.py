@@ -643,6 +643,7 @@ class PlanetTacticalSprite(PlanetSprite):
         if self.planet.owner != self.old_owner:
             self.pick()
             self.old_owner = self.planet.owner
+            self.rect.center = tactical_scale(self.planet.x, self.planet.y)
         if self.planet.x != self.old_x or self.planet.y != self.old_y or me.x != self.me_old_x or me.y != self.me_old_y:
             self.rect.center = tactical_scale(self.planet.x, self.planet.y)
             self.old_x = self.planet.x
@@ -682,7 +683,7 @@ class ShipGalacticSprite(ShipSprite):
 
     def pick(self):
         # FIXME: obtain imagery for galactic view
-        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'kil-', ORI: 'ori-'}
+        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'kli-', ORI: 'ori-'}
         try:
             self.image = ic.get_rotated(teams[self.ship.team]+"8x8.png", self.ship.dir)
         except:
@@ -721,7 +722,7 @@ class ShipTacticalSprite(ShipSprite):
             shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
             # FIXME: obtain imagery for KLI and ORI
             # FIXME: obtain imagery for galactic view
-            teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'rom-'}
+            teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'ori-'}
             try:
                 self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
             except:
@@ -767,6 +768,9 @@ class TorpTacticalSprite(TorpSprite):
             self.image = ic.get('netrek.png')
         # FIXME: animate torps
         # FIXME: show friendly vs hostile torps
+        # FIXME: server does not inform us when exploded torps are
+        # finished exploding, so we have to run a counter of some
+        # sort.
         self.rect = self.image.get_rect()
         
     def show(self):
@@ -2387,6 +2391,10 @@ class PhaseFlightTactical(PhaseFlight):
             rect = text.get_rect(center=tactical_scale(ship.x, ship.y))
             r.append(screen.blit(text, rect))
         return r
+
+    # FIXME: subgalactic in a corner, alpha blended
+    # FIXME: console in a corner
+    # FIXME: action menu items around edge
         
     def update(self):
         o_phasers = galaxy.phasers_undraw()
@@ -2455,28 +2463,15 @@ ph_tactical = PhaseFlightTactical()
 
 while 1:
     ph_outfit.do()
-    print "pause until not in outfit"
-    while me.status == POUTFIT:
-        print "nt.recv()"
-        nt.recv()
-    print "not in outfit now"
+    while me.status == POUTFIT: nt.recv()
     ph_flight = ph_galactic
     while 1:
         screen.blit(background, (0, 0))
         pygame.display.flip()
         ph_flight.do()
-        if ph_flight == ph_galactic:
-            print "flight phase shift to galactic"
-        else:
-            print "flight phase shift to tactical"
-                
-        if me.status == POUTFIT:
-            print "seen in outfit"
-            break
-    print "flight phase end"
+        if me.status == POUTFIT: break
     
 # FIXME: planets to be partial alpha in tactical view as ships close in?
-# FIXME: ships joining appear on tactical incorrectly
 
 # socket http://docs.python.org/lib/socket-objects.html
 # struct http://docs.python.org/lib/module-struct.html
