@@ -550,18 +550,28 @@ class Galaxy:
             if phaser.want: r.append(phaser.draw())
         return r
     
-    def nearest_planet(self, x, y):
-        """ return the nearest planet to input screen coordinates
+    def nearest(self, x, y, things):
+        """ return the nearest thing to input screen coordinates
         """
         x, y = descale(x, y)
         nearest = None
         minimum = GWIDTH**2
-        for n, planet in self.planets.iteritems():
-            distance = (planet.x - x)**2 + (planet.y - y)**2
+        for n, thing in things.iteritems():
+            distance = (thing.x - x)**2 + (thing.y - y)**2
             if distance < minimum:
-                nearest = planet
+                nearest = thing
                 minimum = distance
         return nearest
+
+    def nearest_planet(self, x, y):
+        """ return the nearest planet to input screen coordinates
+        """
+        return self.nearest(x, y, self.planets)
+
+    def nearest_ship(self, x, y):
+        """ return the nearest ship to input screen coordinates
+        """
+        return self.nearest(x, y, self.ships)
 
 galaxy = Galaxy()
 me = None
@@ -2346,8 +2356,20 @@ class PhaseFlight(Phase):
             nearest = galaxy.nearest_planet(x, y)
             if nearest != None:
                 nt.send(cp_planlock.data(nearest.n))
-            else:
-                print "no nearest"
+        elif event.key == pygame.K_l:
+            x, y = pygame.mouse.get_pos()
+            nearest = galaxy.nearest_ship(x, y)
+            if nearest != None:
+                nt.send(cp_playlock.data(nearest.n))
+        elif event.key == pygame.K_t and shift:
+            x, y = pygame.mouse.get_pos()
+            nearest = galaxy.nearest_ship(x, y)
+            if me and nearest != None:
+                if me.flags & PFTRACT:
+                    nt.send(cp_tractor.data(0, nearest.n))
+                else:
+                    nt.send(cp_tractor.data(1, nearest.n))
+                    
         elif event.key == pygame.K_o: nt.send(cp_orbit.data(1))
         else:
             return Phase.kb(self, event)
