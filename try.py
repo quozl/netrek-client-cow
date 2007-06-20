@@ -129,11 +129,11 @@ markiel@callisto.pas.rochester.edu
 
 
 """
-import sys, socket, select, struct, pygame, math
+import sys, time, socket, select, struct, pygame, math
 
 from optparse import OptionParser
 parser= OptionParser()
-parser.add_option("-s", "--server", dest="server",
+parser.add_option("-s", "--server", "--host", dest="server",
                   help="netrek server to connect to")
 parser.add_option("-p", "--port", type="int", dest="port", default="2592",
                   help="netrek player port number to connect to")
@@ -151,13 +151,6 @@ parser.add_option("--dump",
                   help="dump packet stream")
 (opt, args) = parser.parse_args()
 # FIXME: [--theme name] [--metaserver] [host]
-
-IND=0x0
-FED=0x1
-ROM=0x2
-KLI=0x4
-ORI=0x8
-GWIDTH=100000
 
 # artwork specifications
 
@@ -181,6 +174,14 @@ GWIDTH=100000
 # upscaling to 1000 x 1000 galactic means a new ratio of 100,
 # therefore a ship size of 8 x 8 pixels
 
+GWIDTH=100000
+
+IND=0x0
+FED=0x1
+ROM=0x2
+KLI=0x4
+ORI=0x8
+
 PFREE=0
 POUTFIT=1
 PALIVE=2
@@ -195,35 +196,35 @@ TDET=3
 TOFF=4
 TSTRAIGHT=5
 
-PFSHIELD           = 0x0001
-PFREPAIR           = 0x0002
-PFBOMB             = 0x0004
-PFORBIT            = 0x0008
-PFCLOAK            = 0x0010
-PFWEP              = 0x0020
-PFENG              = 0x0040
-PFROBOT            = 0x0080
-PFBEAMUP           = 0x0100
-PFBEAMDOWN         = 0x0200
-PFSELFDEST         = 0x0400
-PFGREEN            = 0x0800
-PFYELLOW           = 0x1000
-PFRED              = 0x2000
-PFPLOCK            = 0x4000
-PFPLLOCK           = 0x8000
-PFCOPILOT         = 0x10000
-PFWAR             = 0x20000
-PFPRACTR          = 0x40000
-PFDOCK            = 0x80000
-PFREFIT          = 0x100000
-PFREFITTING      = 0x200000
-PFTRACT          = 0x400000
-PFPRESS          = 0x800000
-PFDOCKOK        = 0x1000000
-PFSEEN          = 0x2000000
-PFOBSERV        = 0x8000000
-PFTWARP        = 0x40000000
-PFBPROBOT      = 0x80000000
+PFSHIELD           = 0x0001 # displayed on tactical
+PFREPAIR           = 0x0002 # FIXME: display
+PFBOMB             = 0x0004 # FIXME: display
+PFORBIT            = 0x0008 # FIXME: display
+PFCLOAK            = 0x0010 # FIXME: display
+PFWEP              = 0x0020 # FIXME: display
+PFENG              = 0x0040 # FIXME: display
+PFROBOT            = 0x0080 # FIXME: display
+PFBEAMUP           = 0x0100 # FIXME: display
+PFBEAMDOWN         = 0x0200 # FIXME: display
+PFSELFDEST         = 0x0400 # FIXME: display
+PFGREEN            = 0x0800 # FIXME: display
+PFYELLOW           = 0x1000 # FIXME: display
+PFRED              = 0x2000 # FIXME: display
+PFPLOCK            = 0x4000 # FIXME: display
+PFPLLOCK           = 0x8000 # FIXME: display
+PFCOPILOT         = 0x10000 # not to be displayed
+PFWAR             = 0x20000 # FIXME: display
+PFPRACTR          = 0x40000 # FIXME: display
+PFDOCK            = 0x80000 # FIXME: display
+PFREFIT          = 0x100000 # not to be displayed
+PFREFITTING      = 0x200000 # FIXME: display
+PFTRACT          = 0x400000 # FIXME: display
+PFPRESS          = 0x800000 # FIXME: display
+PFDOCKOK        = 0x1000000 # FIXME: display
+PFSEEN          = 0x2000000 # FIXME: display
+PFOBSERV        = 0x8000000 # not to be displayed
+PFTWARP        = 0x40000000 # FIXME: display
+PFBPROBOT      = 0x80000000 # FIXME: display
 
 SCOUT=0
 DESTROYER=1
@@ -334,6 +335,8 @@ class Ship:
     """
     def __init__(self, n):
         self.n = n
+        self.sp_flags_cumulative_flags = 0
+        self.sp_you_cumulative_flags = 0
         self.sp_pl_login(0, '', '', '')
         self.sp_hostile(0, 0)
         self.sp_player_info(0, 0)
@@ -348,6 +351,7 @@ class Ship:
                fuel, etemp, wtemp, whydead, whodead):
         # FIXME: handle other arguments
         self.flags = flags
+        self.sp_you_cumulative_flags |= flags
         global me
         if not me:
             me = self
@@ -388,6 +392,7 @@ class Ship:
     def sp_flags(self, tractor, flags):
         self.tractor = tractor
         self.flags = flags
+        self.sp_flags_cumulative_flags |= flags
         # FIXME: display this data
         # FIXME: figure out if flags in SP_FLAGS is same as flags in SP_YOU
 
@@ -406,7 +411,9 @@ class Ship:
                 self.tactical.hide()
         except:
             # sprites do not exist on first call from own __init__
-            print "sp_pstatus no show or hide first time for ship ", self.n
+            # FIXME: check for attribute existence rather that use
+            # brute force of exception handling
+            pass
 
 class Torp:
     """ netrek torps
@@ -416,6 +423,7 @@ class Torp:
     """
     def __init__(self, n):
         self.n = n
+        self.explode = 0
         self.status = TFREE
         self.sp_torp_info(0, self.status)
         self.sp_torp(0, 0, 0)
@@ -435,6 +443,8 @@ class Torp:
             else:
                 if status == TFREE:
                     self.tactical.hide()
+                elif status == TEXPLODE:
+                    self.explode = nt.time + 2
         except:
             pass
 
@@ -753,6 +763,9 @@ class TorpTacticalSprite(TorpSprite):
             self.old_status = self.torp.status
             self.pick()
         self.rect.center = tactical_scale(self.torp.x, self.torp.y)
+        if self.torp.status == TEXPLODE:
+            if nt.time > self.torp.explode:
+                self.hide()
             
     def pick(self):
         torps = { TFREE: 'netrek.png',
@@ -1799,6 +1812,7 @@ class Client:
     """
     def __init__(self):
         self.socket = None
+        self.time = time.time()
         
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -1843,6 +1857,7 @@ class Client:
         rest = self.socket.recv(size-1, socket.MSG_WAITALL)
         if len(rest) != (size-1):
             print "### asked for %d and got %d bytes" % ((size-1), len(rest))
+        self.time = time.time()
         # handle the prefix byte and the rest of the packet as a whole
         instance.handler(byte + rest)
         # FIXME: packet almalgamation may occur, s.recv second time may
@@ -2381,6 +2396,7 @@ class PhaseFlightTactical(PhaseFlight):
 
     def special(self):
         r = []
+        # FIXME: grab this font during init
         font = pygame.font.Font(None, 24)
         for n, ship in galaxy.ships.iteritems():
             if ship.status != PALIVE and ship.status != PEXPLODE: continue
@@ -2390,11 +2406,21 @@ class PhaseFlightTactical(PhaseFlight):
             text = font.render(message, 1, (255, 255, 255))
             rect = text.get_rect(center=tactical_scale(ship.x, ship.y))
             r.append(screen.blit(text, rect))
+            if ship.status == PALIVE and ship.flags & PFSHIELD:
+                # FIXME: grab this image during init
+                shield = ic.get('shield.png')
+                rect = shield.get_rect(center=tactical_scale(ship.x, ship.y))
+                r.append(screen.blit(shield, rect))
+            # FIXME: show flag for PFROBOT, PFPRACTR or PFBPROBOT
+            # FIXME: show flag for PFDOCKOK
+            # FIXME: not show or show differently if PFCLOAK
         return r
 
     # FIXME: subgalactic in a corner, alpha blended
     # FIXME: console in a corner
     # FIXME: action menu items around edge
+    # FIXME: menu item "?" or mouse-over, to do modal information
+    # query on a screen object.
         
     def update(self):
         o_phasers = galaxy.phasers_undraw()
@@ -2470,6 +2496,10 @@ while 1:
         pygame.display.flip()
         ph_flight.do()
         if me.status == POUTFIT: break
+    # debugging
+    if opt.dump:
+        for n, ship in galaxy.ships.iteritems():
+            if ship == me or ship.sp_flags_cumulative_flags != 0: print "ship %d sp_flags %s sp_you %s" % (ship.n, hex(ship.sp_flags_cumulative_flags), hex(ship.sp_you_cumulative_flags))
     
 # FIXME: planets to be partial alpha in tactical view as ships close in?
 
