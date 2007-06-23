@@ -196,6 +196,8 @@ TDET=3
 TOFF=4
 TSTRAIGHT=5
 
+MAXTORP = 8
+
 PFSHIELD           = 0x0001 # displayed on tactical
 PFREPAIR           = 0x0002 # FIXME: display
 PFBOMB             = 0x0004 # FIXME: display
@@ -283,8 +285,9 @@ def descale(x, y):
     
 def dir_to_angle(dir):
     """ convert netrek direction to angle, approximate
+    (determines how many different ship rotation images are held)
     """
-    return dir * 360 / 256 / 10 * 10
+    return dir * 360 / 256 / 5 * 5
 
 def xy_to_dir(x, y):
     global me
@@ -433,6 +436,7 @@ class Torp:
     """
     def __init__(self, n):
         self.n = n
+        self.ship = galaxy.ship(n / MAXTORP)
         self.explode = 0
         self.status = TFREE
         self.sp_torp_info(0, self.status)
@@ -628,8 +632,40 @@ class FC:
         return self.cache[key]
 
 fc = FC()
+
+class MultipleImageSprite(pygame.sprite.Sprite):
+    """ a sprite class consisting of multiple images overlaid
+        the images are blitted over each other in the order they are added
+    """
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+
+    def mi_begin(self):
+        self.ml = []
+        self.mr = None
+
+    def mi_add(self, image, rect):
+        self.ml.append((image, rect))
+        if self.mr == None:
+            self.mr = rect
+        else:
+            self.mr = pygame.Rect.union(self.mr, rect)
+            
+    def mi_add_image(self, image):
+        rect = image.get_rect()
+        self.mi_add(image, rect)
+
+    def mi_commit(self):
+        width = self.mr.width
+        height = self.mr.height
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA, 32)
+        for x in self.ml:
+            (image, rect) = x
+            rect.center = (width/2, height/2)
+            self.image.blit(image, rect)
+        self.rect = self.image.get_rect()
     
-class PlanetSprite(pygame.sprite.Sprite):
+class PlanetSprite(MultipleImageSprite):
     """ netrek planet sprites
     """
     def __init__(self, planet):
@@ -640,8 +676,7 @@ class PlanetSprite(pygame.sprite.Sprite):
         self.old_x = planet.x
         self.old_y = planet.y
         self.old_owner = planet.owner
-        pygame.sprite.Sprite.__init__(self)
-        
+        MultipleImageSprite.__init__(self)
 
 class PlanetGalacticSprite(PlanetSprite):
     def __init__(self, planet):
@@ -681,24 +716,23 @@ class PlanetTacticalSprite(PlanetSprite):
         t_planets.add(self)
 
     def pick(self):
-        surfaces = []
+        self.mi_begin()
         rocks = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
         try:
             image = ic.get("rock-" + rocks[self.planet.owner] + ".png")
         except:
             image = ic.get('netrek.png')
-        surfaces.append(image)
-        rect = image.get_rect()
+        self.mi_add_image(image)
 
         if self.planet.armies > 4 and self.planet.owner != me.team:
-            surfaces.append(ic.get('planet-overlay-attack.png'))
+            self.mi_add_image(ic.get('planet-overlay-attack.png'))
             # FIXME: show attack ring for unscanned planets as well?
         if self.planet.armies > 4:
-            surfaces.append(ic.get('planet-overlay-army.png'))
+            self.mi_add_image(ic.get('planet-overlay-army.png'))
         if self.planet.flags & PLREPAIR:
-            surfaces.append(ic.get('planet-overlay-repair.png'))
+            self.mi_add_image(ic.get('planet-overlay-repair.png'))
         if self.planet.flags & PLFUEL:
-            surfaces.append(ic.get('planet-overlay-fuel.png'))
+            self.mi_add_image(ic.get('planet-overlay-fuel.png'))
         # FIXME: cache the static flags surfaces here, they will rarely change
 
         image = pygame.Surface((120, 120), pygame.SRCALPHA, 32)
@@ -708,21 +742,8 @@ class PlanetTacticalSprite(PlanetSprite):
         rect = text.get_rect(centerx=60, bottom=120)
         # FIXME: cache this surface here, it will rarely change
         image.blit(text, rect)
-        surfaces.append(image)
-
-        # calculate largest dimensions
-        # FIXME: factorise into above so that union is made as images
-        # are chosen for the stack
-        for x in surfaces:
-            rect = pygame.Rect.union(rect, x.get_rect())
-
-        image = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA, 32)
-        for x in surfaces:
-            position = x.get_rect(center=(rect.width/2, rect.height/2))
-            image.blit(x, position)
-
-        self.image = image
-        self.rect = self.image.get_rect()
+        self.mi_add_image(image)
+        self.mi_commit()
         
     def update(self):
         if self.planet.owner != self.old_owner or self.planet.name != self.old_name or self.planet.flags != self.old_flags:
@@ -743,14 +764,15 @@ class PlanetTacticalSprite(PlanetSprite):
         # include planets on the tactical sprite list if they are
         # nearby.
             
-class ShipSprite(pygame.sprite.Sprite):
+class ShipSprite(MultipleImageSprite):
     def __init__(self, ship):
         self.ship = ship
         self.old_dir = ship.dir
         self.old_team = ship.team
         self.old_shiptype = ship.shiptype
         self.old_status = ship.status
-        pygame.sprite.Sprite.__init__(self)
+        self.old_flags = ship.flags
+        MultipleImageSprite.__init__(self)
 
 class ShipGalacticSprite(ShipSprite):
     """ netrek ship sprites
@@ -791,19 +813,21 @@ class ShipTacticalSprite(ShipSprite):
         self.pick()
 
     def update(self):
-        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype or self.ship.status != self.old_status:
+        if self.ship.dir != self.old_dir or self.ship.team != self.old_team or self.ship.shiptype != self.old_shiptype or self.ship.status != self.old_status or self.ship.flags != self.old_flags:
             self.old_dir = self.ship.dir
             self.old_team = self.ship.team
             self.old_shiptype = self.ship.shiptype
             self.old_status = self.ship.status
+            self.old_flags = self.ship.flags
             self.pick()
         self.rect.center = tactical_scale(self.ship.x, self.ship.y)
 
     def pick(self):
+        self.mi_begin()
         if self.ship.status == PEXPLODE:
             # FIXME: animate explosion
             # FIXME: initial frames to show explosion developing over ship
-            self.image = ic.get('explosion.png')
+            self.mi_add_image(ic.get('explosion.png'))
         else:
             # select image according to team, prototype code
             shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
@@ -811,10 +835,29 @@ class ShipTacticalSprite(ShipSprite):
             # FIXME: obtain imagery for galactic view
             teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'ori-'}
             try:
-                self.image = ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir)
+                self.mi_add_image(ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir))
             except:
-                self.image = ic.get('netrek.png')
-        self.rect = self.image.get_rect()
+                self.mi_add_image(ic.get('netrek.png'))
+
+        # FIXME: filter for visibility by distance from me
+        
+        # ship number
+        image = pygame.Surface((40, 40), pygame.SRCALPHA, 32)
+        font = fc.get(None, 24)
+        message = "%d" % (self.ship.n)
+        text = font.render(message, 1, (255, 255, 255))
+        rect = text.get_rect(center=(20, 20))
+        # FIXME: cache this surface here, it will never change
+        image.blit(text, rect)
+        self.mi_add_image(image)
+        
+        if self.ship.status == PALIVE and self.ship.flags & PFSHIELD:
+            self.mi_add_image(ic.get('shield-80x80.png'))
+        
+        # FIXME: show flag for PFROBOT, PFPRACTR or PFBPROBOT
+        # FIXME: show flag for PFDOCKOK
+        # FIXME: not show or show differently if PFCLOAK
+        self.mi_commit()
         
     def show(self):
         t_players.add(self)
@@ -833,6 +876,12 @@ class TorpTacticalSprite(TorpSprite):
     """
     def __init__(self, torp):
         TorpSprite.__init__(self, torp)
+        self.teams = { FED: 'torp-fed.png', ROM: 'torp-rom.png', KLI: 'torp-kli.png', ORI: 'torp-ori.png' }
+        self.types = { TFREE: 'netrek.png',
+                       TEXPLODE: 'torp-explode.png',
+                       TDET: 'torp-det.png',
+                       TOFF: 'torp-off.png',
+                       TSTRAIGHT: 'torp-straight.png' }
         self.pick()
 
     def update(self):
@@ -843,21 +892,18 @@ class TorpTacticalSprite(TorpSprite):
         if self.torp.status == TEXPLODE:
             if nt.time > self.torp.explode:
                 self.hide()
-            
+    
     def pick(self):
-        torps = { TFREE: 'netrek.png',
-                  TMOVE: 'torp.png',
-                  TEXPLODE: 'torp-explode.png',
-                  TDET: 'torp-det.png',
-                  TOFF: 'torp-off.png',
-                  TSTRAIGHT: 'torp-straight.png' }
-        try:
-            image = torps[self.torp.status]
+        if self.torp.status == TMOVE:
+            if self.torp.ship == me:
+                self.image = ic.get('torp-me.png')
+            else:
+                self.image = ic.get(self.teams[self.torp.ship.team])
+        else:
+            image = self.types[self.torp.status]
             self.image = ic.get(image)
-        except:
-            self.image = ic.get('netrek.png')
+        
         # FIXME: animate torps
-        # FIXME: show friendly vs hostile torps
         # FIXME: server does not inform us when exploded torps are
         # finished exploding, so we have to run a counter of some
         # sort.
@@ -2392,7 +2438,7 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_7: nt.send(cp_speed.data(7))
         elif event.key == pygame.K_8: nt.send(cp_speed.data(8))
         elif event.key == pygame.K_9: nt.send(cp_speed.data(9))
-        elif event.key == pygame.K_u:
+        elif event.key == pygame.K_u or event.key == pygame.K_s:
             if me:
                 if me.flags & PFSHIELD:
                     nt.send(cp_shield.data(0))
@@ -2404,9 +2450,8 @@ class PhaseFlight(Phase):
         elif event.key == pygame.K_x: nt.send(cp_beam.data(2))
         elif event.key == pygame.K_d and shift:
             if me:
-                maxtorp = 8
-                base = me.n*maxtorp
-                for x in range(base, base+maxtorp):
+                base = me.n * MAXTORP
+                for x in range(base, base + MAXTORP):
                     torp = galaxy.torp(x)
                     if torp.status == TMOVE or torp.status == TSTRAIGHT:
                         nt.send(cp_det_mytorp.data(x))
@@ -2435,7 +2480,14 @@ class PhaseFlight(Phase):
                     nt.send(cp_tractor.data(0, nearest.n))
                 else:
                     nt.send(cp_tractor.data(1, nearest.n))
-                    
+        elif event.key == pygame.K_y:
+            x, y = pygame.mouse.get_pos()
+            nearest = galaxy.nearest_ship(x, y)
+            if me and nearest != None:
+                if me.flags & PFPRESS:
+                    nt.send(cp_repress.data(0, nearest.n))
+                else:
+                    nt.send(cp_repress.data(1, nearest.n))
         elif event.key == pygame.K_o: nt.send(cp_orbit.data(1))
         else:
             return Phase.kb(self, event)
@@ -2482,29 +2534,6 @@ class PhaseFlightTactical(PhaseFlight):
         else:
             return PhaseFlight.kb(self, event)
 
-    def special(self):
-        # FIXME: merge with ship sprites
-        r = []
-        font = fc.get(None, 24)
-        for n, ship in galaxy.ships.iteritems():
-            if ship.status != PALIVE and ship.status != PEXPLODE: continue
-            # FIXME: filter for visibility by distance from me
-            #message = "%d (%d, %d)" % (ship.status, ship.x, ship.y)
-            # ship number
-            message = "%d" % (ship.n)
-            text = font.render(message, 1, (255, 255, 255))
-            rect = text.get_rect(center=tactical_scale(ship.x, ship.y))
-            r.append(screen.blit(text, rect))
-            if ship.status == PALIVE and ship.flags & PFSHIELD:
-                # FIXME: grab this image during init
-                shield = ic.get('shield.png')
-                rect = shield.get_rect(center=tactical_scale(ship.x, ship.y))
-                r.append(screen.blit(shield, rect))
-            # FIXME: show flag for PFROBOT, PFPRACTR or PFBPROBOT
-            # FIXME: show flag for PFDOCKOK
-            # FIXME: not show or show differently if PFCLOAK
-        return r
-
     # FIXME: subgalactic in a corner, alpha blended
     # FIXME: console in a corner
     # FIXME: action menu items around edge
@@ -2523,8 +2552,7 @@ class PhaseFlightTactical(PhaseFlight):
         r_players = t_players.draw(screen)
         r_weapons = t_weapons.draw(screen)
         r_phasers = galaxy.phasers_draw()
-        r_special = self.special()
-        pygame.display.update(o_phasers+r_planets+r_players+r_weapons+r_phasers+r_special)
+        pygame.display.update(o_phasers+r_planets+r_players+r_weapons+r_phasers)
 
 """ Main Program
 """
