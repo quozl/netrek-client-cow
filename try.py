@@ -235,6 +235,16 @@ STARBASE=5
 SGALAXY=6
 ATT=7
 
+PLREPAIR = 0x010
+PLFUEL = 0x020
+PLAGRI = 0x040
+PLREDRAW = 0x080
+PLHOME = 0x100
+PLCOUP = 0x200
+PLCHEAP = 0x400
+PLCORE = 0x800
+PLCLEAR = 0x1000
+
 PHFREE=0x00
 PHHIT =0x01 # ship
 PHMISS=0x02 # whiff
@@ -601,6 +611,24 @@ class IC:
         
 ic = IC()
     
+class FC:
+    """ a font cache
+    """
+    def __init__(self):
+        self.cache = {}
+
+    def read(self, name, size):
+        font = pygame.font.Font(name, size)
+        return font
+
+    def get(self, name, size):
+        key = (name, size)
+        if key not in self.cache:
+            self.cache[key] = self.read(name, size)
+        return self.cache[key]
+
+fc = FC()
+    
 class PlanetSprite(pygame.sprite.Sprite):
     """ netrek planet sprites
     """
@@ -608,6 +636,7 @@ class PlanetSprite(pygame.sprite.Sprite):
         self.planet = planet
         self.old_armies = planet.armies
         self.old_name = planet.name
+        self.old_flags = planet.flags
         self.old_x = planet.x
         self.old_y = planet.y
         self.old_owner = planet.owner
@@ -652,17 +681,55 @@ class PlanetTacticalSprite(PlanetSprite):
         t_planets.add(self)
 
     def pick(self):
+        surfaces = []
         rocks = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
         try:
-            self.image = ic.get("rock-" + rocks[self.planet.owner] + ".png")
+            image = ic.get("rock-" + rocks[self.planet.owner] + ".png")
         except:
-            self.image = ic.get('netrek.png')
+            image = ic.get('netrek.png')
+        surfaces.append(image)
+        rect = image.get_rect()
+
+        if self.planet.armies > 4 and self.planet.owner != me.team:
+            surfaces.append(ic.get('planet-overlay-attack.png'))
+            # FIXME: show attack ring for unscanned planets as well?
+        if self.planet.armies > 4:
+            surfaces.append(ic.get('planet-overlay-army.png'))
+        if self.planet.flags & PLREPAIR:
+            surfaces.append(ic.get('planet-overlay-repair.png'))
+        if self.planet.flags & PLFUEL:
+            surfaces.append(ic.get('planet-overlay-fuel.png'))
+        # FIXME: cache the static flags surfaces here, they will rarely change
+
+        image = pygame.Surface((120, 120), pygame.SRCALPHA, 32)
+        font = fc.get(None, 24)
+        message = "%s" % (self.planet.name)
+        text = font.render(message, 1, (92, 92, 92))
+        rect = text.get_rect(centerx=60, bottom=120)
+        # FIXME: cache this surface here, it will rarely change
+        image.blit(text, rect)
+        surfaces.append(image)
+
+        # calculate largest dimensions
+        # FIXME: factorise into above so that union is made as images
+        # are chosen for the stack
+        for x in surfaces:
+            rect = pygame.Rect.union(rect, x.get_rect())
+
+        image = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA, 32)
+        for x in surfaces:
+            position = x.get_rect(center=(rect.width/2, rect.height/2))
+            image.blit(x, position)
+
+        self.image = image
         self.rect = self.image.get_rect()
         
     def update(self):
-        if self.planet.owner != self.old_owner:
+        if self.planet.owner != self.old_owner or self.planet.name != self.old_name or self.planet.flags != self.old_flags:
             self.pick()
             self.old_owner = self.planet.owner
+            self.old_name = self.planet.name
+            self.old_flags = self.planet.flags
             self.rect.center = tactical_scale(self.planet.x, self.planet.y)
         if self.planet.x != self.old_x or self.planet.y != self.old_y or me.x != self.me_old_x or me.y != self.me_old_y:
             self.rect.center = tactical_scale(self.planet.x, self.planet.y)
@@ -1882,7 +1949,7 @@ class Phase:
         self.warning_on = False
         
     def warning(self, message):
-        font = pygame.font.Font(None, 36)
+        font = fc.get(None, 36)
         text = font.render(message, 1, (255, 127, 127))
         self.warning_br = text.get_rect(center=(screen.get_width()/2,
                                                   screen.get_height()-100))
@@ -1908,7 +1975,7 @@ class Phase:
                 screen.blit(background, (x*bw, y*bh))
 
     def text(self, text, x, y, size=72, colour=(255, 255, 255)):
-        font = pygame.font.Font(None, size)
+        font = fc.get(None, size)
         ts = font.render(text, 1, colour)
         tr = ts.get_rect(center=(x, y))
         screen.blit(ts, tr)
@@ -1968,8 +2035,7 @@ class PhaseServers(Phase):
         self.text('server list', 500, 175, 72)
         pygame.display.flip()
 
-        self.fn = pygame.font.Font(None, 36)
-        # FIXME: cache fonts like we cache images
+        self.fn = fc.get(None, 36)
         self.dy = 40 # vertical spacing
         self.n = 0 # number of servers shown so far
         self.mc = MetaClient(self.add)
@@ -2023,7 +2089,7 @@ class PhaseServers(Phase):
 class Field:
     def __init__(self, prompt, value, x, y):
         self.value = value
-        self.fn = fn = pygame.font.Font(None, 36)
+        self.fn = fn = fc.get(None, 36)
         self.sw = sw = screen.get_width()
         self.sh = sh = screen.get_height()
         # place prompt on screen
@@ -2417,11 +2483,12 @@ class PhaseFlightTactical(PhaseFlight):
             return PhaseFlight.kb(self, event)
 
     def special(self):
+        # FIXME: merge with ship sprites
         r = []
-        # FIXME: grab this font during init
-        font = pygame.font.Font(None, 24)
+        font = fc.get(None, 24)
         for n, ship in galaxy.ships.iteritems():
             if ship.status != PALIVE and ship.status != PEXPLODE: continue
+            # FIXME: filter for visibility by distance from me
             #message = "%d (%d, %d)" % (ship.status, ship.x, ship.y)
             # ship number
             message = "%d" % (ship.n)
