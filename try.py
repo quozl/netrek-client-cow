@@ -736,23 +736,17 @@ class PlanetGalacticSprite(PlanetSprite):
         galactic.add(self)
 
     def pick(self):
-        self.image = self.image_closed = ic.get("oyster-closed.png")
-        self.rect = self.rect_closed = self.image.get_rect()
-        self.image_open = ic.get("oyster-open.png")
-        self.rect_open = self.image_open.get_rect()
+        # IMAGERY: planet-???-30x30.png
+        self.image = ic.get("planet-" + teams[self.planet.owner] + "-30x30.png")
+        self.rect = self.image.get_rect()
         # FIXME: render planet name on screen
         # FIXME: render planet owner, flags and armies on screen
 
     def update(self):
-        if self.planet.armies != self.old_armies:
-            if self.planet.armies > 4:
-                self.image = self.image_closed
-                self.rect = self.rect_closed
-            else:
-                self.image = self.image_open
-                self.rect = self.rect_open
+        if self.planet.owner != self.old_owner:
+            self.pick()
             self.rect.center = galactic_scale(self.planet.x, self.planet.y)
-            self.old_armies = self.planet.armies
+            self.old_owner = self.planet.owner
         if self.planet.x != self.old_x or self.planet.y != self.old_y:
             self.rect.center = galactic_scale(self.planet.x, self.planet.y)
             self.old_x = self.planet.x
@@ -768,12 +762,11 @@ class PlanetTacticalSprite(PlanetSprite):
 
     def pick(self):
         self.mi_begin()
-        try:
-            image = ic.get("rock-" + teams[self.planet.owner] + ".png")
-        except:
-            image = ic.get('netrek.png')
+        # IMAGERY: planet-???.png
+        image = ic.get("planet-" + teams[self.planet.owner] + ".png")
         self.mi_add_image(image)
 
+        # IMAGERY: planet-overlay-*.png
         if self.planet.armies > 4 and self.planet.owner != me.team:
             self.mi_add_image(ic.get('planet-overlay-attack.png'))
             # FIXME: show attack ring for unscanned planets as well?
@@ -849,12 +842,10 @@ class ShipGalacticSprite(ShipSprite):
 
     def pick(self):
         # FIXME: obtain imagery for galactic view
-        teams = {FED: 'fed-', ROM: 'rom-', KLI: 'kli-', ORI: 'ori-'}
-        try:
-            self.image = ic.get_rotated(teams[self.ship.team]+"8x8.png", self.ship.dir)
-        except:
-            self.image = ic.get('netrek.png')
-        self.rect = self.image.get_rect()
+        # IMAGERY: ???-8x8.png
+        if self.ship.team != IND:
+            self.image = ic.get_rotated(teams[self.ship.team]+"-8x8.png", self.ship.dir)
+            self.rect = self.image.get_rect()
         
     def show(self):
         galactic.add(self)
@@ -884,9 +875,11 @@ class ShipTacticalSprite(ShipSprite):
         if self.ship.status == PEXPLODE:
             # FIXME: animate explosion
             # FIXME: initial frames to show explosion developing over ship
+            # IMAGERY: explosion.png
             self.mi_add_image(ic.get('explosion.png'))
         else:
             # FIXME: obtain imagery for galactic view
+            # IMAGERY: ???-??-40x40.png
             try:
                 self.mi_add_image(ic.get_rotated(teams[self.ship.team]+'-'+ships[self.ship.shiptype]+"-40x40.png", self.ship.dir))
             except:
@@ -905,9 +898,11 @@ class ShipTacticalSprite(ShipSprite):
         self.mi_add_image(image)
         
         if self.ship.status == PALIVE and self.ship.flags & PFSHIELD:
+            # IMAGERY: shield-80x80.png
             self.mi_add_image(ic.get('shield-80x80.png'))
         
         if self.ship.status == PALIVE and self.ship.flags & PFCLOAK:
+            # IMAGERY: ship-cloak.png
             self.mi_add_image(ic.get('ship-cloak.png'))
         
         # FIXME: show flag for PFROBOT, PFPRACTR or PFBPROBOT
@@ -952,10 +947,13 @@ class TorpTacticalSprite(TorpSprite):
     def pick(self):
         if self.torp.status == TMOVE:
             if self.torp.ship == me:
+                # IMAGERY: torp-me.png
                 self.image = ic.get('torp-me.png')
             else:
+                # IMAGERY: torp-???.png
                 self.image = ic.get(self.teams[self.torp.ship.team])
         else:
+            # IMAGERY: torp-explode.png
             image = self.types[self.torp.status]
             self.image = ic.get(image)
         
@@ -970,31 +968,6 @@ class TorpTacticalSprite(TorpSprite):
 
     def hide(self):
         t_weapons.remove(self)
-
-class PhaserSprite(pygame.sprite.Sprite):
-    def __init__(self, phaser):
-        self.phaser = phaser
-        pygame.sprite.Sprite.__init__(self)
-
-class PhaserTacticalSprite(PhaserSprite):
-    """ netrek phaser sprites
-    """
-    def __init__(self, phaser):
-        PhaserSprite.__init__(self, phaser)
-        self.old_x = phaser.x
-        self.old_y = phaser.y
-        self.pick()
-
-    def update(self):
-        if self.phaser.x != self.old_x or self.phaser.y != self.old_y:
-            self.rect.center = tactical_scale(self.phaser.x, self.phaser.y)
-            self.old_x = self.phaser.x
-            self.old_y = self.phaser.y
-
-    def pick(self):
-        self.image = ic.get('torp.png')
-        self.rect = self.image.get_rect()
-        
 
 """ netrek protocol documentation, from server include/packets.h
 
@@ -2068,6 +2041,7 @@ class Phase:
     def background(self):
         # tile a background image onto the screen
         screen.fill((0,0,0))
+        # IMAGERY: stars.png
         background = ic.get("stars.png")
         bh = background.get_height()
         bw = background.get_width()
@@ -2157,6 +2131,7 @@ class PhaseServers(Phase):
         # per server icon
         # FIXME: icon per server type?
         # FIXME: icon better than this one
+        # IMAGERY: netrek.png
         cs = ic.get("netrek.png")
         cr = cs.get_rect(left=50, centery=y)
         r.append(screen.blit(cs, cr))
@@ -2168,6 +2143,7 @@ class PhaseServers(Phase):
         # FIXME: icon better than this one
         # FIXME: icon should not convey team
         for x in range(server['players']):
+            # IMAGERY: netrek.png
             ps = ic.get("netrek.png") # per player icon
             pr = ps.get_rect(left=500+(x*36), centery=y)
             r.append(screen.blit(ps, pr))
