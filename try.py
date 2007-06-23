@@ -154,12 +154,15 @@ parser.add_option("--dump",
 
 # artwork specifications
 
+# galaxy is 100000 x 100000 pixels
+# tactical dimensions are one fifth of galactic dimensions
+
 # tactical is 20000 x 20000 galactic pixels,
 # shown by regular client on 500 x 500,
 # therefore a ratio of 40
 
 # ships are 20 x 20 on regular client,
-# therefore 800 x 800 galactic pixels
+# therefore ships are 800 x 800 galactic pixels
 
 # regular client galactic of 500 x 500 means a ratio of 200,
 # therefore a ship size of 4 x 4 pixels (text shown instead)
@@ -169,10 +172,17 @@ parser.add_option("--dump",
 # which is just inside the drawn shield radius
 
 # upscaling to 1000 x 1000 tactical means a new ratio of 80,
-# therefore ship size of 40 x 40 pixels
+# therefore a ship size of 40 x 40 pixels
 
 # upscaling to 1000 x 1000 galactic means a new ratio of 100,
 # therefore a ship size of 8 x 8 pixels
+
+# planet orbital radius is 800 galactic pixels (ORBDIST)
+# planet attack radius is 1500 galactic pixels (PFIREDIST)
+# on regular client, tactical planets are 28 pixels diameter
+# on regular client, galactic planets are 14 pixels diameter
+# planets are 30 x 30 on regular client tactical
+# planets are 60 x 60 on this tactical
 
 GWIDTH=100000
 
@@ -181,6 +191,17 @@ FED=0x1
 ROM=0x2
 KLI=0x4
 ORI=0x8
+
+teams = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
+
+teams_long = { IND: 'independent',
+               FED: 'federation',
+               ROM: 'romulan',
+               KLI: 'klingon',
+               ORI: 'orion'
+             }
+
+teams_numeric = {IND: -1, FED: 0, ROM: 1, KLI: 2, ORI: 3}
 
 PFREE=0
 POUTFIT=1
@@ -236,6 +257,36 @@ ASSAULT=4
 STARBASE=5
 SGALAXY=6
 ATT=7
+
+ships = { SCOUT:      'sc',
+          DESTROYER:  'dd',
+          CRUISER:    'ca',
+          BATTLESHIP: 'bb',
+          ASSAULT:    'as',
+          STARBASE:   'sb',
+          SGALAXY:    'ga',
+          ATT:        'at'
+        }
+
+ships_long = { SCOUT:      'scout',
+               DESTROYER:  'destroyer',
+               CRUISER:    'cruiser',
+               BATTLESHIP: 'battleship',
+               ASSAULT:    'assault',
+               STARBASE:   'starbase',
+               SGALAXY:    'galaxy',
+               ATT:        'ATT'
+             }
+
+ships_use = { SCOUT:      'very fast, very weak',
+              DESTROYER:  'fast but weak',
+              CRUISER:    'general purpose',
+              BATTLESHIP: 'slow but strong',
+              ASSAULT:    'bombs planets well',
+              STARBASE:   'point defense',
+              SGALAXY:    'for stuffing around',
+              ATT:        'for cheating'
+            }
 
 PLREPAIR = 0x010
 PLFUEL = 0x020
@@ -301,10 +352,10 @@ def team_decode(input):
     """ convert a team mask to a list
     """
     x = []
-    if input & FED: x.append('F')
-    if input & ROM: x.append('R')
-    if input & KLI: x.append('K')
-    if input & ORI: x.append('O')
+    if input & FED: x.append(teams[FED])
+    if input & ROM: x.append(teams[ROM])
+    if input & KLI: x.append(teams[KLI])
+    if input & ORI: x.append(teams[ORI])
     return x
 
 def race_decode(input):
@@ -717,9 +768,8 @@ class PlanetTacticalSprite(PlanetSprite):
 
     def pick(self):
         self.mi_begin()
-        rocks = {IND: 'ind', FED: 'fed', ROM: 'rom', KLI: 'kli', ORI: 'ori'}
         try:
-            image = ic.get("rock-" + rocks[self.planet.owner] + ".png")
+            image = ic.get("rock-" + teams[self.planet.owner] + ".png")
         except:
             image = ic.get('netrek.png')
         self.mi_add_image(image)
@@ -746,13 +796,20 @@ class PlanetTacticalSprite(PlanetSprite):
         self.mi_commit()
         
     def update(self):
-        if self.planet.owner != self.old_owner or self.planet.name != self.old_name or self.planet.flags != self.old_flags:
+        if self.planet.owner != self.old_owner or \
+               self.planet.name != self.old_name or \
+               self.planet.flags != self.old_flags or \
+               self.planet.armies != self.old_armies:
             self.pick()
             self.old_owner = self.planet.owner
             self.old_name = self.planet.name
             self.old_flags = self.planet.flags
+            self.old_armies = self.planet.armies
             self.rect.center = tactical_scale(self.planet.x, self.planet.y)
-        if self.planet.x != self.old_x or self.planet.y != self.old_y or me.x != self.me_old_x or me.y != self.me_old_y:
+        if self.planet.x != self.old_x or \
+               self.planet.y != self.old_y or \
+               me.x != self.me_old_x or \
+               me.y != self.me_old_y:
             self.rect.center = tactical_scale(self.planet.x, self.planet.y)
             self.old_x = self.planet.x
             self.old_y = self.planet.y
@@ -829,13 +886,9 @@ class ShipTacticalSprite(ShipSprite):
             # FIXME: initial frames to show explosion developing over ship
             self.mi_add_image(ic.get('explosion.png'))
         else:
-            # select image according to team, prototype code
-            shiptypes = ['sc-', 'dd-', 'ca-', 'bb-', 'as-', 'sb-']
-            # FIXME: obtain imagery for KLI and ORI
             # FIXME: obtain imagery for galactic view
-            teams = {FED: 'fed-', ROM: 'rom-', KLI: 'fed-', ORI: 'ori-'}
             try:
-                self.mi_add_image(ic.get_rotated(teams[self.ship.team]+shiptypes[self.ship.shiptype]+"40x40.png", self.ship.dir))
+                self.mi_add_image(ic.get_rotated(teams[self.ship.team]+'-'+ships[self.ship.shiptype]+"-40x40.png", self.ship.dir))
             except:
                 self.mi_add_image(ic.get('netrek.png'))
 
@@ -853,6 +906,9 @@ class ShipTacticalSprite(ShipSprite):
         
         if self.ship.status == PALIVE and self.ship.flags & PFSHIELD:
             self.mi_add_image(ic.get('shield-80x80.png'))
+        
+        if self.ship.status == PALIVE and self.ship.flags & PFCLOAK:
+            self.mi_add_image(ic.get('ship-cloak.png'))
         
         # FIXME: show flag for PFROBOT, PFPRACTR or PFBPROBOT
         # FIXME: show flag for PFDOCKOK
@@ -1626,7 +1682,6 @@ class SP_MASK(SP):
             pending_outfit = False
         if self.callback:
             self.callback(mask)
-            self.uncatch()
         # FIXME: note protocol phase change
         # FIXME: update team selection icons
 
@@ -1993,12 +2048,12 @@ class Client:
 class Phase:
     def __init__(self):
         self.warning_on = False
-        
+
     def warning(self, message):
         font = fc.get(None, 36)
         text = font.render(message, 1, (255, 127, 127))
         self.warning_br = text.get_rect(center=(screen.get_width()/2,
-                                                  screen.get_height()-100))
+                                                screen.get_height()-100))
         self.warning_bg = screen.subsurface(self.warning_br).copy()
         r1 = screen.blit(text, self.warning_br)
         pygame.display.update(r1)
@@ -2042,8 +2097,8 @@ class Phase:
         elif event.type == pygame.QUIT:
             nt.send(cp_bye.data())
             sys.exit()
-        # FIXME: watch for MOUSEMOTION and update object information panes
-        # for planets or ships
+        elif event.type == pygame.MOUSEMOTION:
+            self.mm(event)
         
     def display_sink(self):
         for event in pygame.event.get():
@@ -2053,6 +2108,11 @@ class Phase:
         event = pygame.event.wait()
         self.display_sink_event(event)
 
+    def mm(self, event):
+        # FIXME: watch for MOUSEMOTION and update object information panes
+        # for planets or ships (on tactical or galactic)
+        pass
+    
     def kb(self, event):
         if event.key == pygame.K_q:
             screen.fill((0, 0, 0))
@@ -2294,6 +2354,9 @@ class PhaseOutfit(Phase):
     def __init__(self, screen):
         Phase.__init__(self)
         self.run = True
+        self.box = None
+        self.last_team = None
+        self.last_ship = CRUISER
         
     def do(self):
         self.run = True
@@ -2302,57 +2365,50 @@ class PhaseOutfit(Phase):
         self.text('netrek', 500, 100, 144)
         self.text(opt.server, 500, 185, 72)
         self.text('ship and race', 500, 255, 72)
-        # FIXME: show whydead
         pygame.display.flip()
-        # FIXME: display race corners
+        box_l = 212
+        box_t = 300
+        box_r = 788
+        box_b = 875
         r = []
-        rs = ic.get("netrek.png")
-        rr = rs.get_rect(center=(212, 375))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("netrek.png")
-        rr = rs.get_rect(center=(788, 375))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("netrek.png")
-        rr = rs.get_rect(center=(212, 950))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("netrek.png")
-        rr = rs.get_rect(center=(788, 950))
-        r.append(screen.blit(rs, rr))
-        # FIXME: display list of ship classes with current selection
-        dx = 115
-        lx = 212+(dx/2)
-        rs = ic.get("fed-sc.png")
-        rr = rs.get_rect(center=(lx+dx*0, 662))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("fed-dd.png")
-        rr = rs.get_rect(center=(lx+dx*1, 662))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("fed-ca.png")
-        rr = rs.get_rect(center=(lx+dx*2, 662))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("fed-bb.png")
-        rr = rs.get_rect(center=(lx+dx*3, 662))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("fed-as.png")
-        rr = rs.get_rect(center=(lx+dx*4, 662))
-        r.append(screen.blit(rs, rr))
-        rs = ic.get("fed-sb.png")
-        rr = rs.get_rect(center=(lx+dx*4, 662))
-        r.append(screen.blit(rs, rr))
-        # FIXME: alternate display #1, all ships in an X formation,
-        # from centre in order CA AS SC BB DD SB, with message
-        # explaining each
-        # FIXME: alternate display #2, minature galactic, showing
-        # ownership, player positions if any, with ships to choose in
-        # each race space or just outside the corner,
-        # FIXME: display "in netrek all races are equal"
+        self.boxes = []
+        # FIXME: display number of players on each team
+        # FIXME: make these sprites rather than paint on screen
+        table = [[FED, -1, +1], [ROM, -1, -1], [KLI, +1, -1], [ORI, +1, +1]]
+        for row in table:
+            (team, dx, dy) = row
+            # box centre
+            # FIXME: show SP_MASK by hiding or covering a team axis
+            x = (box_r - box_l) / 2 + box_l
+            y = (box_b - box_t) / 2 + box_t
+            for ship in [CRUISER, ASSAULT, SCOUT, BATTLESHIP, DESTROYER, STARBASE]:
+                x = x + dx * 60
+                y = y + dy * 60
+                rs = ic.get(teams[team]+'-'+ships[ship]+'.png')
+                rr = rs.get_rect(center=(x, y))
+                r.append(screen.blit(rs, rr))
+                description = teams_long[team] + ' ' + ships_long[ship] + ', ' + ships_use[ship]
+                self.boxes.append([x, y, ship, team, description])
+        # FIXME: add minature galactic, showing ownership, player
+        # positions if any, with ships to choose in each race space or
+        # just outside the corner.
         # FIXME: display "in bronco you should remain with your team"
         # FIXME: show logged in players
         # FIXME: show planet status
+        # FIXME: show whydead
+        self.warning("in netrek all races are equal")
         pygame.display.update(r)
+        sp_mask.catch(self.mask)
         self.cycle()
+        sp_mask.uncatch()
+
+    def mask(self, mask):
+        # FIXME: if mask changes, update available races
+        pass
 
     def team(self, team, ship=CRUISER):
+        self.last_team = team;
+        self.last_ship = ship;
         sp_pickok.catch(self.sp_pickok)
         nt.send(cp_outfit.data(team, ship))
 
@@ -2360,13 +2416,40 @@ class PhaseOutfit(Phase):
         if state == 1:
             self.run = False
         else:
+            self.unwarning()
             self.warning('outfit request refused by server')
+
+    def nearest(self, pos):
+        (x, y) = pos
+        nearest = None
+        minimum = 70**2
+        for box in self.boxes:
+            (bx, by, ship, team, description) = box
+            distance = (bx - x)**2 + (by - y)**2
+            if distance < minimum:
+                nearest = box
+                minimum = distance
+        return nearest
     
     def mb(self, event):
         self.unwarning()
+        nearest = self.nearest(event.pos)
+        if nearest != None:
+            (bx, by, ship, team, description) = nearest
+            self.team(teams_numeric[team], ship)
+        else:
+            self.warning('click on a ship, mate')
         # FIXME: click on team icon sends CP_OUTFIT most recent ship
         # FIXME: click on ship icon requests CP_OUTFIT with team and ship
-        self.warning('doh, only f r k and o works at the moment')
+        
+    def mm(self, event):
+        nearest = self.nearest(event.pos)
+        if nearest != self.box:
+            self.unwarning()
+            if nearest != None:
+                (bx, by, ship, team, description) = nearest
+                self.warning(description)
+            self.box = nearest
         
     def kb(self, event):
         self.unwarning()
@@ -2384,13 +2467,13 @@ class PhaseOutfit(Phase):
         elif event.key == pygame.K_q:
             nt.send(cp_bye.data())
             sys.exit()
-        # FIXME: if cursor over team icon, keys are ship class
-        # FIXME: on arrow keys, change selected ship class
-        # FIXME: if cursor not over team icon, keys are team name
-        elif event.key == pygame.K_f: self.team(0)
-        elif event.key == pygame.K_r: self.team(1)
-        elif event.key == pygame.K_k: self.team(2)
-        elif event.key == pygame.K_o: self.team(3)
+        elif event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
+            if self.last_team != None:
+                self.team(self.last_team, self.last_ship)
+        elif event.key == pygame.K_f: self.team(0, self.last_ship)
+        elif event.key == pygame.K_r: self.team(1, self.last_ship)
+        elif event.key == pygame.K_k: self.team(2, self.last_ship)
+        elif event.key == pygame.K_o: self.team(3, self.last_ship)
         
 class PhaseFlight(Phase):
     def __init__(self):
@@ -2425,6 +2508,7 @@ class PhaseFlight(Phase):
         shift = (event.mod == pygame.KMOD_SHIFT or
                  event.mod == pygame.KMOD_LSHIFT or
                  event.mod == pygame.KMOD_RSHIFT)
+        # FIXME: use a lookup table
         if event.key == pygame.K_LSHIFT: pass
         elif event.key == pygame.K_8 and shift: nt.send(cp_practr.data())
         elif event.key == pygame.K_0: nt.send(cp_speed.data(0))
@@ -2488,6 +2572,7 @@ class PhaseFlight(Phase):
                     nt.send(cp_repress.data(0, nearest.n))
                 else:
                     nt.send(cp_repress.data(1, nearest.n))
+        # FIXME: some of this looks repetitive
         elif event.key == pygame.K_o: nt.send(cp_orbit.data(1))
         else:
             return Phase.kb(self, event)
@@ -2607,7 +2692,7 @@ ph_tactical = PhaseFlightTactical()
 while 1:
     ph_outfit.do()
     while me.status == POUTFIT: nt.recv()
-    ph_flight = ph_galactic
+    ph_flight = ph_tactical
     while 1:
         screen.blit(background, (0, 0))
         pygame.display.flip()
