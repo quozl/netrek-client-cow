@@ -1,3 +1,7 @@
+Mon Sep  3 10:42:35 2007  James Cameron  <quozl@us.netrek.org>
+
+	* manifest: add missing key.mk.in, reported by Jon Akers.
+
 Tue Apr  3 17:08:19 2007  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.2: released.
