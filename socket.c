@@ -3675,7 +3675,7 @@ void print_packet(char *packet, int size)
        case SP_PLAYER       :                   /* x,y for player */
 	 fprintf(stderr, "\nS->C SP_PLAYER\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, dir=%u, speed=%d,x=%ld, y=%d,",
+	   fprintf(stderr, "  pnum=%d, dir=%u, speed=%d, x=%ld, y=%d,",
 		   ((struct player_spacket *) packet)->pnum,
 		   ((struct player_spacket *) packet)->dir,
 		   ((struct player_spacket *) packet)->speed,
@@ -4440,6 +4440,7 @@ void print_opacket(char *packet, int size)
       break;
 #endif
     case CP_PING_RESPONSE :                   /* client response */
+      /* note: ping.c calls gwrite directly, so we do not see this */
       fprintf(stderr, "\nC->S CP_PING_RESPONSE\t");
       if (log_packets > 1)
 	fprintf(stderr, "  number=%u, pingme=%d, cp_sent=%lu, cp_recv=%lu",
