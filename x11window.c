@@ -3786,18 +3786,18 @@ int video_mode_initialise() {
   /* obtain the current mode line and list of known mode lines */
   XF86VidModeGetModeLine(W_Display, W_Screen, &video_mode_dotclock, &current);
   XF86VidModeGetAllModeLines(W_Display, W_Screen,
-			     &video_mode_list_size, &video_mode_list);
+                             &video_mode_list_size, &video_mode_list);
 
   /* find the current mode within the list of known mode lines */
   video_mode_current = NULL;
   for (line=0; line < video_mode_list_size; line++) {
     XF86VidModeModeInfo *mode = video_mode_list[line];
     if (mode->hdisplay == current.hdisplay &&
-	mode->vdisplay == current.vdisplay &&
-	mode->dotclock == video_mode_dotclock &&
-	mode->htotal == current.htotal &&
-	mode->vtotal == current.vtotal &&
-	mode->flags == current.flags) {
+        mode->vdisplay == current.vdisplay &&
+        mode->dotclock == video_mode_dotclock &&
+        mode->htotal == current.htotal &&
+        mode->vtotal == current.vtotal &&
+        mode->flags == current.flags) {
       video_mode_current = mode;
     }
   }
@@ -3805,7 +3805,7 @@ int video_mode_initialise() {
   /* do not change if the current mode was not found */
   if (video_mode_current == NULL) {
     fprintf(stderr, "video_mode_begin: this mode not found, "
-	    "cannot switch back, so not switching\n");
+            "cannot switch back, so not switching\n");
     return 0;
   }
 
@@ -3853,15 +3853,15 @@ void pointer_grab_on(W_Window window)
   struct window *win = W_Void2Window(window);
 
   XGrabPointer(W_Display, win->window, True, ButtonPressMask |
-		 ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
-		 PointerMotionMask | PointerMotionHintMask |
-		 Button1MotionMask | Button2MotionMask |
-		 Button3MotionMask | Button4MotionMask |
-		 Button5MotionMask | ButtonMotionMask |
-		 KeymapStateMask, GrabModeAsync, GrabModeAsync,
-		 win->window, None, CurrentTime);
+                 ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
+                 PointerMotionMask | PointerMotionHintMask |
+                 Button1MotionMask | Button2MotionMask |
+                 Button3MotionMask | Button4MotionMask |
+                 Button5MotionMask | ButtonMotionMask |
+                 KeymapStateMask, GrabModeAsync, GrabModeAsync,
+                 win->window, None, CurrentTime);
   XGrabKeyboard(W_Display, win->window, True, GrabModeAsync,
-		GrabModeAsync, CurrentTime);
+                GrabModeAsync, CurrentTime);
 }
 
 void pointer_grab_off(W_Window window)
@@ -3879,7 +3879,7 @@ void kde_fullscreen_on(W_Window window) {
     Atom p[1]; 
     p[0] = XInternAtom(W_Display, "_NET_WM_STATE_FULLSCREEN", True);
     XChangeProperty(W_Display, win->window, WM_HINTS, XA_ATOM, 32,
-		    PropModeReplace, (unsigned char *)p, 1);
+                    PropModeReplace, (unsigned char *)p, 1);
   }
 }
 
@@ -3924,7 +3924,7 @@ void W_FullScreenToggle(W_Window window) {
   } else {
     if (!full_screen_default) {
       if (!video_mode_initialise()) {
-	return;
+        return;
       }
     }
     full_screen_enabled++;
