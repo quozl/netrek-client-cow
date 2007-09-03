@@ -1,3 +1,9 @@
+netrek-client-cow (3.2.2-0) unstable; urgency=low
+
+  * upstream release
+
+ -- James Cameron <quozl@us.netrek.org>  Wed, 16 May 2007 16:05:00 +1000
+
 netrek-client-cow (3.2.0-1) unstable; urgency=low
 
   * Fix regression caused by previous change, resulting in bad file

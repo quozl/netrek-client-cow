@@ -6,5 +6,5 @@
 #ifdef STABLE
 #define PATCHLEVEL 5
 #else
-#define PATCHLEVEL 2
+#define PATCHLEVEL 3
 #endif
