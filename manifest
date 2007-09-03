@@ -1,3 +1,6 @@
+INSTALL
+README.releasing
+REPOSITORIES
 MAIN.ICO
 NETREK.RC
 NETREK.WRI
@@ -18,6 +21,8 @@ stars.gif
 cow.html
 newbie.html
 index.html
+camera.c
+camera.h
 cowapi.h
 cowmain.c
 dashboard.c
@@ -26,6 +31,7 @@ data.c
 data.h
 death.c
 defaults.c
+defaults.h
 defs.h
 defwin.c
 distress.c
@@ -85,6 +91,7 @@ setstate.c
 short.c
 sintab.c
 smessage.c
+smessage.h
 socket.c
 sound.c
 sound.h
@@ -113,7 +120,9 @@ winsprite.c
 wsl.c
 wtext.h
 x11window.c
+x11window.h
 x11sprite.c
+x11sprite.h
 xclrs.h
 CHANGES
 COW.DOC
@@ -130,6 +139,7 @@ README.CVS
 SHORT_PACKETS.DOC
 TODO
 netrekrc.example
+autogen.sh
 config.h.in
 configure.in
 system.mk.in
@@ -178,3 +188,7 @@ debian/dirs
 ChangeLog
 README
 XTREKRC.example
+cow.png
+cow.desktop
+cow.spec
+lurk.py
