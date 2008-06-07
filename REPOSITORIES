@@ -9,6 +9,10 @@ project
 
 http://www.netrek.org/repos/netrek-client-cow/
 
+mirror (synced with http://james.tooraweenah.com/darcs/netrek-client-cow/)
+
+http://darcs.gerdesas.com/netrek-client-cow
+
 private push targets
 
 quozl@giskard.tooraweenah.com:/var/www/tooraweenah.com/james/darcs/netrek-client-cow
