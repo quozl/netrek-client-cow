@@ -1072,6 +1072,7 @@ keyaction(W_Event * data)
     }
   else
     {
+      fprintf(stderr, "input.c: keyaction() key %d outside range\n", key);
       W_Beep();
       return;
     }
@@ -1483,6 +1484,7 @@ lockPlanetOrBase(W_Window ww, int x, int y)	 /* special version of * *
 
 emptyKey(void)
 {
+  fprintf(stderr, "input.c: emptyKey\n", key);
   W_Beep();
 }
 
