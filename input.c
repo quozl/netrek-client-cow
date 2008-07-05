@@ -2666,13 +2666,13 @@ Key146(W_Event * data)
 /* ^3 */
 Key147(W_Event * data)
 {
-  emergency(help3, data);
+  emergency(help1, data);
 }
 
 /* ^4 */
 Key148(W_Event * data)
 {
-  emergency(help4, data);
+  emergency(help2, data);
 }
 
 /* ^e */
@@ -2733,13 +2733,13 @@ Key150(W_Event * data)
 /* ^7 */
 Key151(W_Event * data)
 {
-  emergency(doing3, data);
+  emergency(doing1, data);
 }
 
 /* ^8 */
 Key152(W_Event * data)
 {
-  emergency(doing4, data);
+  emergency(doing2, data);
 }
 
 /* ^f */
