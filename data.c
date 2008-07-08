@@ -501,7 +501,7 @@ struct dmacro_list dist_defaults[] =
 /* ^o */
   {'\xcf', "ogg", " %T%c->%O Help Ogg %p at %l\0"},
 /* ^b */
-  {'\xc2', "bomb", " %T%c->%O %?%n>4%{bomb %l @ %n%!bomb%}\0"},
+  {'\xc2', "bomb", " %T%c->%O %?%n>4%{bomb %l @ %n%!bomb %l%}\0"},
 /* ^c */
   {'\xc3', "space_control", " %T%c->%O Help Control at %L\0"},
 /* ^1 */
