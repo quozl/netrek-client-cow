@@ -755,16 +755,21 @@ input()
 #ifndef THREADED
 
 #ifndef HAVE_WIN32
-	  if (FD_ISSET(xsock, &readfds))
+	  /* keyboard, mouse, and expose events from the X server
+	     cause the X socket to be readable, so we must direct Xlib
+	     to read them (W_EventsQueuedCk), then we process them. */
+	  if (FD_ISSET(xsock, &readfds)) {
+	    while (W_EventsQueuedCk())
+	      process_event();
+	    doflush = 1;
+	  }
 #else
 	  if (W_EventsPending())
-#endif /* !HAVE_WIN32 */
-
 	    {
 	      process_event();
-	      /* NOTE: we're no longer calling XPending(), need this */
 	      doflush = 1;
 	    }
+#endif /* !HAVE_WIN32 */
 #endif /* !THREADED */
 
 	  if (FD_ISSET(sock, &readfds) ||
