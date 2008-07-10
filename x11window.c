@@ -1,3 +1,4 @@
+#define DEBUG 0
 
 /* x11window.c
  * 
@@ -426,7 +427,7 @@ void
 {
   int     i;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("Initializing...\n");
 #endif
 
@@ -960,7 +961,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   XSizeHints *sz_hints;
   int     gcheck_result;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New window...\n");
 #endif
 
@@ -1061,7 +1062,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
 #endif
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New graphics window %d, child of %d\n", newwin, parent);
 #endif
 
@@ -1073,7 +1074,7 @@ void
         W_ChangeBorder(W_Window window, int color)
 {
 
-#ifdef DEBUG
+#if DEBUG > 2
   printf("Changing border of %d\n", window);
 #endif
 
@@ -1094,7 +1095,7 @@ void
 {
   struct window *win;
 
-#ifdef DEBUG
+#if DEBUG > 2
   printf("Mapping %d\n", window);
 #endif
 
@@ -1110,7 +1111,7 @@ void
 {
   struct window *win;
 
-#ifdef DEBUG
+#if DEBUG > 2
   printf("UnMapping %d\n", window);
 #endif
 
@@ -1137,7 +1138,7 @@ void
 {
   struct window *win;
 
-#ifdef DEBUG
+#if DEBUG > 2
   printf("Clearing (%d %d) x (%d %d) with %d on %d\n", x, y, width, height,
 	 color, window);
 #endif
@@ -1231,7 +1232,7 @@ void
         W_ClearWindow(W_Window window)
 {
 
-#ifdef DEBUG
+#if DEBUG > 2
   printf("Clearing %d\n", window);
 #endif
 
@@ -1294,8 +1295,8 @@ int
 
 #endif
 
-#ifdef DEBUG
-  printf("Getting an event...\n");
+#if DEBUG > 1
+  printf("event");
 #endif
 
   key = (XKeyEvent *) & event;
@@ -1315,7 +1316,9 @@ int
       vms_event_window_done();
 #endif
 
-      /* printf("read an event %d\n", event.type); */
+#if DEBUG > 1
+      printf(", read type=%d\n", event.type);
+#endif
       win = findWindow(key->window);
       if (win == NULL)
 	return (0);
@@ -1347,7 +1350,6 @@ int
 	      (ignoreCaps))
 	    {
 	      printf("Got a capslock!\n");
-
 	      key->state = key->state & ~LockMask;
 	    }
 
@@ -1701,7 +1703,7 @@ void
 {
   Window  win;
 
-#ifdef DEBUG
+#if DEBUG > 3
   printf("Line on %d\n", window);
 #endif
 
@@ -1757,7 +1759,7 @@ void
 {
   Window  win;
 
-#ifdef DEBUG
+#if DEBUG > 3
   printf("Line on %d\n", window);
 #endif
 
@@ -1770,7 +1772,7 @@ void
 {
   Window  win;
 
-#ifdef DEBUG
+#if DEBUG > 3
   printf("Line on %d\n", window);
 #endif
 
@@ -1832,10 +1834,9 @@ void
   struct window *win;
   int     addr;
 
-#ifdef DEBUG
+#if DEBUG > 3
   printf("Text for %d @ (%d, %d) in %d: [%s]\n", window, x, y, color, str);
 #endif
-#undef DEBUG
 
   if (font == 0)
     font = W_RegularFont;
@@ -1908,7 +1909,7 @@ void
 
   addr = fonts[fontNum(font)].baseline;
 
-#ifdef DEBUG
+#if DEBUG > 3
   printf("TextMask for %d @ (%d, %d) in %d: [%s]\n", window, x, y, color, str);
 #endif
 
@@ -1923,7 +1924,7 @@ W_StoreBitmap(int width, int height, char *data, W_Window window)
   struct icon *newicon;
   struct window *win;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("Storing bitmap for %d (%d x %d)\n", window, width, height);
   fflush(stdout);
 #endif
@@ -1958,7 +1959,7 @@ void
 
   icon = W_Void2Icon(bit);
 
-#ifdef DEBUG
+#if DEBUG > 4
   printf("Writing bitmap to %d\n", icon->window);
 #endif
 
@@ -1981,7 +1982,7 @@ void
   Window  win;
   struct icon *icon;
 
-#ifdef DEBUG
+#if DEBUG > 4
   printf("Tiling window %d\n", window);
 #endif
 
@@ -2009,7 +2010,7 @@ void
 {
   Window  win;
 
-#ifdef DEBUG
+#if DEBUG > 4
   printf("Untiling window %d\n", window);
 #endif
 
@@ -2028,7 +2029,7 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   XSizeHints *sz_hints;
   int     gcheck_result;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New window...\n");
 #endif
 
@@ -2086,7 +2087,7 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
 #endif
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New text window %d, child of %d\n", newwin, parent);
 #endif
 
@@ -2139,7 +2140,7 @@ void addToHash(struct window * win)
 {
   struct windowlist **new;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("Adding to %d\n", hash(win->window));
 #endif
 
@@ -2169,7 +2170,7 @@ int     border;
   struct scrollingWindow *sw;
   int     scw = (scrollbar ? scroll_thumb_width : 0);
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New window...\n");
 #endif
 
@@ -2232,7 +2233,7 @@ int     border;
   XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
 #endif
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New scroll window %d, child of %d\n", newwin, parent);
 #endif
 
@@ -2466,7 +2467,7 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   int     i;
   XSetWindowAttributes attrs;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New window...\n");
 #endif
 
@@ -2518,7 +2519,7 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
 #endif
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("New menu window %d, child of %d\n", newwin, parent);
 #endif
 
@@ -3021,7 +3022,7 @@ void
   struct window *win;
   XColor  whiteCol, blackCol;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("Defining cursor for %d\n", window);
 #endif
 
@@ -3104,7 +3105,7 @@ void
 {
   struct window *win;
 
-#ifdef DEBUG
+#if DEBUG > 0
   printf("Destroying %d\n", window);
 #endif
 
@@ -3575,7 +3576,7 @@ void W_OverlayBitmap(int x, int y, W_Icon bit, W_Color color)
 {
   struct icon *icon = W_Void2Icon(bit);
 
-#ifdef DEBUG
+#if DEBUG > 4
   printf("Overlaying bitmap to %d\n", icon->window);
 #endif
 
