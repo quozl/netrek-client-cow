@@ -1240,6 +1240,12 @@ void
 }
 
 int
+	W_Pending(void)
+{
+  return XPending(W_Display);
+}
+
+int
         W_EventsPending(void)
 {
   if (W_isEvent)
