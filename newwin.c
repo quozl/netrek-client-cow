@@ -32,7 +32,7 @@
 #include <math.h>
 #include <signal.h>
 #include <sys/types.h>
-
+#include <errno.h>
 #include <time.h>
 #include INC_SYS_TIME
 #include INC_SYS_SELECT
@@ -813,6 +813,7 @@ entrywindow(int *team, int *s_type)
 	  time_t  elapsed;
 	  fd_set  rfds;
 	  struct timeval tv;
+	  int retval;
 
 #ifndef HAVE_WIN32
 	  W_FullScreen(baseWin);
@@ -824,20 +825,23 @@ entrywindow(int *team, int *s_type)
 	   * WaitForMultipleObjects() etc. but I don't feel like it */
 	  tv.tv_sec = 0;
 #endif
-
 	  tv.tv_usec = 0;
 	  FD_ZERO(&rfds);
-
 #ifndef HAVE_WIN32
 	  FD_SET(W_Socket(), &rfds);
 #endif
-
 	  FD_SET(sock, &rfds);
 	  if (udpSock >= 0)
 	    FD_SET(udpSock, &rfds);
-	  SELECT(32, &rfds, 0, 0, &tv);		 /* hmm,  32 might be too * * 
+	  retval = SELECT(32, &rfds, 0, 0, &tv);		 /* hmm,  32 might be too * * 
 						  * small */
-
+	  if (retval < 0) {
+	    if (errno == EBADF) return;
+	    perror("select");
+	  }
+	  if (FD_ISSET(W_Socket(), &rfds)) {
+	    W_EventsQueuedCk();
+	  }
 	  if (FD_ISSET(sock, &rfds) ||
 	      (udpSock >= 0 && FD_ISSET(udpSock, &rfds)))
 	    {
