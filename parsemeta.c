@@ -336,7 +336,7 @@ static int ReadMetasSend()
   address.sin_port = htons(metaport);
   address.sin_addr.s_addr = inet_addr("224.0.0.1");
   if (verbose) fprintf(stderr, 
-		       "Requesting player list from nearby servers on %s\n",
+		       "requesting player list from nearby servers on %s\n",
 		       inet_ntoa(address.sin_addr));
   if (sendto(msock, "?", 1, 0, (struct sockaddr *)&address,
 	     sizeof(address)) < 0) {
@@ -365,7 +365,7 @@ static int ReadMetasSend()
       if ((hp = gethostbyname(token)) == NULL) {
         /* if it didn't work, return failure and warning */
         fprintf(stderr,
-	  "Cannot resolve host %s, check for DNS problems?\n",
+	  "cannot resolve host %s, check for DNS problems?\n",
 	  token);
       } else {
         int i;
@@ -377,7 +377,7 @@ static int ReadMetasSend()
 	  if (hp->h_addr_list[i] == NULL) break;
 	  address.sin_addr.s_addr = *(long *) hp->h_addr_list[i];
 	  if (verbose) fprintf(stderr,
-		"Requesting player list from metaserver %s at %s\n",
+		"requesting player list from metaserver %s at %s\n",
 		token, inet_ntoa(address.sin_addr));
 	  if (sendto(msock, "?", 1, 0, (struct sockaddr *)&address,
 		sizeof(address)) < 0) {
@@ -390,7 +390,7 @@ static int ReadMetasSend()
     } else {
       /* call to inet_addr() worked, host name is in IP address form */
       if (verbose) fprintf(stderr, 
-			   "Requesting player list from metaserver %s\n",
+			   "requesting player list from metaserver %s\n",
 			   inet_ntoa(address.sin_addr));
       if (sendto(msock, "?", 1, 0, (struct sockaddr *)&address,
 	sizeof(address)) < 0) {
@@ -449,7 +449,7 @@ static void version_r(struct sockaddr_in *address) {
   if (servers < 0) return;
 
   if (verbose) fprintf(stderr,
-		       "Metaserver at %s responded with %d server%s\n",
+		       "metaserver at %s responded with %d server%s\n",
 		       inet_ntoa(address->sin_addr),
 		       servers,
 		       servers == 1 ? "" : "s" );
@@ -584,7 +584,7 @@ static void version_s(struct sockaddr_in *address)
   is the case with multihomed machines */
   char *host = inet_ntoa(address->sin_addr);
 
-  if (verbose) fprintf(stderr, "Server at %s responded\n", host);
+  if (verbose) fprintf(stderr, "server at %s responded\n", host);
 
   p = strtok(NULL,",");	/* server type */
   if (p == NULL) return;
@@ -1225,7 +1225,9 @@ void    metaaction(W_Event * data)
       if (data->key==W_RBUTTON)  /* Guess at an observer port */
 	{
           xtrekPort++;
-          printf("Attempting to observe on port %d...\n",xtrekPort);
+          fprintf(stderr,
+		  "you chose to observe on %s, trying port %d\n",
+		  slist->address, xtrekPort);
 	  metarefresh(data->y - 1, W_Cyan);
 	} else {
 	  metarefresh(data->y - 1, W_Yellow);
@@ -1233,10 +1235,10 @@ void    metaaction(W_Event * data)
       W_Flush();
       serverName = strdup(slist->address);
 
-      printf("Attempting to connect to %s on port %d...\n",serverName,xtrekPort);
+      fprintf(stderr, "you chose server %s port %d\n",serverName,xtrekPort);
       if ((sock = open_port(serverName, xtrekPort, 0)) <= 0)
         {
-          fprintf(stderr,"Cannot connect to %s!\n",serverName);
+          fprintf(stderr,"cannot connect to %s!\n",serverName);
           slist->status = statusCantConnect;
           metarefresh(data->y - 1, W_Red);
           W_Flush();

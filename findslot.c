@@ -56,7 +56,7 @@ findslot(void)
 	  Exit_Sound();
 #endif
 
-	  printf("Shit!  Ghostbusted!\n");
+	  fprintf(stderr, "server connection lost, during pre-queue\n");
 	  terminate(0);
 	}
       readFromServer(NULL);
@@ -102,7 +102,7 @@ findslot(void)
 	  Exit_Sound();
 #endif
 
-	  printf("Damn, We've been ghostbusted!\n");
+	  fprintf(stderr, "server connection lost, during queue wait\n");
 	  terminate(0);
 	}
       while (W_EventsPending())
@@ -161,7 +161,7 @@ findslot(void)
 		  Exit_Sound();
 #endif
 
-		  printf("OK, bye!\n");
+		  fprintf(stderr, "you selected quit\n");
 		  terminate(0);
 		}
 	      break;

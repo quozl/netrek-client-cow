@@ -237,7 +237,7 @@ void    GetPixmaps(Display * d, struct window *win)
       pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
 	  NO_KLI_PIX | NO_ORI_PIX | NO_WEP_PIX | NO_EXP_PIX |
 	  NO_CLK_PIX | NO_MAP_PIX | NO_BG_PIX | NO_PIXMAPS;
-      fprintf(stderr, "Pixmaps turned OFF\n");
+      fprintf(stderr, "pixmaps turned off\n");
     }
   else
     {
@@ -248,7 +248,7 @@ void    GetPixmaps(Display * d, struct window *win)
 	  pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
 	      NO_KLI_PIX | NO_ORI_PIX | NO_WEP_PIX | NO_EXP_PIX |
 	      NO_CLK_PIX | NO_MAP_PIX | NO_BG_PIX | NO_PIXMAPS;
-	  fprintf(stderr, "Pixmaps dir not found - turned OFF\n");
+	  fprintf(stderr, "pixmaps not here\n");
 	}
     }
 
@@ -266,7 +266,7 @@ void    GetPixmaps(Display * d, struct window *win)
 	{
 	  pixMissing |= reremap[i];
 	  if (!(pixMissing & NO_PIXMAPS))
-	    fprintf(stderr, "TYPE %s ship PIXMAPS NOT AVAILABLE\n", teamnames[i]);
+	    fprintf(stderr, "type %s ship pixmaps not available\n", teamnames[i]);
 	}
     }
 
@@ -286,7 +286,7 @@ void    GetPixmaps(Display * d, struct window *win)
     {
       pixMissing |= NO_WEP_PIX;
       if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "TYPE weapon PIXMAPS NOT AVAILABLE\n");
+	fprintf(stderr, "type weapon pixmaps not available\n");
     }
 
   missing = 0;
@@ -299,7 +299,7 @@ void    GetPixmaps(Display * d, struct window *win)
     {
       pixMissing |= NO_EXP_PIX;
       if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "TYPE explosion PIXMAPS NOT AVAILABLE\n");
+	fprintf(stderr, "type explosion pixmaps not available\n");
     }
 
   missing = 0;
@@ -322,7 +322,7 @@ void    GetPixmaps(Display * d, struct window *win)
     {
       pixMissing |= NO_MAP_PIX;
       if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "TYPE map PIXMAPS NOT AVAILABLE\n");
+	fprintf(stderr, "type map pixmaps not available\n");
     }
 
   sprintf(buf, "%s/Misc/%s", pixmapDir, cloakfile);
@@ -330,7 +330,7 @@ void    GetPixmaps(Display * d, struct window *win)
     {
       pixMissing |= NO_CLK_PIX;
       if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "TYPE cloak PIXMAPS NOT AVAILABLE\n");
+	fprintf(stderr, "type cloak pixmaps not available\n");
     }
 
   missing = 0;
@@ -343,7 +343,7 @@ void    GetPixmaps(Display * d, struct window *win)
     {
       pixMissing |= NO_BG_PIX;
       if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "TYPE background PIXMAPS NOT AVAILABLE\n");
+	fprintf(stderr, "type background pixmaps not available\n");
     }
 
   pixMissing &= ~NO_HALOS;

@@ -997,7 +997,6 @@ void    handleShortReply(struct shortreply_spacket *packet)
       sprefresh(SPK_VFIELD);
       spwinside = ntohs(packet->winside);
       spgwidth = ntohl(packet->gwidth);
-      printf("Receiving Short Packet Version %d\n", shortversion);
       /* 
        * Get a `-' style update to fix the kills shown on the playerlist
        * when you first enter and to fix other loss if short packets

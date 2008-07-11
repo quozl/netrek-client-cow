@@ -142,7 +142,7 @@ initDefaults(char *deffile)
   fp = fopen(deffile, "r");
   if (!fp)
     return;
-  printf("Reading defaults file %s\n", deffile);
+  printf("reading defaults file %s\n", deffile);
 
 #ifdef NBT
   macrocnt = 0;					 /* reset macros */

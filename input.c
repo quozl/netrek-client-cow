@@ -742,7 +742,6 @@ input()
 #ifndef HAVE_WIN32
       FD_SET(xsock, &readfds);
 #endif
-
       FD_SET(sock, &readfds);
 
       if (udpSock >= 0)
@@ -776,30 +775,12 @@ input()
 	      (udpSock >= 0 && FD_ISSET(udpSock, &readfds)))
 	    {
 	      intrupt(&readfds);
-	      /* NOTE: we're no longer calling XPending(), need this */
 	      doflush = 1;
-	      if (isServerDead())
-		{
-		  printf("Whoops!  We've been ghostbusted!\n");
-		  printf("Pray for a miracle!\n");
-		  /* UDP fail-safe */
-		  commMode = commModeReq = COMM_TCP;
-		  commSwitchTimeout = 0;
-		  if (udpSock >= 0)
-		    closeUdpConn();
-		  if (udpWin)
-		    {
-		      udprefresh(UDP_CURRENT);
-		      udprefresh(UDP_STATUS);
-		    }
-		  connectToServer(nextSocket);
-		  printf("Yea!  We've been resurrected!\n");
-		}
+	      if (isServerDead()) terminate(0);
 	    }
 
 	}
 
-      /* NOTE: we're no longer calling XPending(), need this */
       if (doflush)
 	{
 	  W_Flush();

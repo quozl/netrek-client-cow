@@ -785,7 +785,7 @@ int     cowmain(char *server, int port, char *name)
 #ifdef META
 	if (!usemeta)
 	  {
-	    printf("No server name was given.  Connecting to metaserver.\n");
+	    fprintf(stderr, "using metaserver\n");
 	    usemeta = 1;
 	  }
 #else
@@ -1040,6 +1040,7 @@ int     cowmain(char *server, int port, char *name)
 
 	  sendByeReq();
 
+	  fprintf(stderr, "you quit\n");
 #if defined(SOUND)
 	  Exit_Sound();
 	  sleep(1);
@@ -1047,7 +1048,6 @@ int     cowmain(char *server, int port, char *name)
 
 	  if (logFile != NULL)
 	    fclose(logFile);
-	  printf("OK, bye!\n");
 
 #ifdef PACKET_LOG
 	  if (log_packets)

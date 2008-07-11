@@ -811,7 +811,6 @@ tryagain:
 }
 
 
-#ifdef nodef
 set_tcp_opts(s)
 int     s;
 {
@@ -843,7 +842,6 @@ int     s;
   if (setsockopt(s, ent->p_proto, SO_RCVBUF, &optval, sizeof(int)) < 0)
             perror("setsockopt");
 }
-#endif
 
 callServer(int port, char *server)
 {
@@ -853,13 +851,14 @@ callServer(int port, char *server)
 
   serverDead = 0;
 
-  printf("Calling %s on port %d.\n", server, port);
+  fprintf(stderr, "connecting to %s on port %d\n", server, port);
 
   if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-      printf("I can't create a socket\n");
-      terminate(0);
+      perror("failed in socket");
+      terminate(1);
     }
+  set_tcp_opts(s);
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
 
@@ -867,8 +866,8 @@ callServer(int port, char *server)
     {
       if ((hp = gethostbyname(server)) == NULL)
 	{
-	  printf("Who is %s?\n", server);
-	  terminate(0);
+	  printf("unable to resolve hostname %s\n", server);
+	  terminate(1);
 	}
       else
 	{
@@ -879,10 +878,11 @@ callServer(int port, char *server)
 
   if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0)
     {
-      printf("Server not listening!\n");
-      terminate(0);
+      perror("failed in connect");
+      fprintf(stderr, "connection failed\n");
+      terminate(1);
     }
-  printf("Got connection.\n");
+  fprintf(stderr, "connected\n");
 
   sock = s;
 
@@ -959,16 +959,21 @@ socketPause(void)
 {
   struct timeval timeout;
   fd_set  readfds;
+  int retval;
 
   timeout.tv_sec = 1;
   timeout.tv_usec = 0;
 
   FD_ZERO(&readfds);
   FD_SET(sock, &readfds);
+#ifndef HAVE_WIN32
+  FD_SET(W_Socket(), &readfds);
+#endif
   if (udpSock >= 0)				 /* new */
     FD_SET(udpSock, &readfds);
 
-  SELECT(max_fd, &readfds, 0, 0, &timeout);
+  retval = SELECT(max_fd, &readfds, 0, 0, &timeout);
+  if (retval < 0) perror("select"); /* FIXME: EBADF on kill of ntserv during outfit */
 }
 
 readFromServer(fd_set * readfds)
@@ -1228,8 +1233,8 @@ doRead(int asock)
 	    }
 	  return (0);
 	}
-      printf("1) Got read() of %d. Server dead\n", count);
-      perror("1) read()");
+      printf("server disconnected\n");
+      close(asock);
       serverDead = 1;
       return (0);
     }
@@ -1290,6 +1295,7 @@ doRead(int asock)
 	    {
 	      printf("Packet fragment.  Server must be dead\n");
 	      serverDead = 1;
+	      close(sock);
 	      return (0);
 	    }
 
@@ -1305,6 +1311,7 @@ doRead(int asock)
 	    {
 	      printf("2) Got read() of %d.  Server is dead\n", temp);
 	      serverDead = 1;
+	      close(sock);
 	      return (0);
 	    }
 	  /* go back to the size computation, hopefully with the rest of the */
@@ -1386,6 +1393,7 @@ doRead(int asock)
 		    {
 		      printf("3) Got read() of %d.  Server is dead\n", temp);
 		      serverDead = 1;
+		      close(sock);
 		      return (0);
 		    }
 		}
@@ -1547,6 +1555,7 @@ void    handleStatus(struct status_spacket *packet)
 void    handleSelf(struct you_spacket *packet)
 {
   struct player* pl;
+  static int seen = 0;
 
   pl = &players[packet->pnum];
 
@@ -1557,6 +1566,13 @@ void    handleSelf(struct you_spacket *packet)
       return;
     }
 #endif
+  fprintf(stderr, "handleSelf: pnum %d\n", packet->pnum);
+  if (seen) {
+    if (packet->pnum != me->p_no) {
+      fprintf(stderr, "handleSelf: changed pnum %d\n", packet->pnum);
+    }
+  }
+  seen++;
 
   if (!F_many_self)
     {

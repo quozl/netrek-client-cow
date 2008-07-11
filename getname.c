@@ -55,6 +55,8 @@ void    loginproced(char, char *);
 void    adjustString(char, char *, char *);
 extern void terminate(int error);
 
+int     secondsLeft = 199;
+
 noautologin(void)
 {
   autolog = 0;
@@ -63,6 +65,16 @@ noautologin(void)
   W_WriteText(w, 100, 130, textColor, alf, strlen(alf),
 	      W_BoldFont);
 
+}
+
+static void
+        secondstogo()
+{
+  char    tempstr[40];
+  if (autolog) return;
+  sprintf(tempstr, "Seconds to go: %d ", secondsLeft);
+  W_WriteText(w, 100, 400, textColor, tempstr, strlen(tempstr),
+              W_RegularFont);
 }
 
 static int
@@ -92,6 +104,7 @@ static int
     {
       displayStartup(defname);
       showreadme();
+      secondstogo(secondsLeft);
     }
 }
 
@@ -101,8 +114,7 @@ getname(char *defname, char *defpasswd)
 /* Let person identify themselves from w */
 {
   register char ch;
-  int     secondsLeft = 199, laststate;
-  char    tempstr[40];
+  int     laststate;
   LONG    lasttime;
   char   *namptr, *passptr;
   register int j;
@@ -164,7 +176,6 @@ getname(char *defname, char *defpasswd)
 	  FD_SET(sock, &readfds);
 	  if (udpSock >= 0)
 	    FD_SET(udpSock, &readfds);
-
 #ifndef HAVE_WIN32
 	  FD_SET(W_Socket(), &readfds);
 #endif
@@ -181,11 +192,12 @@ getname(char *defname, char *defpasswd)
 
 #ifndef HAVE_WIN32
 	  if (FD_ISSET(W_Socket(), &readfds))
+	    while (W_EventsQueuedCk())
+	      handleWEvents(defname);
 #else
 	  if (W_EventsPending())
-#endif
-
 	    handleWEvents(defname);
+#endif
 	}
       else
 	{
@@ -194,7 +206,7 @@ getname(char *defname, char *defpasswd)
 
       if (isServerDead())
 	{
-	  printf("Shit, we were ghostbusted\n");
+	  fprintf(stderr, "server connection lost, during login\n");
 
 #ifdef HAVE_XPM
 	  W_GalacticBgd(GHOST_PIX);
@@ -213,12 +225,7 @@ getname(char *defname, char *defpasswd)
 	  lasttime++;
 	  secondsLeft--;
 	  showreadme();
-	  if (!autolog)
-	    {
-	      sprintf(tempstr, "Seconds to go: %d ", secondsLeft);
-	      W_WriteText(w, 100, 400, textColor, tempstr, strlen(tempstr),
-			  W_RegularFont);
-	    }
+	  secondstogo(secondsLeft);
 	  if (secondsLeft == 0)
 	    {
 	      me->p_status = PFREE;
@@ -545,10 +552,10 @@ displayStartup(char *defname)
     W_WriteText(w, 100, 130, textColor, alf, strlen(alf), W_BoldFont);
   t = "Welcome to Netrek.";
   W_WriteText(w, 100, 10, textColor, t, strlen(t), W_RegularFont);
-  sprintf(buf, "Connected to server %s", serverName);
+  sprintf(buf, "Connected to server %s.", serverName);
   t = buf;
   W_WriteText(w, 100, 20, textColor, t, strlen(t), W_RegularFont);
-  t = "Keep your mouse in this window to type.";
+  t = "";
   W_WriteText(w, 100, 30, textColor, t, strlen(t), W_RegularFont);
   t = "Press Control/D to quit at this point, but use Shift/Q later.";
   W_WriteText(w, 100, 40, textColor, t, strlen(t), W_RegularFont);

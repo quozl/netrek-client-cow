@@ -115,7 +115,7 @@ extern void udpaction(W_Event * data), waraction(W_Event * data);
 /* Other function declarations */
 extern int smessage(char ichar);
 
-
+static int teamRequest(int team, int ship);
 
 static void
         handleMessageWindowKeyDown(W_Event * event)
@@ -1083,7 +1083,7 @@ entrywindow(int *team, int *s_type)
 }
 
 /* Attempt to pick specified team & ship */
-teamRequest(int team, int ship)
+static int teamRequest(int team, int ship)
 {
   time_t  lastTime;
 
@@ -1100,25 +1100,11 @@ teamRequest(int team, int ship)
       readFromServer(NULL);
       if (isServerDead())
 	{
-	  printf("Oh SHIT,  We've been ghostbusted!\n");
-	  printf("hope you weren't in a base\n");
-
+	  fprintf(stderr, "server connection lost, during team or ship selection\n");
+	  tournMask = 0;
 #ifdef HAVE_XPM
 	  W_GalacticBgd(GHOST_PIX);
 #endif
-
-	  /* UDP fail-safe */
-	  commMode = commModeReq = COMM_TCP;
-	  commSwitchTimeout = 0;
-	  if (udpSock >= 0)
-	    closeUdpConn();
-	  if (udpWin)
-	    {
-	      udprefresh(UDP_CURRENT);
-	      udprefresh(UDP_STATUS);
-	    }
-	  connectToServer(nextSocket);
-	  printf(" We've been resurrected!\n");
 	  pickOk = 0;
 	  break;
 	}
