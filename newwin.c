@@ -1,29 +1,3 @@
-
-/* newwin.c
- *
- * $Log: newwin.c,v $
- * Revision 1.6  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.5  2006/05/16 06:16:35  quozl
- * add PLCORE
- *
- * Revision 1.4  2002/06/22 04:43:24  tanner
- * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
- *
- * Revision 1.3  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.2  1999/03/05 23:06:38  carlos
- * In the Makefile, updated the KEYGOD address
- *
- * In all else, (cowmain.c, main.c newwin.c parsemeta.{c,h} x11window.c
- * added UDP metaserver query functionality as proposed by James Cameron
- * and implemented by James Cameron and Carlos Villalpando.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
@@ -58,6 +32,10 @@
 #include "oldbitmaps.h"
 #include "packets.h"
 #include "spopt.h"
+#include "option.h"
+#include "newwin.h"
+#include "redraw.h"
+#include "udpopt.h"
 
 extern char cbugs[];
 extern int metaHeight;   /* height of metaserver window */
@@ -110,7 +88,7 @@ extern void redrawLMeter(void), redrawPStats(void), redrawStats(void);
 
 extern void nsaction(W_Event * data);
 extern void optionaction(W_Event * data);
-extern void udpaction(W_Event * data), waraction(W_Event * data);
+extern void waraction(W_Event * data);
 
 /* Other function declarations */
 extern int smessage(char ichar);
@@ -368,9 +346,8 @@ newwin(char *hostmon, char *progname)
   savebitmaps();
 }
 
-mapAll(void)
+void mapAll(void)
 {
-  initinput();
   W_MapWindow(mapw);
   W_MapWindow(tstatw);
   W_MapWindow(warnw);
@@ -384,9 +361,9 @@ mapAll(void)
   W_MapWindow(w);
   W_MapWindow(baseWin);
   W_FullScreenBegin();
-  /* since we aren't mapping windows that have root as parent in x11window.c
-   * * * (since that messes up the TransientFor feature) we have to map them
-   * * * here. (If already mapped, W_MapWindow returns) */
+  /* since we aren't mapping windows that have root as parent in
+  x11window.c (since that messes up the TransientFor feature) we have
+  to map them here. (If already mapped, W_MapWindow returns) */
 
   if (checkMapped("planet"))
     W_MapWindow(planetw);
@@ -424,7 +401,7 @@ mapAll(void)
   if (checkMappedPref("review", 1))
     W_MapWindow(reviewWin);
   if (checkMapped("UDP"))
-    udpwindow(udpWin);
+    udpwindow();
 
 #ifdef SHORT_PACKETS
   if (checkMapped("network"))
@@ -1210,7 +1187,7 @@ static struct list *motddata = NULL;		 /* pointer to first bit of *
 						  * * motddata */
 static int first = 1;
 
-showMotd(W_Window motdwin, int atline)
+void showMotd(W_Window motdwin, int atline)
 {
   int     i, length, top, center;
   struct list *data;
@@ -1312,7 +1289,7 @@ showValues(struct list *data)
     }
 }
 
-newMotdLine(char *line)
+void newMotdLine(char *line)
 {
   static struct list **temp = &motddata;
   static int statmode = 0;			 /* ATM */

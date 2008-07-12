@@ -1,10 +1,3 @@
-
-/* death.c
- *
- * $Log: death.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
 #include <setjmp.h>
 #include "config.h"
 #include "copyright.h"
@@ -20,6 +13,11 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "packets.h"
+
+#include "inform.h"
+#include "option.h"
+#include "short.h"
 
 extern jmp_buf env;
 W_Font  deathFont;
@@ -34,7 +32,7 @@ static char *teamstring[9] =
  "and the Klis", "", "", "",
  "and the Oris"};
 
-death(void)
+void death(void)
 {
   W_Event event;
   W_Window oldw;
@@ -228,7 +226,7 @@ death(void)
 #endif /* Threaded */
 }
 
-updatedeath(void)
+void updatedeath(void)
 {
   if (deathFont != W_BoldFont)			 /* Initialise deathFont */
     deathFont = W_RegularFont;

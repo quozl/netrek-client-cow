@@ -14,6 +14,9 @@
 #include "struct.h"
 #include "data.h"
 
+#include "stats.h"
+#include "util.h"
+
 #define	MIN(a,b)	(((a) < (b)) ? (a) : (b))
 
 #define	BX_OFF()	((textWidth + 1) * W_Textwidth + S_IBORDER)
@@ -74,10 +77,11 @@ static SLIDER sliders[] =
 static int textWidth = 0;
 static int initialized = 0;
 
-initStats(void)
+static void box(int filled, int x, int y, int wid, int hei, W_Color color);
+
+void initStats(void)
 {
   int     i;
-  char   *str;
 
   if (initialized)
     return;
@@ -123,7 +127,7 @@ void    redrawStats(void)
     }
 }
 
-updateStats(void)
+void updateStats(void)
 {
   int     i, value, diff, old_x, new_x;
   W_Color color;
@@ -176,7 +180,7 @@ updateStats(void)
     }
 }
 
-box(int filled, int x, int y, int wid, int hei, W_Color color)
+static void box(int filled, int x, int y, int wid, int hei, W_Color color)
 {
   if (wid == 0)
     return;
@@ -195,7 +199,7 @@ box(int filled, int x, int y, int wid, int hei, W_Color color)
 }
 
 
-calibrate_stats(void)
+void calibrate_stats(void)
 {
   register int i;
 
@@ -224,5 +228,4 @@ calibrate_stats(void)
 
   for (i = 0; i < NUM_SLIDERS; i++)
     sliders[i].diff = sliders[i].max - sliders[i].min;
-
 }

@@ -1,4 +1,3 @@
-
 /* Socket.c
  * 
  * Kevin P. Smith 1/29/89 UDP stuff v1.0 by Andy McFadden  Feb-Apr 1992
@@ -6,54 +5,14 @@
  * UDP protocol v1.0
  * 
  * Routines to allow connection to the xtrek server.
- *
- * $Log: socket.c,v $
- * Revision 1.12  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.11  2006/05/22 13:13:24  quozl
- * initialise packet buffers
- *
- * Revision 1.10  2006/05/20 08:48:16  quozl
- * fix some valgrind use of uninitialised data reports
- *
- * Revision 1.9  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.8  2006/01/27 09:57:27  quozl
- * *** empty log message ***
- *
- * Revision 1.7  2002/06/25 00:55:26  quozl
- * add verbose packet logging
- *
- * Revision 1.6  2002/06/21 07:42:51  tanner
- * An attempt to fix the full update bug (where's the bugzilla tracking number!) by
- * reading 1024 bytes (BUFSIZE) for the socket instead of 768 bytes.
- *
- * For more details see this url:
- *
- * http://mailman.real-time.com/pipermail/vanilla-list/2002-June/001098.html
- *
- * Revision 1.5  2001/04/28 04:03:56  quozl
- * change -U to also adopt a local port number for TCP mode.
- * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
- *
- * Revision 1.4  1999/07/24 19:23:43  siegl
- * New default portSwap for UDP_PORTSWAP feature
- *
- * Revision 1.3  1999/06/11 16:14:17  siegl
- * cambot replay patches
- *
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -72,8 +31,18 @@
 #include "packets.h"
 #include "wtext.h"
 #include "playerlist.h"
-#include "map.h"
+
+#include "dmessage.h"
+#include "getship.h"
 #include "local.h"
+#include "map.h"
+#include "newwin.h"
+#include "rotate.h"
+#include "redraw.h"
+#include "short.h"
+#include "socket.h"
+#include "stats.h"
+#include "udpopt.h"
 
 #define statsFile stderr        /* use stderr for stats output for now */
 int gather_stats = 0;
@@ -87,8 +56,10 @@ int gather_stats = 0;
 #define close(s) closesocket(s)
 #endif
 
-/* #define INCLUDE_SCAN            /* include Amdahl scanning beams */
-/* #define INCLUDE_VISTRACT        /* include visible tractor beams */
+#if 0
+#define INCLUDE_SCAN            /* include Amdahl scanning beams */
+#define INCLUDE_VISTRACT        /* include visible tractor beams */
+#endif
 
 #define NETSTAT
 
@@ -185,6 +156,12 @@ extern void handleFeature(struct feature_cpacket *packet);
 
 #endif
 
+static void pickSocket(int old);
+static int connUdpConn(void);
+static int openUdpConn(void);
+static int recvUdpConn(void);
+static int doRead(int asock);
+
 char   *strcpyp_return(register char *s1, register char *s2, register int length);
 
 void
@@ -217,8 +194,6 @@ static int vtsize[9] =
 						  * 
 						  * 
 						  */
-static int vtdata[9] =
-{0, 3, 5, 7, 9, 12, 14, 16, 18};		 /* How big is Torpdata */
 int     vtisize[9] =
 {4, 7, 9, 11, 13, 16, 18, 20, 22};		 /* 4 byte Header + torpdata */
 
@@ -505,13 +480,13 @@ void print_sp_s_torp(char *sbuf, int type)
 	{						 /* MAX packet */
 	  bitset = 0xff;
 	  which = sbuf[1];
-	  data = &sbuf[2];
+	  data = (unsigned char *) &sbuf[2];
 	}
       else
 	{						 /* Normal Packet */
 	  bitset = sbuf[1];
 	  which = sbuf[2];
-	  data = &sbuf[3];
+	  data = (unsigned char *) &sbuf[3];
 	}
       fprintf(stderr, "  bitset=0x%0X, which=%d, ", bitset, which);
 #ifdef CORRUPTED_PACKETS
@@ -550,12 +525,12 @@ void print_sp_s_torp(char *sbuf, int type)
       which = sbuf[2];
       infobitset = sbuf[3];
       /* Where is the data ? */
-      data = &sbuf[4];
+      data = (unsigned char *) &sbuf[4];
 
       fprintf(stderr, "  bitset=0x%0X, which=%d, infobitset=0x%0X, ",
 	      bitset, which, infobitset);
 
-      infodata = &sbuf[vtisize[numofbits[(unsigned char) sbuf[1]]]];
+      infodata = (unsigned char *) &sbuf[vtisize[(int) numofbits[(unsigned char) sbuf[1]]]];
       
       for (shift = 0, i = 0; i < 8; bitset >>= 1, infobitset >>= 1, i++)
 	{
@@ -596,7 +571,7 @@ void print_sp_s_torp(char *sbuf, int type)
 }
 
 /* reset all the "force command" variables */
-resetForce(void)
+static void resetForce(void)
 {
   fSpeed = fDirection = fShield = fOrbit = fRepair = fBeamup = fBeamdown =
       fCloak = fBomb = fDockperm = fPhaser = fPlasma = fPlayLock = fPlanLock =
@@ -650,7 +625,7 @@ resetForce(void)
         }                                                       \
 }
 
-checkForce(void)
+void checkForce(void)
 {
   struct speed_cpacket speedReq;
   struct tractor_cpacket tractorReq;
@@ -682,7 +657,7 @@ checkForce(void)
   FCHECK_TRACT(PFPRESS, fRepress, CP_REPRESS);
 }
 
-connectToServer(int port)
+void connectToServer(int port)
 {
   int     s;
   struct sockaddr_in addr;
@@ -806,13 +781,12 @@ tryagain:
 	  strcpy(serverName, inet_ntoa(addr.sin_addr));
 	}
     }
-  printf("Connection from server %s (0x%x)\n", serverName, serveraddr);
+  printf("Connection from server %s (0x%lx)\n", serverName, serveraddr);
 
 }
 
 
-set_tcp_opts(s)
-int     s;
+static void set_tcp_opts(int s)
 {
   int     optval = 1;
   struct protoent *ent;
@@ -827,8 +801,8 @@ int     s;
             perror("setsockopt");
 }
 
-set_udp_opts(s)
-int     s;
+#ifdef nodef
+static void set_udp_opts(int s)
 {
   int     optval = BUFSIZ;
   struct protoent *ent;
@@ -842,6 +816,7 @@ int     s;
   if (setsockopt(s, ent->p_proto, SO_RCVBUF, &optval, sizeof(int)) < 0)
             perror("setsockopt");
 }
+#endif
 
 callServer(int port, char *server)
 {
@@ -952,7 +927,7 @@ callServer(int port, char *server)
 
 isServerDead(void)
 {
-  return (serverDead);
+  return serverDead;
 }
 
 socketPause(void)
@@ -981,7 +956,7 @@ readFromServer(fd_set * readfds)
   int     retval = 0;
 
   if (serverDead)
-    return (0);
+    return 0;
 
   if (!readfds)
     {
@@ -1046,7 +1021,7 @@ readFromServer(fd_set * readfds)
     }
 
   dotimers();
-  return (retval != 0);				 /* convert to 1/0 */
+  return retval != 0;				 /* convert to 1/0 */
 }
 
 dotimers(void)
@@ -1158,7 +1133,7 @@ int
   return size;
 }
 
-doRead(int asock)
+static int doRead(int asock)
 {
   struct timeval timeout;
   fd_set  readfds;
@@ -1216,7 +1191,7 @@ doRead(int asock)
 	      else
 		{
 		  UDPDIAG(("Reconnect successful\n"));
-		  return (0);
+		  return 0;
 		}
 	    }
 	  UDPDIAG(("*** UDP disconnected (res=%d, err=%d)\n",
@@ -1231,12 +1206,12 @@ doRead(int asock)
 	      udprefresh(UDP_STATUS);
 	      udprefresh(UDP_CURRENT);
 	    }
-	  return (0);
+	  return 0;
 	}
       printf("server disconnected\n");
       close(asock);
       serverDead = 1;
-      return (0);
+      return 0;
     }
   bufptr = buf;
   while (bufptr < buf + count)
@@ -1245,8 +1220,6 @@ doRead(int asock)
     computesize:
       if (*bufptr < 1 || *bufptr > NUM_PACKETS || handlers[*bufptr].size == 0)
 	{
-	  int     i;
-
 	  fprintf(stderr, "Unknown packet type: %d\n", *bufptr);
 
 #ifndef CORRUPTED_PACKETS
@@ -1258,7 +1231,7 @@ doRead(int asock)
 	    }
 #endif
 
-	  return (0);
+	  return 0;
 	}
       size = handlers[*bufptr].size;
 
@@ -1296,7 +1269,7 @@ doRead(int asock)
 	      printf("Packet fragment.  Server must be dead\n");
 	      serverDead = 1;
 	      close(sock);
-	      return (0);
+	      return 0;
 	    }
 
 	  /* 88=largest short packet, messages */
@@ -1312,7 +1285,7 @@ doRead(int asock)
 	      printf("2) Got read() of %d.  Server is dead\n", temp);
 	      serverDead = 1;
 	      close(sock);
-	      return (0);
+	      return 0;
 	    }
 	  /* go back to the size computation, hopefully with the rest of the */
 	  /* aborted packet in the buffer. */
@@ -1394,7 +1367,7 @@ doRead(int asock)
 		      printf("3) Got read() of %d.  Server is dead\n", temp);
 		      serverDead = 1;
 		      close(sock);
-		      return (0);
+		      return 0;
 		    }
 		}
 	      else
@@ -1410,7 +1383,7 @@ doRead(int asock)
 	}
 #endif
     }
-  return (1);
+  return 1;
 }
 
 void    handleTorp(struct torp_spacket *packet)
@@ -1541,7 +1514,7 @@ void    handleStatus(struct status_spacket *packet)
   if (gather_stats) {
     /*STATS_SP_STATUS:\tTOURN\tARMSBOMB\tPLANETS\tKILLS\tLOSSES\tTIME\tTIMEPROD*/
     fprintf(statsFile, "\nSTATS_SP_STATUS:\t");
-    fprintf(statsFile, "\t%d\t%u\t%u\t%u\t%u\t%u\t%lu",
+    fprintf(statsFile, "\t%d\t%u\t%u\t%u\t%u\t%u\t%u",
             ((struct status_spacket *) packet)->tourn,
             ntohl(((struct status_spacket *) packet)->armsbomb),
             ntohl(((struct status_spacket *) packet)->planets),
@@ -1700,7 +1673,7 @@ void    handlePlayer(struct player_spacket *packet)
   if (gather_stats) {
     /* SP_PLAYER:PNUN,DIR,SPEED,X,Y */
     fprintf(statsFile, "\nSTATS_SP_PLAYER:\t");
-    fprintf(statsFile, "%d\t%u\t%d\t%ld\t%d",
+    fprintf(statsFile, "%d\t%u\t%d\t%d\t%d",
             ((struct player_spacket *) packet)->pnum,
             ((struct player_spacket *) packet)->dir,
             ((struct player_spacket *) packet)->speed,
@@ -1785,11 +1758,10 @@ sendShortPacket(char type, char state)
     }
 }
 
-sendServerPacket(struct player_spacket *packet)
-/* Pick a random type for the packet */
-
+void sendServerPacket(void *buffer)
 {
   int     size;
+  struct player_spacket *packet = (struct player_spacket *) buffer;
 
   if (serverDead)
     return;
@@ -1998,7 +1970,7 @@ void    handlePhaser(struct phaser_spacket *packet)
     /* not getting any data?*/
     /*STATS_SP_PHASER:\tpnum\tstats\tdir\tx\ty\ttarget*/
     fprintf(statsFile, "\nSTATS_SP_PHASER\t");
-    fprintf(statsFile, "%d\t%d\t%u\t%ld\t%ld\t%ld",
+    fprintf(statsFile, "%d\t%d\t%u\t%d\t%d\t%d",
             ((struct phaser_spacket *) packet)->pnum,
             ((struct phaser_spacket *) packet)->status,
             ((struct phaser_spacket *) packet)->dir,
@@ -2041,7 +2013,7 @@ void    handleQueue(struct queue_spacket *packet)
   queuePos = ntohs(packet->pos);
 }
 
-sendTeamReq(int team, int ship)
+void sendTeamReq(int team, int ship)
 {
   struct outfit_cpacket outfitReq;
 
@@ -2049,7 +2021,7 @@ sendTeamReq(int team, int ship)
   outfitReq.type = CP_OUTFIT;
   outfitReq.team = team;
   outfitReq.ship = ship;
-  sendServerPacket((struct player_spacket *) &outfitReq);
+  sendServerPacket(&outfitReq);
 }
 
 void    handlePickok(struct pickok_spacket *packet)
@@ -2205,7 +2177,7 @@ void    handlePlasma(struct plasma_spacket *packet)
 
   if (gather_stats) {
     /*STATS_SP_PLASMA:\tPNUM\tX\tY*/
-    fprintf(statsFile, "\nSTATS_SP_PLASMA:\t%u\t%ld\t%ld",
+    fprintf(statsFile, "\nSTATS_SP_PLASMA:\t%u\t%d\t%d",
             ntohs(((struct plasma_spacket *) packet)->pnum),
             ntohl(((struct plasma_spacket *) packet)->x),
             ntohl(((struct plasma_spacket *) packet)->y));
@@ -2341,7 +2313,7 @@ void    handleMotd(struct motd_spacket *packet)
   newMotdLine(packet->line);
 }
 
-sendMessage(char *mes, int group, int indiv)
+void sendMessage(char *mes, int group, int indiv)
 {
   struct mesg_cpacket mesPacket;
 
@@ -2376,7 +2348,7 @@ void    handleMask(struct mask_spacket *packet)
   tournMask = packet->mask;
 }
 
-sendOptionsPacket(void)
+void sendOptionsPacket(void)
 {
   struct options_cpacket optPacket;
 
@@ -2393,7 +2365,7 @@ sendOptionsPacket(void)
   sendServerPacket((struct player_spacket *) &optPacket);
 }
 
-pickSocket(int old)
+static void pickSocket(int old)
 {
   int     newsocket;
   struct socket_cpacket sockPack;
@@ -2469,7 +2441,7 @@ void    handleBadVersion(struct badversion_spacket *packet)
   terminate(1);
 }
 
-gwrite(int fd, char *buf, register int bytes)
+int gwrite(int fd, char *buf, register int bytes)
 {
   LONG    orig = bytes;
   register LONG n;
@@ -2481,46 +2453,47 @@ gwrite(int fd, char *buf, register int bytes)
 	{
 	  if (fd == udpSock)
 	    {
-	      fprintf(stderr, "Tried to write %d, 0x%x, %d\n",
-		      fd, buf, bytes);
+	      fprintf(stderr, "Tried to write %d, %d\n", fd, bytes);
 	      perror("write");
 	      printUdpInfo();
 	    }
-	  return (-1);
+	  return -1;
 	}
       bytes -= n;
       buf += n;
     }
-  return (orig);
+  return orig;
 }
 
 void    handleHostile(struct hostile_spacket *packet)
 {
-  register struct player *pl;
+  int p_no = packet->pnum;
+  struct player *pl;
 
 #ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLAYER)
+  if (p_no < 0 || p_no >= MAXPLAYER)
     {
-      fprintf(stderr, "handleHostile: bad index %d\n", packet->pnum);
+      fprintf(stderr, "handleHostile: bad index %d\n", p_no);
       return;
     }
 #endif
 
-  pl = &players[packet->pnum];
+  pl = &players[p_no];
   if (pl->p_swar != packet->war ||
       pl->p_hostile != packet->hostile)
     {
       /* FAT: prevent redundant player update & redraw */
       pl->p_swar = packet->war;
       pl->p_hostile = packet->hostile;
-      PlistNoteHostile(packet->pnum);
-      redrawPlayer[packet->pnum] = 1;
+      PlistNoteHostile(p_no);
+      redrawPlayer[p_no] = 1;
     }
 }
 
 void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
 {
-  register struct player *pl;
+  int p_no = packet->pnum;
+  struct player *pl;
 
 #ifdef CORRUPTED_PACKETS
   if (sock == udpSock)
@@ -2528,12 +2501,9 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
       fprintf(stderr, "garbage packet discarded.\n");
       return;
     }
-#endif
-
-#ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLAYER)
+  if (packet->pnum < 0 || packet->pnum >= MAXPLAYER)
     {
-      fprintf(stderr, "handlePlyrLogin: bad index %d\n", packet->pnum);
+      fprintf(stderr, "handlePlyrLogin: bad index %d\n", p_no);
       return;
     }
   if (packet->rank >= NUMRANKS)
@@ -2546,17 +2516,14 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
   packet->login[sizeof(packet->login) - 1] = '\0';
 #endif
 
-  pl = &players[packet->pnum];
+  pl = &players[p_no];
 
   strcpy(pl->p_name, packet->name);
   strcpyp_return(pl->p_monitor, packet->monitor, sizeof(pl->p_monitor));
   strcpy(pl->p_login, packet->login);
   pl->p_stats.st_rank = packet->rank;
 
-  /* printf("read player login %s, %s, %s\n", pl->p_name, pl->p_monitor, * *
-   * pl->p_login); */
-
-  if (packet->pnum == me->p_no)
+  if (p_no == me->p_no)
     {
       /* This is me.  Set some stats */
       if (lastRank == -1)
@@ -2576,8 +2543,7 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
 	}
     }
 
-
-  PlistNoteUpdate(packet->pnum);
+  PlistNoteUpdate(p_no);
 
   if (gather_stats) {
     /* STATS_SP_PLAYER:PNUN,RANK,NAME,MONITOR,LOGIN */
@@ -2593,17 +2559,18 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
 
 void    handleStats(struct stats_spacket *packet)
 {
-  register struct player *pl;
+  int p_no = packet->pnum;
+  struct player *pl;
 
 #ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLAYER)
+  if (p_no < 0 || p_no >= MAXPLAYER)
     {
-      fprintf(stderr, "handleStats: bad index %d\n", packet->pnum);
+      fprintf(stderr, "handleStats: bad index %d\n", p_no);
       return;
     }
 #endif
 
-  pl = &players[packet->pnum];
+  pl = &players[p_no];
 
   pl->p_stats.st_tkills = ntohl(packet->tkills);
   pl->p_stats.st_tlosses = ntohl(packet->tlosses);
@@ -2627,23 +2594,22 @@ void    handleStats(struct stats_spacket *packet)
     }
   pl->p_stats.st_sbmaxkills = ntohl(packet->sbmaxkills) / 100.0;
 
-
-  /* For some reason, we get updates for freed players.  When this happens, * 
-   * 
-   * * don't bother the update the player list. */
+  /* For some reason, we get updates for freed players.  When this
+  happens, don't bother to update the player list. */
   if (pl->p_status != PFREE)
-    PlistNoteUpdate(packet->pnum);
+    PlistNoteUpdate(p_no);
 }
 
 void    handlePlyrInfo(struct plyr_info_spacket *packet)
 {
-  register struct player *pl;
+  int p_no = packet->pnum;
+  struct player *pl;
   static int lastship = -1;
 
 #ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLAYER)
+  if (p_no < 0 || p_no >= MAXPLAYER)
     {
-      fprintf(stderr, "handlePlyrInfo: bad index %d\n", packet->pnum);
+      fprintf(stderr, "handlePlyrInfo: bad index %d\n", p_no);
       return;
     }
   if (packet->team > ALLTEAM)
@@ -2653,15 +2619,15 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
     }
 #endif
 
-  pl = &players[packet->pnum];
+  pl = &players[p_no];
 
-  PlistNoteUpdate(packet->pnum);
+  PlistNoteUpdate(p_no);
   if ((pl->p_team != packet->team) ||		 /* Check 0 system default */
       ((pl->p_team == 0) && (pl->p_mapchars[0] != teamlet[0])))
     {
       pl->p_team = packet->team;
       pl->p_mapchars[0] = teamlet[pl->p_team];
-      PlistNoteArrive(packet->pnum);
+      PlistNoteArrive(p_no);
 
       if (pl == me)
 	redrawall = 1;				 /* Update the map if I * *
@@ -2678,7 +2644,7 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
       calibrate_stats();
       redrawStats();				 /* TSH */
     }
-  redrawPlayer[packet->pnum] = 1;
+  redrawPlayer[p_no] = 1;
 
   if (gather_stats) {
     /*STATS_SP_PLAYER_INFO:\tPNUM\tSHIPTYPE\tTEAM*/
@@ -2690,7 +2656,7 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
   }
 }
 
-sendUpdatePacket(LONG speed)
+void sendUpdatePacket(LONG speed)
 {
   struct updates_cpacket packet;
 
@@ -2702,28 +2668,27 @@ sendUpdatePacket(LONG speed)
 
 void    handlePlanetLoc(struct planet_loc_spacket *packet)
 {
+  int pl_no = packet->pnum;
   struct planet *pl;
 
 #ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLANETS)
+  if (pl_no < 0 || pl_no >= MAXPLANETS)
     {
       fprintf(stderr, "handlePlanetLoc: bad index\n");
       return;
     }
 #endif
 
-  pl = &planets[packet->pnum];
-  pl_update[packet->pnum].plu_x = pl->pl_x;
-  pl_update[packet->pnum].plu_y = pl->pl_y;
+  pl = &planets[pl_no];
+  pl_update[pl_no].plu_x = pl->pl_x;
+  pl_update[pl_no].plu_y = pl->pl_y;
 
-  if (pl_update[packet->pnum].plu_update != -1)
+  if (pl_update[pl_no].plu_update != -1)
     {
-      pl_update[packet->pnum].plu_update = 1;
-      /* printf("update: %s, old (%d,%d) new (%d,%d)\n", pl->pl_name, * *
-       * pl->pl_x, pl->pl_y, ntohl(packet->x),ntohl(packet->y)); */
+      pl_update[pl_no].plu_update = 1;
     }
   else
-    pl_update[packet->pnum].plu_update = 0;
+    pl_update[pl_no].plu_update = 0;
 
   pl->pl_x = ntohl(packet->x);
   pl->pl_y = ntohl(packet->y);
@@ -2742,7 +2707,7 @@ void    handlePlanetLoc(struct planet_loc_spacket *packet)
   if (gather_stats) {
     /*STATS_SP_PLANET_LOC:\tPNUM\tX\tY\tNAME*/
     fprintf(statsFile, "\nSTATS_SP_PLANET_LOC:\t");
-    fprintf(statsFile, "%d\t%ld\t%ld\t%s",
+    fprintf(statsFile, "%d\t%d\t%d\t%s",
             ((struct planet_loc_spacket *) packet)->pnum,
             ntohl(((struct planet_loc_spacket *) packet)->x),
             ntohl(((struct planet_loc_spacket *) packet)->y),
@@ -2832,7 +2797,6 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
 #ifdef GATEWAY
   extern unsigned LONG netaddr;
   extern int serv_port;
-
 #endif
 
   bzero(&response, sizeof(response));
@@ -2915,7 +2879,7 @@ int     p;
 #endif /* INCLUDE_SCAN */
 
 /* UDP stuff */
-sendUdpReq(int req)
+void sendUdpReq(int req)
 {
   struct udp_req_cpacket packet;
 
@@ -3140,7 +3104,7 @@ void    handleUdpReply(struct udp_reply_spacket *packet)
 }
 
 #define MAX_PORT_RETRY  10
-openUdpConn(void)
+static int openUdpConn(void)
 {
   struct sockaddr_in addr;
   struct hostent *hp;
@@ -3149,13 +3113,13 @@ openUdpConn(void)
   if (udpSock >= 0)
     {
       fprintf(stderr, "netrek: tried to open udpSock twice\n");
-      return (0);				 /* pretend we succeeded * *
+      return 0;				 /* pretend we succeeded * *
 						  * (this could be bad) */
     }
   if ((udpSock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
       perror("netrek: unable to create DGRAM socket");
-      return (-1);
+      return -1;
     }
 
 #ifdef nodef
@@ -3213,7 +3177,7 @@ openUdpConn(void)
       UDPDIAG(("Unable to find a local port to bind to\n"));
       close(udpSock);
       udpSock = -1;
-      return (-1);
+      return -1;
     }
   UDPDIAG(("Local port is %d\n", udpLocalPort));
 
@@ -3233,28 +3197,26 @@ openUdpConn(void)
 	    }
 	}
       serveraddr = addr.sin_addr.s_addr;
-      UDPDIAG(("Found serveraddr == 0x%x\n", serveraddr));
+      UDPDIAG(("Found serveraddr == 0x%lx\n", serveraddr));
     }
-  return (0);
+  return 0;
 }
 
 #ifdef UDP_PORTSWAP
-connUdpConn()
+int connUdpConn()
 {
   struct sockaddr_in addr;
-  int     len;
 
   addr.sin_addr.s_addr = serveraddr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(udpServerPort);
 
-  UDPDIAG(("Connecting to host 0x%x on port %d\n", serveraddr, udpServerPort));
+  UDPDIAG(("Connecting to host 0x%lx on port %d\n", serveraddr, udpServerPort));
   if (connect(udpSock, (struct sockaddr *) &addr, sizeof(addr)) < 0)
     {
-      fprintf(stderr, "Error %d: ");
       perror("netrek: unable to connect UDP socket");
       printUdpInfo();				 /* debug */
-      return (-1);
+      return -1;
     }
 
 #ifdef nodef
@@ -3271,22 +3233,20 @@ connUdpConn()
 	 udpLocalPort, addr.sin_port);
 #endif
 
-  return (0);
+  return 0;
 }
 #endif
 
-recvUdpConn(void)
+static int recvUdpConn(void)
 {
   fd_set  readfds;
   struct timeval to;
   struct sockaddr_in from;
-  struct sockaddr_in addr;
-  int     fromlen, res;
-  int     i;
+  int     res;
+  socklen_t fromlen;
 
   MZERO(&from, sizeof(from));			 /* don't get garbage if * *
 						  * really broken */
-
   ns_init(3);
 
   /* we patiently wait until the server sends a packet to us */
@@ -3294,7 +3254,6 @@ recvUdpConn(void)
   UDPDIAG(("Issuing recvfrom() call\n"));
   printUdpInfo();
   fromlen = sizeof(from);
-tryagain:
   FD_ZERO(&readfds);
   FD_SET(udpSock, &readfds);
   to.tv_sec = 6;				 /* wait 3 seconds, then * *
@@ -3306,25 +3265,25 @@ tryagain:
 	{
 	  UDPDIAG(("timed out waiting for response\n"));
 	  warning("UDP connection request timed out");
-	  return (-1);
+	  return -1;
 	}
       else
 	{
 	  perror("select() before recvfrom()");
-	  return (-1);
+	  return -1;
 	}
     }
   if (recvfrom(udpSock, buf, BUFSIZE, 0, (struct sockaddr *) &from, &fromlen) < 0)
     {
       perror("recvfrom");
       UDPDIAG(("recvfrom failed, aborting UDP attempt\n"));
-      return (-1);
+      return -1;
     }
   if (from.sin_addr.s_addr != serveraddr)
     {
       /* safe? */
       serveraddr = from.sin_addr.s_addr;
-      UDPDIAG(("Warning: from 0x%x, but server is 0x%x\n",
+      UDPDIAG(("Warning: from 0x%x, but server is 0x%lx\n",
 	       from.sin_addr.s_addr, serveraddr));
     }
   if (from.sin_family != AF_INET)
@@ -3348,18 +3307,18 @@ tryagain:
       perror("netrek: unable to connect UDP socket after recvfrom()");
       close(udpSock);
       udpSock = -1;
-      return (-1);
+      return -1;
     }
-  return (0);
+  return 0;
 }
 
-closeUdpConn(void)
+int closeUdpConn(void)
 {
   V_UDPDIAG(("Closing UDP socket\n"));
   if (udpSock < 0)
     {
       fprintf(stderr, "netrek: tried to close a closed UDP socket\n");
-      return (-1);
+      return -1;
     }
   shutdown(udpSock, 2);
   close(udpSock);
@@ -3367,13 +3326,13 @@ closeUdpConn(void)
   return 0;
 }
 
-printUdpInfo(void)
+void printUdpInfo(void)
 /* doesn't use UDPDIAG macro because that is for level 2 of udpDebug;
  * printUdpInfo applies to level 1 as well */
 #define PUDPDIAG(x)      { if (udpDebug) { printf("UDP: "); printf x; }}
 {
   struct sockaddr_in addr;
-  int     len;
+  socklen_t len;
 
   len = sizeof(addr);
   if (getsockname(udpSock, (struct sockaddr *) &addr, &len) < 0)
@@ -3449,7 +3408,7 @@ void    handleSequence(struct sequence_spacket *packet)
 	      recent_count += (newseq - sequence) - 1;
 	      if (udpWin)
 		udprefresh(UDP_DROPPED);
-	      UDPDIAG(("sequence=%d, newseq=%d, we lost some\n",
+	      UDPDIAG(("sequence=%ld, newseq=%ld, we lost some\n",
 		       sequence, newseq));
 	    }
 	  sequence = newseq;
@@ -3464,11 +3423,11 @@ void    handleSequence(struct sequence_spacket *packet)
 	  /* reject */
 	  if (packet->type == SP_SC_SEQUENCE)
 	    {
-	      V_UDPDIAG(("(ignoring repeat %d)\n", newseq));
+	      V_UDPDIAG(("(ignoring repeat %ld)\n", newseq));
 	    }
 	  else
 	    {
-	      UDPDIAG(("sequence=%d, newseq=%d, ignoring transmission\n",
+	      UDPDIAG(("sequence=%ld, newseq=%ld, ignoring transmission\n",
 		       sequence, newseq));
 	    }
 	  /* the remaining packets will be dropped and we shouldn't count the
@@ -3506,7 +3465,6 @@ static int vari_sizes[NUM_PACKETS];
 static int cp_msg_size;				 /* For CP_S_MESSAGE */
 
 void Log_Packet(char type, int act_size)
-/* HW */
 {
   static time_t lasttime;
   static int data_this_sec;
@@ -3520,13 +3478,13 @@ void Log_Packet(char type, int act_size)
       fprintf(stderr, "Attempted to log a bad packet? \n");
       return;
     }
-  packet_log[type]++;
+  packet_log[(unsigned) type]++;
   /* data_this_sec += handlers[type].size; */
   data_this_sec += act_size;			 /* HW */
   ALL_BYTES += act_size;			 /* To get all bytes */
-  if (handlers[type].size == -1)
+  if (handlers[(unsigned) type].size == -1)
     {						 /* vari packet */
-      vari_sizes[type] += act_size;
+      vari_sizes[(unsigned) type] += act_size;
     }
   this_sec = time(NULL);
   if (this_sec != lasttime)
@@ -3534,7 +3492,7 @@ void Log_Packet(char type, int act_size)
       lasttime = this_sec;
       if (log_packets > 1)
 	{
-	  fprintf(stdout, "%d %d %d\n", this_sec - Start_Time, data_this_sec, outdata_this_sec);
+	  fprintf(stdout, "%d %d %d\n", (int) (this_sec - Start_Time), data_this_sec, outdata_this_sec);
 	}
       if (Start_Time == 0)
 	{
@@ -3574,7 +3532,7 @@ void Log_OPacket(int type, int size)
 }
 
 /* print out out the cool information on packet logging */
-Dump_Packet_Log_Info(void)
+void Dump_Packet_Log_Info(void)
 {
   int     i;
   time_t  Now;
@@ -3677,7 +3635,6 @@ Dump_Packet_Log_Info(void)
 void print_packet(char *packet, int size)
 {
    int i;                        /* lcv */
-   char *bufloc;                 /* pointer to char buffer */
    unsigned char *data;
    int kills, pnum, nplanets;
    struct planet_s_spacket *plpacket;
@@ -3714,7 +3671,7 @@ void print_packet(char *packet, int size)
        case SP_PLAYER       :                   /* x,y for player */
 	 fprintf(stderr, "\nS->C SP_PLAYER\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, dir=%u, speed=%d, x=%ld, y=%d,",
+	   fprintf(stderr, "  pnum=%d, dir=%u, speed=%d, x=%d, y=%d,",
 		   ((struct player_spacket *) packet)->pnum,
 		   ((struct player_spacket *) packet)->dir,
 		   ((struct player_spacket *) packet)->speed,
@@ -3743,7 +3700,7 @@ void print_packet(char *packet, int size)
 						 * direction */
 	 fprintf(stderr, "\nS->C SP_PHASER\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, status=%d, dir=%u, x=%ld, y=%ld, target=%ld,",
+	   fprintf(stderr, "  pnum=%d, status=%d, dir=%u, x=%d, y=%d, target=%d,",
 		   ((struct phaser_spacket *) packet)->pnum,
 		   ((struct phaser_spacket *) packet)->status,
 		   ((struct phaser_spacket *) packet)->dir,
@@ -3762,7 +3719,7 @@ void print_packet(char *packet, int size)
        case SP_PLASMA       :                  /* like SP_TORP */
 	 fprintf(stderr, "\nS->C SP_PLASMA\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%u, x=%ld, y=%ld,",
+	   fprintf(stderr, "  pnum=%u, x=%d, y=%d,",
 		   ntohs(((struct plasma_spacket *) packet)->pnum),
 		   ntohl(((struct plasma_spacket *) packet)->x),
 		   ntohl(((struct plasma_spacket *) packet)->y) );
@@ -3782,7 +3739,7 @@ void print_packet(char *packet, int size)
        case SP_YOU          :                  /* info on you? */
 	 fprintf(stderr, "\nS->C SP_YOU\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, hostile=%d, swar=%d, armies=%d, flags=0x%0X, damage=%ld, shield=%ld, fuel=%ld, etemp=%u, wtemp=%u, whydead=%u, whodead=%u,",
+	   fprintf(stderr, "  pnum=%d, hostile=%d, swar=%d, armies=%d, flags=0x%0X, damage=%d, shield=%d, fuel=%d, etemp=%u, wtemp=%u, whydead=%u, whodead=%u,",
 		   ((struct you_spacket *) packet)->pnum,
 		   ((struct you_spacket *) packet)->hostile,
 		   ((struct you_spacket *) packet)->swar,
@@ -3805,7 +3762,7 @@ void print_packet(char *packet, int size)
        case SP_STATUS       :                  /* galaxy status numbers */
 	 fprintf(stderr, "\nS->C SP_STATUS\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  tourn=%d, armsbomb=%u, planets=%u, kills=%u, losses=%u, time=%u, timeprod=%lu,",
+	   fprintf(stderr, "  tourn=%d, armsbomb=%u, planets=%u, kills=%u, losses=%u, time=%u, timeprod=%u,",
 		   ((struct status_spacket *) packet)->tourn,
 		   ntohl(((struct status_spacket *) packet)->armsbomb),
 		   ntohl(((struct status_spacket *) packet)->planets),
@@ -3818,7 +3775,7 @@ void print_packet(char *packet, int size)
 						* facilities */
 	 fprintf(stderr, "\nS->C SP_PLANET\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, owner=%d, info=%d, flags=0x%0X, armies=%ld,",
+	   fprintf(stderr, "  pnum=%d, owner=%d, info=%d, flags=0x%0X, armies=%d,",
 		   ((struct planet_spacket *) packet)->pnum,
 		   ((struct planet_spacket *) packet)->owner,
 		   ((struct planet_spacket *) packet)->info,
@@ -3878,7 +3835,7 @@ void print_packet(char *packet, int size)
        case SP_STATS        :                  /* a player's statistics */
 	 fprintf(stderr, "\nS->C SP_STATS\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, tkills=%ld, tlosses=%ld, kills=%ld, losses=%ld, tticks=%ld, tplanets=%ld, tarmies=%ld, sbkills=%ld, sblosses=%ld, armies=%ld, planets=%ld, maxkills=%ld, sbmaxkills=%ld,",
+	   fprintf(stderr, "  pnum=%d, tkills=%d, tlosses=%d, kills=%d, losses=%d, tticks=%d, tplanets=%d, tarmies=%d, sbkills=%d, sblosses=%d, armies=%d, planets=%d, maxkills=%d, sbmaxkills=%d,",
 		   ((struct stats_spacket *) packet)->pnum,
 		   ntohl(((struct stats_spacket *) packet)->tkills),
 		   ntohl(((struct stats_spacket *) packet)->tlosses),
@@ -3917,7 +3874,7 @@ void print_packet(char *packet, int size)
        case SP_PLANET_LOC   :                  /* planet name, x, y */
 	 fprintf(stderr, "\nS->C SP_PLANET_LOC\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  pnum=%d, x=%ld, y=%ld, name=\"%s\",",
+	   fprintf(stderr, "  pnum=%d, x=%d, y=%d, name=\"%s\",",
 		   ((struct planet_loc_spacket *) packet)->pnum,
 		   ntohl(((struct planet_loc_spacket *) packet)->x),
 		   ntohl(((struct planet_loc_spacket *) packet)->y),
@@ -3998,7 +3955,7 @@ void print_packet(char *packet, int size)
 						* request */
 	 fprintf(stderr, "\nS->C SP_S_REPLY\t");
 	 if (log_packets > 1)
-	   fprintf(stderr,"  repl=%d, windside=%u, gwidth=%ld,",
+	   fprintf(stderr,"  repl=%d, windside=%u, gwidth=%d,",
 		   ((struct shortreply_spacket *) packet)->repl,
 		   ntohs(((struct shortreply_spacket *) packet)->winside),
 		   ntohl(((struct shortreply_spacket *) packet)->gwidth) );
@@ -4049,7 +4006,7 @@ void print_packet(char *packet, int size)
 						* * packet */
 	 fprintf(stderr, "\nS->C SP_S_PLAYER\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  packets=%d, dir=%u, speed=%d, x=%ld, y=%ld,",
+	   fprintf(stderr, "  packets=%d, dir=%u, speed=%d, x=%d, y=%d,",
 		   ((struct player_s_spacket *) packet)->packets,
 		   ntohl(((struct player_s_spacket *) packet)->dir),
 		   ((struct player_s_spacket *) packet)->speed,
@@ -4143,7 +4100,7 @@ void print_packet(char *packet, int size)
 	   {
 	     fprintf(stderr, "  pnum=%d, ",
 		      (unsigned char) packet[1]);
-             data = &packet[2];
+             data = (unsigned char *) &packet[2];
              for (i = 0; i < (unsigned) packet[1]; i++) 
 	       {
 		 kills = (unsigned short) *data++;
@@ -4482,7 +4439,7 @@ void print_opacket(char *packet, int size)
       /* note: ping.c calls gwrite directly, so we do not see this */
       fprintf(stderr, "\nC->S CP_PING_RESPONSE\t");
       if (log_packets > 1)
-	fprintf(stderr, "  number=%u, pingme=%d, cp_sent=%lu, cp_recv=%lu",
+	fprintf(stderr, "  number=%u, pingme=%d, cp_sent=%d, cp_recv=%d",
 		((struct ping_cpacket *) packet)->number,
 		((struct ping_cpacket *) packet)->pingme,
 		ntohl(((struct ping_cpacket *) packet)->cp_sent),

@@ -1,122 +1,3 @@
-
-/* main.c
- *
- * $Log: cowmain.c,v $
- * Revision 1.15  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.14  2006/05/20 08:48:16  quozl
- * fix some valgrind use of uninitialised data reports
- *
- * Revision 1.13  2002/06/22 10:37:20  siegl
- * Release 3.01
- *
- * Revision 1.12  2002/06/22 04:43:24  tanner
- * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
- *
- * Revision 1.11  2002/06/20 04:18:38  tanner
- * Merged COW_SDL_MIXER_BRANCH to TRUNK.
- *
- * Revision 1.6.2.1  2002/06/13 04:10:16  tanner
- * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
- * 	SDL_MIXER_LIBS
- *
- * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
- * 	opening of audio device, and loading of 17 cow sounds.
- *
- * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
- * 	moved the Init_Sound method to right after readdefaults() so the
- * 	intro can start playing ASAP.
- *
- * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
- * 	add check for SDL_mixer.
- *
- * 	* config.h.in: add HAVE_SDL
- *
- * 	* spike: See spike/README for details
- *
- * Revision 1.8  2002/06/13 03:45:19  tanner
- * Wed Jun 12 22:35:44 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Revision 1.7  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
- *
- * Revision 1.6  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.5  1999/07/29 19:17:34  carlos
- * An additional fix for trekhopd.
- *
- * --Carlos V.
- *
- * Revision 1.4  1999/07/29 19:10:24  carlos
- *
- * Fixing random things that prevented trekhopd support from compiling
- * and working properly.
- *
- * --Carlos V.
- *
- * Revision 1.3  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.2  1999/03/05 23:06:38  carlos
- * In the Makefile, updated the KEYGOD address
- *
- * In all else, (cowmain.c, main.c newwin.c parsemeta.{c,h} x11window.c
- * added UDP metaserver query functionality as proposed by James Cameron
- * and implemented by James Cameron and Carlos Villalpando.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
 #include <setjmp.h>
 #include "config.h"
 #include "copyright.h"
@@ -126,6 +7,7 @@
 #include <stdio.h>
 #include INC_STRINGS
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <pwd.h>
@@ -142,9 +24,26 @@
 #include "packets.h"
 #include "version.h"
 #include "patchlevel.h"
+
+#include "check.h"
+#include "defaults.h"
+#include "dmessage.h"
+#include "enter.h"
+#include "feature.h"
+#include "findslot.h"
+#include "getname.h"
+#include "getship.h"
+#include "input.h"
+#include "lagmeter.h"
+#include "map.h"
+#include "newwin.h"
+#include "ping.h"
+#include "pingstats.h"
 #include "playerlist.h"
 #include "parsemeta.h"
-#include "map.h"
+#include "short.h"
+#include "socket.h"
+#include "stats.h"
 
 void    initCensoring();
 
@@ -198,15 +97,8 @@ char   *get_gw();
 #endif
 unsigned LONG mkaddr();
 
-
-unsigned LONG netaddr;				 /* used for blessedness *
-
-						  * 
-						  * * checking */
-int     serv_port;				 /* used for blessedness *
-
-						  * 
-						  * * checking */
+unsigned LONG netaddr; /* used for blessedness checking */
+int     serv_port; /* used for blessedness checking */
 
 char *gateway = DEFAULT_GATEWAY;
 
@@ -215,9 +107,7 @@ static int trekhopd_port = 6592;
 int     use_trekhopd = 0;
 int     port_req = 6592;
 char   *host_req = "rebel";
-
 #endif
-
 
 typedef struct
   {
@@ -253,7 +143,7 @@ char   *str;
   if (!server_count)
     {
       fprintf(stderr, "No server list, cannot resolve id\n");
-      return (-1);
+      return -1;
     }
 
   /* find the one we want */
@@ -271,7 +161,7 @@ char   *str;
   if (i == server_count)
     {
       fprintf(stderr, "Specified server not found.\n");
-      return (-1);
+      return -1;
     }
 
   /* now "str" is either the original string or slp->inet_addr */
@@ -292,7 +182,7 @@ char   *str;
   if (slp->id == NULL)
     {
       fprintf(stderr, "ERROR: host ID '%s' unknown\n", str);
-      return (-1);
+      return -1;
     }
   xtrekPort = trekhopd_port;			 /* ought to have an arg to * 
 						  * 
@@ -305,7 +195,7 @@ char   *str;
   printf("Connecting to %s through %s port %d\n", str, serverName, xtrekPort);
 #endif
 
-  return (answer);
+  return answer;
 }
 
 
@@ -670,18 +560,16 @@ int     cowmain(char *server, int port, char *name)
 {
   int     intrupt(fd_set * readfds);
   int     team, s_type;
-  int     pno;
 
   char   *cp;
   char    buf[80];
   struct passwd *pwent;
 
   int     i;
-  char   *log;
 
   i = setjmp(env);				 /* Error while initializing */
   if (i >= RETURNBASE)
-    return (i - RETURNBASE);			 /* Terminate with retcode */
+    return i - RETURNBASE;			 /* Terminate with retcode */
 
 #ifdef GATEWAY
   /* restrict this client to certain machines */
@@ -694,14 +582,14 @@ int     cowmain(char *server, int port, char *name)
     if (gethostname(myname, 64) < 0)
       {
 	perror("gethostname");
-	return (1);
+	return 1;
       }
     if ((myaddr = inet_addr(myname)) == -1)
       {
 	if ((hp = gethostbyname(myname)) == NULL)
 	  {
 	    fprintf(stderr, "unable to get addr for local host\n");
-	    return (1);
+	    return 1;
 	  }
 	myaddr = *(LONG *) hp->h_addr;
       }
@@ -710,7 +598,7 @@ int     cowmain(char *server, int port, char *name)
     if ((myaddr & MYADDR_MASK) != MYADDR)
       {
 	fprintf(stderr, "Sorry, you may not run this client on this host\n");
-	return (1);
+	return 1;
       }
   }
 #endif
@@ -729,7 +617,7 @@ int     cowmain(char *server, int port, char *name)
       if (recordFile == NULL)
 	{
 	  perror(recordFileName);
-	  return (1);
+	  return 1;
 
 	}
     }
@@ -741,7 +629,7 @@ int     cowmain(char *server, int port, char *name)
       if (logFile == NULL)
 	{
 	  perror(logFileName);
-	  return (1);
+	  return 1;
 	}
     }
   for (i = 0; i < 80; i++)
@@ -810,7 +698,7 @@ int     cowmain(char *server, int port, char *name)
       if (logFile == NULL)
 	{
 	  perror(logFileName);
-	  return (1);
+	  return 1;
 	}
     }
 
@@ -970,7 +858,7 @@ int     cowmain(char *server, int port, char *name)
 
   i = setjmp(env);				 /* Reentry point of game */
   if (i >= RETURNBASE)
-    return (i - RETURNBASE);			 /* Terminate with retcode */
+    return i - RETURNBASE;			 /* Terminate with retcode */
 
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
@@ -1054,7 +942,7 @@ int     cowmain(char *server, int port, char *name)
 	    Dump_Packet_Log_Info();
 #endif
 
-	  return (0);
+	  return 0;
 
 
 	}
@@ -1128,6 +1016,7 @@ int     cowmain(char *server, int port, char *name)
 #ifdef IGNORE_SIGNALS_SEGV_BUS
     }
 #endif
+  return 0;
 }
 
 RETSIGTYPE
@@ -1155,10 +1044,9 @@ reset_game(int _dummy)
 
 void    terminate(int error)
 {
-
 #ifdef RECORDGAME
   if (recordFile)
-    close(recordFile);
+    fclose(recordFile);
 #endif
 
   longjmp(env, RETURNBASE + error);

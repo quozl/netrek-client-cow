@@ -4,42 +4,7 @@
  * 
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
- * $Log: x11window.c,v $
- * Revision 1.10  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.9  2006/05/22 13:11:21  quozl
- * add video mode change support
- *
- * Revision 1.8  2006/05/16 12:59:38  quozl
- * tactical camera, based on Imlib2
- *
- * Revision 1.7  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.6  2002/06/22 04:43:24  tanner
- * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
- *
- * Revision 1.5  2001/08/21 20:52:15  siegl
- *
- * mouse wheel support
- *
- * Revision 1.4  1999/08/20 18:32:45  siegl
- * WindowMaker Docking support
- *
- * Revision 1.3  1999/07/23 20:22:43  siegl
- * *** empty log message ***
- *
- * Revision 1.2  1999/03/05 23:06:38  carlos
- * In the Makefile, updated the KEYGOD address
- *
- * In all else, (cowmain.c, main.c newwin.c parsemeta.{c,h} x11window.c
- * added UDP metaserver query functionality as proposed by James Cameron
- * and implemented by James Cameron and Carlos Villalpando.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:12  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 #include <stdio.h>

@@ -19,7 +19,7 @@
 #define TRUE  1
 #define FALSE 0
 
-getColorDefs(void)
+void getColorDefs(void)
 {
   borderColor = W_Grey;
   backColor = W_Black;

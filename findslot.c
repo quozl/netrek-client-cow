@@ -1,15 +1,8 @@
-
 /* findslot.c
  * 
  * Kevin Smith 03/23/88
  *
- * $Log: findslot.c,v $
- * Revision 1.2  2002/06/22 04:43:24  tanner
- * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
 
@@ -24,16 +17,25 @@
 #include "struct.h"
 #include "data.h"
 
+#include "defaults.h"
+#include "findslot.h"
+#include "newwin.h"
+#include "socket.h"
+
 #define WAITMOTD
 
 #define WAITWIDTH 180
 #define WAITHEIGHT 60
-#define WAITTITLE 15				 /* height of title for wait
-						  * * * window */
+#define WAITTITLE 15 /* height of title for wait window */
 
 extern void terminate(int error);
 
-findslot(void)
+static void mapWaitWin(W_Window waitWin);
+static void mapWaitQuit(W_Window qwin);
+static void mapWaitCount(W_Window waitWin, W_Window countWin, int count);
+static void mapWaitMotdButton(W_Window motdButtonWin);
+
+int findslot(void)
 {
   int     oldcount = -1;
   W_Window waitWin, qwin, countWin, motdButtonWin;
@@ -43,7 +45,6 @@ findslot(void)
   int     WaitMotdLine = 0;
   int     mapMotd = booleanDefault("showMotd", 1);
   W_Event event;
-
 
   /* Wait for some kind of indication about in/not in */
   while (queuePos == -1)
@@ -211,7 +212,7 @@ findslot(void)
     }
 }
 
-mapWaitWin(W_Window waitWin)
+static void mapWaitWin(W_Window waitWin)
 {
   char   *s;
   char    buf[60];
@@ -222,19 +223,18 @@ mapWaitWin(W_Window waitWin)
   W_WriteText(waitWin, 15, 5, textColor, s, strlen(s), W_RegularFont);
 }
 
-mapWaitQuit(W_Window qwin)
+static void mapWaitQuit(W_Window qwin)
 {
   char   *s = "Quit";
 
   W_WriteText(qwin, 10, 15, textColor, s, strlen(s), W_RegularFont);
 }
 
-mapWaitCount(W_Window waitWin, W_Window countWin, int count)
+static void mapWaitCount(W_Window waitWin, W_Window countWin, int count)
 {
   char   *s1 = "Wait";
   char   *s2 = "Queue";
   char    buf[80];
-  int     length;
 
   W_WriteText(countWin, 17, 5, textColor, s1, strlen(s1), W_RegularFont);
   W_WriteText(countWin, 15, 15, textColor, s2, strlen(s2), W_RegularFont);
@@ -247,7 +247,7 @@ mapWaitCount(W_Window waitWin, W_Window countWin, int count)
   W_SetWindowName(waitWin, buf);
 }
 
-mapWaitMotdButton(W_Window motdButtonWin)
+static void mapWaitMotdButton(W_Window motdButtonWin)
 {
   char   *s = "Motd";
 

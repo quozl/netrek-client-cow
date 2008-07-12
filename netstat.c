@@ -1,13 +1,3 @@
-
-/* netstat.c
- *
- * $Log: netstat.c,v $
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright2.h"
 
@@ -27,6 +17,9 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
+#include "lagmeter.h"
+#include "netstat.h"
 
 /* #define NETDEBUG */
 
@@ -48,7 +41,7 @@ static int nf;					 /* network failures */
 static char nfthresh_s[8] = NETSTAT_DF_NFT_S;
 static int nfthresh = NETSTAT_DF_NFT;
 
-ns_init(int v)
+void ns_init(int v)
 {
   start = v;
   sum = n = s2 = 0;
@@ -57,7 +50,7 @@ ns_init(int v)
   nf = 0;
 }
 
-ns_record_update(int count)
+void ns_record_update(int count)
 {
   int     now;
   int     et;
@@ -144,7 +137,7 @@ ns_record_update(int count)
   lastread = now;
 }
 
-ns_do_stat(int v, int c)
+void ns_do_stat(int v, int c)
 {
   int     uf;
 
@@ -195,7 +188,7 @@ double
   return sdl;
 }
 
-ns_get_nfailures(void)
+int ns_get_nfailures(void)
 {
   return nf;
 }
@@ -206,17 +199,17 @@ char   *
   return nfthresh_s;
 }
 
-ns_set_nfthresh_s(char *s)
+void ns_set_nfthresh_s(char *s)
 {
   strcpy(nfthresh_s, s);
 }
 
-ns_get_nfthresh(void)
+int ns_get_nfthresh(void)
 {
   return nfthresh;
 }
 
-ns_set_nfthresh(int v)
+void ns_set_nfthresh(int v)
 {
   nfthresh = v;
 }

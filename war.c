@@ -1,4 +1,3 @@
-
 /****************************************************************************/
 /**  File:  war.c                                                          **/
 /**                                                                        **/
@@ -8,15 +7,11 @@
 /**     the user's selection, and the validation of the user's selection.  **/
 /**                                                                        **/
 /**  Revisions:                                                            **/
-/*
- * $Log: war.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- *
- *      9/20/93  VEG modified function waraction() to use switch          *
- *      structure instead of successive if statements.  Altered spacing   *
- *      to improve clarity.                                               */
-/**************************************************************************/
+/**                                                                        **/
+/**     9/20/93  VEG modified function waraction() to use switch           **/
+/**     structure instead of successive if statements.  Altered spacing    **/
+/**     to improve clarity.                                                **/
+/****************************************************************************/
 #include "config.h"
 #include "copyright.h"
 #include <stdio.h>
@@ -27,6 +22,8 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "socket.h"
+#include "warning.h"
 
 /******************************************************************************/
 /***  newhostile - identifies user request from the war options window      ***/

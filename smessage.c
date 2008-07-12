@@ -19,7 +19,9 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
 #include "smessage.h"
+#include "socket.h"
 
 static int lcount;
 static int HUDoffset;

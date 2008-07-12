@@ -23,7 +23,7 @@
 #include "data.h"
 #include "packets.h"
 
-
+#include "ping.h"
 
 /* These are used only in pingstats.c */
 

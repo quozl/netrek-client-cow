@@ -1,129 +1,5 @@
 /* main.c
- *
- * $Log: main.c,v $
- * Revision 1.13  2002/06/20 04:18:38  tanner
- * Merged COW_SDL_MIXER_BRANCH to TRUNK.
- *
- * Revision 1.10.2.1  2002/06/13 04:10:16  tanner
- * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
- * 	SDL_MIXER_LIBS
- *
- * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
- * 	opening of audio device, and loading of 17 cow sounds.
- *
- * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
- * 	moved the Init_Sound method to right after readdefaults() so the
- * 	intro can start playing ASAP.
- *
- * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
- * 	add check for SDL_mixer.
- *
- * 	* config.h.in: add HAVE_SDL
- *
- * 	* spike: See spike/README for details
- *
- * Revision 1.11  2002/06/11 05:55:13  tanner
- * Following XP made a simple change.
- *
- * I want cow to play the STTNG intro when started. That's it. Nothing else.
- *
- * Revision 1.10  2001/04/28 04:03:56  quozl
- * change -U to also adopt a local port number for TCP mode.
- * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
- *
- * Revision 1.9  2000/11/07 20:24:05  ahn
- * Add patch from Crist Clark <cjclark@alum.mit.edu>
- *
- * There was a server bust during the Mixed Tw^H^HDrinks-Smack Pack game
- * yesterday. All that was recovered was the cambot.pkt dump. I figured
- * it would be pretty easy to dump the messages from the playback to a
- * file and then run the stats scripts on that to get some pwstat-style
- * numbers.
- *
- * Well, it took a little client hacking (and then some toying with the
- * ancient pwstat.pl I had). I was modifying COW.3.00pl2. The two files
- * that need to be patched to get it to work are included at the
- * end. main.c needed changing since apparently using the '-f' option on
- * the command line just changes the name of the logfile, but does not
- * turn on logging (bug or feature?). I changed that. Second, playback.c
- * did not support logging at all, so I added the few lines of code it
- * needed.
- *
- * I was looking for the present COW development code, but could not
- * track it down; most Netrek pages I could find are long collections of
- * 404-links. (And my mail bounced when I tried to rejoin the Vanilla
- * server mail lists.) Where is the latest COW? If anyone finds the
- * patches interesting, feel free to use them. Finally, any "trusted" COW
- * builders up for making a blessed FreeBSD COW? I have an unblessed
- * FreeBSD client running, but need to run a Linux binary if I want
- * blessed.
- * --
- * Crist J. Clark                           cjclark@alum.mit.edu
- *
- * Revision 1.8  2000/05/19 14:24:52  jeffno
- * Improvements to playback.
- * - Can jump to any point in recording.
- * - Can lock on to cloaked players.
- * - Tactical/galactic repaint when paused.
- * - Can lock on to different players when recording paused.
- *
- * Revision 1.7  2000/01/07 17:36:02  siegl
- * final release infos
- *
- * Revision 1.6  1999/08/20 18:32:45  siegl
- * WindowMaker Docking support
- *
- * Revision 1.5  1999/08/05 16:43:03  siegl
- *  New -B option for automatic bug submition, wwwlink is queried from .xtrekrc
- *
- * Revision 1.4  1999/07/29 19:10:24  carlos
- *
- * Fixing random things that prevented trekhopd support from compiling
- * and working properly.
- *
- * --Carlos V.
- *
- * Revision 1.3  1999/04/02 19:09:34  siegl
- * Add usage for -F option for playback recorded file
- *
- * Revision 1.2  1999/03/05 23:06:38  carlos
- * In the Makefile, updated the KEYGOD address
- *
- * In all else, (cowmain.c, main.c newwin.c parsemeta.{c,h} x11window.c
- * added UDP metaserver query functionality as proposed by James Cameron
- * and implemented by James Cameron and Carlos Villalpando.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+*/
 #include "config.h"
 #include "copyright.h"
 
@@ -140,6 +16,7 @@
 
 #include "cowapi.h"
 #include "defs.h"
+#include "defaults.h"
 
 #ifdef GATEWAY
 extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
@@ -165,18 +42,19 @@ extern int pixMissing;
 
 extern int gather_stats;
 
+static void printUsage(char *prog);
+
 #ifndef WIN32
-main(int argc, char **argv)
+int main(int argc, char **argv)
 #else
-main2(int argc, char **argv)
+int main2(int argc, char **argv)
 #endif
 {
   int     usage = 0;
   int     err = 0;
   int     inplayback = 0;
 
-  char   *name, *ptr, *cp;
-  struct passwd *pwent;
+  char   *name, *ptr;
 
 #ifdef TOOLS
   char    url[1024];
@@ -192,9 +70,6 @@ main2(int argc, char **argv)
   int     hset = 0;
 
 #endif
-  int     first = 1;
-  int     i;
-  char   *log;
   int     xtrekPort = -1;
 
 #ifdef WINDOWMAKER
@@ -557,8 +432,7 @@ main2(int argc, char **argv)
   exit(err);
 }
 
-
-printUsage(char *prog)
+static void printUsage(char *prog)
 {
   printf("%s\n", cowid);
   printf("Usage: %s [options] [display-name]\n", prog);

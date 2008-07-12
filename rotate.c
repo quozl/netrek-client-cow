@@ -1,13 +1,3 @@
-
-/* rotate.c
- *
- * $Log: rotate.c,v $
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright2.h"
 
@@ -28,15 +18,17 @@
 #include "data.h"
 #include "packets.h"
 
+#include "rotate.h"
+
 #ifdef ROTATERACE
-rotate_dir(unsigned char *d, int r)
+void rotate_dir(unsigned char *d, int r)
 {
   (*d) += r;
 }
 
 /* general rotation */
 
-rotate_coord(int *x, int *y, int d, int cx, int cy)
+void rotate_coord(int *x, int *y, int d, int cx, int cy)
 
 /* values used and returned */
 /* degree (pi == 128) */

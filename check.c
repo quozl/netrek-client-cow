@@ -24,6 +24,7 @@
 #include "config.h"
 #include "copyright2.h"
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -36,6 +37,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "check.h"
 
 /* For close() and read(), at least in MSVC -SAC */
 #include INC_IO
@@ -57,7 +59,7 @@ static char buf[BUF_SIZE];
 /***  read server data into a 4096 byte buffer area, unless an error is     ***/
 /***  detected.                                                             ***/
 /******************************************************************************/
-check(void)
+void check(void)
 {
   struct sockaddr_in addr;
   struct hostent *hp;

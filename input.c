@@ -1,107 +1,5 @@
-
 /* input.c
- *
- * $Log: input.c,v $
- * Revision 1.14  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.13  2006/05/22 13:12:48  quozl
- * add camera frame counter
- *
- * Revision 1.12  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.11  2002/06/22 04:43:24  tanner
- * Clean up of SDL code. #ifdef'd out functions not needed in SDL.
- *
- * Revision 1.10  2002/06/20 04:18:38  tanner
- * Merged COW_SDL_MIXER_BRANCH to TRUNK.
- *
- * Revision 1.7.2.1  2002/06/13 04:10:16  tanner
- * Wed Jun 12 22:52:13 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * 	* local.c (DrawMisc): Converted warning.wav
- *
- * 	* local.c (DrawPlasmaTorps): Converted plasma_hit.wav
- *
- * 	* local.c (DrawTorps): Converted torp_hit.wav
- *
- * 	* sound.h: added EXPLOSION_OTHER_WAV, PHASER_OTHER_WAV,
- * 	FIRE_TORP_OTHER. and the code to load these new sounds.
- *
- * 	* local.c (DrawShips): Converted cloak.wav, uncloak.wav,
- * 	shield_down.wav, shield_up.wav, explosion.wav,
- * 	explosion_other.wav, phaser.wav, phaser_other.wav
- *
- * 	* cowmain.c (cowmain): Converted enter_ship.wav and engine.wav
- *
- * 	* sound.c: added isDirectory to check that the sounddir is
- * 	actually a directory.
- *
- * Tue Jun 11 01:10:51 2002  Bob Tanner  <tanner@real-time.com>
- *
- * 	* system.mk.in: Added SDL_CFLAGS, SDL_CONFIG, SDL_LIBS,
- * 	SDL_MIXER_LIBS
- *
- * 	* sound.c: Added HAVE_SDL wrapper, initialization of SDL system,
- * 	opening of audio device, and loading of 17 cow sounds.
- *
- * 	* cowmain.c (cowmain): HAVE_SDL wrapper to Init_Sound using SDL. I
- * 	moved the Init_Sound method to right after readdefaults() so the
- * 	intro can start playing ASAP.
- *
- * 	* configure.in: Added AC_CANONICAL_SYSTEM, added check for SDL,
- * 	add check for SDL_mixer.
- *
- * 	* config.h.in: add HAVE_SDL
- *
- * 	* spike: See spike/README for details
- *
- * Revision 1.8  2002/06/13 03:58:41  tanner
- * The changes for sound are mostly isolated in local.c, just a few other changes
- * in the commit.
- *
- * 	* playback.c (pbmain):  Converted enter_ship.wav
- *
- * 	* input.c (Key113): Converted self_destruct.wav
- *
- * 	* input.c (Key109): Converted message.wav
- *
- * Revision 1.7  2001/08/21 20:52:15  siegl
- *
- * mouse wheel support
- *
- * Revision 1.6  2001/06/12 02:48:49  quozl
- * add single-step playback keys
- *
- * Revision 1.5  2001/04/28 04:07:45  quozl
- * Redirect keystrokes that would otherwise be
- * ignored to be processed in the tactical window.  Novice users find
- * it painful to have to put the cursor unnecessarily into the
- * tactical window before pressing a key.
- *
- * Revision 1.4  2000/05/19 14:24:52  jeffno
- * Improvements to playback.
- * - Can jump to any point in recording.
- * - Can lock on to cloaked players.
- * - Tactical/galactic repaint when paused.
- * - Can lock on to different players when recording paused.
- *
- * Revision 1.3  1999/08/05 16:44:06  siegl
- * fix B,V core dump with rabbitears
- *
- * Revision 1.2  1999/01/31 16:38:17  siegl
- * Hockey rink background XPM on galactic map in hockey mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+*/
 #include <setjmp.h>
 #include "config.h"
 #include "copyright.h"
@@ -124,6 +22,8 @@
 #include "playerlist.h"
 #include "spopt.h"
 #include "map.h"
+#include "short.h"
+#include "udpopt.h"
 
 int     detallow = 1;				 /* flag used to figure out * 
 
@@ -462,7 +362,6 @@ extern struct shipdef *myshipdef;
 initkeymap(void)
 {
   unsigned char *str;
-  unsigned char c1, c2;
 
   /* in the future let me strongly recommed we move keymap * completely * *
    * outside of the stats structure. - jn */
@@ -671,11 +570,6 @@ initkeymap(void)
 	}
     }
 
-}
-
-initinput(void)
-{
-  /* Nothing doing... */
 }
 
 RETSIGTYPE

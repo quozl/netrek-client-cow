@@ -17,6 +17,8 @@
 #include "struct.h"
 #include "data.h"
 
+#include "getship.h"
+
 /* fill in ship characteristics */
 
 void    getshipdefaults()
@@ -126,7 +128,7 @@ void    getshipdefaults()
   shipvals[CRUISER].s_type = CRUISER;		 /* cruiser: */
 }
 
-getship(struct ship *shipp, int s_type)
+void getship(struct ship *shipp, int s_type)
 {
   memcpy((char *) shipp, (char *) &(shipvals[s_type]), sizeof(struct ship));
 }

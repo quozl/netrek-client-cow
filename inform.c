@@ -1,13 +1,3 @@
-
-/* inform.c
- *
- * $Log: inform.c,v $
- * Revision 1.2  2006/05/16 06:16:35  quozl
- * add PLCORE
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
@@ -19,24 +9,28 @@
 #include "struct.h"
 #include "data.h"
 
-/* Display information about the nearest objext to mouse */
+#include "inform.h"
 
-/* * When the player asks for info, this routine finds the object * nearest
- * the mouse, either player or planet, and pop up a window * with the desired
- * information in it. *
- * 
- * We intentionally provide less information than is actually * available. Keeps
- * the fog of war up. *
- * 
- * There is a different sized window for each type player/planet * and we take
- * care to keep it from extending beyond the main * window boundaries. */
+/*
+
+Display information about the nearest object to mouse.
+
+When the player asks for info, this routine finds the object nearest
+the mouse, either player or planet, and pop up a window with the
+desired information in it. We intentionally provide less information
+than is actually available. Keeps the fog of war up.
+
+There is a different sized window for each type player/planet and we
+take care to keep it from extending beyond the main window boundaries.
+
+*/
 
 static char *my_classes[NUM_TYPES] =
 {
   "SC", "DD", "CA", "BB", "AS", "SB", "GA", "??"
 };
 
-inform(W_Window ww, int x, int y, char key)
+void inform(W_Window ww, int x, int y, char key)
 {
   char    buf[BUFSIZ];
   int     line = 0;
@@ -65,10 +59,9 @@ inform(W_Window ww, int x, int y, char key)
       target = gettarget(ww, x, y, TARG_PLAYER | TARG_SELF);
     }
 
-  /* This is pretty lame.  We make a graphics window for the info window so * 
-   * 
-   * * we can accurately space the thing to barely fit into the galactic map
-   * or * * whatever. */
+  /* This is pretty lame.  We make a graphics window for the info
+     window so we can accurately space the thing to barely fit into
+     the galactic map or whatever. */
 
   windowWidth = W_WindowWidth(ww);
   windowHeight = W_WindowHeight(ww);
@@ -256,8 +249,7 @@ inform(W_Window ww, int x, int y, char key)
     }
 }
 
-
-destroyInfo(void)
+void destroyInfo(void)
 {
   W_DestroyWindow(infow);
   infow = 0;

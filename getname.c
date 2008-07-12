@@ -1,23 +1,7 @@
-
 /* getname.c
  * 
  * Kevin P. Smith 09/28/88
- *
- * $Log: getname.c,v $
- * Revision 1.4  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.3  2001/04/28 04:06:15  quozl
- * If server rejects guest login, allow the user to retry with a real name.
- * Current INL servers are coded to reject guest login.  Having to restart
- * the client is unnecessary.
- *
- * Revision 1.2  1999/07/29 23:25:51  cameron
- * fix typo
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
 
@@ -37,6 +21,8 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
+#include "getname.h"
 
 static char tempname[16];
 static char password1[16];

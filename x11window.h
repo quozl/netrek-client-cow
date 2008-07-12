@@ -122,3 +122,4 @@ void W_EraseTTSText(W_Window window, int max_width, int y, int width);
 void W_WriteTTSText(W_Window window, int max_width, int y, int width, char *str, int len);
 void W_Halo(int x, int y, W_Color color);
 void video_mode_begin();
+void video_mode_off();

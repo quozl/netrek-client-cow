@@ -1,10 +1,5 @@
-
 /* udpopt.c - present UDP control window
- *
- * $Log: udpopt.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+*/
 #include "config.h"
 #include "copyright.h"
 
@@ -15,11 +10,14 @@
 #include "struct.h"
 #include "data.h"
 
+#include "socket.h"
+#include "udpopt.h"
+
 #define UDPBORDER	2
 #define UDPLEN		35
 
 /* Set up the UDP control window */
-udpwindow(void)
+void udpwindow()
 {
   register int i;
 
@@ -31,7 +29,7 @@ udpwindow(void)
 }
 
 /* Refresh item i */
-udprefresh(int i)
+void udprefresh(int i)
 {
   char    buf[BUFSIZ];
 
@@ -206,7 +204,7 @@ void    udpaction(W_Event * data)
       udpClientSend = udpClientRecv = udpSequenceChk = udpTotal = 1;
       udpDebug = udpDropped = udpRecentDropped = 0;
       if (udpSock >= 0)
-	closeUdpConn(udpSock);
+	closeUdpConn();
       for (i = 0; i < UDP_NUMOPTS; i++)
 	udprefresh(i);
       break;
@@ -226,7 +224,7 @@ void    udpaction(W_Event * data)
     }
 }
 
-udpdone(void)
+void udpdone()
 {
   /* Unmap window */
   W_UnmapWindow(udpWin);

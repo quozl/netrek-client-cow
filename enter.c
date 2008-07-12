@@ -20,18 +20,21 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "enter.h"
 
 /* Enter the game */
 
 /* long random();        */
 
-enter(void)
+static void drawTstats();
+
+void enter(void)
 {
   drawTstats();
   delay = 0;
 }
 
-openmem(void)
+void openmem(void)
 {
   int     i;
 
@@ -96,7 +99,7 @@ openmem(void)
     }
 }
 
-drawTstats(void)
+void drawTstats(void)
 {
   char    buf[BUFSIZ];
 
@@ -114,7 +117,7 @@ drawTstats(void)
 }
 
 #ifdef HOCKEY_LINES
-init_hockey_lines(void)
+void init_hockey_lines(void)
 {
   int     i = 0;				 /* This is incremented for * 
 

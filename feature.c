@@ -1,4 +1,3 @@
-
 #include "config.h"
 /* Feature.c
  * 
@@ -13,19 +12,7 @@
  * 
  * feature packets look like:
  *
- * $Log: feature.c,v $
- * Revision 1.4  2006/05/20 08:48:16  quozl
- * fix some valgrind use of uninitialised data reports
- *
- * Revision 1.3  1999/06/11 16:14:17  siegl
- * cambot replay patches
- *
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifdef nodef
 struct feature_cpacket
@@ -41,7 +28,6 @@ struct feature_cpacket
 
 /* type is CP_FEATURE, which is 60.  feature_spacket is identical. */
 
-
 #ifdef FEATURE_PACKETS
 #include "copyright.h"
 
@@ -53,7 +39,9 @@ struct feature_cpacket
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
-
+#include "defaults.h"
+#include "feature.h"
+#include "socket.h"
 
 /* not the actual packets: this holds a list of features to report for this
  * client. */
@@ -277,7 +265,7 @@ void
 #endif /* BEEPLITE */
 }
 
-sendFeature(char *name, char feature_type, int value, char arg1, char arg2)
+void sendFeature(char *name, char feature_type, int value, char arg1, char arg2)
 {
   struct feature_cpacket packet;
 

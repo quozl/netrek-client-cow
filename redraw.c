@@ -1,13 +1,3 @@
-
-/* redraw.c
- *
- * $Log: redraw.c,v $
- * Revision 1.2  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
@@ -26,6 +16,7 @@
 #include "playerlist.h"
 #include "local.h"
 #include "map.h"
+#include "redraw.h"
 
 void    redrawTstats(void);
 

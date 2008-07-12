@@ -1,14 +1,8 @@
-
-/* option.c
- *
- * $Log: option.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "Wlib.h"
 #include "defs.h"
@@ -18,22 +12,19 @@
 #include "playerlist.h"
 #include "map.h"
 
-
-/* forward decl */
-void    optionaction(W_Event * data);
+#include "option.h"
+#include "rotate.h"
 
 int     notdone;				 /* not done flag */
 
 #ifdef ROTATERACE
 static int old_rotate, old_rotate_deg;
-
 #endif
 
 static char newkeys[14];
 
 #if (defined( DEBUG) || defined (BITMAP_DEBUG)) && defined(DYNAMIC_BITMAPS)
 extern int OwnBitmapNum;
-
 #endif
 
 char   *localmes[] =
@@ -371,11 +362,16 @@ struct option Pixmap_Menu[] =
 #define OPTIONBORDER    2
 #define OPTIONLEN       35
 
-/* Set up the option menus and window. */
-optionwindow(void)
-{
-  register int i;
+static void RefreshOptions(void);
+static void OptionClear(int i);
+static void optionrefresh(register struct option *op);
+static int InitOptionMenus(void);
+static void AddOptMenu(struct option *NewMenu, int updated);
+static int NumOptions(struct option *OpMenu);
 
+/* Set up the option menus and window. */
+void optionwindow(void)
+{
   /* Init not done flag */
   notdone = 1;
 
@@ -385,7 +381,7 @@ optionwindow(void)
       MaxOptions = InitOptionMenus();
       if (MaxOptions < 0)
 	{
-	  fprintf(stderr, "InitOptionMenus() error %s!\n", MaxOptions);
+	  fprintf(stderr, "InitOptionMenus() error %d!\n", MaxOptions);
 	  notdone = 0;
 	  return;
 	}
@@ -410,7 +406,7 @@ optionwindow(void)
 }
 
 /* refresh all current options */
-RefreshOptions(void)
+static void RefreshOptions(void)
 {
   int     i;
   struct option_menu *option;
@@ -430,7 +426,7 @@ RefreshOptions(void)
 }
 
 /* blank out option line 'i' */
-OptionClear(int i)
+static void OptionClear(int i)
 {
   char   *blanktext = "                                               ";
 
@@ -439,7 +435,7 @@ OptionClear(int i)
 }
 
 /* Redraw the specified option entry */
-optionredrawtarget(W_Window win)
+void optionredrawtarget(W_Window win)
 {
   register struct option *op;
 
@@ -457,7 +453,7 @@ optionredrawtarget(W_Window win)
 }
 
 /* Redraw the specified option option */
-optionredrawoption(int *ip)
+void optionredrawoption(int *ip)
 {
   register struct option *op;
 
@@ -475,7 +471,7 @@ optionredrawoption(int *ip)
 }
 
 /* Refresh the option window given by the option struct */
-optionrefresh(register struct option *op)
+static void optionrefresh(register struct option *op)
 {
   register int on;
   char    buf[BUFSIZ];
@@ -656,9 +652,9 @@ void    optionaction(W_Event * data)
 #ifdef ROTATERACE
       else if (rotate != old_rotate)
 	{
-	  register i;
-	  register struct planet *l;
-	  register struct player *j;
+	  int i;
+	  struct planet *l;
+	  struct player *j;
 
 	  redrawall = 1;
 	  reinitPlanets = 1;
@@ -830,7 +826,7 @@ void    optionaction(W_Event * data)
 
 /* find the menu in the menus linked list that matches the one in the *
  * argument */
-SetMenuPage(int pagenum)
+void SetMenuPage(int pagenum)
 {
   int     i = 1;
 
@@ -839,7 +835,7 @@ SetMenuPage(int pagenum)
     CurrentMenu->page_num != pagenum; i++, CurrentMenu = CurrentMenu->Next);
 }
 
-optiondone(void)
+void optiondone(void)
 {
   char   *str;
 
@@ -868,8 +864,7 @@ optiondone(void)
 }
 
 /* set up menus linked list */
-int
-        InitOptionMenus(void)
+static int InitOptionMenus(void)
 {
   int     i = 1;
   int     maxopts = 0;
@@ -899,7 +894,7 @@ int
   return maxopts;
 }
 
-AddOptMenu(struct option * NewMenu, int updated)
+static void AddOptMenu(struct option * NewMenu, int updated)
 {
   struct option_menu *menuptr;
   struct option_menu *newmenu;
@@ -934,8 +929,7 @@ AddOptMenu(struct option * NewMenu, int updated)
   newmenu->updated = updated;
 }
 
-int
-        NumOptions(struct option *OpMenu)
+static int NumOptions(struct option *OpMenu)
 {
   int     i = 0;
   struct option *ptr;
@@ -951,7 +945,7 @@ int
 
 /* a function that could be called regularly, to deal with menus that * might
  * be updated by external events. I.e. the udp menu! */
-UpdateOptions(void)
+void UpdateOptions(void)
 {
   if (notdone == 0)
     return;					 /* don't update if menu * *

@@ -1,10 +1,3 @@
-
-/*
- *
- * $Log: lagmeter.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
@@ -15,6 +8,9 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
+#include "lagmeter.h"
+#include "netstat.h"
 
 #define L_NB			3
 #define L_LENGTHTEXT		3
@@ -28,20 +24,21 @@
 #define L_BWIDTH		(W_Textwidth*3)
 #define L_BHEIGHT		(L_HEIGHT-(W_Textheight+L_TSP)-2*L_IBORDER+3)
 
+static void lMeterBox(int filled, int x, int y, int w, int h, W_Color color);
 
-lMeterHeight(void)
+int lMeterHeight(void)
 {
   return L_HEIGHT;
 }
 
-lMeterWidth(void)
+int lMeterWidth(void)
 {
   return L_WIDTH;
 }
 
 void    redrawLMeter(void)
 {
-  register i;
+  int i;
   char    buf[8];
 
   W_ClearWindow(lMeter);
@@ -77,7 +74,7 @@ void    redrawLMeter(void)
   updateLMeter();
 }
 
-updateLMeter(void)
+void updateLMeter(void)
 {
   double  sd, sdl, ns_get_tstat(void), ns_get_lstat(void);
   int     nf, h;
@@ -133,7 +130,7 @@ updateLMeter(void)
     }
 }
 
-lMeterBox(int filled, int x, int y, int w, int h, W_Color color)
+static void lMeterBox(int filled, int x, int y, int w, int h, W_Color color)
 {
   if (filled)
     {

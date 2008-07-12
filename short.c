@@ -1,23 +1,5 @@
-
 /* This file implements all SHORT_PACKETS functions */
-/* HW 19.07.93
- *
- * $Log: short.c,v $
- * Revision 1.5  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.4  2006/05/22 13:13:24  quozl
- * initialise packet buffers
- *
- * Revision 1.3  1999/06/11 16:14:17  siegl
- * cambot replay patches
- *
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+/* HW 19.07.93 */
 #include "config.h"
 
 #ifdef SHORT_PACKETS
@@ -1280,7 +1262,7 @@ void    handleVPlanet(unsigned char *sbuf)
 }
 
 
-resetWeaponInfo(void)
+void resetWeaponInfo(void)
 /*
  *  Give all weapons for all ships the status of not being active.
  */

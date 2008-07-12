@@ -1,11 +1,3 @@
-
-
-/* pingstats.c        (mostly taken from stats.c)
- *
- * $Log: pingstats.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
@@ -16,6 +8,7 @@
 #include "struct.h"
 #include "data.h"
 
+#include "pingstats.h"
 
 #define	MIN(a,b)	(((a) < (b)) ? (a) : (b))
 
@@ -74,7 +67,7 @@ static SLIDER sliders[] =
 
 static int textWidth = 0;
 static int initialized = 0;
-static int box(int filled, int x, int y, int wid, int hei, W_Color color),
+static void box(int filled, int x, int y, int wid, int hei, W_Color color),
         text(int value, int y);
 
 /* externals from ping.c (didn't feel like cluttering up data.c with them) */
@@ -99,20 +92,19 @@ extern int ping_lag;				 /* delay in ms of last ping */
 extern int ping_av;				 /* average rt */
 extern int ping_sd;				 /* standard deviation */
 
-pStatsHeight(void)
+int pStatsHeight(void)
 {
   return STAT_HEIGHT;
 }
 
-pStatsWidth(void)
+int pStatsWidth(void)
 {
   return STAT_WIDTH;
 }
 
-initPStats(void)
+void initPStats(void)
 {
   int     i;
-  char   *str;
 
   if (initialized)
     return;
@@ -161,7 +153,7 @@ void    redrawPStats(void)
     }
 }
 
-updatePStats(void)
+void updatePStats(void)
 {
   int     i, value, diff, old_x, new_x;
   W_Color color;
@@ -222,7 +214,7 @@ updatePStats(void)
     }
 }
 
-static
+static void
         box(int filled, int x, int y, int wid, int hei, W_Color color)
 {
   if (wid == 0)
@@ -241,7 +233,7 @@ static
   W_MakeLine(pStats, x, y + hei, x, y, color);
 }
 
-static
+static void
         text(int value, int y)
 {
   char    buf[6];
