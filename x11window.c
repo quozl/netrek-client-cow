@@ -315,9 +315,9 @@ struct window myroot;
 
 #define WIN_EDGE 5				 /* border on l/r edges of *
 						  * * text windows */
-#define MENU_PAD 4				 /* border on t/b edges of *
+#define MENU_PAD 6				 /* border on t/b edges of *
 						  * * text windows */
-#define MENU_BAR 4				 /* width of menu bar */
+#define MENU_BAR 1				 /* width of menu bar */
 
 static char gray[] =
 {
@@ -418,7 +418,7 @@ void
   // XSynchronize(W_Display, True);
 
   // uncomment this to enable a fatal error handler
-  XSetErrorHandler(_myerror);
+  // XSetErrorHandler(_myerror);
 
   W_Root = DefaultRootWindow(W_Display);
   W_Visual = DefaultVisual(W_Display, DefaultScreen(W_Display));
@@ -2513,7 +2513,7 @@ void redrawMenu(struct window * win)
   for (count = 1; count < win->height; count++)
     {
       XFillRectangle(W_Display, win->window,
-		     colortable[W_White].contexts[0],
+		     colortable[W_Grey].contexts[0],
 	  0, count * (W_Textheight + MENU_PAD * 2) + (count - 1) * MENU_BAR,
 		     win->width * W_Textwidth + WIN_EDGE * 2, MENU_BAR);
     }
@@ -3807,6 +3807,8 @@ static void video_mode_on()
 #if DEBUG > 0
       fprintf(stderr, "video_mode_on: XF86VidModeSwitchToMode: %d\n", x);
 #endif
+      /*! @bug: if this is done on a non-local display, the X error
+      XF86VidModeClientNotLocal occurs. */
       video_mode_current = mode;
       return;
     }
