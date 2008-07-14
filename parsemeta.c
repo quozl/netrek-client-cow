@@ -630,8 +630,8 @@ static int ReadMetasRecv(int x)
     /* so we have data back from a metaserver or server */
     isawsomething++;
     length = sizeof(address);
-    bytes = recvfrom(msock, packet, MAXMETABYTES, 0, (struct sockaddr *)&address,
-	&length );
+    bytes = recvfrom(msock, packet, MAXMETABYTES, 0,
+                     (struct sockaddr *)&address, &length );
     if (bytes < 0) {
       perror("ReadMetasRecv: recvfrom");
       return 0;

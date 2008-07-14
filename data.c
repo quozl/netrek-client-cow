@@ -342,11 +342,8 @@ int     server_ups = 50;	/* server responded updates per second */
 int     server_fps = 50;	/* server configured frames per second */
 
 #ifdef META
-char   *metaserver = "metaserver.netrek.org";	 /* US metaserver. */
-int     metaport = 3521;			 /* HAVE to use nicely *
-
-						  * 
-						  * * formated version */
+char   *metaserver = "metaserver.netrek.org";
+int     metaport = 3521;
 #endif
 
 
