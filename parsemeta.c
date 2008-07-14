@@ -1,54 +1,3 @@
-/* meta.c
- * 
- * $Log: parsemeta.c,v $
- * Revision 1.13  2006/11/27 00:40:31  quozl
- * fix segfault from comment length
- *
- * Revision 1.12  2006/11/27 00:36:55  quozl
- * fix segfault from comment length
- *
- * Revision 1.11  2006/04/14 10:35:37  quozl
- * fix sscanf compiler warning
- *
- * Revision 1.10  2006/04/14 10:29:40  quozl
- * fix segfault
- *
- * Revision 1.9  2006/02/22 22:55:22  quozl
- * fix ReadMetasRecv regression
- *
- * Revision 1.8  2006/01/27 09:57:27  quozl
- * *** empty log message ***
- *
- * Revision 1.7  2001/07/24 05:00:21  quozl
- * fix metaserver window delays
- *
- * Revision 1.6  1999/08/02 07:21:48  carlos
- *
- * Fixed a minor bug in the UDP menu display where it wouldn't highlight
- * the selection.
- *
- * --Carlos V.
- *
- * Revision 1.5  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.4  1999/03/07 10:29:21  siegl
- * History log formating
- *
- *
- * - Nick Trown         May 1993    Original Version. 
- * - Andy McFadden      May 1993 ?  Connect to Metaserver. 
- * - BDyess (Paradise)  ???         Bug Fixes.  Add server type field. 
- * - Michael Kellen     Jan 1995    Don't list Paradise Servers. List empty servers. 
- * - James Soutter      Jan 1995    Big Parsemeta changes.  
- *       Included some Paradise Code.  Added Known Servers
- *       Option.  Added option for metaStatusLevel.  Bug Fixes.
- * - Jonathan Shekter Aug 1995 --  changed to read into buffer in all cases,
- *       use findfile() interface for cachefiles.
- * - James Cameron, Carlos Villalpando Mar 1999 --  Added UDP metaserver
- *     queries
- */
-
 #undef DEBUG
 
 #include "config.h"
@@ -1030,6 +979,7 @@ void    parsemeta(int metaType)
  * used in newwin() to set the height of the meta-server window.
  */
 {
+  int fuse = 3000; /* milliseconds before giving up on query */
   statusLevel = intDefault("metaStatusLevel", defaultStatLevel);
 
   if (statusLevel < 0)
@@ -1043,7 +993,11 @@ void    parsemeta(int metaType)
       case 1:
         ReadMetasSend();
 	LoadMetasCache();
-	if (num_servers == 0) ReadMetasRecv(-1);
+	while (num_servers < 2) {
+	  ReadMetasRecv(-1);
+	  usleep(1000);
+	  if (!fuse--) break;
+	}
 	if (num_servers != 0) {
 	  metaHeight = num_servers + 5;
 	} else {
@@ -1052,6 +1006,7 @@ void    parsemeta(int metaType)
 		 "         (no reply to probe on UDP port %d)\n", metaport);
 	  metaHeight = num_servers + 10;
 	}
+	if (metaHeight < 8) metaHeight = 8;
         return;
 	break;
       case 2:
@@ -1175,11 +1130,11 @@ void    metawindow()
   char *header;
 
   if (type == 1) {
-    header = "Server ----------------------------------------- Status ------ Type ----- Age";
+    header = "Server                                           Status        Type       Age";
   } else {
-    header = "Server ----------------------------------------- Status ------ Type";
+    header = "Server                                           Status        Type";
   }
-  W_WriteText(metaWin, 0, 0, W_Yellow, header, strlen(header), 0);
+  W_WriteText(metaWin, 0, 0, W_Cyan, header, strlen(header), 0);
 
   for (i = 0; i < metaHeight; i++)
     metarefresh(i, textColor);
@@ -1189,8 +1144,10 @@ void    metawindow()
 
   /* Add additional options */
   if (type == 1)
-    W_WriteText(metaWin, 0, metaHeight-2, W_Yellow, "Refresh", 7, 0);
-  W_WriteText(metaWin, 0, metaHeight-1, W_Yellow, "Quit", 4, 0);
+    W_WriteText(metaWin, 0, metaHeight-2, W_Yellow,
+                "Refresh                                         (Ctrl/R)", 7, 0);
+  W_WriteText(metaWin, 0, metaHeight-1, W_Yellow,
+                "Quit                                              (q)", 4, 0);
 
   /* Map window */
   W_MapWindow(metaWin);
@@ -1206,6 +1163,12 @@ static void metadone(void)
   free(serverlist);
 }
 
+static void metaactionrefresh()
+{
+  W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", 13, 0);
+  W_Flush();
+  ReadMetasSend();
+}
 
 void    metaaction(W_Event * data)
 /* Recieve an action in the meta server window.  Check selection to see if
@@ -1255,9 +1218,7 @@ void    metaaction(W_Event * data)
     }
   else if (data->y == (metaHeight-2) && type == 1)
     {
-      W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", 13, 0);
-      W_Flush();
-      ReadMetasSend();
+      metaactionrefresh();
     }
   else if (data->y == metaHeight-1)
     {
@@ -1293,8 +1254,14 @@ void    metainput(void)
       switch ((int) data.type)
         {
         case W_EV_KEY:
-          if (data.Window == metaWin)
+	  if (data.key == 113 || data.key == 196) { /* q or ^d */
+	    metadone();
+	    terminate(0);
+	  } else if (data.key == 114 || data.key == 210) { /* r or ^r */
+	    metaactionrefresh();
+	  } else if (data.Window == metaWin) {
             metaaction(&data);
+	  }
           break;
         case W_EV_BUTTON:
           if (data.Window == metaWin)

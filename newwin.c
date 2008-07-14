@@ -180,7 +180,7 @@ newwin(char *hostmon, char *progname)
   W_SetWindowExposeHandler(helpWin, fillhelp);
 
 #ifdef META
-  metaWin = W_MakeMenu("MetaServer List", 0, 0, 80, metaHeight,
+  metaWin = W_MakeMenu("Netrek Server List", 0, 0, 80, metaHeight,
 		       NULL, 2);
   W_SetWindowKeyDownHandler(metaWin, metaaction);
   W_SetWindowButtonHandler(metaWin, metaaction);
