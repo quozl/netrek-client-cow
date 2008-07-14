@@ -857,8 +857,11 @@ int     cowmain(char *server, int port, char *name)
   isFirstEntry = 1;				 /* First entry into game */
 
   i = setjmp(env);				 /* Reentry point of game */
-  if (i >= RETURNBASE)
+  if (i >= RETURNBASE) {
+    W_FullScreenOff(baseWin);
+    W_Flush();
     return i - RETURNBASE;			 /* Terminate with retcode */
+  }
 
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
@@ -918,8 +921,9 @@ int     cowmain(char *server, int port, char *name)
 
       if (team == -1)
 	{
+	  W_FullScreenOff(baseWin);
+	  W_Flush();
 	  W_DestroyWindow(baseWin);
-	  video_mode_off();
 
 #ifdef AUTOKEY
 	  if (autoKey)

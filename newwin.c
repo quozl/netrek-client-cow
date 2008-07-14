@@ -360,7 +360,7 @@ void mapAll(void)
     W_MapWindow(messagew);
   W_MapWindow(w);
   W_MapWindow(baseWin);
-  W_FullScreenBegin();
+  W_FullScreenBegin(baseWin);
   /* since we aren't mapping windows that have root as parent in
   x11window.c (since that messes up the TransientFor feature) we have
   to map them here. (If already mapped, W_MapWindow returns) */

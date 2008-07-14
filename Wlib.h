@@ -107,8 +107,6 @@ extern void W_FlushLineCaches(W_Window);
 extern void W_OverlayBitmap(int, int, W_Icon, W_Color);
 extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_Flush(void);
-void video_mode_begin();
-void video_mode_off();
 
 #define W_EV_EXPOSE	1
 #define W_EV_KEY	2
@@ -145,10 +143,15 @@ void video_mode_off();
 
 #define W_BoldFont W_HighlightFont
 
-
-
-#endif /* _h_Wlib */
 void W_FillArea(W_Window window, int x, int y, int width, int height, W_Color color);
 void W_DefineArrowCursor(W_Window window);
 void W_GalacticBgd(int which);
 void W_LocalBgd(int which);
+
+void W_FullScreenOn(W_Window window);
+void W_FullScreenOff(W_Window window);
+void W_FullScreenInitialise(void);
+void W_FullScreenToggle(W_Window window);
+void W_FullScreenBegin(W_Window window);
+void W_FullScreen(W_Window window);
+#endif /* _h_Wlib */

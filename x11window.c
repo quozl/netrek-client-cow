@@ -1,10 +1,10 @@
-#define DEBUG 0
-
 /* x11window.c
  * 
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
  */
+
+#define DEBUG 0
 
 #include "config.h"
 #include <stdio.h>
@@ -39,14 +39,12 @@
 
 #ifdef VMS
 void    vms_event_window(void);
-
 #endif
 
 extern void terminate(int error);
 
 /* XFIX speedup */
 #define MAXCACHE        128
-
 #define MAX_TEXT_WIDTH	90
 
 /* changes too good to risk leaving out, by Richard Caley (rjc@cstr.ed.ac.uk) */
@@ -347,10 +345,20 @@ static char solid[] =
 
 int full_screen_default, full_screen_enabled;
 
+static void video_mode_off(void);
+static int video_mode_initialise(void);
+static void video_mode_on(void);
+static void view_port_warp(W_Window window);
+static void pointer_grab_on(W_Window window);
+static void pointer_grab_off(W_Window window);
+static void kde_fullscreen_on(W_Window window);
+static void kde_fullscreen_off(W_Window window);
+
 /* X debugging */
 int
         _myerror(Display * d, XErrorEvent * e)
 {
+  fprintf(stderr, "netrek: x11window: _myerror\n");
   abort();
 }
 
@@ -410,7 +418,7 @@ void
   // XSynchronize(W_Display, True);
 
   // uncomment this to enable a fatal error handler
-  // XSetErrorHandler(_myerror);
+  XSetErrorHandler(_myerror);
 
   W_Root = DefaultRootWindow(W_Display);
   W_Visual = DefaultVisual(W_Display, DefaultScreen(W_Display));
@@ -965,7 +973,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 
   if (!strcmp(name, "netrek")) {
     if (full_screen_enabled) {
-      kde_fullscreen_on(newwin);
+      kde_fullscreen_on(W_Window2Void(newwin));
     }
   }
 
@@ -3728,23 +3736,26 @@ void W_CameraSnap(W_Window window)
 #include <X11/extensions/xf86vmode.h>
 
 XF86VidModeModeInfo **video_mode_list;
-XF86VidModeModeInfo *video_mode_current;
+XF86VidModeModeInfo *video_mode_current, *video_mode_original;
 int video_mode_dotclock, video_mode_list_size;
 
 /* restore video mode to known previous mode */
-void video_mode_off()
+static void video_mode_off()
 {
-  if (video_mode_current != NULL) {
-    XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_current);
-    video_mode_current = NULL;
+  if (video_mode_current != video_mode_original) {
+    int x = XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_original);
+#if DEBUG > 0
+    fprintf(stderr, "video_mode_off: XF86VidModeSwitchToMode: %d\n", x);
+#endif
+    video_mode_current = video_mode_original;
   }
 }
 
 /* check if X server has support for changing modes */
-int video_mode_initialise() {
+static int video_mode_initialise() {
   int major, minor;
   if (!XF86VidModeQueryVersion(W_Display, &major, &minor)) {
-    fprintf(stderr, "XFree86-VidMode X extension absent\n");
+    fprintf(stderr, "video_mode_initialise: XFree86-VidMode X extension absent\n");
     return 0;
   }
 
@@ -3770,7 +3781,7 @@ int video_mode_initialise() {
         mode->htotal == current.htotal &&
         mode->vtotal == current.vtotal &&
         mode->flags == current.flags) {
-      video_mode_current = mode;
+      video_mode_original = video_mode_current = mode;
     }
   }
 
@@ -3781,13 +3792,10 @@ int video_mode_initialise() {
     return 0;
   }
 
-  /* schedule a change-back at program end */
-  atexit(video_mode_off);
-
   return 1;
 }
 
-void video_mode_on()
+static void video_mode_on()
 {
   int line;
 
@@ -3795,13 +3803,17 @@ void video_mode_on()
   for (line=0; line < video_mode_list_size; line++) {
     XF86VidModeModeInfo *mode = video_mode_list[line];
     if (mode->hdisplay == 1024 && mode->vdisplay == 768) {
-      XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
+      int x = XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
+#if DEBUG > 0
+      fprintf(stderr, "video_mode_on: XF86VidModeSwitchToMode: %d\n", x);
+#endif
+      video_mode_current = mode;
       return;
     }
   }
 }
 
-void view_port_warp(W_Window window)
+static void view_port_warp(W_Window window)
 {
   struct window *win = W_Void2Window(window);
 
@@ -3812,15 +3824,11 @@ void view_port_warp(W_Window window)
   XF86VidModeSetViewPort(W_Display, W_Screen, tx, ty);
   XMoveResizeWindow(W_Display, win->window, 0, 0, 1024, 768);
   XMapRaised(W_Display, win->window);
-  //  XEvent event;
-  //  do {
-  //    XMaskEvent(W_Display, StructureNotifyMask, &event);
-  //  } while ( (event.type != MapNotify) || (event.xmap.event != win) );
   XRaiseWindow(W_Display, win->window);
 }
 
 /* force the cursor to stay within the window */
-void pointer_grab_on(W_Window window)
+static void pointer_grab_on(W_Window window)
 {
   struct window *win = W_Void2Window(window);
 
@@ -3836,14 +3844,13 @@ void pointer_grab_on(W_Window window)
                 GrabModeAsync, CurrentTime);
 }
 
-void pointer_grab_off(W_Window window)
+static void pointer_grab_off(W_Window window)
 {
-  struct window *win = W_Void2Window(window);
   XUngrabPointer(W_Display, CurrentTime);
   XUngrabKeyboard(W_Display, CurrentTime);
 }
 
-void kde_fullscreen_on(W_Window window) {
+static void kde_fullscreen_on(W_Window window) {
   struct window *win = W_Void2Window(window);
   Atom WM_HINTS;
   WM_HINTS = XInternAtom(W_Display, "_NET_WM_STATE", True);
@@ -3855,7 +3862,7 @@ void kde_fullscreen_on(W_Window window) {
   }
 }
 
-void kde_fullscreen_off(W_Window window) {
+static void kde_fullscreen_off(W_Window window) {
   struct window *win = W_Void2Window(window);
   Atom WM_HINTS;
   WM_HINTS = XInternAtom(W_Display, "_NET_WM_STATE", True);
@@ -3866,6 +3873,9 @@ void kde_fullscreen_off(W_Window window) {
 
 void W_FullScreenOn(W_Window window)
 {
+#if DEBUG > 0
+  fprintf(stderr, "W_FullScreenOn\n");
+#endif
   video_mode_on();
   view_port_warp(window);
   pointer_grab_on(window);
@@ -3874,12 +3884,18 @@ void W_FullScreenOn(W_Window window)
 
 void W_FullScreenOff(W_Window window)
 {
+#if DEBUG > 0
+  fprintf(stderr, "W_FullScreenOff\n");
+#endif
   pointer_grab_off(window);
   kde_fullscreen_off(window);
   video_mode_off();
 }
 
-int W_FullScreenInitialise() {
+void W_FullScreenInitialise() {
+#if DEBUG > 0
+  fprintf(stderr, "W_FullScreenInitialise\n");
+#endif
   full_screen_enabled = 0;
   full_screen_default = 0;
   if (booleanDefault("FullScreen", 1)) {
@@ -3890,6 +3906,9 @@ int W_FullScreenInitialise() {
 }
 
 void W_FullScreenToggle(W_Window window) {
+#if DEBUG > 0
+  fprintf(stderr, "W_FullScreenToggle\n");
+#endif
   if (full_screen_enabled) {
     full_screen_enabled = 0;
     W_FullScreenOff(window);
@@ -3905,6 +3924,9 @@ void W_FullScreenToggle(W_Window window) {
 }
 
 void W_FullScreenBegin(W_Window window) {
+#if DEBUG > 0
+  fprintf(stderr, "W_FullScreenBegin\n");
+#endif
   if (full_screen_enabled) {
     W_FullScreenOn(window);
   }
