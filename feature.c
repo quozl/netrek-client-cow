@@ -90,6 +90,7 @@ struct feature features[] =
   {"SELF_8FLAGS", &F_self_8flags, 'S', 1, 0, 0},
   {"SELF_8FLAGS2", &F_self_8flags2, 'S', 0, 0, 0},
   {"SHIP_CAP", &F_ship_cap, 'S', 1, 0, 0},
+  {"SP_GENERIC_32", &F_sp_generic_32, 'S', 1, &A_sp_generic_32, 0},
 
 #ifdef WARP_DEAD
   {"DEAD_WARP", &F_dead_warp, 'S', 1, 0, 0},
@@ -286,16 +287,23 @@ void
         reportFeatures(void)
 {
   struct feature *f;
+  int value;
+  char arg1, arg2;
 
   for (f = features; f->name != 0; f++)
     {
       if (strcmpi(f->name, "FEATURE_PACKETS") != 0)
-	sendFeature(f->name,
-		    f->feature_type,
-		    f->value,
-		    (f->arg1 ? *f->arg1 : 0),
-		    (f->arg2 ? *f->arg2 : 0));
-
+        {
+          value = f->value;
+          arg1 = (f->arg1 ? *f->arg1 : 0);
+          arg2 = (f->arg2 ? *f->arg2 : 0);
+          if (!strcmp(f->name, "SP_GENERIC_32"))
+            {
+              value = 1;
+              arg1 = GENERIC_32_VERSION;
+            }
+          sendFeature(f->name, f->feature_type, value, arg1, arg2);
+        }
 #ifdef DEBUG
       printf("(C->S) %s (%c): %d\n", f->name, f->feature_type, f->value);
 #endif

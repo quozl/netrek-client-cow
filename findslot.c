@@ -49,7 +49,7 @@ int findslot(void)
   /* Wait for some kind of indication about in/not in */
   while (queuePos == -1)
     {
-      socketPause();
+      socketPauseNoUser();
       if (isServerDead())
 	{
 

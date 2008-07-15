@@ -164,8 +164,8 @@
 #define PHASER_STATS
 #define RECORDGAME
 
-
-
+#define CAMERA
+#define FULLSCREEN
 
 /*
 ##############################################################################

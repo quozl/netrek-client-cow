@@ -1614,7 +1614,12 @@ Key33(void)
 
 Key34(W_Event * data)
 {
-  W_FullScreenToggle(baseWin);
+  int ok = W_FullScreenToggle(baseWin);
+  if (ok < 1) {
+    warning("Full screen mode was not built in this program.");
+  } else {
+    warning("Full screen mode toggled.");
+  }
 }
 
 Key35(void)
@@ -1870,7 +1875,7 @@ Key66(void)
 Key67(void)
 {
   sendCoupReq();
-  camera_snap();
+  W_CameraSnap(w);
 }
 
 Key68(void)

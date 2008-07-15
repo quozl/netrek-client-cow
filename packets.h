@@ -1,32 +1,66 @@
-
-/* Include file for socket I/O xtrek.
- * 
+/* 
+ * Include file for socket I/O xtrek.
+ *
  * Kevin P. Smith 1/29/89
- *
- * $Log: packets.h,v $
- * Revision 1.2  2000/05/19 14:24:52  jeffno
- * Improvements to playback.
- * - Can jump to any point in recording.
- * - Can lock on to cloaked players.
- * - Tactical/galactic repaint when paused.
- * - Can lock on to different players when recording paused.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "copyright2.h"
-
 
 #define STATUS_TOKEN    "\t@@@"			 /* ATM */
 
-
-/* TCP and UDP use identical packet formats; the only difference is that,
+/*
+ * TCP and UDP use identical packet formats; the only difference is that,
  * when in UDP mode, all packets sent from server to client have a sequence
  * number appended to them.
- * 
- * (note: ALL packets, whether sent on the TCP or UDP channel, will have the
- * sequence number.  Thus it's important that client & server agree on when
- * to switch.  This was done to keep critical and non-critical data in sync.) */
+ *
+ * (note: ALL packets, whether sent on the TCP or UDP channel, will have
+ * the sequence number.  Thus it's important that client & server agree on
+ * when to switch.  This was done to keep critical and non-critical data
+ * in sync.)
+ */
+
+/*
+	general protocol state outline
+
+	starting state
+
+	CP_SOCKET
+	CP_FEATURE, optional, to indicate feature packets are known
+	SP_MOTD
+	SP_FEATURE, only if CP_FEATURE was seen
+	SP_QUEUE, optional, repeats until slot is available
+	SP_YOU, indicates slot number assigned
+
+	login state, player slot status is POUTFIT
+	client shows name and password prompt and accepts input
+
+	CP_LOGIN
+	CP_FEATURE
+	SP_LOGIN
+	SP_YOU
+	SP_PLAYER_INFO
+	various other server packets
+
+	outfit state, player slot status is POUTFIT
+	client shows team selection window
+
+	SP_MASK, sent regularly during outfit
+
+	client accepts team selection input
+	CP_OUTFIT
+	SP_PICKOK, signals server acceptance of alive state
+
+	alive state,
+	server places ship in game and play begins
+
+	SP_PSTATUS, indicates PDEAD state
+	client animates explosion
+
+	SP_PSTATUS, indicates POUTFIT state
+	clients returns to team selection window
+
+	CP_QUIT
+	CP_BYE
+*/
 
 /* When making an index of a recording, if we need to save this packet. */
 #define PB_CONTEXT(p) (\
@@ -106,9 +140,10 @@
 						  * semi-critical info */
 
 #ifdef RSA
-#define SP_RSA_KEY	31			 /* handles binary * *
-						  * verification */
+#define SP_RSA_KEY	31			 /* handles binary */
 #endif
+
+#define SP_GENERIC_32	32
 
 #define SP_SHIP_CAP 39				 /* Handles server ship mods */
 
@@ -1095,3 +1130,57 @@ struct stats_s_spacket
   };
 
 #endif
+
+struct generic_32_spacket {
+    char        type;
+    char        version;        /* alphabetic, 0x60 + version */
+    char        pad[30];
+};
+#define GENERIC_32_LENGTH 32
+#define COST_GENERIC_32 (F_sp_generic_32 ? GENERIC_32_LENGTH : 0)
+struct generic_32_spacket_a { /* SP_GENERIC_32 py-struct "b1sHH26x" #32 */
+    char           type;
+    char           version;     /* alphabetic, 0x60 + version */
+    unsigned short repair_time; /* server estimate of repair time in seconds */
+    unsigned short pl_orbit;    /* what planet player orbiting, -1 if none */
+    char           pad1[26];
+    /* NOTE: this version didn't use network byte order for the shorts */
+};
+#define GENERIC_32_VERSION_A 1
+struct generic_32_spacket_b { /* SP_GENERIC_32 py-struct "!b1sHbHBBsBsBB18x" #32 */
+    char           type;
+    char           version;     /* alphabetic, 0x60 + version */
+    unsigned short repair_time; /* server estimate of repair time, seconds */
+    char           pl_orbit;    /* what planet player orbiting, -1 if none */
+    unsigned short gameup;      /* server status flags */
+    unsigned char  tournament_teams; /* what teams are involved */
+    unsigned char  tournament_age; /* duration of t-mode so far */
+    char           tournament_age_units; /* units for above, see s2du */
+    unsigned char  tournament_remain; /* remaining INL game time */
+    char           tournament_remain_units; /* units for above, see s2du */
+    unsigned char  starbase_remain; /* starbase reconstruction, mins   */
+    unsigned char  team_remain; /* team surrender time, seconds    */
+    char           pad1[18];
+} __attribute__ ((packed));
+#define GENERIC_32_VERSION_B 2
+#define GENERIC_32_VERSION GENERIC_32_VERSION_B /* default */
+
+/* SP_GENERIC_32 versioning instructions:
+
+   we start with version 'a', and each time a structure is changed
+   increment the version and reduce the pad size, keeping the packet
+   the same size ...
+
+   client is entitled to trust fields in struct that were defined at a
+   particular version ...
+
+   client is to send CP_FEATURE with SP_GENERIC_32 value 1 for version
+   'a', value 2 for version 'b', etc ...
+
+   server is to reply with SP_FEATURE with SP_GENERIC_32 value set to
+   the maximum version it supports (not the version requested by the
+   client), ...
+
+   server is to send SP_GENERIC_32 packets of the highest version it
+   knows about, but no higher than the version the client asks for.
+*/

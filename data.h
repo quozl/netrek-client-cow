@@ -93,6 +93,7 @@ extern struct planet *planets;
 extern struct phaser *phasers;
 extern struct message *messages;
 extern struct mctl *mctl;
+extern struct context *context;
 extern struct team *teams;
 extern struct ship shipvals[];
 extern struct memory universe;
@@ -566,6 +567,8 @@ extern int F_cloak_maxwarp;
 extern int F_self_8flags;
 extern int F_self_8flags2;
 extern int F_ship_cap;
+extern int F_sp_generic_32;
+extern char A_sp_generic_32;
 
 #ifdef HAVE_XPM
 extern int F_agri_pix;

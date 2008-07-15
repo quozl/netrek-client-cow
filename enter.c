@@ -46,6 +46,7 @@ void openmem(void)
   phasers = universe.phasers;
   mctl = universe.mctl;
   messages = universe.messages;
+  context = universe.context;
   for (i = 0; i < MAXPLAYER; i++)
     {
       players[i].p_status = PFREE;

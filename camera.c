@@ -1,5 +1,5 @@
-/* prototype camera support */
-
+#include "config.h"
+#ifdef CAMERA
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
@@ -64,3 +64,4 @@ void camera_snap(Display *arg_disp, Window arg_window)
   fprintf(stderr, "camera_snap: %s\n", name);
   free(name);
 }
+#endif

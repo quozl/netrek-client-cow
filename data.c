@@ -57,6 +57,7 @@ struct planet *planets;
 struct phaser *phasers;
 struct message *messages;
 struct mctl *mctl;
+struct context *context;
 struct memory universe;
 
 int     ghoststart = 0;				 /* is this a ghostbust *
@@ -732,6 +733,8 @@ int     F_cloak_maxwarp = 0;
 int     F_self_8flags = 1;
 int     F_self_8flags2 = 0;
 int     F_ship_cap = 0;
+int     F_sp_generic_32 = 1;
+char    A_sp_generic_32 = 0;
 
 #ifdef HAVE_XPM
 int     F_agri_pix = 1;

@@ -110,6 +110,23 @@ enum dist_type
  * (append) ) byte18++: the text to pre or append .. depending on termination
  * above. text is null terminated and the last thing in this distress */
 
+/* The following defines are for gameup field */
+#define GU_GAMEOK 0x1
+#define GU_PRACTICE 0x2			/* Basepractice robot is present */
+/* also set by INL robot during a pause, in pre-game, or post-game */
+#define GU_CHAOS 0x4
+/* also set by INL robot in post-game */
+#define GU_PAUSED 0x8
+#define GU_INROBOT 0x10			/* INL robot is present	*/
+#define GU_NEWBIE 0x20			/* Newbie robot is present */
+#define GU_PRET 0x40			/* Pre-t robot is present */
+#define GU_BOT_IN_GAME 0x80		/* Pre-t robot + bots are present */
+#define GU_CONQUER 0x100		/* conquest parade in progress	*/
+#define GU_PUCK 0x200			/* Hockey robot is present */
+#define GU_DOG 0x400			/* Dogfight robot is present */
+#define GU_INL_DRAFTING 0x800           /* INL draft pre-game is in progress */
+#define GU_INL_DRAFTED 0x1000           /* INL draft game is in progress */
+
 #define PFREE 0
 #define POUTFIT 1
 #define PALIVE 2
@@ -268,6 +285,7 @@ struct player
     float   p_kills;				 /* Enemies killed */
     short   p_planet;				 /* Planet orbiting or locked
 						  * onto */
+    short   pl_orbit;				 /* planet being orbited */
     short   p_playerl;				 /* Player locked onto */
 
 #ifdef ARMY_SLIDER
@@ -302,6 +320,7 @@ struct player
 						  * lock */
     int     p_pos;				 /* My position in the player
 						  * file */
+    short   p_repair_time;			 /* seconds */
   };
 
 struct statentry
@@ -539,6 +558,18 @@ struct rank
     char   *name, *cname;
   };
 
+struct context
+{
+    short         gameup;                  /* server status flags           */
+    unsigned char tournament_teams;        /* what teams are involved       */
+    unsigned char tournament_age;          /* duration of t-mode so far     */
+    char          tournament_age_units;    /* units for above, see s2du     */
+    unsigned char tournament_remain;       /* remaining INL game time       */
+    char          tournament_remain_units; /* units for above, see s2du     */
+    unsigned char starbase_remain;         /* starbase reconstruction, mins */
+    unsigned char team_remain;             /* team surrender time, seconds  */
+};
+
 struct memory
   {
     struct player players[MAXPLAYER];
@@ -550,6 +581,7 @@ struct memory
     struct mctl mctl[1];
     struct message messages[MAXMESSAGE];
     struct ship shipvals[NUM_TYPES];
+    struct context context[1];
   };
 
 struct plupdate
@@ -633,17 +665,3 @@ struct key_list
 #endif
 
 #endif /* _h_struct */
-
-
-
-
-
-
-
-
-
-
-
-
-
-

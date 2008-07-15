@@ -130,6 +130,7 @@ void    handleRSAKey(void *packet);
 #endif
 
 void    handleShipCap(struct ship_cap_spacket *packet);
+static void handleGeneric32(struct generic_32_spacket *packet);
 extern void handlePing(struct ping_spacket *packet);	/* ping.c */
 extern void terminate(int error);
 
@@ -265,7 +266,7 @@ struct packet_handler handlers[] =
   {0, dummy},					 /* #31, and dummy won't */
 #endif
 
-  {0, dummy},					 /* 32 */
+  {sizeof(struct generic_32_spacket), handleGeneric32}, /* SP_GENERIC_32 */
   {0, dummy},					 /* 33 */
   {0, dummy},					 /* 34 */
   {0, dummy},					 /* 35 */
@@ -818,7 +819,7 @@ static void set_udp_opts(int s)
 }
 #endif
 
-callServer(int port, char *server)
+void callServer(int port, char *server)
 {
   int     s;
   struct sockaddr_in addr;
@@ -930,7 +931,7 @@ isServerDead(void)
   return serverDead;
 }
 
-socketPause(void)
+void socketPauseCommon(int wake_on_user_input)
 {
   struct timeval timeout;
   fd_set  readfds;
@@ -941,14 +942,25 @@ socketPause(void)
 
   FD_ZERO(&readfds);
   FD_SET(sock, &readfds);
-#ifndef HAVE_WIN32
-  FD_SET(W_Socket(), &readfds);
-#endif
   if (udpSock >= 0)				 /* new */
     FD_SET(udpSock, &readfds);
+#ifndef HAVE_WIN32
+  if (wake_on_user_input)
+    FD_SET(W_Socket(), &readfds);
+#endif
 
   retval = SELECT(max_fd, &readfds, 0, 0, &timeout);
   if (retval < 0) perror("select"); /* FIXME: EBADF on kill of ntserv during outfit */
+}
+
+void socketPauseNoUser(void)
+{
+  socketPauseCommon(0);
+}
+
+void socketPause(void)
+{
+  socketPauseCommon(1);
 }
 
 readFromServer(fd_set * readfds)
@@ -978,6 +990,11 @@ readFromServer(fd_set * readfds)
 	  dotimers();
 	  return 0;
 	}
+      if (rs < 0) {
+	if (errno == EINTR) return 0;
+	perror("select");
+	sleep(1);
+      }
     }
   if (udpSock >= 0 && FD_ISSET(udpSock, readfds))
     {
@@ -2785,6 +2802,42 @@ void    handleShipCap(struct ship_cap_spacket *packet)
   getship(myship, myship->s_type);
 }
 
+static void
+handleGeneric32_a (struct generic_32_spacket_a *packet)
+{
+    me->p_repair_time = packet->repair_time;
+    me->pl_orbit = packet->pl_orbit;
+}
+
+static void
+handleGeneric32_b (struct generic_32_spacket_b *packet)
+{
+    me->p_repair_time = ntohs (packet->repair_time);
+    me->pl_orbit = packet->pl_orbit;
+    context->gameup = ntohs(packet->gameup);
+    context->tournament_teams = packet->tournament_teams;
+    context->tournament_age = packet->tournament_age;
+    context->tournament_age_units = packet->tournament_age_units;
+    context->tournament_remain = packet->tournament_remain;
+    context->tournament_remain_units = packet->tournament_remain_units;
+    context->starbase_remain = packet->starbase_remain;
+    context->team_remain = packet->team_remain;
+}
+
+static void
+handleGeneric32 (struct generic_32_spacket *packet)
+{
+  switch (packet->version) {
+  case 0x60+GENERIC_32_VERSION_A:
+    handleGeneric32_a((struct generic_32_spacket_a *) packet);
+    break;
+  case 0x60+GENERIC_32_VERSION_B:
+    handleGeneric32_b((struct generic_32_spacket_b *) packet);
+    break;
+  }
+}
+
+
 #ifdef RSA
 void    handleRSAKey(struct rsa_key_spacket *packet)
 {
@@ -3612,9 +3665,8 @@ void Dump_Packet_Log_Info(void)
   printf("Client Packets Summary:\n");
   printf("Num #Sent    Size   TotlBytes   %%Total\n");
   for (i = 0; i <= NUM_SIZES; i++)
-    {
-
 #ifdef SHORT_PACKETS
+    {
       if (sizes[i] == -1)
 	calc_temp = cp_msg_size;
       else
@@ -3624,6 +3676,7 @@ void Dump_Packet_Log_Info(void)
 	     (float) (calc_temp * 100 / outtotal_bytes));
     }
 #else
+    {
       calc_temp = sizes[i] * outpacket_log[i];
       printf("%3d %5d    %4d   %9d   %3.2f\n",
 	     i, outpacket_log[i], sizes[i], calc_temp,
@@ -3925,6 +3978,34 @@ void print_packet(char *packet, int size)
 	   }
 	 break;
 #endif
+       case SP_GENERIC_32   :
+	 fprintf(stderr, "\nS->C SP_GENERIC_32\t");
+	 if (log_packets > 1)
+	   switch (((struct generic_32_spacket *)packet)->version) {
+	   case 0x60+GENERIC_32_VERSION_A:
+	     fprintf(stderr, "  version=%c, repair_time=%d, pl_orbit=%d,",
+		     ((struct generic_32_spacket_a *) packet)->version,
+		     ((struct generic_32_spacket_a *) packet)->repair_time,
+		     ((struct generic_32_spacket_a *) packet)->pl_orbit);
+	     break;
+	   case 0x60+GENERIC_32_VERSION_B:
+	     fprintf(stderr, "  version=%c, repair_time=%d, pl_orbit=%d, gameup=0x%x, tourn_teams=%d, tourn_age=%d, tourn_age_units=%c, tourn_remain=%d, tourn_remain_units=%c, starbase_remain=%d, team_remain=%d,",
+		     ((struct generic_32_spacket_b *) packet)->version,
+		     ntohs(((struct generic_32_spacket_b *) packet)->repair_time),
+		     ((struct generic_32_spacket_b *) packet)->pl_orbit,
+		     ntohs(((struct generic_32_spacket_b *) packet)->gameup),
+		     ((struct generic_32_spacket_b *) packet)->tournament_teams,
+		     ((struct generic_32_spacket_b *) packet)->tournament_age,
+		     ((struct generic_32_spacket_b *) packet)->tournament_age_units,
+		     ((struct generic_32_spacket_b *) packet)->tournament_remain,
+		     ((struct generic_32_spacket_b *) packet)->tournament_remain_units,
+		     ((struct generic_32_spacket_b *) packet)->starbase_remain,
+		     ((struct generic_32_spacket_b *) packet)->team_remain );      
+	     break;
+	   default:
+	     fprintf(stderr, "  version=0x%x (unknown)", ((struct generic_32_spacket *)packet)->version);
+	   }
+	 break;
        
        case SP_SHIP_CAP     :                   /* Handles server ship mods */
 	 fprintf(stderr, "\nS->C SP_SHIP_CAP\t");

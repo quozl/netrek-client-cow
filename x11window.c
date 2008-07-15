@@ -345,6 +345,7 @@ static char solid[] =
 
 int full_screen_default, full_screen_enabled;
 
+#ifdef FULLSCREEN
 static void video_mode_off(void);
 static int video_mode_initialise(void);
 static void video_mode_on(void);
@@ -353,6 +354,7 @@ static void pointer_grab_on(W_Window window);
 static void pointer_grab_off(W_Window window);
 static void kde_fullscreen_on(W_Window window);
 static void kde_fullscreen_off(W_Window window);
+#endif
 
 /* X debugging */
 int
@@ -973,7 +975,9 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 
   if (!strcmp(name, "netrek")) {
     if (full_screen_enabled) {
+#ifdef FULLSCREEN
       kde_fullscreen_on(W_Window2Void(newwin));
+#endif
     }
   }
 
@@ -3727,9 +3731,15 @@ void    W_Halo(int x, int y, W_Color color)
 
 void W_CameraSnap(W_Window window)
 {
+#ifdef CAMERA
   struct window *win = W_Void2Window(window);
   camera_snap(W_Display, win->window);
+#else
+  fprintf(stderr, "W_CameraSnap: function not implemented in this build.");
+#endif
 }
+
+#ifdef FULLSCREEN
 
 /* XFree86 VidMode X extension handling */
 
@@ -3873,8 +3883,11 @@ static void kde_fullscreen_off(W_Window window) {
   }
 }
 
+#endif /* FULLSCREEN */
+
 void W_FullScreenOn(W_Window window)
 {
+#ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenOn\n");
 #endif
@@ -3882,19 +3895,23 @@ void W_FullScreenOn(W_Window window)
   view_port_warp(window);
   pointer_grab_on(window);
   kde_fullscreen_on(window);
+#endif
 }
 
 void W_FullScreenOff(W_Window window)
 {
+#ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenOff\n");
 #endif
   pointer_grab_off(window);
   kde_fullscreen_off(window);
   video_mode_off();
+#endif
 }
 
 void W_FullScreenInitialise() {
+#ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenInitialise\n");
 #endif
@@ -3905,9 +3922,11 @@ void W_FullScreenInitialise() {
     if (video_mode_initialise())
       full_screen_enabled++;
   }
+#endif
 }
 
-void W_FullScreenToggle(W_Window window) {
+int W_FullScreenToggle(W_Window window) {
+#ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenToggle\n");
 #endif
@@ -3923,21 +3942,29 @@ void W_FullScreenToggle(W_Window window) {
     full_screen_enabled++;
     W_FullScreenOn(window);
   }
+  return 0;
+#else
+  return -1;
+#endif
 }
 
 void W_FullScreenBegin(W_Window window) {
+#ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenBegin\n");
 #endif
   if (full_screen_enabled) {
     W_FullScreenOn(window);
   }
+#endif
 }
 
 /* regularly enforce */
 void W_FullScreen(W_Window window) {
+#ifdef FULLSCREEN
   if (full_screen_enabled) {
     view_port_warp(window);
     pointer_grab_on(window);
   }
+#endif
 }

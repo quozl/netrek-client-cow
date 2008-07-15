@@ -148,10 +148,17 @@ void W_DefineArrowCursor(W_Window window);
 void W_GalacticBgd(int which);
 void W_LocalBgd(int which);
 
+int W_TTSTextHeight(void);
+int W_TTSTextWidth(char *s, int l);
+void W_EraseTTSText(W_Window window, int max_width, int y, int width);
+void W_WriteTTSText(W_Window window, int max_width, int y, int width, char *str, int len);
+void W_Halo(int x, int y, W_Color color);
+
 void W_FullScreenOn(W_Window window);
 void W_FullScreenOff(W_Window window);
 void W_FullScreenInitialise(void);
-void W_FullScreenToggle(W_Window window);
+int W_FullScreenToggle(W_Window window);
 void W_FullScreenBegin(W_Window window);
 void W_FullScreen(W_Window window);
+void W_CameraSnap(W_Window window);
 #endif /* _h_Wlib */

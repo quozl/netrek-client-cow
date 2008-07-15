@@ -1,24 +1,7 @@
-
-
-/* defs.h
- *
- * $Log: defs.h,v $
- * Revision 1.3  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.2  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
-
 #ifndef _h_defs
 #define _h_defs
 
-
 #include "copyright.h"
-
 
 /* #$!@$#% length of address field of messages */
 #define ADDRLEN 10

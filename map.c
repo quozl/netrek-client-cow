@@ -441,6 +441,87 @@ static void DrawPlanets()
     }
 }
 
+/* draw game state from sp_generic_32 packet */
+static int gu_last_width = -1;
+int gu_height;
+char gu_text[80];
+int gu_length;
+int gu_width;
+
+static void gu_clear()
+{
+  if (gu_last_width != -1) {
+    W_EraseTTSText(mapw, TWINSIDE, TWINSIDE/2+(gu_height/2), gu_last_width);
+  }
+}
+
+static void gu_update()
+{
+  int eager = 0;
+  static int old_gameup = 0;
+  static int old_tournament_remain = 0;
+
+  /* initialisation */
+  if (gu_last_width == -1) {
+    gu_height = W_TTSTextHeight();
+    gu_width = -1;
+  }
+
+  /* no change detected */
+  if (context->gameup == old_gameup &&
+      context->tournament_remain == old_tournament_remain) return;
+  old_gameup = context->gameup;
+  old_tournament_remain = context->tournament_remain;
+
+  /* add words for some of the gameup flags */
+  strcpy(gu_text, " ");
+  if (context->gameup & GU_INROBOT) {
+    if (context->gameup & (GU_CHAOS | GU_PRACTICE)) {
+      strcat(gu_text, "PREGAME ");
+      eager++;
+    } else if (context->gameup & (GU_PRACTICE | GU_PAUSED)) {
+      strcat(gu_text, "PAUSED ");
+      eager++;
+    }
+    if (context->gameup & GU_INL_DRAFTING) {
+      strcat(gu_text, "DRAFTING ");
+      eager++;
+    }
+  } else {
+    if (context->gameup & GU_CONQUER) {
+      strcat(gu_text, "CONQUEST PARADE ");
+      eager++;
+    } else if (context->gameup & GU_PAUSED) {
+      strcat(gu_text, "PAUSED ");
+      eager++;
+    }
+  }
+
+  /* add remaining game time */
+  if (context->tournament_remain != 0) {
+    char buf[40];
+    sprintf(buf, "%d%c ", context->tournament_remain,
+            context->tournament_remain_units);
+    strcat(gu_text, buf);
+    eager++;
+  }
+
+  if (eager) {
+    gu_length = strlen(gu_text);
+    gu_width = W_TTSTextWidth(gu_text, gu_length);
+  } else {
+    gu_width = -1;
+  }
+}
+
+static void gu_draw()
+{
+  if (gu_width == -1) return;
+  W_WriteTTSText(mapw, TWINSIDE, TWINSIDE/2+(gu_height/2), gu_width,
+                 gu_text, gu_length);
+  gu_last_width = gu_width;
+}
+
 
 void
         map(void)
@@ -548,6 +629,11 @@ void
 	}
     }
 
+  /* draw gameup flags */
+  gu_clear();
+  gu_update();
+  gu_draw();
+  /*! @bug paused overwrites ships on galactic */
 
   /* Draw Planets */
 
