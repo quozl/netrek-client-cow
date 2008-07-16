@@ -238,6 +238,7 @@ struct icon
 #define WIN_MENU        3
 #define WIN_SCROLL      4
 
+static void changeMenuItem(struct window *win, int col, int n, char *str, W_Color color);
 static void scrollUp(struct window *win, int y);
 static void scrollDown(struct window *win, int y);
 static void scrollPosition(struct window *win, int y);
@@ -1829,6 +1830,7 @@ void
     {
     case WIN_GRAPH:
       addr = fonts[fontNum(font)].baseline;
+      if (len < 0) len = strlen(str);
       XDrawImageString(W_Display, win->window,
 
 #ifdef SHORT_PACKETS
@@ -1849,6 +1851,7 @@ void
       XClearArea(W_Display, win->window,
 		 WIN_EDGE, MENU_PAD + W_Textheight * (win->height - 1),
 		 W_Textwidth * win->width, W_Textheight, False);
+      if (len < 0) len = strlen(str);
       XDrawImageString(W_Display, win->window,
 
 #ifdef SHORT_PACKETS
@@ -1864,10 +1867,11 @@ void
       AddToScrolling(win, color, font, str, len);
       break;
     case WIN_MENU:
-      changeMenuItem(win, x, y, str, len, color);
+      changeMenuItem(win, x, y, str, color);
       break;
     default:
       addr = fonts[fontNum(font)].baseline;
+      if (len < 0) len = strlen(str);
       XDrawImageString(W_Display, win->window,
 
 #ifdef SHORT_PACKETS
@@ -2546,23 +2550,11 @@ void redrawMenuItem(struct window *win, int n)
     }
 }
 
-void changeMenuItem(struct window *win, int col, int n, char *str, int len, W_Color color)
+static void changeMenuItem(struct window *win, int col, int n, char *str, W_Color color)
 {
   struct menuItem *items;
 
   items = (struct menuItem *) win->data;
-
-#ifdef nodef
-  if (items[n].string)
-    {
-      free(items[n].string);
-    }
-  news = (char *) malloc(len + 1);
-  STRNCPY(news, str, len + 1);
-  news[len] = 0;
-  items[n].string = news;
-  items[n].color = color;
-#endif
 
   STRNCPY(items[n].string, str, MAX_TEXT_WIDTH - 1);
   items[n].string[MAX_TEXT_WIDTH - 1] = 0;

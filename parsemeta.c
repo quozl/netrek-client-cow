@@ -1118,7 +1118,7 @@ static void metarefresh(int i, W_Color color)
 	}
     }
 
-  W_WriteText(metaWin, 0, i+1, color, buf, strlen(buf), 0);
+  W_WriteText(metaWin, 0, i+1, color, buf, -1, 0);
   sp->refresh = 0;
 }
 
@@ -1134,7 +1134,7 @@ void    metawindow()
   } else {
     header = "Server                                           Status        Type";
   }
-  W_WriteText(metaWin, 0, 0, W_Cyan, header, strlen(header), 0);
+  W_WriteText(metaWin, 0, 0, W_Cyan, header, -1, 0);
 
   for (i = 0; i < metaHeight; i++)
     metarefresh(i, textColor);
@@ -1145,9 +1145,11 @@ void    metawindow()
   /* Add additional options */
   if (type == 1)
     W_WriteText(metaWin, 0, metaHeight-2, W_Yellow,
-                "Refresh                                         (Ctrl/R)", 7, 0);
+                "Refresh                                         (Ctrl/R)",
+                -1, 0);
   W_WriteText(metaWin, 0, metaHeight-1, W_Yellow,
-                "Quit                                              (q)", 4, 0);
+                "Quit                                              (q)",
+                -1, 0);
 
   /* Map window */
   W_MapWindow(metaWin);
@@ -1165,7 +1167,7 @@ static void metadone(void)
 
 static void metaactionrefresh()
 {
-  W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", 13, 0);
+  W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", -1, 0);
   W_Flush();
   ReadMetasSend();
 }

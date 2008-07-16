@@ -71,7 +71,6 @@ void W_SetSensitive(W_Window w, int v);
 W_Window W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int border);
 void redrawMenu(struct window *win);
 void redrawMenuItem(struct window *win, int n);
-void changeMenuItem(struct window *win, int col, int n, char *str, int len, W_Color color);
 void W_DefineMapcursor(W_Window window);
 void W_DefineLocalcursor(W_Window window);
 void W_DefineFedCursor(W_Window window);
