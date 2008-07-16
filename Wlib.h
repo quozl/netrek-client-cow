@@ -158,6 +158,9 @@ void W_FullScreenOn(W_Window window);
 void W_FullScreenOff(W_Window window);
 void W_FullScreenInitialise(void);
 int W_FullScreenToggle(W_Window window);
+#define FULLSCREEN_NOT_COMPILED -1
+#define FULLSCREEN_OK 0
+#define FULLSCREEN_FAILED 1
 void W_FullScreenBegin(W_Window window);
 void W_FullScreen(W_Window window);
 void W_CameraSnap(W_Window window);

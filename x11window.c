@@ -3753,7 +3753,8 @@ int video_mode_dotclock, video_mode_list_size;
 static void video_mode_off()
 {
   if (video_mode_current != video_mode_original) {
-    int x = XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_original);
+    int x;
+    x = XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_original);
 #if DEBUG > 0
     fprintf(stderr, "video_mode_off: XF86VidModeSwitchToMode: %d\n", x);
 #endif
@@ -3813,7 +3814,8 @@ static void video_mode_on()
   for (line=0; line < video_mode_list_size; line++) {
     XF86VidModeModeInfo *mode = video_mode_list[line];
     if (mode->hdisplay == 1024 && mode->vdisplay == 768) {
-      int x = XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
+      int x;
+      x = XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
 #if DEBUG > 0
       fprintf(stderr, "video_mode_on: XF86VidModeSwitchToMode: %d\n", x);
 #endif
@@ -3936,15 +3938,15 @@ int W_FullScreenToggle(W_Window window) {
   } else {
     if (!full_screen_default) {
       if (!video_mode_initialise()) {
-        return;
+        return FULLSCREEN_FAILED;
       }
     }
     full_screen_enabled++;
     W_FullScreenOn(window);
   }
-  return 0;
+  return FULLSCREEN_OK;
 #else
-  return -1;
+  return FULLSCREEN_NOT_COMPILED;
 #endif
 }
 

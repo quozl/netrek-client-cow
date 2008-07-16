@@ -1615,10 +1615,16 @@ Key33(void)
 Key34(W_Event * data)
 {
   int ok = W_FullScreenToggle(baseWin);
-  if (ok < 1) {
+  switch (ok) {
+  case -1:
     warning("Full screen mode was not built in this program.");
-  } else {
+    break;
+  case 0:
     warning("Full screen mode toggled.");
+    break;
+  case 1:
+    warning("Full screen mode not available here.");
+    break;
   }
 }
 
