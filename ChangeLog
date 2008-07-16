@@ -1,3 +1,57 @@
+Wed Jul 16 09:30:55 2008  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.2.4: released.
+
+	- play, fixed inability to fire a stream of eight torps when in
+	TCP mode, which was caused by a combination of packet amalgamation
+	due to the TCP/IP Nagle algorithm, and the server's decision to
+	prevent more than one torp from being fired per update.
+
+	- play, fixed a delay in responding to keyboard and mouse events
+	... which was caused by a regression on Debian GNU/Linux Lenny
+	where the latest Xlib and XCB more closely adhered to the manual
+	pages for the X event queue functions.
+
+	- clue play, add SP_GENERIC_32 version 'b' support, client now
+	requests the packets from the server, and will display
+	mid-galactic messages relating to INL mode games, including
+	pregame, pause, and time left in game.
+
+	- messaging, fixed bombing RCD to show planet name even when
+	target planet is not scanned,
+
+	- metaserver list window, changed default metaserver mode to UDP,
+	avoid displaying metaserver list until at least one reply is
+	received, default the list size to about 6 entries, and add
+	keyboard keys for refresh and quit,
+
+	- graphics, menu styles adjusted to remove thick white lines,
+
+	- networking, banned during login or loss of connection during
+	play, added messages corresponding to the reason code in the
+	SP_BADVERSION packet,
+
+	- networking, removed the reconnect after connection loss feature,
+	since (a) the server side has removed it, and (b) most connection
+	losses these days are not recoverable in this way.
+
+	- graphics, finished full screen and camera support, fixed failure
+	to restore original resolution in many cases, added a warning
+	window message to acknowledge resolution change key ("),
+
+	- login, fixed delay in and lack of "Seconds to go" on login
+	screen caused by redraw, fixed delayed handling of keyboard events
+	during login screen, removed login screen warning "Keep your mouse
+	in this window to type" since the code now accepts keystrokes no
+	matter what window they appear to be typed into,
+
+	- usage, changed most stdout messages to be stderr, and lowercase,
+	and changed from the term "ghostbusted" to "disconnected" or
+	"server connection lost", to ease comprehension,
+
+	- internal, fixed many compilation warnings, removed many
+	redundant CVS revision logs from file headers, still more to go.
+
 Mon Sep  3 10:57:17 2007  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.3: released.
