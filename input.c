@@ -1,5 +1,3 @@
-/* input.c
-*/
 #include <setjmp.h>
 #include "config.h"
 #include "copyright.h"
@@ -24,6 +22,9 @@
 #include "map.h"
 #include "short.h"
 #include "udpopt.h"
+
+static void detmine(void);
+static void keyaction(W_Event * data);
 
 int     detallow = 1;				 /* flag used to figure out * 
 
@@ -62,7 +63,7 @@ unsigned char key = ' ';
  * performance gains... instead of having to test * n/2 times for n different
  * keys, the key is run directly * via an array of input functions whose
  * index happens * to coorespond to the value of input char. - jn */
-int     emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
+static void emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
         Key35(void), Key36(void), Key37(void), Key38(void), Key39(void),
         Key40(void), Key41(W_Event * data), Key42(void), Key43(void), Key44(void),
         Key45(void), Key46(void), Key47(void), Key48(void), Key49(void),
@@ -86,7 +87,7 @@ int     emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
         Key124(void), Key125(void), Key126(W_Event * data), Key127(W_Event * data);
 
 /* control keys */
-int     Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * data),
+static void Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * data),
         Key146(W_Event * data), Key147(W_Event * data), Key148(W_Event * data),
         Key149(W_Event * data), Key150(W_Event * data), Key151(W_Event * data),
         Key152(W_Event * data), Key153(W_Event * data), Key160(W_Event * data),
@@ -98,9 +99,8 @@ int     Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * data),
 
 typedef struct
   {
-    int     (*handler) ();
+    void (*handler) ();
   }
-
 key_handler_type;
 
 key_handler_type key_handlers[MAXKEY] =
@@ -834,8 +834,7 @@ process_event(void)
   return loop;
 }
 
-
-keyaction(W_Event * data)
+static void keyaction(W_Event * data)
 {
   char    mbuf[80];
   char    buf[80];
@@ -1272,7 +1271,7 @@ scan(W_Window w, int x, int y)
 {
 }
 
-detmine(void)
+static void detmine(void)
 {
   register int i;
 
@@ -1362,7 +1361,7 @@ lockPlanetOrBase(W_Window ww, int x, int y)	 /* special version of * *
 }
 
 
-emptyKey(void)
+static void emptyKey(void)
 {
   fprintf(stderr, "input.c: emptyKey\n", key);
   W_Beep();
@@ -1381,7 +1380,6 @@ void    doMacro(W_Event * data)
 {
   struct obtype *gettarget(W_Window ww, int x, int y, int targtype), *target;
   int     targettype;
-  struct dmacro_list *dm;
   enum dist_type i;
 
 #ifdef NBT
@@ -1542,7 +1540,6 @@ void    doMacro(W_Event * data)
 	      return;
 	      break;
 
-
 	    default:
 	      fprintf(stderr, "Unknown Macro Type!  Jeff's a twink!!\n");
 	      warning("Unknown macro type (eg There is a macro bug)");
@@ -1554,7 +1551,6 @@ void    doMacro(W_Event * data)
 
   if (found)
     return;
-
 
 #ifdef DIST_KEY_NAME
   /* scan for distress call here */
@@ -1568,15 +1564,12 @@ void    doMacro(W_Event * data)
 	}
     }
 #endif
-
-
   warning("Unknown macro");
   W_Beep();
 #endif
 }
 
-
-Key32(void)
+static void Key32(void)
 {
   /* ' ' = clear special windows */
   W_UnmapWindow(planetw);
@@ -1604,15 +1597,14 @@ Key32(void)
     }
   if (udpWin)
     udpdone();
-
 }
 
-Key33(void)
+static void Key33(void)
 {
   set_speed(11);
 }
 
-Key34(W_Event * data)
+static void Key34(W_Event * data)
 {
   int ok = W_FullScreenToggle(baseWin);
   switch (ok) {
@@ -1628,29 +1620,42 @@ Key34(W_Event * data)
   }
 }
 
-Key35(void)
+static void Key35(void)
 {
   set_speed(me->p_ship.s_maxspeed / 2);
 }
 
-Key36(void)
+static void Key36(void)
 {
   sendTractorReq(0, me->p_no);
 }
 
-Key37(void)
+static void Key37(void)
 {
   set_speed(99);				 /* Max speed... */
 }
 
-Key38(void)
+static void Key38(void)
 {
-  reread_defaults();
+  char    mbuf[80];
+
+  if (strlen(defaultsFile) > 0)
+    {
+      sprintf(mbuf, "Re-reading  %s", defaultsFile);
+
+      warning(mbuf);
+      initDefaults(defaultsFile);
+      resetdefaults();
+      initkeymap();
+    }
+  else
+    {
+      warning("no default file found");
+    }
 }
 
-Key39(void)
+static void Key39(void)
 {
-
 #ifdef HAVE_XPM
   W_GalacticBgd(MAP_PIX);
   W_LocalBgd(LOCAL_PIX);
@@ -1660,22 +1665,22 @@ Key39(void)
 #endif
 }
 
-Key40(void)
+static void Key40(void)
 {
   set_speed(10);
 }
 
-Key41(W_Event * data)
+static void Key41(W_Event * data)
 {
   set_speed(10);
 }
 
-Key42(void)
+static void Key42(void)
 {
   sendPractrReq();
 }
 
-Key43(void)
+static void Key43(void)
 {
   /* UDP: pop up UDP control window */
   if (udpWin != NULL && W_IsMapped(udpWin))
@@ -1689,10 +1694,9 @@ Key43(void)
 	      (float) UDPVERSION / 10.0);
       warning(buf);
     }
-
 }
 
-Key44(void)
+static void Key44(void)
 {
   if (W_IsMapped(pStats))
     {
@@ -1703,19 +1707,16 @@ Key44(void)
       W_MapWindow(pStats);
       redrawPStats();
     }
-
 }
 
-Key45(void)
+static void Key45(void)
 {
-
 #ifdef SHORT_PACKETS
   sendShortReq(SPK_SALL);
 #endif
-
 }
 
-Key46(void)
+static void Key46(void)
 {
   if (netstatWin != NULL && W_IsMapped(netstatWin))
     nsdone();
@@ -1723,97 +1724,95 @@ Key46(void)
     nswindow();
 }
 
-Key47(void)
+static void Key47(void)
 {
   sortPlayers = !sortPlayers;
   RedrawPlayerList();
 }
 
-Key48(void)
+static void Key48(void)
 {
   set_speed(0);
 }
 
-Key49(void)
+static void Key49(void)
 {
   set_speed(1);
 }
 
-Key50(void)
+static void Key50(void)
 {
   set_speed(2);
 }
 
-Key51(void)
+static void Key51(void)
 {
   set_speed(3);
 }
 
-Key52(void)
+static void Key52(void)
 {
   set_speed(4);
 }
 
-Key53(void)
+static void Key53(void)
 {
   set_speed(5);
 }
 
-Key54(void)
+static void Key54(void)
 {
   set_speed(6);
 }
 
-Key55(void)
+static void Key55(void)
 {
   set_speed(7);
 }
 
-Key56(void)
+static void Key56(void)
 {
   set_speed(8);
 }
 
-Key57(void)
+static void Key57(void)
 {
   set_speed(9);
 }
 
-Key58(void)
+static void Key58(void)
 {
   logmess = !logmess;
   if (logmess)
     warning("Message logging is ON");
   else
     warning("Message logging is OFF");
-
 }
 
-Key59(W_Event * data)
+static void Key59(W_Event * data)
 {
   lockPlanetOrBase(data->Window, data->x, data->y);
-
 }
 
 /* < */
-Key60(void)
+static void Key60(void)
 {
   set_speed(me->p_speed - 1);
 }
 
-Key61(void)
+static void Key61(void)
 {
   /* UDP: request for full update */
   sendUdpReq(COMM_UPDATE);
 }
 
 /* > */
-Key62(void)
+static void Key62(void)
 {
   set_speed(me->p_speed + 1);
 }
 
-Key63(void)
+static void Key63(void)
 {
   if (W_IsMapped(phaserwin))
     phaserWindow = 1;
@@ -1858,18 +1857,18 @@ Key63(void)
     }
 }
 
-Key64(void)
+static void Key64(void)
 {
   set_speed(12);
 }
 
-Key65(W_Event * data)
+static void Key65(W_Event * data)
 {
   /* W_ShowBitmaps(); */
   emptyKey();
 }
 
-Key66(void)
+static void Key66(void)
 {
   showgalactic++;
   if (showgalactic > 4)
@@ -1878,13 +1877,13 @@ Key66(void)
   redrawall = 2;
 }
 
-Key67(void)
+static void Key67(void)
 {
   sendCoupReq();
   W_CameraSnap(w);
 }
 
-Key68(void)
+static void Key68(void)
 {
   detmine();
 
@@ -1895,28 +1894,28 @@ Key68(void)
 }
 
 /* E */
-Key69(W_Event * data)
+static void Key69(W_Event * data)
 {
   emergency(generic, data);
 }
 
 /* F */
-Key70(W_Event * data)
+static void Key70(W_Event * data)
 {
   emergency(carrying, data);
 }
 
-Key71(W_Event * data)
+static void Key71(W_Event * data)
 {
   emptyKey();
 }
 
-Key72(W_Event * data)
+static void Key72(W_Event * data)
 {
   emptyKey();
 }
 
-Key73(W_Event * data)
+static void Key73(W_Event * data)
 {
   /* I = get extended information */
   if (!infomapped)
@@ -1929,23 +1928,21 @@ Key73(W_Event * data)
       destroyInfo();
       opened_info = -2;
     }
-
 }
 
-Key74(W_Event * data)
+static void Key74(W_Event * data)
 {
   emptyKey();
 }
 
-Key75(void)
+static void Key75(void)
 {
-
 #ifdef HAVE_XPM
   W_GalacticBgd(GREET_PIX);
 #endif
 }
 
-Key76(void)
+static void Key76(void)
 {
   if (W_IsMapped(playerw))
     {
@@ -1955,12 +1952,10 @@ Key76(void)
     {
       W_MapWindow(playerw);
     }
-
 }
 
-Key77(W_Event * data)
+static void Key77(W_Event * data)
 {
-
 #ifdef TOOLS
   showToolsWin();
 #else
@@ -1968,16 +1963,15 @@ Key77(W_Event * data)
 #endif
 }
 
-Key78(void)
+static void Key78(void)
 {
   /* N = Toggle Name mode */
   namemode = !namemode;
   if (optionWin)
     optionredrawoption(&namemode);
-
 }
 
-Key79(void)
+static void Key79(void)
 {
   if (optionWin != NULL && W_IsMapped(optionWin))
     optiondone();
@@ -1985,7 +1979,7 @@ Key79(void)
     optionwindow();
 }
 
-Key80(void)
+static void Key80(void)
 {
   if (W_IsMapped(planetw))
     {
@@ -1995,26 +1989,22 @@ Key80(void)
     {
       W_MapWindow(planetw);
     }
-
 }
 
-Key81(void)
+static void Key81(void)
 {
-
 #ifdef SOUND
   Play_Sound(SELF_DESTRUCT_SOUND);
 #endif
-
   sendQuitReq();
-
 }
 
-Key82(void)
+static void Key82(void)
 {
   sendRepairReq(1);
 }
 
-Key83(void)
+static void Key83(void)
 {
   if (W_IsMapped(statwin))
     {
@@ -2024,10 +2014,9 @@ Key83(void)
     {
       W_MapWindow(statwin);
     }
-
 }
 
-Key84(W_Event * data)
+static void Key84(W_Event * data)
 {
   if (me->p_flags & (PFTRACT | PFPRESS))
     {
@@ -2046,7 +2035,7 @@ Key84(W_Event * data)
     }
 }
 
-Key85(void)
+static void Key85(void)
 {
   if (W_IsMapped(rankw))
     {
@@ -2056,44 +2045,42 @@ Key85(void)
     {
       W_MapWindow(rankw);
     }
-
 }
 
 /* I really should get paid for this... */
-Key86(void)
+static void Key86(void)
 {
   showlocal++;
   if (showlocal > 4)
     showlocal = 0;
-
 }
 
-Key87(W_Event * data)
+static void Key87(W_Event * data)
 {
   emptyKey();
 }
 
-Key88(void)
+static void Key88(void)
 {
   macro_on();
 }
 
-Key89(W_Event * data)
+static void Key89(W_Event * data)
 {
   emptyKey();
 }
 
-Key90(W_Event * data)
+static void Key90(W_Event * data)
 {
   emptyKey();
 }
 
-Key91(void)
+static void Key91(void)
 {
   shield_down();
 }
 
-Key92(void)
+static void Key92(void)
 {
   if (netstat)
     {
@@ -2106,15 +2093,14 @@ Key92(void)
     {
       warning("Network stats are not being collected!");
     }
-
 }
 
-Key93(void)
+static void Key93(void)
 {
   shield_up();
 }
 
-Key94(W_Event * data)
+static void Key94(W_Event * data)
 {
   if (me->p_flags & (PFTRACT | PFPRESS))
     sendRepressReq(0, me->p_no);
@@ -2123,7 +2109,7 @@ Key94(W_Event * data)
   sendRepressReq(1, target->o_num);
 }
 
-Key95(W_Event * data)
+static void Key95(W_Event * data)
 {
   if (me->p_flags & (PFTRACT | PFPRESS))
     sendTractorReq(0, me->p_no);
@@ -2132,19 +2118,17 @@ Key95(W_Event * data)
   sendTractorReq(1, target->o_num);
 }
 
-Key96(void)
+static void Key96(void)
 {
-
 #ifdef SHORT_PACKETS
   if (spWin != NULL && W_IsMapped(spWin))
     spdone();
   else
     spwindow();
 #endif
-
 }
 
-Key97(W_Event * data)
+static void Key97(W_Event * data)
 {
   if (!W_IsMapped(scanwin))
     {
@@ -2158,9 +2142,8 @@ Key97(W_Event * data)
     }
 }
 
-Key98(void)
+static void Key98(void)
 {
-
 #ifdef AUTOKEY
   if (autoKey && !(localflags & PFREFIT))
     autoKeyBombReqOn();
@@ -2169,16 +2152,14 @@ Key98(void)
 #else
   bomb_planet();
 #endif /* AUTOKEY */
-
 }
 
-Key99(void)
+static void Key99(void)
 {
   cloak();
-
 }
 
-Key100(void)
+static void Key100(void)
 {
   static unsigned long lastdet = 0;
   unsigned long curtime;
@@ -2198,10 +2179,9 @@ Key100(void)
     }
 #endif /* AUTOKEY */
   detCircle = 1;
-
 }
 
-Key101(void)
+static void Key101(void)
 {
   if (me->p_flags & PFDOCKOK)
     sendDockingReq(0);
@@ -2209,12 +2189,11 @@ Key101(void)
     sendDockingReq(1);
 }
 
-Key102(W_Event * data)
+static void Key102(W_Event * data)
 {
   unsigned char course;
 
   /* f = launch plasma torpedos */
-
 #ifdef AUTOKEY
   if (autoKey)
     autoKeyPlasmaReqOn();
@@ -2227,15 +2206,14 @@ Key102(W_Event * data)
   course = getcourse(data->Window, data->x, data->y);
   sendPlasmaReq(course);
 #endif /* AUTOKEY */
-
 }
 
-Key103(W_Event * data)
+static void Key103(W_Event * data)
 {
   emptyKey();
 }
 
-Key104(void)
+static void Key104(void)
 {
   /* h = Map help window */
   if (W_IsMapped(helpWin))
@@ -2249,10 +2227,9 @@ Key104(void)
     }
   if (optionWin)
     optionredrawtarget(helpWin);
-
 }
 
-Key105(W_Event * data)
+static void Key105(W_Event * data)
 {
   if (!infomapped)
     {
@@ -2266,12 +2243,12 @@ Key105(W_Event * data)
     }
 }
 
-Key106(W_Event * data)
+static void Key106(W_Event * data)
 {
   emptyKey();
 }
 
-Key107(W_Event * data)
+static void Key107(W_Event * data)
 {
   unsigned char course;
 
@@ -2284,7 +2261,7 @@ Key107(W_Event * data)
   me->p_flags &= ~(PFPLOCK | PFPLLOCK);
 }
 
-Key108(W_Event * data)
+static void Key108(W_Event * data)
 {
   target = gettarget(data->Window, data->x, data->y,
 		     TARG_PLAYER | TARG_PLANET);
@@ -2292,7 +2269,6 @@ Key108(W_Event * data)
     {
       sendPlaylockReq(target->o_num);
       me->p_playerl = target->o_num;
-
     }
   else
     {						 /* It's a planet */
@@ -2301,24 +2277,21 @@ Key108(W_Event * data)
     }
 }
 
-Key109(void)
+static void Key109(void)
 {
-
 #ifdef SOUND
   Play_Sound(MESSAGE_SOUND);
 #endif
-
   message_on();
 }
 
-Key110(W_Event * data)
+static void Key110(W_Event * data)
 {
   emptyKey();
 }
 
-Key111(void)
+static void Key111(void)
 {
-
 #ifdef AUTOKEY
   if (autoKey)
     autoKeyOrbitReqOn();
@@ -2327,10 +2300,9 @@ Key111(void)
 #else
   sendOrbitReq(1);
 #endif /* AUTOKEY */
-
 }
 
-Key112(W_Event * data)
+static void Key112(W_Event * data)
 {
   unsigned char course;
 
@@ -2346,12 +2318,10 @@ Key112(W_Event * data)
   course = getcourse(data->Window, data->x, data->y);
   sendPhaserReq(course);
 #endif /* AUTOKEY */
-
 }
 
-Key113(void)
+static void Key113(void)
 {
-
 #ifdef SOUND
   Play_Sound(SELF_DESTRUCT_SOUND);
 #endif
@@ -2361,18 +2331,18 @@ Key113(void)
 }
 
 /* r */
-Key114(void)
+static void Key114(void)
 {
   localflags |= PFREFIT;
   warning("s=scout, d=destroyer, c=cruiser, b=battleship, a=assault, g=galaxy, o=starbase/outpost");
 }
 
-Key115(void)
+static void Key115(void)
 {
   shield_tog();
 }
 
-Key116(W_Event * data)
+static void Key116(W_Event * data)
 {
   unsigned char course;
 
@@ -2390,40 +2360,36 @@ Key116(W_Event * data)
 #endif /* AUTOKEY */
 }
 
-Key117(void)
+static void Key117(void)
 {
   shield_tog();
 }
 
-Key118(W_Event * data)
+static void Key118(W_Event * data)
 {
   emptyKey();
 }
 
-Key119(void)
+static void Key119(void)
 {
   /* w = map war stuff */
   if (W_IsMapped(war))
     W_UnmapWindow(war);
   else
     warwindow();
-
 }
 
-Key120(void)
+static void Key120(void)
 {
-
 #ifdef AUTOKEY
   if (autoKey)
     autoKeyBeamDownReqOn();
   else
 #endif
-
     beam_down();
-
 }
 
-Key121(W_Event * data)
+static void Key121(W_Event * data)
 {
   if (me->p_flags & (PFTRACT | PFPRESS))
     {
@@ -2440,43 +2406,37 @@ Key121(W_Event * data)
     {
       sendRepressReq(1, target->o_num);
     }
-
 }
 
-Key122(void)
+static void Key122(void)
 {
-
 #ifdef AUTOKEY
   if (autoKey)
     autoKeyBeamUpReqOn();
   else
 #endif
-
     beam_up();
-
 }
 
-Key123(void)
+static void Key123(void)
 {
   cloak_on();
 }
 
-Key124(void)
+static void Key124(void)
 {
-
 #ifdef SHORT_PACKETS
   sendShortReq(SPK_ALL);
 #endif
-
 }
 
-Key125(void)
+static void Key125(void)
 {
   cloak_off();
 }
 
 /* ~ */
-Key126(W_Event * data) {
+static void Key126(W_Event * data) {
 
 #ifdef SOUND
   if ((soundWin != NULL) && W_IsMapped(soundWin))
@@ -2488,189 +2448,170 @@ Key126(W_Event * data) {
 #endif
 }
 
-Key127(W_Event * data)
+static void Key127(W_Event * data)
 {
   emptyKey();
 }
 
-reread_defaults(void)
-{
-  char    mbuf[80];
-
-  if (strlen(defaultsFile) > 0)
-    {
-      sprintf(mbuf, "Re-reading  %s", defaultsFile);
-
-      warning(mbuf);
-      initDefaults(defaultsFile);
-      resetdefaults();
-      initkeymap();
-    }
-  else
-    {
-      warning("no default file found");
-    }
-}
-
 /* ^T */
-Key180(W_Event * data)
+static void Key180(W_Event * data)
 {
   emergency(take, data);
 }
 
 /* ^t */
-Key212(W_Event * data)
+static void Key212(W_Event * data)
 {
   emergency(take, data);
 }
 
 /* ^o */
-Key207(W_Event * data)
+static void Key207(W_Event * data)
 {
   emergency(ogg, data);
 }
 
 /* ^b */
-Key194(W_Event * data)
+static void Key194(W_Event * data)
 {
   emergency(bomb, data);
 }
 
 /* ^c */
-Key195(W_Event * data)
+static void Key195(W_Event * data)
 {
   emergency(space_control, data);
 }
 
 /* ^1 */
-Key145(W_Event * data)
+static void Key145(W_Event * data)
 {
   emergency(save_planet, data);
 }
 
 /* ^2 */
-Key146(W_Event * data)
+static void Key146(W_Event * data)
 {
   emergency(base_ogg, data);
 }
 
 /* ^3 */
-Key147(W_Event * data)
+static void Key147(W_Event * data)
 {
   emergency(help1, data);
 }
 
 /* ^4 */
-Key148(W_Event * data)
+static void Key148(W_Event * data)
 {
   emergency(help2, data);
 }
 
 /* ^e */
-Key197(W_Event * data)
+static void Key197(W_Event * data)
 {
   emergency(escorting, data);
 }
 
 /* ^p */
-Key208(W_Event * data)
+static void Key208(W_Event * data)
 {
   emergency(ogging, data);
 }
 
 /* ^m */
-Key205(W_Event * data)
+static void Key205(W_Event * data)
 {
   emergency(bombing, data);
 }
 
 /* ^l */
-Key204(W_Event * data)
+static void Key204(W_Event * data)
 {
   emergency(controlling, data);
 }
 
 
 /* ^O */
-Key175(W_Event * data)
+static void Key175(W_Event * data)
 {
   emergency(ogging, data);
 }
 
 /* ^B */
-Key162(W_Event * data)
+static void Key162(W_Event * data)
 {
   emergency(bombing, data);
 }
 
 /* ^C */
-Key163(W_Event * data)
+static void Key163(W_Event * data)
 {
   emergency(controlling, data);
 }
 
 /* ^5 */
-Key149(W_Event * data)
+static void Key149(W_Event * data)
 {
   emergency(asw, data);
 }
 
 /* ^6 */
-Key150(W_Event * data)
+static void Key150(W_Event * data)
 {
   emergency(asbomb, data);
 }
 
 /* ^7 */
-Key151(W_Event * data)
+static void Key151(W_Event * data)
 {
   emergency(doing1, data);
 }
 
 /* ^8 */
-Key152(W_Event * data)
+static void Key152(W_Event * data)
 {
   emergency(doing2, data);
 }
 
 /* ^f */
-Key198(W_Event * data)
+static void Key198(W_Event * data)
 {
   emergency(free_beer, data);
 }
 
 /* ^n */
-Key206(W_Event * data)
+static void Key206(W_Event * data)
 {
   emergency(no_gas, data);
 }
 
 /* ^h */
-Key200(W_Event * data)
+static void Key200(W_Event * data)
 {
   emergency(crippled, data);
 }
 
 /* ^9 */
-Key153(W_Event * data)
+static void Key153(W_Event * data)
 {
   emergency(pickup, data);
 }
 
 /* ^0 */
-Key144(W_Event * data)
+static void Key144(W_Event * data)
 {
   emergency(pop, data);
 }
 
 /* ^@ */
-Key160(W_Event * data)
+static void Key160(W_Event * data)
 {
   emergency(other1, data);
 }
 
 /* ^# */
-Key131(W_Event * data)
+static void Key131(W_Event * data)
 {
   emergency(other2, data);
 }
