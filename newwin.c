@@ -2,6 +2,7 @@
 #include "copyright.h"
 
 #include <stdio.h>
+#include <unistd.h>
 #include INC_STDLIB
 #include <math.h>
 #include <signal.h>
@@ -111,11 +112,30 @@ static void
 #endif
 }
 
-newwin(char *hostmon, char *progname)
+static char *newwin_last_hostmon;
+static char *newwin_last_progname;
+
+/*! @brief Fork a new process and repeat the display initialisation.
+    @return process id returned by fork(2). */
+pid_t newwin_fork()
+{
+  pid_t pid;
+
+  pid = fork();
+  if (pid == 0) {
+    newwin(newwin_last_hostmon, newwin_last_progname);
+  }
+  return pid;
+}
+
+void newwin(char *hostmon, char *progname)
 {
   int     i;
   int main_width = TWINSIDE + GWINSIDE + BORDER;
   int main_height = GWINSIDE + 2 * BORDER + PLISTSIZE;
+
+  newwin_last_hostmon = hostmon;
+  newwin_last_progname = progname;
 
   W_Initialize(hostmon);
 

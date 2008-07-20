@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <stdlib.h>
 #include INC_SYS_SELECT
@@ -24,7 +25,7 @@
 #include "struct.h"
 #include "data.h"
 #include "defaults.h"
-
+#include "newwin.h"
 
 #ifdef WIN32 /* socket garbage in case the client is not running on NT */
 #define read(f,b,l) recv(f,b,l,0)
@@ -57,6 +58,7 @@ struct servers {
   int     status;
   char    typeflag;
   char    comment[LINE];
+  pid_t   pid;			/* our last known child playing here    */
 };
 
 struct servers *serverlist = NULL;	/* The record for each server.  */
@@ -90,6 +92,33 @@ const int defaultStatLevel = statusTout;
 
 /* Functions */
 extern void terminate(int error);
+
+/*! @brief Check if a child process, a playing client, has terminated.
+    @details Attempts a no hang wait on each active client process in
+    the server list and clears the pid entry if a child has
+    terminated.
+    @return activity count, number of processes seen to have terminated. */
+static int metareap(void)
+{
+  struct servers *sp;
+  int i, status, activity;
+  pid_t pid;
+
+  activity = 0;
+  for(i=0;i<num_servers;i++) {
+    sp = serverlist + i;
+    if (sp->pid != -1) {
+      pid = waitpid(sp->pid, &status, WNOHANG);
+      if (pid == sp->pid) {
+        sp->pid = -1;
+        if (WIFEXITED(status)) {
+          activity++;
+        }
+      }
+    }
+  }
+  return activity;
+}
 
 static int open_port(char *host, int port, int verbose)
 /* The connection to the metaserver is by Andy McFadden. This calls the
@@ -229,6 +258,8 @@ static void parseInput(char *in, FILE * out)
     slist->typeflag = *(point - 1);
     
     strcpy(slist->comment, "");
+
+    slist->pid = -1;
 
     /* Don't list Paradise Servers  */
     
@@ -520,6 +551,7 @@ static void version_r(struct sockaddr_in *address) {
     }
     sp->typeflag = type;
     strcpy(sp->comment, "");
+    sp->pid = -1;
   }
 }
 
@@ -586,6 +618,7 @@ static void version_s(struct sockaddr_in *address)
   sp->status = statusOpen;
   sp->typeflag = type;
   strncpy(sp->comment, comment, LINE);
+  sp->pid = -1;
   free(comment);
 }
 
@@ -605,12 +638,11 @@ static int ReadMetasRecv(int x)
 
     FD_ZERO(&readfds);
     if (msock >= 0) FD_SET(msock, &readfds);
-    timeout.tv_sec=4;
-    timeout.tv_usec=0;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
 
     if (x != -1) FD_SET(x, &readfds);
-    if (select(FD_SETSIZE, &readfds, NULL, NULL,
-	       (x != -1) ? NULL : &timeout) < 0) {
+    if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
       perror("ReadMetasRecv: select");
       return 0;
     }
@@ -621,7 +653,7 @@ static int ReadMetasRecv(int x)
 
     /* if the wait timed out, then we give up */
     if (!FD_ISSET(msock, &readfds)) {
-      if(isawsomething)
+      if(isawsomething || metareap())
         return 1;          /* I do have new metaserver data */
       else
         return 0;          /* I don't have metaserver data at all */
@@ -1118,6 +1150,10 @@ static void metarefresh(int i, W_Color color)
 	}
     }
 
+  if (sp->pid != -1) {
+    strcat(buf, " ok");
+  }
+
   W_WriteText(metaWin, 0, i+1, color, buf, -1, 0);
   sp->refresh = 0;
 }
@@ -1157,9 +1193,7 @@ void    metawindow()
 
 
 static void metadone(void)
-/* Unmap the metaWindow */
 {
-  /* Unmap window */
   W_UnmapWindow(metaWin);
   if (type == 1) SaveMetasCache();
   free(serverlist);
@@ -1167,7 +1201,8 @@ static void metadone(void)
 
 static void metaactionrefresh()
 {
-  W_WriteText(metaWin, 0, metaHeight-2, W_Red, "Asking for refresh from metaservers and nearby servers", -1, 0);
+  W_WriteText(metaWin, 0, metaHeight-2, W_Red,
+              "Asking for refresh from metaservers and nearby servers", -1, 0);
   W_Flush();
   ReadMetasSend();
 }
@@ -1210,12 +1245,17 @@ void    metaaction(W_Event * data)
         }
       else
         {
-	  metarefresh(data->y - 1, W_Green);
-	  W_Flush();
           close(sock);
-          sprintf(buf, "Netrek  @  %s", serverName);
-          W_RenameWindow(baseWin, buf);
-          metadone();
+	  pid_t pid = newwin_fork();
+	  if (pid == 0) { /* we are the child */
+	    sprintf(buf, "Netrek  @  %s", serverName);
+	    W_RenameWindow(baseWin, buf);
+	    metadone();
+	  } else { /* we are the parent */
+	    slist->pid = pid;
+	    metarefresh(data->y - 1, W_Green);
+	    W_Flush();
+	  }
         }
     }
   else if (data->y == (metaHeight-2) && type == 1)
@@ -1228,7 +1268,6 @@ void    metaaction(W_Event * data)
       terminate(0);
     }
 }
-
 
 void    metainput(void)
 /* Wait for actions in the meta-server window.
@@ -1249,7 +1288,7 @@ void    metainput(void)
 	  do
             {
 	      W_Flush();
-	      if (ReadMetasRecv(W_Socket())) metawindow();
+	      if (ReadMetasRecv(W_Socket()) || metareap()) metawindow();
 	    } while (!W_EventsPending());
 	}
       W_NextEvent(&data);
@@ -1274,6 +1313,7 @@ void    metainput(void)
         default:
           break;
         }
+      if (metareap()) metawindow();
     }
 }
 

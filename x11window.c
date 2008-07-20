@@ -9,6 +9,9 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include INC_SYS_SELECT
 #include INC_STRINGS
 #include <X11/Xlib.h>
@@ -417,6 +420,14 @@ void
       terminate(1);
     }
 
+  /* prevent X socket from being copied to forked exec'd process */
+  if (fcntl(ConnectionNumber(W_Display), F_SETFD, FD_CLOEXEC) < 0)
+    {
+      fprintf(stderr, "failed to set the X socket to close on exec(),\n"
+              "fcntl F_SETFD FD_CLOEXEC failure,\n'%s'",
+              strerror(errno));
+    }
+
   // uncomment this to synchronise display for testing
   // XSynchronize(W_Display, True);
 
@@ -586,8 +597,7 @@ void GetFonts(void)
       colortable[i].contexts[3] = XCreateGC(W_Display, W_Root, GCFont, &values);
       XSetGraphicsExposures(W_Display, colortable[i].contexts[3], False);
       {
-	static char dl[] =
-	{1, 8};
+	char dl[] = {1, 8};
 
 	XSetLineAttributes(W_Display, colortable[i].contexts[3],
 			   0, LineOnOffDash, CapButt, JoinMiter);
@@ -893,20 +903,8 @@ void GetColors(void)
 	}
     }
 
-  if (scroll_thumb_gc)
-    {
-      XFreeGC(W_Display, scroll_thumb_gc);
-      scroll_thumb_gc = 0;
-    }
-  if (scroll_thumb_pixmap)
-    {
-      XFreePixmap(W_Display, scroll_thumb_pixmap);
-      scroll_thumb_pixmap = 0;
-    }
-
   if (scrollbar)
     {
-
       scroll_thumb_pixmap = XCreatePixmapFromBitmapData(W_Display,
 					   W_Root, gray, TILESIDE, TILESIDE,
 					     colortable[W_White].pixelValue,
@@ -3532,9 +3530,7 @@ int
 int W_ReadEvents(void)
 {
   XEvent  event;
-  static
-  struct timeval timeout =
-  {0, 0};
+  struct timeval timeout = {0, 0};
   fd_set  readfds;
 
   FD_ZERO(&readfds);
