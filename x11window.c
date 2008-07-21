@@ -186,6 +186,8 @@ static GC scroll_thumb_gc;
 static Pixmap scroll_thumb_pixmap;
 static int scroll_lines = 100;			 /* save 100 lines */
 
+Atom wm_protocols, wm_delete_window;
+
 extern W_Window baseWin;
 static XClassHint class_hint =
 {
@@ -433,6 +435,9 @@ void
 
   // uncomment this to enable a fatal error handler
   // XSetErrorHandler(_myerror);
+
+  wm_protocols = XInternAtom(W_Display, "WM_PROTOCOLS", False);
+  wm_delete_window = XInternAtom(W_Display, "WM_DELETE_WINDOW", False);
 
   W_Root = DefaultRootWindow(W_Display);
   W_Visual = DefaultVisual(W_Display, DefaultScreen(W_Display));
@@ -1304,9 +1309,8 @@ int
       win = findWindow(key->window);
       if (win == NULL)
 	return (0);
-      if (key->send_event == True)		 /* event sent by another * * 
-						  * client */
-	return 0;
+      if (key->send_event == True && event.type != ClientMessage)
+	 return 0; /* event sent by another client */
       if ((event.type == KeyPress || event.type == ButtonPress) &&
 	  win->type == WIN_MENU)
 	{
@@ -1317,6 +1321,18 @@ int
 	}
       switch ((int) event.type)
 	{
+	case ClientMessage:
+	  if (event.xclient.message_type == wm_protocols &&
+	      event.xclient.data.l[0] == wm_delete_window)
+	    {
+	      W_UnmapWindow(W_Window2Void(win));
+	      wevent->type = W_EV_CLOSED;
+	      wevent->Window = W_Window2Void(win);
+	      wevent->key = wevent->x = wevent->y = 0;
+	      return 1;
+	    }
+	  break;
+
 	case LeaveNotify:			 /* for message window -- jfy 
 						  * 
 						  */
@@ -2085,6 +2101,7 @@ struct window *
 {
   struct window *newwin;
 
+  XSetWMProtocols (W_Display, window, &wm_delete_window, 1);
   newwin = (struct window *) malloc(sizeof(struct window));
 
   newwin->window = window;

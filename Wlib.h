@@ -135,6 +135,8 @@ extern void W_Flush(void);
 #define W_EV_CM_BUTTON	5
 #endif
 
+#define W_EV_CLOSED	6	/* window was closed by user action */
+
 #define W_LBUTTON       1
 #define W_MBUTTON       2
 #define W_RBUTTON       3
