@@ -18,11 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
-
-#ifdef FUNCTION_KEYS
 #include <X11/keysym.h>
-#endif
-
 #include <assert.h>
 #include <time.h>
 #include <sys/time.h>
@@ -630,7 +626,7 @@ XFontStruct *
 	    return fi;
 	}
     }
-  return (NULL);
+  return NULL;
 }
 
 static unsigned short extrared[COLORS] =
@@ -1048,7 +1044,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 #endif
 
   XSetWindowColormap(W_Display, newwin->window, W_Colormap);
-  return (W_Window2Void(newwin));
+  return W_Window2Void(newwin);
 }
 
 void
@@ -1110,8 +1106,8 @@ int
 
   win = W_Void2Window(window);
   if (win == NULL)
-    return (0);
-  return (win->mapped);
+    return 0;
+  return win->mapped;
 }
 
 void
@@ -1230,16 +1226,16 @@ int
         W_EventsPending(void)
 {
   if (W_isEvent)
-    return (1);
+    return 1;
   while (XPending(W_Display))
     {
       if (W_SpNextEvent(&W_myevent))
 	{
 	  W_isEvent = 1;
-	  return (1);
+	  return 1;
 	}
     }
-  return (0);
+  return 0;
 }
 
 void
@@ -1252,6 +1248,15 @@ void
       return;
     }
   while (W_SpNextEvent(wevent) == 0);
+}
+
+static unsigned char sym_to_key(int sym)
+{
+  switch (sym) {
+  case XK_Up: return W_Key_Up;
+  case XK_Down: return W_Key_Down;
+  }
+  return 0;
 }
 
 int
@@ -1267,20 +1272,15 @@ int
   XMotionEvent *motion;
   static int prev_x, prev_y;
   int     thresh;
-
 #endif
 
 #ifdef CONTROL_KEY
   int     control_key = 0;
-
 #endif
   unsigned char ch;
+  int nch;
   struct window *win;
-
-#ifdef FUNCTION_KEYS
   KeySym  sym;
-
-#endif
 
 #if DEBUG > 1
   printf("event");
@@ -1308,15 +1308,15 @@ int
 #endif
       win = findWindow(key->window);
       if (win == NULL)
-	return (0);
+	return 0;
       if (key->send_event == True && event.type != ClientMessage)
-	 return 0; /* event sent by another client */
+	return 0; /* event sent by another client */
       if ((event.type == KeyPress || event.type == ButtonPress) &&
 	  win->type == WIN_MENU)
 	{
 	  if (key->y % (W_Textheight + MENU_PAD * 2 + MENU_BAR) >=
 	      W_Textheight + MENU_PAD * 2)
-	    return (0);
+	    return 0;
 	  key->y = key->y / (W_Textheight + MENU_PAD * 2 + MENU_BAR);
 	}
       switch ((int) event.type)
@@ -1333,17 +1333,14 @@ int
 	    }
 	  break;
 
-	case LeaveNotify:			 /* for message window -- jfy 
-						  * 
-						  */
+	case LeaveNotify: /* for message window -- jfy */
 	  if (win == (struct window *) messagew)
 	    {
 	      W_in_message = 0;
 	    }
-	  return (0);
+	  return 0;
 	  break;
 	case KeyPress:
-
 	  if ((key->state & LockMask) && !(key->state & ShiftMask) &&
 	      (ignoreCaps))
 	    {
@@ -1361,105 +1358,54 @@ int
 	    control_key = 0;
 #endif
 
-	  if (
-
-#ifdef FUNCTION_KEYS
-	     ((XLookupString(key, (char *) &ch, 1, &sym, NULL) > 0) || sym == XK_Tab)
-#else
-	       (XLookupString(key, (char *) &ch, 1, NULL, NULL) > 0)
-#endif
-
-	      )
-	    {
-
-#ifdef FUNCTION_KEYS
-	      if (sym == XK_Tab)
-		ch = 201;
-#endif
-
+	  nch = XLookupString(key, (char *) &ch, 1, &sym, NULL);
+	  if (nch == 0) {
+	    ch = sym_to_key(sym);
+	    if (ch == 0) return 0;
+	  }
 #ifdef MOUSE_AS_SHIFT
-	      if (mouse_as_shift)
+	  if (mouse_as_shift)
+	    {
+	      if (key->state & Button1Mask)
 		{
-		  if (key->state & Button1Mask)
-		    {
-		      wevent->modifier = W_LBUTTON;
-		      wevent->type = W_EV_MKEY;
-		    }
-		  else if (key->state & Button2Mask)
-		    {
-		      wevent->modifier = W_MBUTTON;
-		      wevent->type = W_EV_MKEY;
-		    }
-		  else if (key->state & Button3Mask)
-		    {
-		      wevent->modifier = W_RBUTTON;
-		      wevent->type = W_EV_MKEY;
-		    }
-		  else
-		    {
-		      wevent->type = W_EV_KEY;
-		    }
+		  wevent->modifier = W_LBUTTON;
+		  wevent->type = W_EV_MKEY;
+		}
+	      else if (key->state & Button2Mask)
+		{
+		  wevent->modifier = W_MBUTTON;
+		  wevent->type = W_EV_MKEY;
+		}
+	      else if (key->state & Button3Mask)
+		{
+		  wevent->modifier = W_RBUTTON;
+		  wevent->type = W_EV_MKEY;
 		}
 	      else
-		wevent->type = W_EV_KEY;
-#else
-	      wevent->type = W_EV_KEY;
-#endif
-
-	      wevent->Window = W_Window2Void(win);
-	      wevent->x = key->x;
-	      wevent->y = key->y;
-
-#ifdef CONTROL_KEY
-	      if (control_key)
-		wevent->key = (unsigned char) (ch + 96);
-	      else
-		wevent->key = ch;
-#else
-	      wevent->key = ch;
-#endif
-
-	      return (1);
+		{
+		  wevent->type = W_EV_KEY;
+		}
 	    }
-
-#ifdef nodef
-	  if (sym != NoSymbol)
-	    switch (sym)
-	      {
-	      case XK_F1:
-		printf("Function key1 \n");
-		break;
-	      case XK_F2:
-		printf("Function key2\n");
-		break;
-	      case XK_F3:
-		printf("Function key3\n");
-		break;
-	      case XK_F4:
-		printf("Function key4\n");
-		break;
-	      case XK_F5:
-		printf("Function key5\n");
-		break;
-	      case XK_F6:
-		printf("Function key6\n");
-		break;
-	      case XK_F7:
-		printf("Function key7\n");
-		break;
-	      case XK_F8:
-		printf("Function key8\n");
-		break;
-	      case XK_F9:
-		printf("Function key9\n");
-		break;
-	      case XK_F10:
-		printf("Function key10\n");
-		break;
-	      }
+	  else
+	    wevent->type = W_EV_KEY;
+#else
+	  wevent->type = W_EV_KEY;
 #endif
 
-	  return (0);
+	  wevent->Window = W_Window2Void(win);
+	  wevent->x = key->x;
+	  wevent->y = key->y;
+	  
+#ifdef CONTROL_KEY
+	  if (control_key)
+	    wevent->key = (unsigned char) (ch + 96);
+	  else
+	    wevent->key = ch;
+#else
+	  wevent->key = ch;
+#endif
+	  
+	  return 1;
 	  break;
 
 #ifdef AUTOKEY
@@ -1471,9 +1417,9 @@ int
 	      wevent->x = key->x;
 	      wevent->y = key->y;
 	      wevent->key = ch;
-	      return (1);
+	      return 1;
 	    }
-	  return (0);
+	  return 0;
 	  break;
 #endif /* AUTOKEY */
 
@@ -1497,15 +1443,15 @@ int
 	      {
 	      case Button3:
 		if (b3_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      case Button1:
 		if (b1_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      case Button2:
 		if (b2_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      }
 #endif
@@ -1559,7 +1505,7 @@ int
 		      wevent->key |= W_CTRL_BUTTON;
 		    }
 
-		  return (1);
+		  return 1;
 		}
 
 	    }
@@ -1570,20 +1516,20 @@ int
 	      scrollScrolling(wevent);
 	      return 0;
 	    }
-	  return (1);
+	  return 1;
 
 #ifdef MOTION_MOUSE
 	case MotionNotify:
 	  if (!motion_mouse ||
 	      (!motion_mouse_enablable && !motion_mouse_steering))
-	    return (0);
+	    return 0;
 	  wevent->type = W_EV_CM_BUTTON;
 	  wevent->Window = W_Window2Void(win);
 
 	  thresh = abs(prev_x - motion->x) + abs(prev_y - motion->y);
 
 	  if (thresh < user_motion_thresh)
-	    return (0);
+	    return 0;
 
 	  prev_x = wevent->x = motion->x;
 	  prev_y = wevent->y = motion->y;
@@ -1596,15 +1542,15 @@ int
 	      {
 	      case Button3:
 		if (b3_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      case Button1:
 		if (b1_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      case Button2:
 		if (b2_as_shift)
-		  return (0);
+		  return 0;
 		break;
 	      }
 #endif
@@ -1658,39 +1604,39 @@ int
 		      wevent->key |= W_CTRL_BUTTON;
 		    }
 
-		  return (1);
+		  return 1;
 		}
 	    }
 #endif
 
-	  return (1);
+	  return 1;
 #endif
 
 	case Expose:
 	  if (expose->count != 0)
-	    return (0);
+	    return 0;
 	  if (win->type == WIN_SCROLL)
 	    {
 	      configureScrolling(win, expose->x, expose->y,
 				 expose->width, expose->height);
 	      redrawScrolling(win);
-	      return (0);
+	      return 0;
 	    }
 	  if (win->type == WIN_MENU)
 	    {
 	      redrawMenu(win);
-	      return (0);
+	      return 0;
 	    }
 
 	  wevent->type = W_EV_EXPOSE;
 	  wevent->Window = W_Window2Void(win);
-	  return (1);
+	  return 1;
 	case ConfigureNotify:
 	  configureScrolling(win, configure->x, configure->y,
 			     configure->width, configure->height);
 	  break;
 	default:
-	  return (0);
+	  return 0;
 	  break;
 	}
     }
@@ -1950,7 +1896,7 @@ W_StoreBitmap(int width, int height, char *data, W_Window window)
 
   newicon->window = win->window;
   newicon->pixmap = 0;
-  return (W_Icon2Void(newicon));
+  return W_Icon2Void(newicon);
 }
 
 void
@@ -2093,7 +2039,7 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
 #endif
 
   XSetWindowColormap(W_Display, newwin->window, W_Colormap);
-  return (W_Window2Void(newwin));
+  return W_Window2Void(newwin);
 }
 
 struct window *
@@ -2120,7 +2066,7 @@ struct window *
   newwin->cursor = (Cursor) 0;			 /* about the best I can do * 
 						  * 
 						  * * -jw */
-  return (newwin);
+  return newwin;
 }
 
 struct window *
@@ -2132,10 +2078,10 @@ struct window *
   while (entry != NULL)
     {
       if (entry->window->window == window)
-	return (entry->window);
+	return entry->window;
       entry = entry->next;
     }
-  return (NULL);
+  return NULL;
 }
 
 void addToHash(struct window * win)
@@ -2240,7 +2186,7 @@ int     border;
 #endif
 
   XSetWindowColormap(W_Display, newwin->window, W_Colormap);
-  return (W_Window2Void(newwin));
+  return W_Window2Void(newwin);
 }
 
 /*
@@ -2526,7 +2472,7 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
 #endif
 
   XSetWindowColormap(W_Display, newwin->window, W_Colormap);
-  return (W_Window2Void(newwin));
+  return W_Window2Void(newwin);
 }
 
 void redrawMenu(struct window * win)
@@ -3055,10 +3001,10 @@ int
 	  *y_hot = *height / 2;
 	}
 
-      return (1);
+      return 1;
     }
   else
-    return (0);
+    return 0;
 }
 
 void
@@ -3070,13 +3016,13 @@ void
 int
         W_WindowWidth(W_Window window)
 {
-  return (W_Void2Window(window)->width);
+  return W_Void2Window(window)->width;
 }
 
 int
         W_WindowHeight(W_Window window)
 {
-  return (W_Void2Window(window)->height);
+  return W_Void2Window(window)->height;
 }
 
 int
@@ -3086,7 +3032,7 @@ int
 #if VMS
   return 0;
 #else
-  return (ConnectionNumber(W_Display));
+  return ConnectionNumber(W_Display);
 #endif
 }
 
@@ -3384,7 +3330,7 @@ int checkMapped(char *name)
   char    buf[100];
 
   sprintf(buf, "%s.mapped", name);
-  return (booleanDefault(buf, 0));
+  return booleanDefault(buf, 0);
 }
 
 int checkMappedPref(char *name, int preferred)
@@ -3392,7 +3338,7 @@ int checkMappedPref(char *name, int preferred)
   char    buf[100];
 
   sprintf(buf, "%s.mapped", name);
-  return (booleanDefault(buf, preferred));
+  return booleanDefault(buf, preferred);
 }
 
 void
@@ -3471,7 +3417,7 @@ void W_Flush(void)
 #define MAKE_WINDOW_GETTER(name, part) \
   W_Callback name(W_Window w) \
   { \
-    return (W_Void2Window(w)->part); \
+    return W_Void2Window(w)->part; \
   }
 
 #define MAKE_WINDOW_SETTER(name, part) \
@@ -3566,19 +3512,19 @@ void
 int
         W_Mono(void)
 {
-  return ((DisplayCells(W_Display, W_Screen) <= 2) || forceMono);
+  return (DisplayCells(W_Display, W_Screen) <= 2) || forceMono;
 }
 
 int
         W_EventsQueued(void)
 {
-  return (XEventsQueued(W_Display, QueuedAlready));
+  return XEventsQueued(W_Display, QueuedAlready);
 }
 
 int
         W_EventsQueuedCk(void)
 {
-  return (XEventsQueued(W_Display, QueuedAfterReading));
+  return XEventsQueued(W_Display, QueuedAfterReading);
 }
 
 int W_ReadEvents(void)

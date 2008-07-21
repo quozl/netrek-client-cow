@@ -38,12 +38,16 @@ typedef struct event
 	int type;
 	W_Window Window;
 	unsigned char key;
-	int x,y;
+	int x, y;
 #ifdef MOUSE_AS_SHIFT
 	int modifier;
 #endif
  }
 W_Event;
+
+/* mapping for some X11 keys that are not represented by ASCII or Latin-1 */
+#define W_Key_Up   1
+#define W_Key_Down 2
 
 extern W_Callback W_GetWindowKeyDownHandler (W_Window w);
 extern W_Callback W_GetWindowKeyUpHandler (W_Window w);

@@ -65,6 +65,7 @@ struct servers {
 
 struct servers *serverlist = NULL;	/* The record for each server.  */
 static int num_servers = 0;		/* The number of servers.       */
+static int chosen = -1;			/* Arrow key chosen server.     */
 static int metaHeight = 0;		/* The number of list lines.	*/
 static char *metaWindowName;		/* The window's name.           */
 static int statusLevel;
@@ -98,7 +99,6 @@ static const int defaultStatLevel = statusTout;
 
 /* Functions */
 extern void terminate(int error);
-static int action(W_Event * data);
 
 /*! @brief Check if a child process, a playing client, has terminated.
     @details Attempts a no hang wait on each active client process in
@@ -1046,8 +1046,8 @@ void    parsemeta(int metaType)
 }
 
 
-static void metarefresh(int i, W_Color color)
-/* Refresh line i in the list */
+static void redraw(int i)
+/* Redraw line i in the list */
 {
   char    buf[LINE + 1];
   struct servers *sp;
@@ -1055,7 +1055,7 @@ static void metarefresh(int i, W_Color color)
   /* can't say a thing if line is beyond server list */
   if (i >= num_servers) {
     /* but we can at least blank the line shown */
-    if (i < metaHeight-3) W_WriteText(metaWin, 0, i+1, color, "", 0, 0);
+    if (i < metaHeight-3) W_WriteText(metaWin, 0, i+1, W_White, "", 0, 0);
     return;
   }
 
@@ -1137,6 +1137,11 @@ static void metarefresh(int i, W_Color color)
     strcat(buf, " ok");
   }
 
+  W_Color color = W_White;
+  if (i == chosen) color = W_Green;
+  if (sp->status == statusCantConnect) color = W_Red;
+  if (sp->pid != -1) color = W_Cyan;
+
   W_WriteText(metaWin, 0, i+1, color, buf, -1, 0);
   sp->refresh = 0;
 }
@@ -1164,8 +1169,7 @@ void    metawindow()
   }
   W_WriteText(metaWin, 0, 0, W_Cyan, header, -1, 0);
 
-  for (i = 0; i < metaHeight; i++)
-    metarefresh(i, textColor);
+  for (i = 0; i < metaHeight; i++) redraw(i);
 
   /* Give the window the right name */
   W_RenameWindow(metaWin, metaWindowName);
@@ -1199,66 +1203,109 @@ static void refresh()
   ReadMetasSend();
 }
 
-static int action(W_Event * data)
-/* Recieve an action in the meta server window.  Check selection to see if
- * was valid.  If it was then we have a winner! */
+static void choose(int way)
 {
-  int     sock;
-  char    buf[80];
+  int was;
+  int lo = 0;
+  int hi = num_servers - 1;
+
+  was = chosen;
+  if (chosen == -1) {
+    chosen = lo;
+    if (way > 0) chosen = lo;
+    if (way < 0) chosen = hi;
+  } else {
+    if (way > 0) { chosen++; if (chosen > hi) chosen = hi; }
+    if (way < 0) { chosen--; if (chosen < lo) chosen = lo; }
+  }
+  if (was != chosen) {
+    if (was != -1) redraw(was);
+    redraw(chosen);
+  }
+}
+
+static int chose(int which, int observe)
+{
+  int testsock;
   struct servers *slist;
 
-#ifdef DEBUG
-   printf("Got meta window action, y=%d\n", data->y);
-#endif
-  if ((data->y > 0) && (data->y <= num_servers))
-    {
-      slist = serverlist + data->y - 1;
-      xtrekPort = slist->port;
-      if (data->key==W_RBUTTON)  /* Guess at an observer port */
-	{
-          xtrekPort++;
-          fprintf(stderr,
-		  "you chose to observe on %s, trying port %d\n",
-		  slist->address, xtrekPort);
-	  metarefresh(data->y - 1, W_Cyan);
-	} else {
-	  metarefresh(data->y - 1, W_Yellow);
-	}
-      W_Flush();
-      serverName = strdup(slist->address);
+  if (which != chosen) {
+    int was;
+    was = chosen;
+    chosen = which;
+    if (was != -1) redraw(was);
+    redraw(chosen);
+  }
 
-      fprintf(stderr, "you chose server %s port %d\n",serverName,xtrekPort);
-      if ((sock = open_port(serverName, xtrekPort, 0)) <= 0)
-        {
-          fprintf(stderr,"cannot connect to %s!\n",serverName);
-          slist->status = statusCantConnect;
-          metarefresh(data->y - 1, W_Red);
-          W_Flush();
-        }
-      else
-        {
-          close(sock);
-	  pid_t pid = newwin_fork();
-	  if (pid == 0) { /* we are the child */
-	    sprintf(buf, "Netrek  @  %s", serverName);
-	    W_RenameWindow(baseWin, buf);
-	    return 1;
-	  } else { /* we are the parent */
-	    slist->pid = pid;
-	    metarefresh(data->y - 1, W_Green);
-	    W_Flush();
-	  }
-        }
-    }
-  else if (data->y == (metaHeight-2) && type == 1)
-    {
-      refresh();
-    }
-  else if (data->y == metaHeight-1)
-    {
-      metadone();
-      terminate(0);
-    }
+  slist = serverlist + which;
+  xtrekPort = slist->port;
+  if (observe) { /* Guess at an observer port */
+    xtrekPort++;
+    fprintf(stderr,
+            "you chose to observe on %s, guessing port %d\n",
+            slist->address, xtrekPort);
+  }
+  W_Flush();
+  serverName = strdup(slist->address);
+
+  fprintf(stderr, "you chose server %s port %d\n", serverName, xtrekPort);
+  if ((testsock = open_port(serverName, xtrekPort, 0)) <= 0) {
+    fprintf(stderr,"cannot connect to %s!\n",serverName);
+    slist->status = statusCantConnect;
+    redraw(which);
+    W_Flush();
+    return 0;
+  }
+
+  close(testsock);
+  pid_t pid = newwin_fork();
+  if (pid == 0) {
+    /* we are the child */
+    char buf[80];
+    sprintf(buf, "Netrek  @  %s", serverName);
+    W_RenameWindow(baseWin, buf);
+    return 1;
+  }
+
+  /* we are the parent */
+  slist->pid = pid;
+  W_Flush();
+  return 0;
+}
+
+
+static int button(W_Event *data)
+{
+  if ((data->y > 0) && (data->y <= num_servers)) { /* click on server */
+    return chose(data->y - 1, (data->key == W_RBUTTON));
+  }
+  if (data->y == (metaHeight-2) && type == 1) { /* refresh */
+    refresh();
+  } else if (data->y == metaHeight-1) { /* quit */
+    metadone();
+    terminate(0);
+  }
+  return 0;
+}
+
+static int key(W_Event *data)
+{
+  if (data->key == 113 || data->key == 196) { /* q or ^d */
+    metadone();
+    terminate(0);
+  } else if (data->key == 114 || data->key == 210) { /* r or ^r */
+    refresh();
+  } else if (data->key == W_Key_Up) {
+    choose(-1);
+  } else if (data->key == W_Key_Down) {
+    choose(1);
+  } else if (data->key == '\r' || data->key == ' ') {
+    if (chosen != -1) return chose(chosen, 0);
+  } else if (data->key == 'o') {
+    if (chosen != -1) return chose(chosen, 1);
+  } else {
+    return button(data);
+  }
   return 0;
 }
 
@@ -1291,18 +1338,12 @@ void    metainput(void)
       switch ((int) data.type)
         {
         case W_EV_KEY:
-	  if (data.key == 113 || data.key == 196) { /* q or ^d */
-	    metadone();
-	    terminate(0);
-	  } else if (data.key == 114 || data.key == 210) { /* r or ^r */
-	    refresh();
-	  } else if (data.Window == metaWin) {
-            if (action(&data)) return;
-	  }
+          if (data.Window == metaWin)
+            if (key(&data)) return;
           break;
         case W_EV_BUTTON:
           if (data.Window == metaWin)
-            if (action(&data)) return;
+            if (button(&data)) return;
           break;
         case W_EV_EXPOSE:
           break;
