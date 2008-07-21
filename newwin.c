@@ -20,7 +20,6 @@
 #include "bitmaps.h"
 #include "moobitmaps.h"
 #include "rabbitbitmaps.h"
-#include "parsemeta.h"
 
 #ifdef TNG_FED_BITMAPS
 #include "tngbitmaps.h"
@@ -39,7 +38,6 @@
 #include "udpopt.h"
 
 extern char cbugs[];
-extern int metaHeight;   /* height of metaserver window */
 
 static int line = 0;
 int     MaxMotdLine = 0;
@@ -199,13 +197,6 @@ void newwin(char *hostmon, char *progname)
 			     160, 20, NULL, BORDER);
   W_SetWindowExposeHandler(helpWin, fillhelp);
 
-#ifdef META
-  metaWin = W_MakeMenu("Netrek Server List", 0, 0, 80, metaHeight,
-		       NULL, 2);
-  W_SetWindowKeyDownHandler(metaWin, metaaction);
-  W_SetWindowButtonHandler(metaWin, metaaction);
-#endif
-
 #ifdef SMALL_SCREEN
   /* note that wk and phaswerwin are drawn under wi, and wa under wt-- there
    * * just isn't ROOM for them all */
@@ -326,10 +317,6 @@ void newwin(char *hostmon, char *progname)
   W_DefineTrekCursor(messwi);
   W_DefineTrekCursor(helpWin);
 
-#ifdef META
-  W_DefineArrowCursor(metaWin);
-#endif
-
   W_DefineTrekCursor(reviewWin);
   W_DefineTrekCursor(messwk);
   W_DefineTrekCursor(phaserwin);
@@ -391,12 +378,6 @@ void mapAll(void)
     W_MapWindow(rankw);
   if (checkMapped("help"))
     W_MapWindow(helpWin);
-
-#ifdef META
-  if (checkMapped("MetaServer List"))
-    metawindow();
-#endif
-
   if (checkMapped("review_all"))
     W_MapWindow(messwa);
   if (checkMapped("review_team"))

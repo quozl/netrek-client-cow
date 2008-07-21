@@ -7,11 +7,6 @@
 */
 
 
-/* Global Variables */
-
-extern int num_servers;         /* The number of servers in the list */
-
-
 /* Function Definitions */
 
 void parsemeta(int metaType);
@@ -23,19 +18,10 @@ void parsemeta(int metaType);
  * used in newwin() to set the height of the meta-server window.
  */
 
- 
 void metawindow(void);
 /*
  *  Show the meta server menu window
  */
-
-
-void metaaction(W_Event * data);
-/*
- *  Recieve an action in the meta server window.  Check selection to see
- *  if was valid.  If it was then we have a winner!
- */
- 
 
 void metainput(void);
 /*  

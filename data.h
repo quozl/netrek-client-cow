@@ -379,11 +379,6 @@ extern W_Window macroWin;
 
 #endif
 
-#ifdef META
-extern W_Window metaWin;
-
-#endif
-
 extern int ping;				 /* to ping or not to ping */
 extern LONG packets_sent;			 /* # all packets sent to *
 

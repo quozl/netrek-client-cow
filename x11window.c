@@ -3495,6 +3495,43 @@ void
 }
 
 void
+W_ReinitMenu(W_Window window, int neww, int newh)
+{
+   struct window	*win = W_Void2Window(window);
+   struct menuItem	*items;
+   int			i;
+
+   items = (struct menuItem *) win->data;
+   for(i=0; i< win->height; i++){
+      free((char *) items[i].string);
+   }
+   free ((char *)items);
+   items = (struct menuItem *) malloc(newh * sizeof(struct menuItem));
+   for(i=0; i< newh; i++){
+      items[i].column = 0;
+      items[i].string = (char *) malloc(MAX_TEXT_WIDTH);
+      items[i].color = W_White;
+   }
+   win->data = (char *) items;
+}
+
+/* this procedure should only be used if the menu is initially defined
+   by W_MakeMenu as large as it will get.  If menu may grow, call 
+   W_ReinitMenu first */
+
+void
+W_ResizeMenu(W_Window window, int neww, int newh) /* TSH 2/93 */
+{
+   struct window	*w = W_Void2Window(window);
+
+   w->width = neww;
+   w->height = newh;
+
+   W_ResizeWindow(window, neww*W_Textwidth+WIN_EDGE*2,
+            newh*(W_Textheight+MENU_PAD*2)+(newh-1)*MENU_BAR);
+}
+
+void
         W_ResizeTextWindow(W_Window window, int neww, int newh)		/* TSH 
 									 * 
 									 * *

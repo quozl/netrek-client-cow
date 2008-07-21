@@ -25,6 +25,8 @@
 #include "struct.h"
 #include "data.h"
 #include "defaults.h"
+
+#include "parsemeta.h"
 #include "newwin.h"
 
 #ifdef WIN32 /* socket garbage in case the client is not running on NT */
@@ -63,10 +65,15 @@ struct servers {
 
 struct servers *serverlist = NULL;	/* The record for each server.  */
 static int num_servers = 0;		/* The number of servers.       */
-int metaHeight = 0;			/* The number of list lines.	*/
-char *metaWindowName;			/* The window's name.           */
-int statusLevel;
+static int metaHeight = 0;		/* The number of list lines.	*/
+static char *metaWindowName;		/* The window's name.           */
+static int statusLevel;
+static W_Window metaWin;
 
+#define N_TITLES 1
+#define N_BUTTONS 2
+#define N_GAP 1
+#define N_OVERHEAD N_TITLES+N_BUTTONS+N_GAP
 
 /* The status strings:  The order of the strings up until statusNull is
  * important because the meta-client will display all the strings up to a
@@ -87,11 +94,11 @@ enum statusTypes {
   statusNull, statusCantConnect, statusDefault
 };
 
-const int defaultStatLevel = statusTout;
-
+static const int defaultStatLevel = statusTout;
 
 /* Functions */
 extern void terminate(int error);
+static int action(W_Event * data);
 
 /*! @brief Check if a child process, a playing client, has terminated.
     @details Attempts a no hang wait on each active client process in
@@ -173,7 +180,6 @@ static void parseInput(char *in, FILE * out)
   max_servers = 10;
   num_servers = 0;
 
-
   /* Add the default server */
 
   if (serverName) {
@@ -184,7 +190,6 @@ static void parseInput(char *in, FILE * out)
     serverlist[num_servers].typeflag = ' ';
     num_servers++;
   }
-
 
   while (1) {
     /* Read a line */
@@ -214,7 +219,6 @@ static void parseInput(char *in, FILE * out)
       putc('\n', out);
     }
 
-
       /* Find somewhere to put the information that is just about to be
        * parsed */
 
@@ -225,8 +229,6 @@ static void parseInput(char *in, FILE * out)
     }
     
     slist = serverlist + num_servers;
-
-
 
     /* Is this a line we want? */
 
@@ -396,7 +398,7 @@ static void grow(int servers)
     size = sizeof(struct servers) * servers;
     serverlist = (struct servers *) malloc(size);
   } else {
-    size = sizeof(struct servers) * ( servers + num_servers );
+    size = sizeof(struct servers) * (servers + num_servers);
     serverlist = (struct servers *) realloc(serverlist, size);
   }
 }
@@ -821,7 +823,7 @@ static void LoadMetasCache()
       num_servers--;
       serverlist = 
 	(struct servers *) realloc(serverlist, 
-				   sizeof(struct servers) * ( num_servers ));
+				   sizeof(struct servers) * (num_servers));
     }
 }
 
@@ -1006,12 +1008,8 @@ static int ReadFromCache()
 void    parsemeta(int metaType)
 /* Read and Parse the metaserver information, either from the metaservers
  * by UDP (1), from a single metaserver by TCP (3), or from the cache (2).
- * 
- * NOTE: This function sets the variable "num_servers" which is
- * used in newwin() to set the height of the meta-server window.
  */
 {
-  int fuse = 3000; /* milliseconds before giving up on query */
   statusLevel = intDefault("metaStatusLevel", defaultStatLevel);
 
   if (statusLevel < 0)
@@ -1024,28 +1022,14 @@ void    parsemeta(int metaType)
     {
       case 1:
         ReadMetasSend();
-	LoadMetasCache();
-	while (num_servers < 2) {
-	  ReadMetasRecv(-1);
-	  usleep(1000);
-	  if (!fuse--) break;
-	}
-	if (num_servers != 0) {
-	  metaHeight = num_servers + 5;
-	} else {
-	  printf("Warning: no response from metaservers, "
-		 "are you firewalled?\n"
-		 "         (no reply to probe on UDP port %d)\n", metaport);
-	  metaHeight = num_servers + 10;
-	}
-	if (metaHeight < 8) metaHeight = 8;
+        LoadMetasCache();
+        metaHeight = num_servers + N_OVERHEAD;
         return;
-	break;
+        break;
       case 2:
 	if (ReadFromCache() || ReadFromMeta()) 
 	  {
-           /* add 2 for header and quit button */
-	    metaHeight = num_servers + 2;
+	    metaHeight = num_servers + N_OVERHEAD;
 	    return;
 	  }
 	terminate(0);
@@ -1053,8 +1037,7 @@ void    parsemeta(int metaType)
       case 3:
 	if (ReadFromMeta() || ReadFromCache()) 
           {
-           /* add 2 for header and quit button */
-            metaHeight = num_servers + 2;
+            metaHeight = num_servers + N_OVERHEAD;
             return;
           }
 	terminate(0);
@@ -1165,6 +1148,15 @@ void    metawindow()
   int     i;
   char *header;
 
+  if (!metaWin) {
+    metaWin = W_MakeMenu("Netrek Server List", 0, 0, 80, metaHeight, NULL, 2);
+  } else {
+    if (W_WindowHeight(metaWin) != metaHeight) {
+      W_ReinitMenu(metaWin, 80, metaHeight);
+      W_ResizeMenu(metaWin, 80, metaHeight);
+    }
+  }
+
   if (type == 1) {
     header = "Server                                           Status        Type       Age";
   } else {
@@ -1199,7 +1191,7 @@ static void metadone(void)
   free(serverlist);
 }
 
-static void metaactionrefresh()
+static void refresh()
 {
   W_WriteText(metaWin, 0, metaHeight-2, W_Red,
               "Asking for refresh from metaservers and nearby servers", -1, 0);
@@ -1207,7 +1199,7 @@ static void metaactionrefresh()
   ReadMetasSend();
 }
 
-void    metaaction(W_Event * data)
+static int action(W_Event * data)
 /* Recieve an action in the meta server window.  Check selection to see if
  * was valid.  If it was then we have a winner! */
 {
@@ -1250,7 +1242,7 @@ void    metaaction(W_Event * data)
 	  if (pid == 0) { /* we are the child */
 	    sprintf(buf, "Netrek  @  %s", serverName);
 	    W_RenameWindow(baseWin, buf);
-	    metadone();
+	    return 1;
 	  } else { /* we are the parent */
 	    slist->pid = pid;
 	    metarefresh(data->y - 1, W_Green);
@@ -1260,13 +1252,14 @@ void    metaaction(W_Event * data)
     }
   else if (data->y == (metaHeight-2) && type == 1)
     {
-      metaactionrefresh();
+      refresh();
     }
   else if (data->y == metaHeight-1)
     {
       metadone();
       terminate(0);
     }
+  return 0;
 }
 
 void    metainput(void)
@@ -1288,7 +1281,10 @@ void    metainput(void)
 	  do
             {
 	      W_Flush();
-	      if (ReadMetasRecv(W_Socket()) || metareap()) metawindow();
+	      if (ReadMetasRecv(W_Socket()) || metareap()) {
+		metaHeight = num_servers + N_OVERHEAD;
+		metawindow();
+	      }
 	    } while (!W_EventsPending());
 	}
       W_NextEvent(&data);
@@ -1299,14 +1295,14 @@ void    metainput(void)
 	    metadone();
 	    terminate(0);
 	  } else if (data.key == 114 || data.key == 210) { /* r or ^r */
-	    metaactionrefresh();
+	    refresh();
 	  } else if (data.Window == metaWin) {
-            metaaction(&data);
+            if (action(&data)) return;
 	  }
           break;
         case W_EV_BUTTON:
           if (data.Window == metaWin)
-            metaaction(&data);
+            if (action(&data)) return;
           break;
         case W_EV_EXPOSE:
           break;

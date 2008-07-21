@@ -702,6 +702,8 @@ int     cowmain(char *server, int port, char *name)
 	}
     }
 
+  newwin(display_host, name);
+
 #ifdef META
   if (usemeta)
     {
@@ -710,16 +712,8 @@ int     cowmain(char *server, int port, char *name)
       if ((metaType < 1) || (metaType > 3))
           metaType = DEFAULT_METATYPE;
       parsemeta(metaType);
-    }
-#endif
-
-  newwin(display_host, name);
-
-#ifdef META
-  if (usemeta)
-    {
       metawindow();
-      metainput();
+      metainput(); /* calls terminate() on quit, may fork(2) */
     }
 #endif
 

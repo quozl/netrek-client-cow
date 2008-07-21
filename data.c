@@ -438,11 +438,6 @@ W_Window macroWin = NULL;
 
 #endif
 
-#ifdef META
-W_Window metaWin = NULL;
-
-#endif
-
 int     ping = 0;				 /* to ping or not to ping */
 LONG    packets_sent = 0;			 /* # all packets sent to *
 
