@@ -1306,6 +1306,10 @@ void    metainput(void)
           break;
         case W_EV_EXPOSE:
           break;
+        case W_EV_CLOSED:
+          fprintf(stderr, "you quit, by closing the server list window\n");
+          terminate(0);
+          break;
         default:
           break;
         }

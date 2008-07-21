@@ -826,6 +826,12 @@ process_event(void)
 
 	  break;
 
+	case W_EV_CLOSED:
+	  if (data.Window == baseWin) {
+	    fprintf(stderr, "you quit, by closing the play window in play\n");
+	    fastQuit = 1;
+	    sendQuitReq();
+	  }
 	default:
 	  break;
 	}

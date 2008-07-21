@@ -83,6 +83,13 @@ static int
 	  ch = event.key;
 	  if (!autolog)
 	    loginproced(ch, defname);
+	  break;
+	case W_EV_CLOSED:
+	  if (event.Window == baseWin) {
+	    fprintf(stderr, "you quit, by closing the login window\n");
+	    terminate(0);
+	  }
+	  break;
 	}
     }
 

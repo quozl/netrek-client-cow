@@ -1041,6 +1041,12 @@ entrywindow(int *team, int *s_type)
 	  else if (event.Window == messagew)
 	    W_ClearWindow(messagew);
 	  break;
+	case W_EV_CLOSED:
+	  if (event.Window == baseWin) {
+	    fprintf(stderr, "you quit, by closing the play window in refit\n");
+	    team = -1;
+	    return;
+	  }
 	}
     }
   while (*team < 0);

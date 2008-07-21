@@ -157,11 +157,9 @@ int findslot(void)
 		}
 	      else if (event.Window == qwin)
 		{
-
 #if defined(SOUND)
 		  Exit_Sound();
 #endif
-
 		  fprintf(stderr, "you selected quit\n");
 		  terminate(0);
 		}
@@ -187,6 +185,13 @@ int findslot(void)
 		{
 		  mapWaitMotdButton(motdButtonWin);
 		}
+	      break;
+	    case W_EV_CLOSED:
+	      if (event.Window == waitWin) {
+		fprintf(stderr,
+			"you quit, by closing the wait window\n");
+		terminate(0);
+	      }
 	      break;
 	    default:
 	      break;
