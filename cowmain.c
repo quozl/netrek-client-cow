@@ -740,21 +740,14 @@ int     cowmain(char *server, int port, char *name)
   getUdpPort();
 #endif
 
-  /* Get login name */
-  if ((pwent = getpwuid(getuid())) != NULL)
-    (void) STRNCPY(login, pwent->pw_name, sizeof(login));
-  else
-
-#ifdef WIN32					 /* Windows: if we can't get
-						  * * the login name, allow
-						  * the  * user to specify */
-  if (cp = getdefault("login"))
-    strncpy(login, cp, sizeof(login));
-  else
-#endif
-
-    (void) STRNCPY(login, "Bozo", sizeof(login));
-
+  cp = getdefault("login");
+  if (cp == NULL) {
+    if ((pwent = getpwuid(getuid())) != NULL)
+      cp = pwent->pw_name;
+    else
+      cp = "Bozo";
+  }
+  (void) STRNCPY(login, cp, sizeof(login));
   login[sizeof(login) - 1] = '\0';
 
   if (pseudo[0] == '\0')
@@ -764,16 +757,12 @@ int     cowmain(char *server, int port, char *name)
       else
 	(void) STRNCPY(pseudo, login, sizeof(pseudo));
     }
-
   pseudo[sizeof(pseudo) - 1] = '\0';
 
   if (defpasswd[0] == '\0')
     if ((cp = getdefault("password")) != 0)
       (void) STRNCPY(defpasswd, cp, sizeof(defpasswd));
-
   defpasswd[sizeof(defpasswd) - 1] = '\0';
-
-
 
   if (!passive)
     {

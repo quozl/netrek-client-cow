@@ -422,8 +422,9 @@ initDefaults(char *deffile)
   fclose(fp);
 }
 
-char   *
-        getdefault(char *str)
+/*! @brief obtain a string default value from the defaults file cache.
+    @return pointer to the value, or NULL if there is no such value named. */
+char *getdefault(char *str)
 {
   struct stringlist *sl;
 
