@@ -1,3 +1,7 @@
+(These instructions are only relevant for a .tar.gz distribution.  If
+you have instead obtained the sources from the repository, you must
+first run autogen.sh.)
+
 Basic Installation
 ==================
 
