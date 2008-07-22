@@ -1,3 +1,33 @@
+Tue Jul 22 19:51:10 2008  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.2.5: released.
+
+	- default fullscreen to off, it was causing problems for those
+	with incomplete resolution support on their systems,
+
+	- team selection window, provide space bar or enter key to
+	re-enter previous team with previous ship type, or join the second
+	largest team, or join a random team if the server is empty, handle
+	server disconnection gracefully without hanging or terminating,
+	remove team selection options when a request is in progress, quit
+	more quickly,
+
+	- metaserver window, add a help window, default list size,
+
+	- metaserver window, add arrow keys to select, space or enter to
+	join, 'o' to observe,
+
+	- fix to allow windows to be closed by user actions via window
+	manager, without crashing the program,
+
+	- allow metaserver window to resize when number of servers listed
+	changes.
+
+	- allow user to override login name using .xtrekrc.
+
+	- keep metaserver window visible and use new window for each play
+	session.
+
 Wed Jul 16 09:30:55 2008  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.4: released.

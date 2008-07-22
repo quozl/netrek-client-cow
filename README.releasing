@@ -4,7 +4,7 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.2.3
+export VERSION=3.2.5
 export TAG_VERSION=cow_`echo ${VERSION}|tr . _`
 
 # update version.h patchlevel.h cow.spec index.html
@@ -15,7 +15,7 @@ export TAG_VERSION=cow_`echo ${VERSION}|tr . _`
 darcs record
 
 # tag release
-darcs tag ${TAG_VERSION}
+darcs tag ${VERSION}
 
 # make dist
 make dist
