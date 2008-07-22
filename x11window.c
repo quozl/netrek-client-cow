@@ -3907,7 +3907,8 @@ void W_FullScreenInitialise() {
 #endif
   full_screen_enabled = 0;
   full_screen_default = 0;
-  if (booleanDefault("FullScreen", 1)) {
+  if (booleanDefault("FullScreen", 0)) {
+    // FIXME: when this is on in .xtrekrc normal resolution may not be restored
     full_screen_default++;
     if (video_mode_initialise())
       full_screen_enabled++;
