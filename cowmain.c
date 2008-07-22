@@ -918,7 +918,6 @@ int     cowmain(char *server, int port, char *name)
 	  fprintf(stderr, "you quit\n");
 #if defined(SOUND)
 	  Exit_Sound();
-	  sleep(1);
 #endif
 
 	  if (logFile != NULL)
@@ -934,6 +933,13 @@ int     cowmain(char *server, int port, char *name)
 
 	}
 #endif /* RWATCH */
+
+      {
+	char    buf[80];
+	sprintf(buf, "Welcome aboard %s!", ranks[me->p_stats.st_rank].name);
+	warning(buf);
+	W_ClearArea(messagew, 5, 5, W_Textwidth * 80, W_Textheight);
+      }
 
       sendVersion();
       getship(myship, myship->s_type);

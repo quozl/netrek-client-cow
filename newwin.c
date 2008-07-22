@@ -128,7 +128,6 @@ pid_t newwin_fork()
 
 void newwin(char *hostmon, char *progname)
 {
-  int     i;
   int main_width = TWINSIDE + GWINSIDE + BORDER;
   int main_height = GWINSIDE + 2 * BORDER + PLISTSIZE;
 
@@ -707,67 +706,137 @@ savebitmaps(void)
   pressbits = W_StoreBitmap(press_width, press_height, press_bits, w);
 }
 
-/* This routine throws up an entry window for the player. */
-
-entrywindow(int *team, int *s_type)
+static int numShips(int owner)
 {
-  int     typeok = 0, i = 0;
+  int i, num = 0;
+  struct player *p;
+
+  for (i = 0, p = players; i < MAXPLAYER; i++, p++)
+    if (p->p_status == PALIVE && p->p_team == owner)
+      num++;
+  return num;
+}
+
+static int realNumShips(int owner)
+{
+  int i, num = 0;
+  struct player *p;
+
+  for (i = 0, p = players; i < MAXPLAYER; i++, p++)
+    if (p->p_status != PFREE && p->p_team == owner)
+      num++;
+  return num;
+}
+
+/*! @brief choose a team and ship based on what team has fewer players
+    @returns team number, ship type
+*/
+static void mercenary(int *team, int *ship)
+{
+  int i, count[NUMTEAM], large[2] = {0, 0};
+
+  for (i=0; i<NUMTEAM; i++) count[i] = 0;
+  for (i=0; i<NUMTEAM; i++) {
+    count[i] = realNumShips(1 << i);
+    if (count[i] > count[large[0]]) {
+      large[1] = large[0];
+      large[0] = i;
+    } else if ((count[i] > count[large[1]]) || (large[0] == large[1])) {
+      large[1] = i;
+    }
+  }
+  /* large[0] == largest team, large[1] == second largest team */
+
+  /* if all teams are empty, pick a random team */
+  if (count[large[0]] == 0) {
+    *team = random() % 4;
+    *ship = CRUISER;
+    return;
+  }
+
+  /* mercenary joins the second largest team */
+  *team = large[1];
+  *ship = CRUISER;
+}
+
+static void show_team_windows()
+{
+  int i;
+
+  for (i=0; i<NUMTEAM; i++) W_MapWindow(teamWin[i]);
+}
+
+static void hide_team_windows()
+{
+  int i;
+
+  for (i=0; i<NUMTEAM; i++) W_UnmapWindow(teamWin[i]);
+  W_Flush();
+}
+
+static void show_quit_window()
+{
+  W_MapWindow(qwin);
+}
+
+static void hide_quit_window()
+{
+  W_UnmapWindow(qwin);
+}
+
+/*! @brief throws up an entry window for the player to choose a team.
+    @details an event loop handling graphics and server network
+    interaction, displays team windows, team status, a quit window,
+    and a quit timeout, accepts mouse clicks in team windows to select
+    a team, accepts mouse clicks in quit window to quit, accepts
+    various keystrokes for ship type selection or stats reset, detects
+    loss of server connection.
+    @returns team to -1 for a quit, otherwise a team number, s_type a
+    ship type number
+*/
+void entrywindow(int *team, int *s_type)
+{
+  int     chosen_ship_ok = 0, i = 0;
   time_t  startTime;
   W_Event event;
   int     lastplayercount[4];
   int     okayMask, lastOkayMask;
   int     resetting = 0;
-  int     tiled = 0;
+  int     chosen_team = -1;
+  int     chosen_ship = -1;
+  int     request_sent = 0;
+  time_t  request_time;
   time_t  quittime = 60;
   time_t  lasttime = -1;
-  time_t  spareTime = 1000;			 /* Allow them an extra 240 * 
+  time_t  spareTime = 1000;
+  static int previous_team = -1;
+  static int previous_ship = -1;
 
-						  * 
-						  * 
-						  * * seconds, as LONG */
-
-  /* as they are active */
-  fd_set  mask;
+  /* default quit if we return */
+  *team = -1;
 
   /* fast quit? - jn */
-  if (fastQuit)
-    {
-      *team = -1;
-      return;
-    }
+  if (fastQuit) return;
 
-  /* The following allows quick choosing of teams */
+  /* default ship type to what was last selected */
+  chosen_ship = *s_type;
 
+  /* stipple tile teams that are not allowed to be chosen */
   lastOkayMask = okayMask = tournMask;
-
-  for (i = 0; i < 4; i++)
-    {
-      if (okayMask & (1 << i))
-	{
-	  tiled = 0;
-	}
-      else
-	{
-	  tiled = 1;
-	}
-
-      if (tiled)
-	{
-	  W_TileWindow(teamWin[i], stipple);
-	}
-      else
-	{
-	  W_UnTileWindow(teamWin[i]);
-	}
-      W_MapWindow(teamWin[i]);
-      lastplayercount[i] = -1;			 /* force redraw first time * 
-						  * 
-						  * * through */
+  for (i=0; i<NUMTEAM; i++) {
+    if (okayMask & (1 << i)) {
+      W_UnTileWindow(teamWin[i]);
+    } else {
+      W_TileWindow(teamWin[i], stipple);
     }
-  W_MapWindow(qwin);
+    /* force redraw first time through */
+    lastplayercount[i] = -1;
+  }
+  show_quit_window();
+  show_team_windows();
 
   *team = -1;
-  startTime = time(0);
+  startTime = time(NULL);
   if (me->p_whydead != KWINNER && me->p_whydead != KGENOCIDE)
     showMotd(w, line);
 
@@ -779,351 +848,297 @@ entrywindow(int *team, int *s_type)
   else
     UpdatePlayerList();				 /* Otherwise */
 
-
-  quittime = (time_t) intDefault("autoquit", quittime);		/* allow *
-								 * extra */
-  /* quit time -RW */
-
-  do
-    {
-      while (!W_EventsPending())
-	{
-	  time_t  elapsed;
-	  fd_set  rfds;
-	  struct timeval tv;
-	  int retval;
-
-#ifndef HAVE_WIN32
-	  W_FullScreen(baseWin);
-	  tv.tv_sec = 1;
-#else
-	  /* Since we don't have a socket to check on Win32 for windowing *
-	   * system events, we set the timeout to zero and effectively poll.
-	   * * Yes, I could do the correct thing and call *
-	   * WaitForMultipleObjects() etc. but I don't feel like it */
-	  tv.tv_sec = 0;
-#endif
-	  tv.tv_usec = 0;
-	  FD_ZERO(&rfds);
-#ifndef HAVE_WIN32
-	  FD_SET(W_Socket(), &rfds);
-#endif
-	  FD_SET(sock, &rfds);
-	  if (udpSock >= 0)
-	    FD_SET(udpSock, &rfds);
-	  retval = SELECT(32, &rfds, 0, 0, &tv);		 /* hmm,  32 might be too * * 
-						  * small */
-	  if (retval < 0) {
-	    if (errno == EBADF) return;
-	    perror("select");
-	  }
-	  if (FD_ISSET(W_Socket(), &rfds)) {
-	    W_EventsQueuedCk();
-	  }
-	  if (FD_ISSET(sock, &rfds) ||
-	      (udpSock >= 0 && FD_ISSET(udpSock, &rfds)))
-	    {
-	      readFromServer(&rfds);
-	    }
-	  elapsed = time(0) - startTime;
-	  if (elapsed > quittime)
-	    {
-	      printf("Auto-Quit.\n");
-	      *team = 4;
-	      break;
-	    }
-
-#ifndef HAVE_WIN32
-	  map();				 /* jmn - update galactic */
-#endif
-
-	  if (lasttime != time(0))
-	    {
-	      run_clock(lasttime);
-	      updatedeath();
-	      if (W_IsMapped(playerw))
-		UpdatePlayerList();
-	      showTimeLeft(elapsed, quittime);
-	      lasttime = time(0);
-	    }
-
-	  okayMask = tournMask;
-
-	  for (i = 0; i < 4; i++)
-	    {
-	      if ((okayMask ^ lastOkayMask) & (1 << i))
-		{
-		  if (okayMask & (1 << i))
-		    {
-		      W_UnTileWindow(teamWin[i]);
-		    }
-		  else
-		    {
-		      W_TileWindow(teamWin[i], stipple);
-		    }
-		  lastplayercount[i] = -1;	 /* force update */
-		}
-	      redrawTeam(teamWin[i], i, &lastplayercount[i]);
-	    }
-	  lastOkayMask = okayMask;
-	}
-      if (*team == 4)
-	break;
-
-      if (time(0) - startTime <= spareTime)
-	{
-	  spareTime -= time(0) - startTime;
-	  startTime = time(0);
-	}
-      else
-	{
-	  startTime += spareTime;
-	  spareTime = 0;
-	}
-      if (!W_EventsPending())
-	continue;
-      W_NextEvent(&event);
-      typeok = 1;
-      switch ((int) event.type)
-	{
-	case W_EV_KEY:
-	  switch (event.key)
-	    {
-	    case 'q':
-	      *team = -1;
-	      return;
-	    case 's':
-	      *s_type = SCOUT;
-	      break;
-	    case 'd':
-	      *s_type = DESTROYER;
-	      break;
-	    case 'c':
-	      *s_type = CRUISER;
-	      break;
-	    case 'b':
-	      *s_type = BATTLESHIP;
-	      break;
-	    case 'g':
-	      *s_type = SGALAXY;
-	      break;
-	    case 'X':
-	      *s_type = ATT;
-	      break;
-	    case 'a':
-	      *s_type = ASSAULT;
-	      break;
-	    case 'o':
-	      *s_type = STARBASE;
-	      break;
-	    default:
-	      typeok = 0;
-	      break;
-	    }
-	  if (event.Window == w)
-	    {
-	      switch (event.key)
-		{
-		case 'y':
-		  if (resetting)
-		    {
-		      sendResetStatsReq('Y');
-		      warning("OK, your reset request has been sent to the server.");
-		      resetting = 0;
-		    }
-		  break;
-		case 'n':
-		  if (resetting)
-		    {
-		      warning("Yeah, WHATever.");
-		      resetting = 0;
-		    }
-		  break;
-		case 'R':
-		  warning("Please confirm reset request. (y/n)");
-		  resetting = 1;
-		  break;
-		case 'f':			 /* Scroll motd forward */
-		  line = line + 28;
-		  if (line > MaxMotdLine)
-		    {
-		      line = line - 28;
-		      break;
-		    }
-		  W_ClearWindow(w);
-		  showMotd(w, line);
-		  break;
-		case 'b':			 /* Scroll motd backward */
-		  if (line == 0)
-		    break;
-		  line = line - 28;
-		  if (line < 0)
-		    line = 0;
-		  W_ClearWindow(w);
-		  showMotd(w, line);
-		  break;
-		case 'F':			 /* Scroll motd forward */
-		  line = line + 4;
-		  if (line > MaxMotdLine)
-		    {
-		      line = line - 4;
-		      break;
-		    }
-		  W_ClearWindow(w);
-		  showMotd(w, line);
-		  break;
-		case 'B':			 /* Scroll motd backward */
-		  if (line == 0)
-		    break;
-		  line = line - 4;
-		  if (line < 0)
-		    line = 0;
-		  W_ClearWindow(w);
-		  showMotd(w, line);
-		  break;
-		}
-	    }
-	  /* No break, we just fall through */
-	case W_EV_BUTTON:
-	  if (typeok == 0)
-	    break;
-	  for (i = 0; i < 4; i++)
-	    if (event.Window == teamWin[i])
-	      {
-		*team = i;
-		break;
-	      }
-	  if (event.Window == qwin /* new */  &&
-	      event.type == W_EV_BUTTON)
-	    {
-	      *team = 4;
-	      break;
-	    }
-	  if (*team != -1 && !teamRequest(*team, *s_type))
-	    {
-	      *team = -1;
-	    }
-	  break;
-	case W_EV_EXPOSE:
-	  for (i = 0; i < 4; i++)
-	    if (event.Window == teamWin[i])
-	      {
-		lastplayercount[i] = -1;	 /* force update */
-		redrawTeam(teamWin[i], i, &lastplayercount[i]);
-		break;
-	      }
-	  if (event.Window == qwin)
-	    {
-	      run_clock(lasttime);
-	      redrawQuit();
-	    }
-	  else if (event.Window == tstatw)
-	    redrawTstats();
-	  else if (event.Window == iconWin)
-	    drawIcon();
-	  else if (event.Window == w)
-	    {
-	      run_clock(lasttime);
-	      showMotd(w, line);
-	    }
-	  else if (event.Window == helpWin)
-	    fillhelp();
-
-#ifdef NBT
-	  else if (event.Window == macroWin)
-	    fillmacro();
-#endif
-
-	  else if (event.Window == playerw)
-	    RedrawPlayerList();
-	  else if (event.Window == warnw)
-	    W_ClearWindow(warnw);
-	  else if (event.Window == messagew)
-	    W_ClearWindow(messagew);
-	  break;
-	case W_EV_CLOSED:
-	  if (event.Window == baseWin) {
-	    fprintf(stderr, "you quit, by closing the play window in refit\n");
-	    team = -1;
-	    return;
-	  }
-	}
-    }
-  while (*team < 0);
-  if (event.Window != qwin)
-    {
-      char    buf[80];
-
-      sprintf(buf, "Welcome aboard %s!", ranks[me->p_stats.st_rank].name);
-      warning(buf);
-      W_ClearArea(messagew, 5, 5, W_Textwidth * 80, W_Textheight);
-    }
-
-  if (*team == 4)
-    {
-      *team = -1;
-      return;
-    }
-
-  for (i = 0; i < 4; i++)
-    W_UnmapWindow(teamWin[i]);
-  W_UnmapWindow(qwin);
-}
-
-/* Attempt to pick specified team & ship */
-static int teamRequest(int team, int ship)
-{
-  time_t  lastTime;
+  quittime = (time_t) intDefault("autoquit", quittime);
 
   pickOk = -1;
-  sendTeamReq(team, ship);
-  lastTime = time(NULL);
-  while (pickOk == -1)
-    {
-      if (lastTime + 3 < time(NULL))
-	{
-	  sendTeamReq(team, ship);
-	}
-      socketPause();
-      readFromServer(NULL);
-      if (isServerDead())
-	{
-	  fprintf(stderr, "server connection lost, during team or ship selection\n");
-	  tournMask = 0;
-#ifdef HAVE_XPM
-	  W_GalacticBgd(GHOST_PIX);
+  while (1) {
+    while (!W_EventsPending()) {
+      time_t  elapsed;
+      fd_set  rfds;
+      struct timeval tv;
+      int retval;
+
+      /* send initial request to server */
+      if (request_sent == 0 && chosen_team != -1 && chosen_ship != -1) {
+        if (isServerDead()) return;
+        sendTeamReq(chosen_team, chosen_ship);
+        request_sent++;
+        request_time = time(NULL);
+        hide_team_windows();
+      }
+
+      /* periodically repeat request to server */
+      if (request_sent > 0 && (time(NULL) - request_time) > 3) {
+        sendTeamReq(chosen_team, chosen_ship);
+        warning("Odd, server has not replied, sending it again ...");
+        request_sent++;
+        request_time = time(NULL);
+      }
+      
+#ifndef HAVE_WIN32
+      W_FullScreen(baseWin);
+      tv.tv_sec = 1; /* rate at which quit clock is updated */
+#else
+      tv.tv_sec = 0;
 #endif
-	  pickOk = 0;
-	  break;
-	}
+      tv.tv_usec = 0;
+      FD_ZERO(&rfds);
+#ifndef HAVE_WIN32
+      FD_SET(W_Socket(), &rfds);
+#endif
+      if (!isServerDead()) {
+        FD_SET(sock, &rfds);
+        if (udpSock >= 0)
+          FD_SET(udpSock, &rfds);
+      }
+      retval = SELECT(32, &rfds, 0, 0, &tv);
+      if (retval < 0) {
+        if (errno == EBADF) return;
+        perror("select");
+      }
+      if (FD_ISSET(W_Socket(), &rfds)) {
+        W_EventsQueuedCk();
+      }
+      if (FD_ISSET(sock, &rfds) ||
+          (udpSock >= 0 && FD_ISSET(udpSock, &rfds))) {
+        readFromServer(&rfds);
+        if (isServerDead()) {
+          fprintf(stderr, "server connection lost, during team or ship selection\n");
+          warning("Lost connection to server, "
+                  "your only option is to quit and try again.");
+          hide_team_windows();
+        }
+        switch (pickOk) {
+        case -1: /* nothing heard yet */
+          break;
+        case 0: /* no */
+          show_team_windows();
+          chosen_team = -1;
+          request_sent = 0;
+          pickOk = -1;
+          break;
+        case 1: /* yes */
+          hide_quit_window();
+          previous_team = chosen_team;
+          previous_ship = chosen_ship;
+          *team = chosen_team;
+          *s_type = chosen_ship;
+          return;
+        }
+      }
+      elapsed = time(NULL) - startTime;
+      if (elapsed > quittime) {
+        hide_quit_window();
+        hide_team_windows();
+        return;
+      }
+#ifndef HAVE_WIN32
+      map();                             /* jmn - update galactic */
+#endif
+      if (lasttime != time(NULL)) {
+        run_clock(lasttime);
+        updatedeath();
+        if (W_IsMapped(playerw))
+          UpdatePlayerList();
+        showTimeLeft(elapsed, quittime);
+        lasttime = time(NULL);
+      }
+      okayMask = tournMask;
+      for (i=0; i<NUMTEAM; i++) {
+        if ((okayMask ^ lastOkayMask) & (1 << i)) {
+          if (okayMask & (1 << i)) {
+            W_UnTileWindow(teamWin[i]);
+          } else {
+            W_TileWindow(teamWin[i], stipple);
+          }
+          lastplayercount[i] = -1;       /* force update */
+        }
+        redrawTeam(teamWin[i], i, &lastplayercount[i]);
+      }
+      lastOkayMask = okayMask;
+    } /* while graphics events are not pending */
+
+    if (time(NULL) - startTime <= spareTime) {
+      spareTime -= time(NULL) - startTime;
+      startTime = time(NULL);
+    } else {
+      startTime += spareTime;
+      spareTime = 0;
     }
-  return (pickOk);
+    W_NextEvent(&event);
+    switch ((int) event.type) {
+    case W_EV_KEY:
+      chosen_ship_ok = 1;
+      switch (event.key) {
+      case 'q':
+        hide_quit_window();
+        hide_team_windows();
+        return;
+      case ' ':
+      case '\r':
+        chosen_ship_ok = 0;
+        if (previous_team != -1 && previous_ship != -1) {
+          chosen_team = previous_team;
+          chosen_ship = previous_ship;
+        } else {
+          mercenary(&chosen_team, &chosen_ship);
+        }
+        break;
+      case 's':
+        chosen_ship = SCOUT;
+        break;
+      case 'd':
+        chosen_ship = DESTROYER;
+        break;
+      case 'c':
+        chosen_ship = CRUISER;
+        break;
+      case 'b':
+        chosen_ship = BATTLESHIP;
+        break;
+      case 'g':
+        chosen_ship = SGALAXY;
+        break;
+      case 'X':
+        chosen_ship = ATT;
+        break;
+      case 'a':
+        chosen_ship = ASSAULT;
+        break;
+      case 'o':
+        chosen_ship = STARBASE;
+        break;
+      default:
+        chosen_ship_ok = 0;
+        break;
+      }
+      if (chosen_ship_ok) {
+        for (i=0; i<NUMTEAM; i++) {
+          if (event.Window == teamWin[i]) {
+            chosen_team = i;
+          }
+        }
+        if (chosen_team == -1) {
+          warning("Ship type chosen, now select a team.");
+	  // FIXME: this prevents "b" from being used to scroll MOTD back
+	  // one of those annoying semantic overloads.
+        }
+        break;
+      }
+      if (event.Window == w) {
+        switch (event.key) {
+        case 'R':
+          warning("Please confirm reset request. (y/n)");
+          resetting = 1;
+          break;
+        case 'y':
+          if (resetting) {
+            sendResetStatsReq('Y');
+            warning("OK, your reset request has been sent to the server.");
+            resetting = 0;
+          }
+          break;
+        case 'n':
+          if (resetting) {
+            warning("Yeah, WHATever.");
+            resetting = 0;
+          }
+          break;
+        case 'f':                        /* Scroll motd forward */
+          line = line + 28;
+          if (line > MaxMotdLine) {
+            line = line - 28;
+            break;
+          }
+          W_ClearWindow(w);
+          showMotd(w, line);
+          break;
+        case 'b':                        /* Scroll motd backward */
+          if (line == 0)
+            break;
+          line = line - 28;
+          if (line < 0)
+            line = 0;
+          W_ClearWindow(w);
+          showMotd(w, line);
+          break;
+        case 'F':                        /* Scroll motd forward */
+          line = line + 4;
+          if (line > MaxMotdLine) {
+            line = line - 4;
+            break;
+          }
+          W_ClearWindow(w);
+          showMotd(w, line);
+          break;
+        case 'B':                        /* Scroll motd backward */
+          if (line == 0)
+            break;
+          line = line - 4;
+          if (line < 0)
+            line = 0;
+          W_ClearWindow(w);
+          showMotd(w, line);
+          break;
+        }
+      }
+    case W_EV_BUTTON:
+      for (i=0; i<NUMTEAM; i++) {
+        if (event.Window == teamWin[i]) {
+          chosen_team = i;
+          break;
+        }
+      }
+      if (event.Window == qwin &&
+          event.type == W_EV_BUTTON) {
+        hide_quit_window();
+        hide_team_windows();
+        return;
+      }
+      break;
+    case W_EV_EXPOSE:
+      for (i=0; i<NUMTEAM; i++) {
+        if (event.Window == teamWin[i]) {
+          lastplayercount[i] = -1;       /* force update */
+          redrawTeam(teamWin[i], i, &lastplayercount[i]);
+          break;
+        }
+      }
+      if (event.Window == qwin) {
+        run_clock(lasttime);
+        redrawQuit();
+      } else if (event.Window == tstatw) {
+        redrawTstats();
+      } else if (event.Window == iconWin) {
+        drawIcon();
+      } else if (event.Window == w) {
+        run_clock(lasttime);
+        showMotd(w, line);
+      } else if (event.Window == helpWin) {
+        fillhelp();
+#ifdef NBT
+      } else if (event.Window == macroWin) {
+        fillmacro();
+#endif
+      } else if (event.Window == playerw) {
+        RedrawPlayerList();
+      } else if (event.Window == warnw) {
+        W_ClearWindow(warnw);
+      } else if (event.Window == messagew) {
+        W_ClearWindow(messagew);
+      }
+      break;
+    case W_EV_CLOSED:
+      if (event.Window == baseWin) {
+        fprintf(stderr, "you quit, by closing the play window in refit\n");
+        *team = -1;
+        return;
+      }
+    }
+  }
 }
 
-numShips(int owner)
-{
-  int     i, num = 0;
-  struct player *p;
-
-  for (i = 0, p = players; i < MAXPLAYER; i++, p++)
-    if (p->p_status == PALIVE && p->p_team == owner)
-      num++;
-  return (num);
-}
-
-realNumShips(int owner)
-{
-  int     i, num = 0;
-  struct player *p;
-
-  for (i = 0, p = players; i < MAXPLAYER; i++, p++)
-    if (p->p_status != PFREE &&
-	p->p_team == owner)
-      num++;
-  return (num);
-}
-
-deadTeam(int owner)
+static int deadTeam(int owner) /* unused */
 
 /* The team is dead if it has no planets and cannot coup it's home planet */
 {
