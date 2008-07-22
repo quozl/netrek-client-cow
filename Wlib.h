@@ -78,6 +78,8 @@ extern W_Window W_MakeWindow (char *name, int x, int y, int width, int height, W
 extern W_Icon W_StoreBitmap (int width, int height, char *data, W_Window window);
 extern W_Window W_MakeTextWindow (char *name, int x, int y, int width, int height, W_Window parent, int border);
 extern W_Window W_MakeScrollingWindow (char *name, int x, int y, int width, int height, W_Window parent, int border);
+extern void W_FlushScrollingWindow(W_Window window);
+extern void W_SetSensitive(W_Window w, int v);
 extern W_Window W_MakeMenu (char *name, int x, int y, int width, int height, W_Window parent, int border);
 extern void W_WriteText (W_Window window, int x, int y, W_Color color, char *str, int len, W_Font font);
 extern void W_MaskText (W_Window window, int x, int y, W_Color color, char *str, int len, W_Font font);

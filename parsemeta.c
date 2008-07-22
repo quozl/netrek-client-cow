@@ -69,12 +69,17 @@ static int chosen = -1;			/* Arrow key chosen server.     */
 static int metaHeight = 0;		/* The number of list lines.	*/
 static char *metaWindowName;		/* The window's name.           */
 static int statusLevel;
-static W_Window metaWin;
+static W_Window metaWin, metaHelpWin = NULL;
 
 #define N_TITLES 1
-#define N_BUTTONS 2
+#define N_BUTTONS 3
 #define N_GAP 1
 #define N_OVERHEAD N_TITLES+N_BUTTONS+N_GAP
+
+/* button offsets from end of list */
+#define B_REFRESH 3
+#define B_HELP 2
+#define B_QUIT 1
 
 /* The status strings:  The order of the strings up until statusNull is
  * important because the meta-client will display all the strings up to a
@@ -125,6 +130,63 @@ static int metareap(void)
     }
   }
   return activity;
+}
+
+char *metahelp_message[] =
+  {
+    "Netrek Server List - Help",
+    "",
+    "  -  click on a server to join the game there,",
+    "",
+    "  -  right-click on a server to observe the game there,",
+    "",
+    "  -  click to refresh the list of servers,",
+    "",
+    "The information shown comes from the Netrek Metaserver,",
+    "or from any Netrek servers nearby on your local network.",
+    "",
+    "For more information on Netrek, visit www.netrek.org/beginner",
+    NULL
+  };
+
+static void make_help()
+{
+  int i, l, h, w;
+
+  /* calculate width and height required */
+  h = (sizeof(metahelp_message)/sizeof(char *));
+  w = 0;
+  for (i=0; i<h; i++) {
+    char *line = metahelp_message[i];
+    if (line == NULL) break;
+    l = strlen(line);
+    if (l > w) w = l;
+  }
+  metaHelpWin = W_MakeWindow("Netrek Server List - Help", 500, 500,
+                             w * W_Textwidth + 40, h * W_Textheight + 40,
+                             0, 2, foreColor);
+}
+
+static void expo_help()
+{
+  int i, h;
+  h = (sizeof(metahelp_message)/sizeof(char *));
+  for (i=0; i<h; i++) {
+    char *line = metahelp_message[i];
+    if (line == NULL) break;
+    W_WriteText(metaHelpWin, 20, i * W_Textheight + 20, textColor, line, -1,
+                W_RegularFont);
+  }
+}
+
+static void show_help()
+{
+  W_MapWindow(metaHelpWin);
+}
+
+static void hide_help()
+{
+  W_UnmapWindow(metaHelpWin);
 }
 
 static int open_port(char *host, int port, int verbose)
@@ -1023,7 +1085,7 @@ void    parsemeta(int metaType)
       case 1:
         ReadMetasSend();
         LoadMetasCache();
-        metaHeight = num_servers + N_OVERHEAD;
+        metaHeight = 4 + N_OVERHEAD;
         return;
         break;
       case 2:
@@ -1155,6 +1217,7 @@ void    metawindow()
 
   if (!metaWin) {
     metaWin = W_MakeMenu("Netrek Server List", 0, 0, 80, metaHeight, NULL, 2);
+    make_help();
   } else {
     if (W_WindowHeight(metaWin) != metaHeight) {
       W_ReinitMenu(metaWin, 80, metaHeight);
@@ -1176,12 +1239,15 @@ void    metawindow()
 
   /* Add additional options */
   if (type == 1)
-    W_WriteText(metaWin, 0, metaHeight-2, W_Yellow,
-                "Refresh                                         (Ctrl/R)",
+    W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Yellow,
+                "Refresh                                           (r)",
                 -1, 0);
-  W_WriteText(metaWin, 0, metaHeight-1, W_Yellow,
+  W_WriteText(metaWin, 0, metaHeight-B_HELP, W_Yellow,
+	        "Help                                              (h)",
+	      -1, 0);
+  W_WriteText(metaWin, 0, metaHeight-B_QUIT, W_Yellow,
                 "Quit                                              (q)",
-                -1, 0);
+	      -1, 0);
 
   /* Map window */
   W_MapWindow(metaWin);
@@ -1197,8 +1263,8 @@ static void metadone(void)
 
 static void refresh()
 {
-  W_WriteText(metaWin, 0, metaHeight-2, W_Red,
-              "Asking for refresh from metaservers and nearby servers", -1, 0);
+  W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Red,
+              "Refresh (in progress)", -1, 0);
   W_Flush();
   ReadMetasSend();
 }
@@ -1279,9 +1345,11 @@ static int button(W_Event *data)
   if ((data->y > 0) && (data->y <= num_servers)) { /* click on server */
     return chose(data->y - 1, (data->key == W_RBUTTON));
   }
-  if (data->y == (metaHeight-2) && type == 1) { /* refresh */
+  if (data->y == (metaHeight-B_REFRESH) && type == 1) { /* refresh */
     refresh();
-  } else if (data->y == metaHeight-1) { /* quit */
+  } else if (data->y == metaHeight-B_HELP) { /* help */
+    show_help();
+  } else if (data->y == metaHeight-B_QUIT) { /* quit */
     metadone();
     terminate(0);
   }
@@ -1303,6 +1371,8 @@ static int key(W_Event *data)
     if (chosen != -1) return chose(chosen, 0);
   } else if (data->key == 'o') {
     if (chosen != -1) return chose(chosen, 1);
+  } else if (data->key == 'h') {
+    show_help();
   } else {
     return button(data);
   }
@@ -1319,43 +1389,42 @@ void    metainput(void)
 {
   W_Event data;
 
-  statusLevel = intDefault("metaStatusLevel", defaultStatLevel);
-
-  while (W_IsMapped(metaWin))
-    {
-      if (type == 1)
-	{
-	  do
-            {
-	      W_Flush();
-	      if (ReadMetasRecv(W_Socket()) || metareap()) {
-		metaHeight = num_servers + N_OVERHEAD;
-		metawindow();
-	      }
-	    } while (!W_EventsPending());
-	}
-      W_NextEvent(&data);
-      switch ((int) data.type)
-        {
-        case W_EV_KEY:
-          if (data.Window == metaWin)
-            if (key(&data)) return;
-          break;
-        case W_EV_BUTTON:
-          if (data.Window == metaWin)
-            if (button(&data)) return;
-          break;
-        case W_EV_EXPOSE:
-          break;
-        case W_EV_CLOSED:
-          fprintf(stderr, "you quit, by closing the server list window\n");
-          terminate(0);
-          break;
-        default:
-          break;
+  while (W_IsMapped(metaWin)) {
+    if (type == 1) {
+      do {
+        W_Flush();
+        if (ReadMetasRecv(W_Socket()) || metareap()) {
+          metaHeight = num_servers + N_OVERHEAD;
+          metawindow();
         }
-      if (metareap()) metawindow();
+      } while (!W_EventsPending());
     }
+    W_NextEvent(&data);
+    switch ((int) data.type) {
+    case W_EV_KEY:
+      if (data.Window == metaWin)
+        if (key(&data)) return;
+      if (data.Window == metaHelpWin) hide_help();
+      break;
+    case W_EV_BUTTON:
+      if (data.Window == metaWin)
+        if (button(&data)) return;
+      if (data.Window == metaHelpWin) hide_help();
+      break;
+    case W_EV_EXPOSE:
+      if (data.Window == metaHelpWin) expo_help();
+      break;
+    case W_EV_CLOSED:
+      if (data.Window == metaWin) {
+        fprintf(stderr, "you quit, by closing the server list window\n");
+        terminate(0);
+      }
+      break;
+    default:
+      break;
+    }
+    if (metareap()) metawindow();
+  }
 }
 
 #endif
