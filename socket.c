@@ -1542,6 +1542,18 @@ void    handleStatus(struct status_spacket *packet)
   }
 }
 
+void become(struct player *pl)
+{
+  int p_no;
+
+  p_no = pl->p_no;
+  memcpy(&pl->p_ship, &me->p_ship, sizeof(struct ship));
+  memcpy(&pl->p_stats, &me->p_stats, sizeof(struct stats));
+  memcpy(pl, me, sizeof(struct player));
+  pl->p_no = p_no;
+  me->p_status = PFREE;
+}
+
 void    handleSelf(struct you_spacket *packet)
 {
   struct player* pl;
@@ -1550,26 +1562,18 @@ void    handleSelf(struct you_spacket *packet)
   pl = &players[packet->pnum];
 
 #ifdef CORRUPTED_PACKETS
-  if (packet->pnum >= MAXPLAYER)
+  if (packet->pnum < 0 || packet->pnum >= MAXPLAYER)
     {
       fprintf(stderr, "handleSelf: bad index %d\n", packet->pnum);
       return;
     }
 #endif
-  fprintf(stderr, "handleSelf: pnum %d\n", packet->pnum);
-  if (seen) {
-    if (packet->pnum != me->p_no) {
-      fprintf(stderr, "handleSelf: changed pnum %d\n", packet->pnum);
-    }
-  }
+  if (seen && packet->pnum != me->p_no) become(pl);
   seen++;
 
   if (!F_many_self)
     {
       me = (ghoststart ? &players[ghost_pno] : pl);
-      if (log_packets) {
-	fprintf(stderr, "handleSelf: my player number is %d\n", packet->pnum);
-      }
       myship = &(me->p_ship);
       mystats = &(me->p_stats);
     }

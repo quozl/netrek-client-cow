@@ -434,8 +434,12 @@ void    handleVTorp(unsigned char *sbuf)
 void    handleSelfShort(struct youshort_spacket *packet)
 {
   struct player* pl;
+  static int seen = 0;
 
   pl = &players[packet->pnum];
+
+  if (seen && packet->pnum != me->p_no) become(pl);
+  seen++;
 
   if (!F_many_self)
     {
