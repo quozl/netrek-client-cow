@@ -64,8 +64,6 @@ liteplanet(struct planet *l)
   emph_planet_seq_n[l->pl_no] = beep_lite_cycle_time_planet * server_ups / 10;
   l->pl_flags |= PLREDRAW;			 /* Leave redraw on until * * 
 						  * done highlighting */
-  l->pl_flags |= PLCLEAR;			 /* Leave redraw on until * * 
-						  * done highlighting */
 }
 
 liteplayer(struct player *j)
