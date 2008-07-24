@@ -988,6 +988,11 @@ int     cowmain(char *server, int port, char *name)
 	  sendUdpReq(COMM_UPDATE);
 #endif
 
+          /* Click me sign on message window (for newbies) */
+          sprintf(buf, "Talk to everyone, click here, type, press enter.  "
+                  "Read and learn.");
+          W_WriteText(messagew, 5, 5, W_Red, buf, strlen(buf), W_RegularFont);
+
 	  isFirstEntry = 0;
 	}
 

@@ -80,11 +80,12 @@ static void emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
         Key96(void), Key97(W_Event * data), Key98(void), Key99(void), Key100(void),
         Key101(void), Key102(W_Event * data), Key103(W_Event * data), Key104(void),
         Key105(W_Event * data), Key106(W_Event * data), Key107(W_Event * data),
-        Key108(W_Event * data), Key109(void), Key110(W_Event * data), Key111(void),
+        Key108(W_Event * data), Key110(W_Event * data), Key111(void),
         Key112(W_Event * data), Key113(void), Key114(void), Key115(void),
         Key116(W_Event * data), Key117(void), Key118(W_Event * data), Key119(void),
         Key120(void), Key121(W_Event * data), Key122(void), Key123(void),
         Key124(void), Key125(void), Key126(W_Event * data), Key127(W_Event * data);
+void Key109(void);
 
 /* control keys */
 static void Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * data),
@@ -858,16 +859,17 @@ static void keyaction(W_Event * data)
   fastQuit = 0;					 /* any event, cancel * *
 						  * fastquit! */
 
+  /* remap events in other windows to local window */
   if (data->Window != mapw && data->Window != w && data->Window != infow
       && data->Window != scanw)
     {
-      /* redirect any orphaned keystrokes to main window */
       data->Window = w;
       data->x = data->y = TWINSIDE / 2;
     }
 
   key = data->key;
 
+  /* remap events in information window to the surrounding game window */
   if (data->Window == infow)
     {
       int     x, y;
@@ -2283,7 +2285,7 @@ static void Key108(W_Event * data)
     }
 }
 
-static void Key109(void)
+void Key109(void)
 {
 #ifdef SOUND
   Play_Sound(MESSAGE_SOUND);

@@ -97,17 +97,39 @@ static int teamRequest(int team, int ship);
 static void
         handleMessageWindowKeyDown(W_Event * event)
 {
-  smessage(event->key);
+    if (messageon == 0)
+      {
+        if (mystats->st_keymap[(event->key)-32] != 109)
+          /* Not a message key (Key109)*/
+          return;
+        else
+          /* It is a message key, allow them to start a message */
+          Key109();
+      }
+    else  /* Attempt to send message to whatever key was pressed */
+      smessage (event->key);
 }
 
 static void
         handleMessageWindowButton(W_Event * event)
 {
-
-#ifndef WIN32
-  if (event->key == W_MBUTTON)
-    pastebuffer();				 /* xcutbuffer stuff --RW */
-#endif
+  switch (event->key)
+    {
+    case W_MBUTTON:
+      pastebuffer();
+      break;
+    case W_LBUTTON:
+      if (messageon == 0)
+        {
+          message_on();
+          if (messpend == 0)
+            W_ClearWindow(messagew);
+            smessage('A');
+        }
+      return;
+    default:
+      return;
+    }
 }
 
 static char *newwin_last_hostmon;
