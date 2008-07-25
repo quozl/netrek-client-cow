@@ -810,8 +810,9 @@ process_event(void)
 	    redrawall = 1;
 	  else if (data.Window == warnw)
 	    W_ClearWindow(warnw);
-	  else if (data.Window == messagew)
-	    W_ClearWindow(messagew);
+	  else if (data.Window == messagew) {
+	    DisplayMessage();
+	  }
 
 #ifdef XTREKRC_HELP
 	  else if (defWin && (data.Window == defWin))

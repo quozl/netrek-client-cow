@@ -97,17 +97,7 @@ static int teamRequest(int team, int ship);
 static void
         handleMessageWindowKeyDown(W_Event * event)
 {
-    if (messageon == 0)
-      {
-        if (mystats->st_keymap[(event->key)-32] != 109)
-          /* Not a message key (Key109)*/
-          return;
-        else
-          /* It is a message key, allow them to start a message */
-          Key109();
-      }
-    else  /* Attempt to send message to whatever key was pressed */
-      smessage (event->key);
+  smessage (event->key);
 }
 
 static void
@@ -119,15 +109,10 @@ static void
       pastebuffer();
       break;
     case W_LBUTTON:
-      if (messageon == 0)
-        {
-          message_on();
-          if (messpend == 0)
-            W_ClearWindow(messagew);
-            smessage('A');
-        }
-      return;
-    default:
+      if (messageon == 0) {
+        Key109(); /* m */
+        if (messpend == 0) smessage('A');
+      }
       return;
     }
 }

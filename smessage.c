@@ -25,6 +25,7 @@
 
 static int lcount;
 static int HUDoffset;
+static int talkative = 0;
 static char buf[80];
 static char cursor = '_';
 static char mbuf[80];
@@ -40,16 +41,25 @@ char   *getaddr(char who), *getaddr2(int flags, int recip);
 /* Routines to handle multi-window messaging */
 void    DisplayMessage()
 {
+  int len = strlen(outmessage);
 
 #ifdef XTRA_MESSAGE_UI
   if (HUDoffset)
     W_WriteText(w, 5, HUDoffset, textColor,
-		outmessage, strlen(outmessage), W_RegularFont);
+		outmessage, len, W_RegularFont);
 #endif
 
-  W_WriteText(messagew, 5, 5, textColor,
-	      outmessage, strlen(outmessage), W_RegularFont);
+  W_ClearWindow(messagew);
+  if (len == 0 && talkative < 5) {
+    W_WriteText(messagew, 5, 5, W_Red,
+                "Talk to everyone, click here, type, press enter.  "
+                "Read and learn.", -1, W_RegularFont);
+  } else {
+    W_WriteText(messagew, 5, 5, textColor,
+		outmessage, len, W_RegularFont);
+  }
 }
+
 void    AddChar(char *twochar)
 {
 
@@ -186,9 +196,10 @@ void    smessage(char ichar)
 	{
 	  outmessage[i] = '\0';
 	}
+      DisplayMessage();
       break;
 
-    case 23:
+    case 23: /* erase to start, but continue in message mode */
       while (--lcount >= ADDRLEN)
 	{
 	  BlankChar(lcount + 1, 1);
@@ -199,6 +210,7 @@ void    smessage(char ichar)
       lcount = ADDRLEN;
       break;
     case '\r':					 /* send message */
+      talkative++;
       buf[lcount - ADDRLEN] = '\0';
       messpend = 0;
       for (i = 0; i < 80; i++)
@@ -289,6 +301,7 @@ void    smessage(char ichar)
 	  warning("Not legal recipient");
 	}
       BlankChar(0, lcount + 1);
+      DisplayMessage();
       mdisplayed = 0;
       lcount = 0;
       break;
