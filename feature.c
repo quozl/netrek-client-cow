@@ -108,6 +108,10 @@ struct feature features[] =
   {"MANY_SELF", &F_many_self, 'S', 0, 0, 0},
 #endif
 
+  {"LAME_BASE_REFIT", &_dummy, 'S', 0, 0, 0},
+  {"UPS", &_dummy, 'S', 0, 0, 0},
+  {"FPS", &_dummy, 'S', 0, 0, 0},
+
   {0, 0, 0, 0, 0, 0}
 };
 
