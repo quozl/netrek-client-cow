@@ -26,6 +26,7 @@
 #include "data.h"
 #include "defaults.h"
 
+#include "badversion.h"
 #include "parsemeta.h"
 #include "newwin.h"
 
@@ -39,7 +40,7 @@
 /* Constants */
 
 #define BUF     6144
-#define LINE    80              /* Width of a meta-server line           */
+#define LINE    100             /* Width of a meta-server line           */
 #define MAXMETABYTES 2048	/* maximum metaserver UDP packet size    */
 static int msock = -1;          /* the socket to talk to the metaservers */
 static int sent = 0;            /* number of solicitations sent          */
@@ -61,6 +62,7 @@ struct servers {
   char    typeflag;
   char    comment[LINE];
   pid_t   pid;			/* our last known child playing here    */
+  int     exitstatus;		/* exit status of last known child here */
 };
 
 struct servers *serverlist = NULL;	/* The record for each server.  */
@@ -104,33 +106,6 @@ static const int defaultStatLevel = statusTout;
 
 /* Functions */
 extern void terminate(int error);
-
-/*! @brief Check if a child process, a playing client, has terminated.
-    @details Attempts a no hang wait on each active client process in
-    the server list and clears the pid entry if a child has
-    terminated.
-    @return activity count, number of processes seen to have terminated. */
-static int metareap(void)
-{
-  struct servers *sp;
-  int i, status, activity;
-  pid_t pid;
-
-  activity = 0;
-  for(i=0;i<num_servers;i++) {
-    sp = serverlist + i;
-    if (sp->pid != -1) {
-      pid = waitpid(sp->pid, &status, WNOHANG);
-      if (pid == sp->pid) {
-        sp->pid = -1;
-        if (WIFEXITED(status)) {
-          activity++;
-        }
-      }
-    }
-  }
-  return activity;
-}
 
 char *metahelp_message[] =
   {
@@ -187,6 +162,15 @@ static void show_help()
 static void hide_help()
 {
   W_UnmapWindow(metaHelpWin);
+}
+
+static void toggle_help()
+{
+  if (W_IsMapped(metaHelpWin)) {
+    hide_help();
+  } else {
+    show_help();
+  }
 }
 
 static int open_port(char *host, int port, int verbose)
@@ -694,70 +678,55 @@ static int ReadMetasRecv(int x)
   fd_set readfds;		/* the file descriptor set for select()	 */
   struct timeval timeout;	/* timeout for select() call		 */
   char packet[MAXMETABYTES];	/* buffer for packet returned by meta'	 */
-  int isawsomething = 0;        /* have I seen a response at all?        */ 
+  char *p;
 
   /* now await and process replies */
-  while(1) {
-    char *p;
 
-    FD_ZERO(&readfds);
-    if (msock >= 0) FD_SET(msock, &readfds);
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+  FD_ZERO(&readfds);
+  if (msock >= 0) FD_SET(msock, &readfds);
+  timeout.tv_sec = 10;
+  timeout.tv_usec = 0;
 
-    if (x != -1) FD_SET(x, &readfds);
-    if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
-      perror("ReadMetasRecv: select");
-      return 0;
-    }
+  if (x != -1) FD_SET(x, &readfds);
+  if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
+    perror("ReadMetasRecv: select");
+    return 0;
+  }
 
-    /* if x activity, return immediately */
-    if (x != -1 && FD_ISSET(x, &readfds)) return 0;
-    if (msock < 0) return 0;
+  /* if x activity, return immediately */
+  if (x != -1 && FD_ISSET(x, &readfds)) return 0;
+  if (msock < 0) return 0;
 
-    /* if the wait timed out, then we give up */
-    if (!FD_ISSET(msock, &readfds)) {
-      if(isawsomething || metareap())
-        return 1;          /* I do have new metaserver data */
-      else
-        return 0;          /* I don't have metaserver data at all */
-    }
+  /* if the wait timed out, then we give up */
+  if (!FD_ISSET(msock, &readfds)) return 0;
 
-    /* so we have data back from a metaserver or server */
-    isawsomething++;
-    length = sizeof(address);
-    bytes = recvfrom(msock, packet, MAXMETABYTES, 0,
-                     (struct sockaddr *)&address, &length );
-    if (bytes < 0) {
-      perror("ReadMetasRecv: recvfrom");
-      return 0;
-    }
+  /* so we have data back from a metaserver or server */
+  length = sizeof(address);
+  bytes = recvfrom(msock, packet, MAXMETABYTES, 0,
+                   (struct sockaddr *)&address, &length );
+  if (bytes < 0) {
+    perror("ReadMetasRecv: recvfrom");
+    return 0;
+  }
 
-    /* terminate the packet received */
-    packet[bytes] = 0;
+  /* terminate the packet received */
+  packet[bytes] = 0;
 #ifdef DEBUG
-    fprintf(stderr, "%s", packet);
+  fprintf(stderr, "%s", packet);
 #endif /* DEBUG */
 
-    /* process the packet, updating our server list */
+  /* process the packet, updating our server list */
 
-    /* version identifier */
-    p = strtok(packet,",");
-    if (p == NULL) continue;
+  /* version identifier */
+  p = strtok(packet,",");
+  if (p == NULL) return 0;
 
-    switch (p[0]) {
-    case 'r': version_r(&address); seen++; break;
-    case 's': version_s(&address); seen++; break;
-    }
-
-    /* finished processing the packet */
-
-    /* if this is the first call, return on first reply, for sizing list */
-    if (x == -1) return 1;
-
-    /* if we have seen the same number of replies to what we sent, end */
-    if (sent == seen) return 1;
+  switch (p[0]) {
+  case 'r': version_r(&address); seen++; break;
+  case 's': version_s(&address); seen++; break;
   }
+
+  return 1;
 }
 
 static void SaveMetasCache()
@@ -1196,7 +1165,27 @@ static void redraw(int i)
     }
 
   if (sp->pid != -1) {
-    strcat(buf, " ok");
+    strcat(buf, " Playing");
+  } else {
+    switch (sp->exitstatus) {
+    case EXIT_UNKNOWN:
+    case EXIT_OK:
+      break;
+    case EXIT_CONNECT_FAILURE:
+      strcat(buf, " Connect Fail");
+      break;
+    default:
+      {
+        int badversion = (sp->exitstatus - EXIT_BADVERSION_BASE);
+        strcat(buf, " ");
+        if (badversion >= 0 && badversion <= MAXBADVERSION) {
+          strcat(buf, badversion_short_strings[badversion]);
+        } else {
+          strcat(buf, "Unknown Response");
+        }
+      }
+      break;
+    }
   }
 
   W_Color color = W_White;
@@ -1216,12 +1205,13 @@ void    metawindow()
   char *header;
 
   if (!metaWin) {
-    metaWin = W_MakeMenu("Netrek Server List", 0, 0, 80, metaHeight, NULL, 2);
+    metaWin = W_MakeMenu("Netrek Server List", 0, 0,
+                         LINE, metaHeight, NULL, 2);
     make_help();
   } else {
     if (W_WindowHeight(metaWin) != metaHeight) {
-      W_ReinitMenu(metaWin, 80, metaHeight);
-      W_ResizeMenu(metaWin, 80, metaHeight);
+      W_ReinitMenu(metaWin, LINE, metaHeight);
+      W_ResizeMenu(metaWin, LINE, metaHeight);
     }
   }
 
@@ -1292,8 +1282,7 @@ static void choose(int way)
 
 static int chose(int which, int observe)
 {
-  int testsock;
-  struct servers *slist;
+  struct servers *sp;
 
   if (which != chosen) {
     int was;
@@ -1303,27 +1292,19 @@ static int chose(int which, int observe)
     redraw(chosen);
   }
 
-  slist = serverlist + which;
-  xtrekPort = slist->port;
+  sp = serverlist + which;
+  xtrekPort = sp->port;
   if (observe) { /* Guess at an observer port */
     xtrekPort++;
     fprintf(stderr,
             "you chose to observe on %s, guessing port %d\n",
-            slist->address, xtrekPort);
+            sp->address, xtrekPort);
   }
-  W_Flush();
-  serverName = strdup(slist->address);
+  serverName = strdup(sp->address);
 
+  sp->pid = -1;
+  sp->exitstatus = EXIT_UNKNOWN;
   fprintf(stderr, "you chose server %s port %d\n", serverName, xtrekPort);
-  if ((testsock = open_port(serverName, xtrekPort, 0)) <= 0) {
-    fprintf(stderr,"cannot connect to %s!\n",serverName);
-    slist->status = statusCantConnect;
-    redraw(which);
-    W_Flush();
-    return 0;
-  }
-
-  close(testsock);
   pid_t pid = newwin_fork();
   if (pid == 0) {
     /* we are the child */
@@ -1334,7 +1315,8 @@ static int chose(int which, int observe)
   }
 
   /* we are the parent */
-  slist->pid = pid;
+  sp->pid = pid;
+  redraw(which);
   W_Flush();
   return 0;
 }
@@ -1348,7 +1330,7 @@ static int button(W_Event *data)
   if (data->y == (metaHeight-B_REFRESH) && type == 1) { /* refresh */
     refresh();
   } else if (data->y == metaHeight-B_HELP) { /* help */
-    show_help();
+    toggle_help();
   } else if (data->y == metaHeight-B_QUIT) { /* quit */
     metadone();
     terminate(0);
@@ -1372,11 +1354,54 @@ static int key(W_Event *data)
   } else if (data->key == 'o') {
     if (chosen != -1) return chose(chosen, 1);
   } else if (data->key == 'h') {
-    show_help();
+    toggle_help();
   } else {
     return button(data);
   }
   return 0;
+}
+
+static int metareap_needed = 0;
+
+/*! @brief Check if a child process, a playing client, has terminated.
+    @details Attempts a no hang wait on each active client process in
+    the server list and clears the pid entry if a child has
+    terminated.
+    @return activity count, number of processes seen to have terminated. */
+static int metareap(void)
+{
+  struct servers *sp;
+  int i, status, activity;
+  pid_t pid;
+
+  metareap_needed = 0;
+  activity = 0;
+  for (i=0;i<num_servers;i++) {
+    sp = serverlist + i;
+    if (sp->pid != -1) {
+      pid = waitpid(sp->pid, &status, WNOHANG);
+      if (pid == sp->pid) {
+        sp->pid = -1;
+        if (WIFEXITED(status)) {
+          activity++;
+          sp->exitstatus = WEXITSTATUS(status);
+        }
+        redraw(i);
+        W_Flush();
+      }
+    }
+  }
+  return activity;
+}
+
+/*! @brief child death signal handler
+    @details does nothing much, but needs to exist to ensure that
+    select(2) is given EINTR when a child terminates, otherwise we
+    will not note a termination until after the select times out.
+*/
+void sigchld(int ignored)
+{
+  metareap_needed++;
 }
 
 void    metainput(void)
@@ -1389,13 +1414,16 @@ void    metainput(void)
 {
   W_Event data;
 
+  (void) SIGNAL(SIGCHLD, sigchld);
   while (W_IsMapped(metaWin)) {
     if (type == 1) {
       do {
         W_Flush();
-        if (ReadMetasRecv(W_Socket()) || metareap()) {
+        if (ReadMetasRecv(W_Socket()) || metareap_needed) {
+          metareap();
           metaHeight = num_servers + N_OVERHEAD;
           metawindow();
+          W_Flush();
         }
       } while (!W_EventsPending());
     }
@@ -1423,7 +1451,6 @@ void    metainput(void)
     default:
       break;
     }
-    if (metareap()) metawindow();
   }
 }
 

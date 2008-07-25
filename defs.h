@@ -430,4 +430,9 @@ char   *getdefault(char *str);
 #define DEADPACKETS	3
 #endif
 
+#define EXIT_UNKNOWN -1
+#define EXIT_OK 0
+#define EXIT_CONNECT_FAILURE 1
+#define EXIT_BADVERSION_BASE 10
+
 #endif /* _h_defs */

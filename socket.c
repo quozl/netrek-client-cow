@@ -32,6 +32,7 @@
 #include "wtext.h"
 #include "playerlist.h"
 
+#include "badversion.h"
 #include "dmessage.h"
 #include "getship.h"
 #include "local.h"
@@ -2421,45 +2422,14 @@ handleBadVersionSorry (char *reason)
     printf("%s\nTry again later.\n", reason);
 }
 
-#define BADVERSION_SOCKET   0 /* CP_SOCKET version does not match, exiting */
-#define BADVERSION_DENIED   1 /* access denied by netrekd */
-#define BADVERSION_NOSLOT   2 /* no slot on queue */
-#define BADVERSION_BANNED   3 /* banned */
-#define BADVERSION_DOWN     4 /* game shutdown by server */
-#define BADVERSION_SILENCE  5 /* daemon stalled */
-#define BADVERSION_SELECT   6 /* internal error */
-
 void    handleBadVersion(struct badversion_spacket *packet)
 {
-  switch (packet->why)
-    {
-    case 0:
-      printf("Server says 'Sorry, this is an invalid client version.'\n");
-      printf("You need a new version of the client code.\n");
-      break;
-    case BADVERSION_DENIED:
-      handleBadVersionSorry("Access denied by server.");
-      break;
-    case BADVERSION_NOSLOT:
-      handleBadVersionSorry("No free slots on server queue.");
-      break;
-    case BADVERSION_BANNED:
-      handleBadVersionSorry("Banned from server.");
-      break;
-    case BADVERSION_DOWN:
-      handleBadVersionSorry("Game shutdown by server.");
-      break;
-    case BADVERSION_SILENCE:
-      handleBadVersionSorry("Server daemon stalled, internal error.");
-      break;
-    case BADVERSION_SELECT:
-      handleBadVersionSorry("Server reports internal error.");
-      break;
-    default:
-      printf("Unknown message from handleBadVersion.\n");
-      return;
-    }
-  terminate(1);
+  int badversion = packet->why;
+
+  if (badversion >= 0 && badversion <= MAXBADVERSION) {
+    handleBadVersionSorry(badversion_long_strings[badversion]);
+  }
+  terminate(EXIT_BADVERSION_BASE+badversion);
 }
 
 int gwrite(int fd, char *buf, register int bytes)

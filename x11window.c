@@ -44,7 +44,7 @@ extern void terminate(int error);
 
 /* XFIX speedup */
 #define MAXCACHE        128
-#define MAX_TEXT_WIDTH	90
+#define MAX_TEXT_WIDTH	100
 
 /* changes too good to risk leaving out, by Richard Caley (rjc@cstr.ed.ac.uk) */
 /* Was #ifdef RJC, but now they're just part of the code                    */
