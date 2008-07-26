@@ -47,6 +47,7 @@ static int sent = 0;            /* number of solicitations sent          */
 static int seen = 0;            /* number of replies seen                */
 static int verbose = 0;         /* whether to talk a lot about it all    */
 static int type;		/* type of connection requested          */
+static time_t last;		/* time of last refresh                  */
 
 /* Local Types */
 
@@ -333,7 +334,9 @@ static int ReadMetasSend()
   char *metaservers;		/* our copy of the metaserver host names */
   char *token;			/* current metaserver host name          */
   struct sockaddr_in address;	/* the address of the metaservers	 */
- 
+
+  last = time(NULL);
+
   /* host names of metaservers, default in data.c, comma delimited */ 
   if ((getdefault("metaserver")) != NULL)
     metaserver = getdefault("metaserver");
@@ -1266,6 +1269,28 @@ static void refresh()
 }
 
 
+static void refresh_cyclic()
+{
+  struct servers *sp;
+  int i, interval = 30;
+
+  /* while we have a local player, chances are they want their network
+  link for play, and their eyes are on the tactical, they don't need
+  to know about other servers */
+  for (i=0;i<num_servers;i++) {
+    sp = serverlist + i;
+    if (sp->pid != -1) {
+      if (!sp->observer) return;
+      interval = 90;
+    }
+  }
+
+  /* don't do until sufficient time has elapsed */
+  if ((time(NULL) - last) > interval)
+    ReadMetasSend();
+}
+
+
 static void choose(int way)
 {
   int was;
@@ -1445,6 +1470,7 @@ void    metainput(void)
           metawindow();
           W_Flush();
         }
+        refresh_cyclic();
       } while (!W_EventsPending());
     }
     W_NextEvent(&data);
