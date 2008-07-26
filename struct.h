@@ -181,6 +181,10 @@ enum dist_type
 #define KOVER		0x0d			 /* game over  */
 #define TOURNSTART	0x0e			 /* tournament game starting */
 #define KBADBIN		0x0f			 /* bad binary */
+/* requires feature F_why_dead_2 aka WHY_DEAD_2 */
+#define KTORP2          0x10            /* killed by detted torps */
+#define KSHIP2          0x11            /* chain-reaction explosions */
+#define KPLASMA2        0x12            /* killed by zapped plasma */
 
 #define NUM_TYPES 8
 #define SCOUT 0
