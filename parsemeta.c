@@ -693,6 +693,7 @@ static int ReadMetasRecv(int x)
 
   if (x != -1) FD_SET(x, &readfds);
   if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
+    if (errno == EINTR) return 0;
     perror("ReadMetasRecv: select");
     return 0;
   }
