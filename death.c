@@ -103,13 +103,13 @@ void death(void)
     } else {
       static int first = 10;
       if (first) {
-	first--;
-	sprintf(deathmessage, "Okay, you died, but that is NORMAL!  Click on your team to get a new ship.");
-	if (warncount > 0)
-	  W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
-	W_WriteText(warnw, 5, 5, W_Green, deathmessage, strlen(deathmessage),
-		    W_BoldFont);
-	warncount = strlen(deathmessage);
+        first--;
+        sprintf(deathmessage, "Okay, you died, but that is NORMAL!  Press Enter for new ship!");
+        if (warncount > 0)
+          W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
+        W_WriteText(warnw, 5, 5, W_Green, deathmessage, strlen(deathmessage),
+                    W_BoldFont);
+        warncount = strlen(deathmessage);
       }
     }
 
@@ -201,6 +201,7 @@ void death(void)
       break;
     }
 
+  W_ClearWindow(messagew);
   W_WriteText(messagew, 5, 5, W_Yellow, deathmessage, strlen(deathmessage),
 	      deathFont);
 
