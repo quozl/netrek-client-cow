@@ -63,6 +63,7 @@ struct servers {
   char    comment[LINE];
   pid_t   pid;			/* our last known child playing here    */
   int     exitstatus;		/* exit status of last known child here */
+  int     observer;		/* set if child is an observer          */
 };
 
 struct servers *serverlist = NULL;	/* The record for each server.  */
@@ -858,6 +859,7 @@ static void LoadMetasCache()
     }
 }
 
+
 static int ReadFromMeta()
 /* Read from the meta-server.  Return TRUE on success and FALSE on failure. */
 {
@@ -1164,20 +1166,23 @@ static void redraw(int i)
 	}
     }
 
+  strcat(buf, "    ");
   if (sp->pid != -1) {
-    strcat(buf, " Playing");
+    strcat(buf, sp->observer ? "Observing" : "Playing" );
   } else {
     switch (sp->exitstatus) {
+    case EXIT_FORK_FAILURE:
+      strcat(buf, "Cannot Start");
+      break;
     case EXIT_UNKNOWN:
     case EXIT_OK:
       break;
     case EXIT_CONNECT_FAILURE:
-      strcat(buf, " Connect Fail");
+      strcat(buf, "Connect Fail");
       break;
     default:
       {
         int badversion = (sp->exitstatus - EXIT_BADVERSION_BASE);
-        strcat(buf, " ");
         if (badversion >= 0 && badversion <= MAXBADVERSION) {
           strcat(buf, badversion_short_strings[badversion]);
         } else {
@@ -1251,6 +1256,7 @@ static void metadone(void)
   free(serverlist);
 }
 
+
 static void refresh()
 {
   W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Red,
@@ -1258,6 +1264,7 @@ static void refresh()
   W_Flush();
   ReadMetasSend();
 }
+
 
 static void choose(int way)
 {
@@ -1279,6 +1286,7 @@ static void choose(int way)
     redraw(chosen);
   }
 }
+
 
 static int chose(int which, int observe)
 {
@@ -1306,6 +1314,7 @@ static int chose(int which, int observe)
   sp->exitstatus = EXIT_UNKNOWN;
   fprintf(stderr, "you chose server %s port %d\n", serverName, xtrekPort);
   pid_t pid = newwin_fork();
+
   if (pid == 0) {
     /* we are the child */
     char buf[80];
@@ -1314,8 +1323,15 @@ static int chose(int which, int observe)
     return 1;
   }
 
-  /* we are the parent */
-  sp->pid = pid;
+  /* we are the parent, did the fork fail? */
+  if (pid < 0) {
+    perror("fork");
+    sp->exitstatus = EXIT_FORK_FAILURE;
+  } else {
+    sp->pid = pid;
+    sp->observer = observe;
+  }
+
   redraw(which);
   W_Flush();
   return 0;
@@ -1337,6 +1353,7 @@ static int button(W_Event *data)
   }
   return 0;
 }
+
 
 static int key(W_Event *data)
 {
@@ -1360,6 +1377,7 @@ static int key(W_Event *data)
   }
   return 0;
 }
+
 
 static int metareap_needed = 0;
 
@@ -1394,6 +1412,7 @@ static int metareap(void)
   return activity;
 }
 
+
 /*! @brief child death signal handler
     @details does nothing much, but needs to exist to ensure that
     select(2) is given EINTR when a child terminates, otherwise we
@@ -1403,6 +1422,7 @@ void sigchld(int ignored)
 {
   metareap_needed++;
 }
+
 
 void    metainput(void)
 /* Wait for actions in the meta-server window.

@@ -430,6 +430,7 @@ char   *getdefault(char *str);
 #define DEADPACKETS	3
 #endif
 
+#define EXIT_FORK_FAILURE -2
 #define EXIT_UNKNOWN -1
 #define EXIT_OK 0
 #define EXIT_CONNECT_FAILURE 1
