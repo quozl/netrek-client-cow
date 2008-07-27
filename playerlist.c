@@ -1,6 +1,3 @@
-
-
-
 /* playerlist.c
  * 
  * Fairly substantial re-write to do variable player lists: Sept 93 DRG Major
@@ -12,13 +9,7 @@
  * 
  * Sort observers separatly: opserver if (pl->p_flags & PFOBSERV) is true.
  *
- * $Log: playerlist.c,v $
- * Revision 1.2  2006/05/22 13:13:39  quozl
- * change defaults
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 #include "copyright.h"
@@ -28,9 +19,10 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
+#include "defaults.h"
 #include "string_util.h"
 #include "playerlist.h"
-
 
 #define MaxPlistField 18			 /* The width of the longest
 						  * * * possible plist field */
