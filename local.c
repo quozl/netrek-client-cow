@@ -915,7 +915,8 @@ static void DrawShips(void)
 
       if (showTractorPressor)
 	{
-	  if (myPlayer(j) && isAlive(me) && (j->p_flags & PFTRACT || j->p_flags & PFPRESS))
+	  if ((myPlayer(j) || (F_show_all_tractors)) && isAlive(me)
+                && isAlive(j) && (j->p_flags & PFTRACT || j->p_flags & PFPRESS))
 	    {
 	      double  theta;
 	      unsigned char dir;
@@ -923,9 +924,10 @@ static void DrawShips(void)
 
 	      struct player *tractee;
 
-	      if (me->p_tractor < 0 || me->p_tractor >= MAXPLAYER)
+	      if (j->p_tractor < 0 || j->p_tractor >= MAXPLAYER)
 		continue;
-	      tractee = &players[me->p_tractor];
+	      if (j->p_flags & PFOBSERV) continue;
+	      tractee = &players[j->p_tractor];
 
 	      if (tractee->p_status != PALIVE ||
 		  ((tractee->p_flags & PFCLOAK) &&
@@ -938,10 +940,8 @@ static void DrawShips(void)
 		{				 /* continue tractor stuff */
 		  if (!continuetractor)
 		    tcounter--;
-		  px = (players[me->p_tractor].p_x - me->p_x)
-		      / SCALE + TWINSIDE / 2;
-		  py = (players[me->p_tractor].p_y - me->p_y)
-		      / SCALE + TWINSIDE / 2;
+		  px = (tractee->p_x - me->p_x) / SCALE + TWINSIDE / 2;
+		  py = (tractee->p_y - me->p_y) / SCALE + TWINSIDE / 2;
 		  if (px == dx && py == dy)
 		    continue;			 /* this had better be last * 
 						  * 

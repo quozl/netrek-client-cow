@@ -329,7 +329,7 @@ struct flags_spacket
   {
     char    type;				 /* SP_FLAGS */
     char    pnum;				 /* whose flags are they? */
-    char    pad1;
+    char    tractor;
     char    pad2;
     unsigned flags;
   };
@@ -391,7 +391,7 @@ struct you_spacket
     char    hostile;
     char    swar;
     char    armies;
-    char    pad1;
+    char    tractor;
     char    pad2;
     char    pad3;
     unsigned flags;

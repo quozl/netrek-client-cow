@@ -68,8 +68,8 @@ struct feature features[] =
 
 #ifdef nodef
   {"VIEW_BOX", &allowViewBox, 'C', 1, 0, 0},
-  {"SHOW_ALL_TRACTORS", &allowShowAllTractorPressor, 'S', 1, 0, 0},
 #endif
+  {"SHOW_ALL_TRACTORS", &F_show_all_tractors, 'S', 1, 0, 0},
 
 #ifdef MOTION_MOUSE
   {"CONTINUOUS_MOUSE", &motion_mouse_enablable, 'C', 1, 0, 0},

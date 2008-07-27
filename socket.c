@@ -59,8 +59,8 @@ int gather_stats = 0;
 
 #if 0
 #define INCLUDE_SCAN            /* include Amdahl scanning beams */
-#define INCLUDE_VISTRACT        /* include visible tractor beams */
 #endif
+#define INCLUDE_VISTRACT        /* include visible tractor beams */
 
 #define NETSTAT
 
@@ -1555,7 +1555,7 @@ void become(struct player *pl)
   me->p_status = PFREE;
 }
 
-void    handleSelf(struct you_spacket *packet)
+void    handleSelf(struct you_spacket *packet) /* SP_YOU */
 {
   struct player* pl;
   static int seen = 0;
@@ -1612,9 +1612,10 @@ void    handleSelf(struct you_spacket *packet)
   pl->p_whodead = ntohs(packet->whodead);
 
 #ifdef INCLUDE_VISTRACT
-  if (packet->tractor & 0x40)
+  if (packet->tractor & 0x40) {
     pl->p_tractor = (short) packet->tractor & (~0x40);	/* ATM - visible 
 							 * tractors */
+  }
 
 #ifdef nodef					 /* tmp */
   else
@@ -2238,9 +2239,9 @@ void    handleFlags(struct flags_spacket *packet)
   players[packet->pnum].p_flags = ntohl(packet->flags);
 
 #ifdef INCLUDE_VISTRACT
-  if (packet->tractor & 0x40)
+  if (packet->tractor & 0x40) {
     players[packet->pnum].p_tractor = (short) packet->tractor & (~0x40); /* ATM visible tractors */
-  else
+  } else
 #endif /* INCLUDE_VISTRACT */
 
     players[packet->pnum].p_tractor = -1;

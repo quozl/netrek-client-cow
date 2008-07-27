@@ -583,4 +583,5 @@ extern int F_many_self;
 extern int portSwap;
 #endif
 
+extern int F_show_all_tractors;
 #endif /* _h_data */

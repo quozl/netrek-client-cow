@@ -746,3 +746,5 @@ int F_many_self = 0;
 #ifdef UDP_PORTSWAP
 int     portSwap = 1;
 #endif
+
+int F_show_all_tractors = 1;
