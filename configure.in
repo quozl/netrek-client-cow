@@ -257,12 +257,8 @@ fi
 
 if test "$MPINC" = nope; then
 
-  if test "$code" = cow; then
-# 	mp not supported with new mkkey.
+# mp not supported with new mkkey.
    AC_TRY_CPP([#include <mp.h>], MPINC=nope , MPINC=nope)
-  else
-   AC_TRY_CPP([#include <mp.h>], MPINC="" , MPINC=nope)
-  fi
 
    if test "$MPINC" = nope; then
       MPINC="# -I."
@@ -308,11 +304,7 @@ if test "$MPLIB" = nope; then
   fi
 fi
 if test "$MPLIB" = nope; then
-  if test "$code" = cow; then
    AC_CHECK_LIB(mp, main, MPLIB=bsdmp, MPLIB=nope)
-  else
-   AC_CHECK_LIB(mp, main, MPLIB="-lmp", MPLIB=nope)
-  fi
    if test "$MPLIB" = bsdmp; then
       echo "Sorry COW requires gmp not mp for RSA."
       MPLIB="# -L. -lmp -lgmp"
@@ -326,31 +318,15 @@ if test "$MPLIB" = nope; then
 fi
 AC_SUBST(MPLIB)
 
-if test "$code" = cow; then
- if test -r "$srcdir/mkkey.c"; then
+if test -r "$srcdir/mkkey.c"; then
     echo "	RSA utilities for COW build found."
- else
+else
     echo
     echo Warning RSA utilities for COW build not found, turning RSA off.
     NORSA="#"
     echo Check your favorite FTP site for a blessed client.
     echo If you cannot find one contact the team.
     echo
- fi
-fi
-if test "$code" = server; then
- AC_MSG_CHECKING(res-rsa/configure)
- if test -r "$srcdir/res-rsa/configure"; then
-    AC_CONFIG_SUBDIRS(res-rsa)
-    AC_MSG_RESULT(RSA utilities found)
-    RSAINC="-I${srcdir}/res-rsa"
-    RSALIB="-L`pwd`/res-rsa -lrsa"
-    NORSA=""
- else
-    echo no
-    AC_MSG_RESULT(Warning: RSA utilities for server build not found, turning RSA off)
-    NORSA="#"
- fi
 fi
 
 AC_SUBST(RSAINC)
@@ -420,9 +396,7 @@ AC_CHECK_LIB(m, main, [LIBS="$LIBS -lm"])
 AC_CHECK_FUNCS(nint)
 AC_EGREP_HEADER(rint, math.h, , AC_DEFINE(NEED_RINT_DEC))
 
-if test "$code" = cow; then
-	AC_REPLACE_FUNCS(usleep setstate strdup rint)
-fi
+AC_REPLACE_FUNCS(usleep setstate strdup rint)
 
 #--------------------------------------------------------------------
 #       Check for system dependent programs

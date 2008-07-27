@@ -112,7 +112,7 @@ IMLIB2_LIBS     = -lImlib2
 
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(MPINC) $(INCS)
-CFLAGS = $(OPT) $($S) $(EXTRACFLAGS) $(SDL_CFLAGS) $(RSA_FLAGS) $(INCDIRS)
+CFLAGS = $(OPT) $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
 LFLAGS = -g $(EXTRALINKFLAGS)
 LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
 
@@ -148,6 +148,9 @@ mkkey: mkkey.c $(RANDOMOBJ) defs.h
 
 randomize: randomize.c $(RANDOMOBJ) defs.h
 	$(CC) $(OPT) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
+
+sound.o: sound.c
+	$(CC) $(SDL_CFLAGS) -c sound.c
 
 random.o: random.c
 	$(CC) -c -O random.c
