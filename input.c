@@ -2263,7 +2263,10 @@ static void Key107(W_Event * data)
 
   /* Observers can't move.  Also incorrectly removes the lock flag even though
      you are still locked */
-  if (me->p_flags & PFOBSERV) return;
+  if (me->p_flags & PFOBSERV) {
+    warning("Course change ignored while observing!");
+    return;
+  }
 
   course = getcourse(data->Window, data->x, data->y);
   set_course(course);

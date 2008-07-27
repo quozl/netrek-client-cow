@@ -167,17 +167,17 @@
 #define isLockPlanet(p)		((me->p_flags & PFPLLOCK) && (me->p_planet == p->pl_no))
 #define isLockPlayer(p)		((me->p_flags & PFPLOCK) && (me->p_playerl == p->p_no))
 #define isObsLockPlayer(p)      ((me->p_flags & PFOBSERV) && (me->p_flags & PFPLOCK) && \
-                                    (me->p_playerl == p->p_no))
+                                    (me->p_playerl == (p)->p_no))
 #define torpColor(t)		\
-	(myTorp(t) ? myColor : shipCol[remap[players[(t)->t_owner].p_team]])
+	((myTorp(t) || isObsLockPlayer(&players[(t)->t_owner])) ? myColor : shipCol[remap[players[(t)->t_owner].p_team]])
 #define plasmatorpColor(t)		\
-	(myPlasmaTorp(t) ? myColor : shipCol[remap[players[(t)->pt_owner].p_team]])
+	((myPlasmaTorp(t) || isObsLockPlayer(&players[(t)->pt_owner])) ? myColor : shipCol[remap[players[(t)->pt_owner].p_team]])
 #define phaserColor(p)		\
-	(myPhaser(p) ? myColor : shipCol[remap[players[(p) - phasers].p_team]])
+	((myPhaser(p) || isObsLockPlayer(&players[(p) - phasers])) ? myColor : shipCol[remap[players[(p) - phasers].p_team]])
 /* Cloaking phase (and not the cloaking flag) is the factor in determining
  * the color of the ship.  Color 0 is white (same as 'myColor' used to be). */
 #define playerColor(p)		\
-	(myPlayer(p) ? myColor : shipCol[remap[(p)->p_team]])
+	((myPlayer(p) || isObsLockPlayer(p)) ? myColor : shipCol[remap[(p)->p_team]])
 
 #ifdef RECORDGAME
 #define planetColor(p)    \

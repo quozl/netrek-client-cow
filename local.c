@@ -392,7 +392,9 @@ static void DrawShips(void)
 	      }
 	    continue;
 	  }
-      if (j->p_status == PALIVE)
+      if (j->p_status == PALIVE &&
+	  !(myPlayer(j) && (me->p_flags & PFOBSERV)) /* not an observing me */
+	  )
 	{
 
 #ifndef DYNAMIC_BITMAPS
@@ -649,6 +651,7 @@ static void DrawShips(void)
 	    continue;
 
 	  {
+	    /* drawing of ship number */
 	    int     color = playerColor(j);
 
 	    idbuf[0] = *(shipnos + j->p_no);
@@ -832,7 +835,7 @@ static void DrawShips(void)
 		      if ((php->ph_fuse % 2) == 1)
 			W_CacheLine(w, px, py, tx, ty, foreColor);
 		      else
-			W_CacheLine(w, px, py, tx, ty, shipCol[remap[j->p_team]]);
+			W_CacheLine(w, px, py, tx, ty, phaserColor(php));
 		    }
 		  php->ph_fuse++;
 
@@ -1531,7 +1534,7 @@ static void DrawMisc(void)
 #endif
 
   /* show 'lock' icon on local map (Actually an EM hack ) */
-  if (showLock & 2)
+  if ((showLock & 2) && !(me->p_flags & PFOBSERV))
     {
       int     tri_x = -1, tri_y = -1, facing = 0;
       int     tri_size = 4;
