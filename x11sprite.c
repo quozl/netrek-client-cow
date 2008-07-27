@@ -33,6 +33,7 @@
 #include "data.h"
 #include "x11window.h"
 #include "x11sprite.h"
+#include "defaults.h"
 
 #define W_Void2Window(win) ((win) ? ((struct window *) (win)) : (mylocal))
 #define NoPixmapError 0
@@ -133,7 +134,7 @@ const char bgfiles[NUM_BG_IMGS][16] =
 
 int     ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
 {
-  register int i, j, k;
+  register int k;
   XpmAttributes attr;
   int     nviews = 0;
   struct window *win = W_Void2Window(mylocal);
@@ -217,10 +218,9 @@ int     ReadFileToTile(char *filename, Pixmap * pix)
 
 void    GetPixmaps(Display * d, struct window *win)
 {
-  register int i, j, k;
+  register int i, j;
   char    buf[1024], pixmapDir[1024];
   char   *pd;
-  XImage *image, *shape;
   int     missing;
 
   mylocal = win;
@@ -358,13 +358,13 @@ int     W_DrawSprite(void *in, int x, int y, int winside)
   const int view = SCALE * winside / 2;
   struct window *win;
   struct S_Object *sprite = (struct S_Object *) in;
-  int     dx, dy, frame;
+  int     dx, dy;
 
   if ((sprite == NULL) || (sprite->view < 0) || (sprite->view >= sprite->nviews))
-    return;
+    return 0;
 
   if (x > view || x < -view || y > view || y < -view)
-    return;
+    return 0;
 
   win = W_Void2Window(*(sprite->parent));
 
