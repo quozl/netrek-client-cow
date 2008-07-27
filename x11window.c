@@ -161,7 +161,7 @@ W_Color W_Yellow = YELLOW, W_Cyan = CYAN, W_Grey = GREY;
 W_Color W_Ind = C_IND, W_Fed = C_FED, W_Rom = C_ROM, W_Kli = C_KLI, W_Ori = C_ORI;
 
 #endif
-int     W_Textwidth, W_Textheight;
+int     W_BigTextwidth, W_BigTextheight, W_Textwidth, W_Textheight;
 char   *getdefault(char *str);
 
 int     W_in_message = 0;			 /* jfy -- for Jerry's warp * 
@@ -274,7 +274,7 @@ struct colors colortable[] =
   {"green"},
   {"yellow"},
   {"cyan"},
-  {"light grey"}
+  {"dark grey"}
 
 #ifdef RACE_COLORS
   ,
@@ -566,11 +566,15 @@ void GetFonts(void)
     {
       big = regular;
       fonts[0].baseline = fonts[1].baseline;
+      W_BigTextwidth = W_Textwidth;
+      W_BigTextheight = W_Textheight;
     }
   else
     {
       big = fontinfo->fid;
       fonts[0].baseline = fontinfo->max_bounds.ascent;
+      W_BigTextwidth = fontinfo->max_bounds.width;
+      W_BigTextheight = fontinfo->max_bounds.descent + fontinfo->max_bounds.ascent;
     }
   white = WhitePixel(W_Display, W_Screen);
   black = BlackPixel(W_Display, W_Screen);

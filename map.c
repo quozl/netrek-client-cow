@@ -443,38 +443,50 @@ static void DrawPlanets()
 
 /* draw game state from sp_generic_32 packet */
 static int gu_last_width = -1;
-int gu_height;
-char gu_text[80];
-int gu_length;
-int gu_width;
+static int gu_height;
+static char gu_text[80];
+static int gu_length;
+static int gu_width;
+static int gu_redraw;
 
-static void gu_clear()
+static void gu_draw(W_Color color)
 {
-  if (gu_last_width != -1) {
-    W_EraseTTSText(mapw, TWINSIDE, TWINSIDE/2+(gu_height/2), gu_last_width);
-  }
+  W_MaskText(mapw, TWINSIDE/2-(gu_width/2), TWINSIDE/2-(gu_height/2),
+             color, gu_text, gu_length, W_BigFont);
 }
-
 static void gu_update()
 {
   int eager = 0;
   static int old_gameup = 0;
   static int old_tournament_remain = 0;
+  static int old_flags = 0;
 
   /* initialisation */
   if (gu_last_width == -1) {
-    gu_height = W_TTSTextHeight();
+    gu_height = W_BigTextheight;
     gu_width = -1;
+    gu_redraw = 1;
   }
 
   /* no change detected */
-  if (context->gameup == old_gameup &&
+  if (!gu_redraw &&
+      (me->p_flags & PFOBSERV) == old_flags &&
+      context->gameup == old_gameup &&
       context->tournament_remain == old_tournament_remain) return;
+
+  old_flags = me->p_flags & PFOBSERV;
   old_gameup = context->gameup;
   old_tournament_remain = context->tournament_remain;
 
+  /* remove the old text */
+  if (gu_last_width != -1) gu_draw(W_Black);
+
   /* add words for some of the gameup flags */
   strcpy(gu_text, " ");
+  if (me->p_flags & PFOBSERV) {
+    strcat(gu_text, "OBSERVE ");
+    eager++;
+  }
   if (context->gameup & GU_INROBOT) {
     if (context->gameup & (GU_CHAOS | GU_PRACTICE)) {
       strcat(gu_text, "PREGAME ");
@@ -508,18 +520,15 @@ static void gu_update()
 
   if (eager) {
     gu_length = strlen(gu_text);
-    gu_width = W_TTSTextWidth(gu_text, gu_length);
+    gu_width = W_BigTextwidth * gu_length;
+    // FIXME: use checkRedraw on extents of area written, and redraw
+    // the planets and players that have been clobbered by this text.
+    gu_draw(W_Grey);
   } else {
     gu_width = -1;
   }
-}
-
-static void gu_draw()
-{
-  if (gu_width == -1) return;
-  W_WriteTTSText(mapw, TWINSIDE, TWINSIDE/2+(gu_height/2), gu_width,
-                 gu_text, gu_length);
   gu_last_width = gu_width;
+  gu_redraw = 0;
 }
 
 
@@ -556,11 +565,11 @@ void
 
 #ifdef HAVE_XPM
 #ifdef HOCKEY_LINES
-  if (hockey_s_lines)
-    W_GalacticBgd(HOCKEY_PIX);
-  else
+      if (hockey_s_lines)
+        W_GalacticBgd(HOCKEY_PIX);
+      else
 #endif
-    W_GalacticBgd(MAP_PIX);
+        W_GalacticBgd(MAP_PIX);
 #endif
 
       W_ClearWindow(mapw);
@@ -576,6 +585,7 @@ void
       for (l = planets + MAXPLANETS - 1; l >= planets; --l)
 	l->pl_flags |= PLREDRAW;
 
+      gu_redraw++;
       redrawall = 0;
     }
   else
@@ -630,10 +640,8 @@ void
     }
 
   /* draw gameup flags */
-  gu_clear();
   gu_update();
-  gu_draw();
-  /*! @bug paused overwrites ships on galactic */
+  /*! @bug overwrites ships on galactic */
 
   /* Draw Planets */
 
