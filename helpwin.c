@@ -208,7 +208,7 @@ void
 void
         update_Help_to_Keymap(char *helpmessage)
 {
-  int     i, j, num_mapped = 0;
+  int     i, num_mapped = 0;
   char    key;
 
 

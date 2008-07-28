@@ -115,6 +115,8 @@ char *metahelp_message[] =
     "",
     "  -  click on a server to join the game there,",
     "",
+    "  -  middle-click on a server to immediately join as guest,",
+    "",
     "  -  right-click on a server to observe the game there,",
     "",
     "  -  click to refresh the list of servers,",
@@ -1184,6 +1186,9 @@ static void redraw(int i)
     case EXIT_CONNECT_FAILURE:
       strcat(buf, "Connect Fail");
       break;
+    case EXIT_LOGIN_FAILURE:
+      strcat(buf, "Login Fail");
+      break;
     default:
       {
         int badversion = (sp->exitstatus - EXIT_BADVERSION_BASE);
@@ -1314,7 +1319,7 @@ static void choose(int way)
 }
 
 
-static int chose(int which, int observe)
+static int chose(int which, unsigned char key)
 {
   struct servers *sp;
 
@@ -1328,7 +1333,7 @@ static int chose(int which, int observe)
 
   sp = serverlist + which;
   xtrekPort = sp->port;
-  if (observe) { /* Guess at an observer port */
+  if (key == W_RBUTTON) { /* Guess at an observer port */
     xtrekPort++;
     fprintf(stderr,
             "you chose to observe on %s, guessing port %d\n",
@@ -1346,6 +1351,7 @@ static int chose(int which, int observe)
     char buf[80];
     sprintf(buf, "Netrek  @  %s", serverName);
     W_RenameWindow(baseWin, buf);
+    if (key == W_MBUTTON) fastGuest++;
     return 1;
   }
 
@@ -1355,7 +1361,7 @@ static int chose(int which, int observe)
     sp->exitstatus = EXIT_FORK_FAILURE;
   } else {
     sp->pid = pid;
-    sp->observer = observe;
+    sp->observer = (key == W_RBUTTON);
   }
 
   redraw(which);
@@ -1367,7 +1373,7 @@ static int chose(int which, int observe)
 static int button(W_Event *data)
 {
   if ((data->y > 0) && (data->y <= num_servers)) { /* click on server */
-    return chose(data->y - 1, (data->key == W_RBUTTON));
+    return chose(data->y - 1, data->key);
   }
   if (data->y == (metaHeight-B_REFRESH) && type == 1) { /* refresh */
     refresh();
@@ -1392,10 +1398,12 @@ static int key(W_Event *data)
     choose(-1);
   } else if (data->key == W_Key_Down) {
     choose(1);
-  } else if (data->key == '\r' || data->key == ' ') {
-    if (chosen != -1) return chose(chosen, 0);
-  } else if (data->key == 'o') {
-    if (chosen != -1) return chose(chosen, 1);
+  } else if (data->key == '\r' || data->key == ' ') { /* enter or space */
+    if (chosen != -1) return chose(chosen, W_LBUTTON);
+  } else if (data->key == 'g') { /* g, for guest */
+    if (chosen != -1) return chose(chosen, W_MBUTTON);
+  } else if (data->key == 'o') { /* o, for observe */
+    if (chosen != -1) return chose(chosen, W_RBUTTON);
   } else if (data->key == 'h') {
     toggle_help();
   } else {

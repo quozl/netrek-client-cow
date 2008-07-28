@@ -2052,7 +2052,7 @@ void    handlePickok(struct pickok_spacket *packet)
   pickOk = packet->state;
 }
 
-sendLoginReq(char *name, char *pass, char *login, char query)
+void sendLoginReq(char *name, char *pass, char *login, char query)
 {
   struct login_cpacket packet;
 

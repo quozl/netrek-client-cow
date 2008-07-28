@@ -748,3 +748,4 @@ int     portSwap = 1;
 #endif
 
 int F_show_all_tractors = 1;
+int fastGuest = 0;

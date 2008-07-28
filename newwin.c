@@ -857,6 +857,12 @@ void entrywindow(int *team, int *s_type)
 
   quittime = (time_t) intDefault("autoquit", quittime);
 
+  if (fastGuest) {
+    if (previous_team == -1 && previous_ship == -1) {
+      mercenary(&chosen_team, &chosen_ship);
+    }
+  }
+
   pickOk = -1;
   while (1) {
     while (!W_EventsPending()) {

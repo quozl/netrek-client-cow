@@ -677,7 +677,9 @@ int     cowmain(char *server, int port, char *name)
 	    usemeta = 1;
 	  }
 #else
-	noserver();
+      printf("No server name was given. Please put a default server in\n");
+      printf("your .xtrekrc file or specify the server in the command line.\n");
+      terminate(1);
 #endif
     }
 
@@ -744,7 +746,8 @@ int     cowmain(char *server, int port, char *name)
   (void) STRNCPY(login, cp, sizeof(login));
   login[sizeof(login) - 1] = '\0';
 
-  if (pseudo[0] == '\0')
+  if (fastGuest) strcpy(pseudo, "guest");
+  else if (pseudo[0] == '\0')
     {
       if ((cp = getdefault("name")) != 0)
 	(void) STRNCPY(pseudo, cp, sizeof(pseudo));
@@ -753,7 +756,8 @@ int     cowmain(char *server, int port, char *name)
     }
   pseudo[sizeof(pseudo) - 1] = '\0';
 
-  if (defpasswd[0] == '\0')
+  if (fastGuest) strcpy(defpasswd, "guest");
+  else if (defpasswd[0] == '\0')
     if ((cp = getdefault("password")) != 0)
       (void) STRNCPY(defpasswd, cp, sizeof(defpasswd));
   defpasswd[sizeof(defpasswd) - 1] = '\0';

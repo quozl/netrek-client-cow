@@ -121,6 +121,7 @@ extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_CacheClearArea(W_Window, int, int, int, int);
 extern void W_FlushClearAreaCache(W_Window);
 extern void W_FlushLineCaches(W_Window);
+extern int W_EventsQueuedCk(void);
 extern void W_OverlayBitmap(int, int, W_Icon, W_Color);
 extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_Flush(void);
@@ -183,4 +184,5 @@ int W_FullScreenToggle(W_Window window);
 void W_FullScreenBegin(W_Window window);
 void W_FullScreen(W_Window window);
 void W_CameraSnap(W_Window window);
+
 #endif /* _h_Wlib */

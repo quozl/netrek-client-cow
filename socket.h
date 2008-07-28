@@ -29,7 +29,7 @@ void sendServerPacket(void *packet);
 // void handleQueue(struct queue_spacket *packet);
 // int sendTeamReq(int team, int ship);
 // void handlePickok(struct pickok_spacket *packet);
-// int sendLoginReq(char *name, char *pass, char *login, char query);
+void sendLoginReq(char *name, char *pass, char *login, char query);
 // void handleLogin(struct login_spacket *packet);
 // int sendTractorReq(char state, char pnum);
 // int sendRepressReq(char state, char pnum);
