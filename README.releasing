@@ -4,8 +4,7 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.2.5
-export TAG_VERSION=cow_`echo ${VERSION}|tr . _`
+export VERSION=3.2.6
 
 # update version.h patchlevel.h cow.spec index.html
 

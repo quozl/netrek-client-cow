@@ -1,3 +1,40 @@
+Tue Jul 29 21:45:16 2008  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.2.6: released.
+
+	- add visible tractors for all ships, using the SHOW_ALL_TRACTORS
+	feature set,
+
+	- remove the observer ghost ship, shield ring, and ship number,
+	draw the observed player as if it is the player,
+
+	- metaserver window, remove all display delays, add a fast guest
+	login feature using middle mouse button, add a cyclic refresh at
+	30 second interval, show result of playing on a server (e.g. pass
+	through any connection failure, banned, or other problems so that
+	they appear on the list),
+
+	- login window, provide full screen refresh, don't hang when
+	waiting for the server to respond, use colours to highlight,
+
+	- team selection window, realignment of auto quit button, explain
+	that the message of the day is from the server, explain the enter
+	key joins a default team, realignment of message of the day,
+
+	- disconnection during play, continue to show tactical and
+	galactic state, advise user through a warning message, allow user
+	controlled exit, show the result on the metaserver list,
+
+	- add a newbie message window hint, backported from Netrek XP 2009,
+
+	- fix unknown feature warnings on pickled,
+
+	- provide slot change support, potential future feature, no server
+	expected to use it yet,
+
+	- add pointer to maintainer, build for Debian Etch, point to
+	autogen in documentation.
+
 Tue Jul 22 19:51:10 2008  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.5: released.
