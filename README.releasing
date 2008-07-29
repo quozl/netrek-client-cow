@@ -17,9 +17,22 @@ darcs record
 darcs tag ${VERSION}
 
 # make dist
+cd /tmp
+darcs get ~/src/darcs/netrek-client-cow
+sh autogen.sh
+./configure
 make dist
 
 md5sum netrek-client-cow-${VERSION}.tar.gz
+bce924f63bb81de064461b30899b95cd  netrek-client-cow-3.2.6.tar.gz
+
+# test build the .tar.gz
+cd /tmp
+tar xfv netrek-client-cow-${VERSION}.tar.gz
+cd netrek-client-cow-${VERSION}
+./configure
+make
+./netrek
 
 # release
 cp netrek-client-cow-${VERSION}.tar.gz ~/public_html/external/mine/netrek/

@@ -9,6 +9,7 @@ WARN.CUR
 Wlib.h
 audio.c
 audio.h
+badversion.h
 beeplite.c
 bitmaps.h
 check.c
