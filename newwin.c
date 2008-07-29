@@ -1232,15 +1232,28 @@ void showMotd(W_Window motdwin, int atline)
   sprintf(buf, "---  %s  ---", (char *) query_cowid());
   length = strlen(buf);
   center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, W_Textheight, textColor,
+  W_WriteText(motdwin, center, W_Textheight, W_Cyan,
 	      buf, length, W_BoldFont);
+
   sprintf(buf, cbugs);
   length = strlen(buf);
   center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, 3 * W_Textheight, textColor,
+  W_WriteText(motdwin, center, 3 * W_Textheight, W_Cyan,
 	      buf, length, W_RegularFont);
 
-  top = 10;
+  sprintf(buf, "this is the team selection window");
+  length = strlen(buf);
+  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
+  W_WriteText(motdwin, center, 5 * W_Textheight, W_Grey,
+	      buf, length, W_RegularFont);
+
+  sprintf(buf, "press enter to join the default team");
+  length = strlen(buf);
+  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
+  W_WriteText(motdwin, center, 6 * W_Textheight, W_Grey,
+	      buf, length, W_RegularFont);
+
+  top = 11;
 
   if (first)
     {

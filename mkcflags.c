@@ -67,7 +67,7 @@ main (argc, argv)
   printf ("char arch[]=\"%s\";\n", argv[2]);
   printf ("char cdate[]=\"%s\";\n", tbuff2);
   printf ("struct timeval tv_ctime={%u,0};\n", (int) seconds);
-  printf ("char cbugs[]=\"Send bugs/suggestion to: cow@netrek.org\";\n");
+  printf ("char cbugs[]=\"feedback to: quozl@us.netrek.org\";\n");
   printf ("char cowid[]=\"%s\";\n", pigcallresp (pigcall, tbuff2, argv[2]));
   exit (0);
 }
