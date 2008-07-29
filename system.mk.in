@@ -72,7 +72,7 @@ ROBJ 		= check.o colors.o data.o death.o defaults.o dmessage.o\
 	          netstat.o netstatopt.o spopt.o dashboard.o dashboard3.o \
 	          short.o distress.o senddist.o defwin.o tools.o sound.o\
 		  docwin.o cflags.o beeplite.o feature.o\
-		  string_util.o local.o censor.o cowmain.o camera.o
+		  string_util.o local.o censor.o cowmain.o camera.o myf.o
 
 RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c\
 	          enter.c findslot.c getname.c getship.c helpwin.c inform.c\
@@ -83,7 +83,7 @@ RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c\
                   lagmeter.c netstat.c netstatopt.c spopt.c dashboard.c dashboard3.c \
 		  short.c distress.c senddist.c defwin.c tools.c sound.c\
 		  docwin.c cflags.c beeplite.c feature.c reserved.c\
-		  string_util.c local.c censor.c cowmain.c camera.c
+		  string_util.c local.c censor.c cowmain.c camera.c myf.c
 
 
 INCLUDES 	= struct.h packets.h defs.h copyright.h bitmaps.h data.h\

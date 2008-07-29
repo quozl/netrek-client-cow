@@ -21,6 +21,7 @@
 
 #include "getname.h"
 
+#include "myf.h"
 #include "socket.h"
 
 static char *n_def;
@@ -51,26 +52,6 @@ static int time_error_ends;
 #define ERROR_PAUSE_SECONDS 3
 
 extern void terminate(int error);
-
-
-static void myf(int x, int y, W_Color color, W_Font font, const char *fmt, ...)
-{
-  char buf[101];
-  int len;
-  va_list args;
-
-  va_start(args, fmt);
-  len = vsnprintf(buf, 100, fmt, args);
-  buf[len] = '\0';
-  W_WriteText(w, x, y, color, buf, len, font);
-  va_end(args);
-}
-
-
-static void myc(int x, int y)
-{
-  W_ClearArea(w, x, y, TWINSIDE-x, W_Textheight);
-}
 
 
 static char *asterisks(char *password)
