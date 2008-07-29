@@ -38,10 +38,7 @@ static int xtrekrcline = 0;
 
 #endif
 
-int     opened_info = -2;			 /* counter for infowin *
-
-						  * 
-						  * * popup, 6/1/93 LAB */
+int     opened_info = -2;	 /* counter for infowin popup, 6/1/93 LAB */
 
 void    doMacro(W_Event *);
 
@@ -613,75 +610,57 @@ input()
 #endif
 {
   fd_set  readfds;
-
 #ifndef HAVE_WIN32
-  register
-  int     xsock = W_Socket();			 /* put it in a register */
-
+  int     xsock = W_Socket();
 #endif
-  register
   int     doflush = 0;
 
-  while (1)
-    {
+  while (1) {
+    if (keepInfo > 0 && opened_info != -2) { /* 6/1/93 LAB */
+      opened_info--;
+      if (opened_info < 0 && infomapped) destroyInfo();
+    }
 
-      if (keepInfo > 0 && opened_info != -2 &&	 /* 6/1/93 LAB */
-	  opened_info < 0 && infomapped)
-	destroyInfo();
-
-      if (keepInfo > 0 && opened_info != -2)
-	opened_info--;
-
-      FD_ZERO(&readfds);
-
+    FD_ZERO(&readfds);
 #ifndef HAVE_WIN32
-      FD_SET(xsock, &readfds);
+    FD_SET(xsock, &readfds);
 #endif
-      FD_SET(sock, &readfds);
+    FD_SET(sock, &readfds);
+    if (udpSock >= 0)
+      FD_SET(udpSock, &readfds);
 
-      if (udpSock >= 0)
-	FD_SET(udpSock, &readfds);
-
-      /* Skip read from server if select results in error. */
-      if (SELECT(max_fd, &readfds, 0, 0, 0) > 0)
-	{
-
+    /* Skip read from server if select results in error. */
+    if (SELECT(max_fd, &readfds, 0, 0, 0) > 0) {
 #ifndef THREADED
-
 #ifndef HAVE_WIN32
-	  /* keyboard, mouse, and expose events from the X server
-	     cause the X socket to be readable, so we must direct Xlib
-	     to read them (W_EventsQueuedCk), then we process them. */
-	  if (FD_ISSET(xsock, &readfds)) {
-	    while (W_EventsQueuedCk())
-	      process_event();
-	    doflush = 1;
-	  }
+      /* keyboard, mouse, and expose events from the X server
+	 cause the X socket to be readable, so we must direct Xlib
+	 to read them (W_EventsQueuedCk), then we process them. */
+      if (FD_ISSET(xsock, &readfds)) {
+	while (W_EventsQueuedCk())
+	  process_event();
+	doflush = 1;
+      }
 #else
-	  if (W_EventsPending())
-	    {
-	      process_event();
-	      doflush = 1;
-	    }
+      if (W_EventsPending()) {
+	process_event();
+	doflush = 1;
+      }
 #endif /* !HAVE_WIN32 */
 #endif /* !THREADED */
-
-	  if (FD_ISSET(sock, &readfds) ||
-	      (udpSock >= 0 && FD_ISSET(udpSock, &readfds)))
-	    {
-	      intrupt(&readfds);
-	      doflush = 1;
-	      if (isServerDead()) terminate(0);
-	    }
-
-	}
-
-      if (doflush)
-	{
-	  W_Flush();
-	  doflush = 0;
-	}
+      if (FD_ISSET(sock, &readfds) ||
+	  (udpSock >= 0 && FD_ISSET(udpSock, &readfds))) {
+	intrupt(&readfds);
+	doflush = 1;
+	if (isServerDead()) terminate(0);
+      }
     }
+
+    if (doflush) {
+      W_Flush();
+      doflush = 0;
+    }
+  }
 }
 
 process_event(void)
