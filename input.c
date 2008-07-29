@@ -625,9 +625,15 @@ input()
 #ifndef HAVE_WIN32
     FD_SET(xsock, &readfds);
 #endif
-    FD_SET(sock, &readfds);
-    if (udpSock >= 0)
-      FD_SET(udpSock, &readfds);
+    if (!isServerDead()) {
+      FD_SET(sock, &readfds);
+      if (udpSock >= 0)
+	FD_SET(udpSock, &readfds);
+    } else {
+      warning("Lost connection to server, press q to quit.");
+      redrawall = 1;
+      redraw();
+    }
 
     /* Skip read from server if select results in error. */
     if (SELECT(max_fd, &readfds, 0, 0, 0) > 0) {
@@ -652,7 +658,9 @@ input()
 	  (udpSock >= 0 && FD_ISSET(udpSock, &readfds))) {
 	intrupt(&readfds);
 	doflush = 1;
-	if (isServerDead()) terminate(0);
+	if (isServerDead()) {
+	  warning("Lost connection to server!");
+	}
       }
     }
 
@@ -682,6 +690,9 @@ process_event(void)
 	  if ((handler = W_GetWindowKeyDownHandler(data.Window)) != NULL)
 	    (*handler) (&data);
 
+	  if (isServerDead()) {
+	    if (data.key == 'q') terminate(EXIT_DISCONNECTED);
+	  }
 #ifdef DOC_WIN
 	  else if (data.Window == docwin)
 	    switch (data.key)

@@ -1253,6 +1253,12 @@ void showMotd(W_Window motdwin, int atline)
   W_WriteText(motdwin, center, 6 * W_Textheight, W_Grey,
 	      buf, length, W_RegularFont);
 
+  sprintf(buf, "server message of the day follows below");
+  length = strlen(buf);
+  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
+  W_WriteText(motdwin, center, 9 * W_Textheight, W_Grey,
+	      buf, length, W_RegularFont);
+
   top = 11;
 
   if (first)
@@ -1421,7 +1427,9 @@ redrawTeam(W_Window win, int teamNo, int *lastnum)
 
 redrawQuit(void)
 {
-  W_WriteText(qwin, 5, 5, textColor, "Quit COW  ", 10, W_RegularFont);
+  char *msg = "Quit";
+  int tx = W_WindowWidth(qwin) / 2 - W_Textwidth * strlen(msg) / 2;
+  W_WriteText(qwin, tx, 5, textColor, msg, -1, W_RegularFont);
 }
 
 void    drawIcon(void)
@@ -1450,7 +1458,7 @@ showTimeLeft(time_t time, time_t max)
   W_ClearArea(qwin, CLOCK_X, CLOCK_Y, CLOCK_WID, CLOCK_HEI);
 
   cx = CLOCK_X + CLOCK_WID / 2;
-  cy = CLOCK_Y + (CLOCK_HEI - W_Textheight) / 2;
+  cy = CLOCK_Y + CLOCK_HEI / 2;
   ex = cx - clock_width / 2;
   ey = cy - clock_height / 2;
   W_WriteBitmap(ex, ey, clockpic, foreColor);
@@ -1464,8 +1472,8 @@ showTimeLeft(time_t time, time_t max)
   ty = cy - W_Textheight / 2;
   W_WriteText(qwin, tx, ty, textColor, buf, strlen(buf), W_RegularFont);
 
-  cp = "Auto Quit";
-  tx = CLOCK_X + cx - W_Textwidth * strlen(cp) / 2;
-  ty = CLOCK_Y + CLOCK_HEI - W_Textheight;
+  cp = "Auto Quit Timer";
+  tx = cx - W_Textwidth * strlen(cp) / 2;
+  ty = CLOCK_Y + CLOCK_HEI;
   W_WriteText(qwin, tx, ty, textColor, cp, strlen(cp), W_RegularFont);
 }

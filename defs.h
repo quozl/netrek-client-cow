@@ -435,6 +435,7 @@ char   *getdefault(char *str);
 #define EXIT_OK 0
 #define EXIT_CONNECT_FAILURE 1
 #define EXIT_LOGIN_FAILURE 2
+#define EXIT_DISCONNECTED 3
 #define EXIT_BADVERSION_BASE 10
 
 #endif /* _h_defs */
