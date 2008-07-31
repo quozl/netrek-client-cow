@@ -49,7 +49,7 @@ void sendOptionsPacket(void);
 // void handlePlyrLogin(struct plyr_login_spacket *packet, int sock);
 // void handleStats(struct stats_spacket *packet);
 // void handlePlyrInfo(struct plyr_info_spacket *packet);
-void sendUpdatePacket(long speed);
+void sendUpdatePacket(LONG speed);
 // void handlePlanetLoc(struct planet_loc_spacket *packet);
 // void handleReserved(struct reserved_spacket *packet, int sock);
 // void handleShipCap(struct ship_cap_spacket *packet);
