@@ -133,9 +133,6 @@ util.c
 util.h
 usleep.c
 version.h
-vmsio.c
-vmsutils.c
-vmsutils.h
 war.c
 warning.c
 warning.h
@@ -172,9 +169,7 @@ system.mk.in
 configure
 config.sub
 config.guess
-config.h.vms
 cow.opt
-descrip.mms
 localcursor.bitmap
 manifest
 mapcursor.bitmap

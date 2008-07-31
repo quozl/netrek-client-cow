@@ -347,16 +347,11 @@ extern long random ();
 #define INC_SYS_FCNTL   NULLFILE
 #endif
 
-#ifndef VMS
 #ifdef HAVE_FCNTL_H
 #define INC_FCNTL       <fcntl.h>
 #else
 #define INC_FCNTL       NULLFILE
 #endif
-#else
-#define INC_FCNTL 	<file.h>
-#endif
-
 
 /* Some systems don't include <sys/time.h> in <time.h>  */
 #if defined(TM_IN_SYS_TIME) || defined(NEED_SYS_TIME_H)
@@ -483,16 +478,6 @@ extern double rint(double);
 #endif
 #define  nint(x) ((int) rint(x))
 #endif
-#endif
-
-#ifdef VMS
-#define  R_OK  04
-typedef unsigned short int ushort;
-#define Sin sinetable
-#define Cos cosinetable
-#define strncasecmp strncmp
-#include <socket.h>    /* for struct timeval */
-#include "vmsutils.h"  /* for typedef fd_set & FD_ macros */
 #endif
 
 /*

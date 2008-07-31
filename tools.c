@@ -51,8 +51,6 @@ void
     showToolsWin();
 
 #ifndef WIN32
-
-#ifndef VMS
   SIGNAL(SIGCHLD, SIG_DFL);
   if (shelltools && (pipefp = popen(str, "r")) != NULL)
     {
@@ -67,8 +65,6 @@ void
       pclose(pipefp);
     }
   else
-#endif
-
 #endif
 
     W_WriteText(toolsWin, 0, 0, textColor, str, strlen(str), W_RegularFont);

@@ -36,10 +36,6 @@
 #include "x11sprite.h"
 #include "camera.h"
 
-#ifdef VMS
-void    vms_event_window(void);
-#endif
-
 extern void terminate(int error);
 
 /* XFIX speedup */
@@ -1039,10 +1035,6 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
 
-#ifdef VMS
-  XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
-#endif
-
 #if DEBUG > 0
   printf("New graphics window %d, child of %d\n", newwin, parent);
 #endif
@@ -1302,10 +1294,6 @@ int
   for (;;)
     {
       XNextEvent(W_Display, &event);
-
-#ifdef VMS
-      vms_event_window_done();
-#endif
 
 #if DEBUG > 1
       printf(", read type=%d\n", event.type);
@@ -2034,10 +2022,6 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
 
-#ifdef VMS
-  XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
-#endif
-
 #if DEBUG > 0
   printf("New text window %d, child of %d\n", newwin, parent);
 #endif
@@ -2180,10 +2164,6 @@ int     border;
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
-
-#ifdef VMS
-  XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
-#endif
 
 #if DEBUG > 0
   printf("New scroll window %d, child of %d\n", newwin, parent);
@@ -2466,10 +2446,6 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
-
-#ifdef VMS
-  XSelectAsyncInput(W_Display, newwin->window, attrs.event_mask, vms_event_window, 0);
-#endif
 
 #if DEBUG > 0
   printf("New menu window %d, child of %d\n", newwin, parent);
@@ -3032,12 +3008,7 @@ int
 int
         W_Socket(void)
 {
-
-#if VMS
-  return 0;
-#else
   return ConnectionNumber(W_Display);
-#endif
 }
 
 void
