@@ -312,6 +312,8 @@ static void parseInput(char *in, FILE * out)
     strcpy(slist->comment, "");
 
     slist->pid = -1;
+    slist->exitstatus = 0;
+    slist->observer = 0;
 
     /* Don't list Paradise Servers  */
     
@@ -606,6 +608,8 @@ static void version_r(struct sockaddr_in *address) {
     sp->typeflag = type;
     strcpy(sp->comment, "");
     sp->pid = -1;
+    sp->exitstatus = 0;
+    sp->observer = 0;
   }
 }
 
