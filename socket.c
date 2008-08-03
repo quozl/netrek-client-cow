@@ -33,6 +33,7 @@
 #include "playerlist.h"
 
 #include "badversion.h"
+#include "defaults.h"
 #include "dmessage.h"
 #include "getship.h"
 #include "local.h"
@@ -2787,7 +2788,12 @@ handleGeneric32_a (struct generic_32_spacket_a *packet)
 static void
 handleGeneric32_b (struct generic_32_spacket_b *packet)
 {
-    me->p_repair_time = ntohs (packet->repair_time);
+    int rate;
+    static int unsafe = GU_UNSAFE;
+    static int idling = 0;
+    static int saved_ups = 0;
+
+    me->p_repair_time = ntohs(packet->repair_time);
     me->pl_orbit = packet->pl_orbit;
     context->gameup = ntohs(packet->gameup);
     context->tournament_teams = packet->tournament_teams;
@@ -2797,6 +2803,40 @@ handleGeneric32_b (struct generic_32_spacket_b *packet)
     context->tournament_remain_units = packet->tournament_remain_units;
     context->starbase_remain = packet->starbase_remain;
     context->team_remain = packet->team_remain;
+
+    /* to maintain update rate when safe-idle, set updatespersec.idle: -1 */
+
+    rate = intDefault("updatespersec.idle", 1);
+    if ((unsafe ^ context->gameup) & GU_UNSAFE) {
+      unsafe = context->gameup;
+      if (context->gameup & GU_UNSAFE) {
+        if (idling) {
+	  if (rate < 0) {
+	    warning("Safe idle stop.");
+	  } else {
+	    sendUpdatePacket(1000000 / saved_ups);
+	    warning("Safe idle stop, normal update rate resumed.");
+	  }
+	  if (context->tournament_age_units == 's' &&
+	      context->tournament_age < 5 &&
+	      booleanDefault("game-begin-while-idle-beep", 1)) W_Beep();
+	  idling = 0;
+        }
+      } else {
+        if (!context->gameup & GU_UNSAFE) {
+          if (!idling) {
+	    if (rate < 0) {
+	      warning("Safe idle start.");
+	    } else {
+	      saved_ups = client_ups;
+	      sendUpdatePacket(1000000 / rate);
+	      idling++;
+	      warning("Safe idle start, update rate reduced.");
+	    }
+          }
+        }
+      }
+    }
 }
 
 static void

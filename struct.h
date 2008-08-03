@@ -110,8 +110,9 @@ enum dist_type
  * (append) ) byte18++: the text to pre or append .. depending on termination
  * above. text is null terminated and the last thing in this distress */
 
-/* The following defines are for gameup field */
+/* The following defines are for gameup field in SP_GENERIC_32 'b' */
 #define GU_GAMEOK 0x1
+#define GU_UNSAFE 0x1			/* not currently safe due idle */
 #define GU_PRACTICE 0x2			/* Basepractice robot is present */
 /* also set by INL robot during a pause, in pre-game, or post-game */
 #define GU_CHAOS 0x4

@@ -483,6 +483,10 @@ static void gu_update()
 
   /* add words for some of the gameup flags */
   strcpy(gu_text, " ");
+  if (!context->gameup & GU_UNSAFE) {
+    strcat(gu_text, "SAFE-IDLE ");
+    eager++;
+  }
   if (me->p_flags & PFOBSERV) {
     strcat(gu_text, "OBSERVE ");
     eager++;
