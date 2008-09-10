@@ -224,7 +224,7 @@ inline static void
   for (i = 0, j = &players[i]; i < MAXPLAYER; i++, j++) {
     if (j->p_status != PALIVE) continue;
     if (j->p_flags & PFOBSERV) continue;
-    if (roughmap[j->p_x / SIZE][j->p_y / SIZE] != -1) {
+    if (roughMap[j->p_x / SIZE][j->p_y / SIZE] != -1) {
       redrawPlayer[i] = 1;
     }
   }
