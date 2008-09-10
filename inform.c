@@ -34,9 +34,7 @@ static char *my_classes[NUM_TYPES] =
 void inform(W_Window ww, int x, int y, char key)
 {
   char    buf[BUFSIZ];
-v v v v v v v
   char    ftoabuf[8], *ftoab = ftoabuf;
-^ ^ ^ ^ ^ ^ ^
   int     line = 0;
   register struct player *j;
   register struct planet *k;
@@ -131,21 +129,17 @@ v v v v v v v
 	  STRNCPY(buf, "        Rating    Total", 25);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
 		      W_RegularFont);
-v v v v v v v
-          ftoab = ftoa(bombingRating(j), ftoabuf, 0, 2, 2);
-          ftoab[7] = '\0';
+	  ftoab = ftoa(bombingRating(j), ftoabuf, 0, 2, 2);
+	  ftoab[7] = '\0';
 	  sprintf(buf, "Bombing: %s  %5d",
 		  ftoabuf,
-^ ^ ^ ^ ^ ^ ^
 		  j->p_stats.st_armsbomb + j->p_stats.st_tarmsbomb);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
 		      W_RegularFont);
-v v v v v v v
-          ftoab = ftoa(planetRating(j), ftoabuf, 0, 2, 2);
-          ftoab[7] = '\0';
+	  ftoab = ftoa(planetRating(j), ftoabuf, 0, 2, 2);
+	  ftoab[7] = '\0';
 	  sprintf(buf, "Planets: %s  %5d",
 		  ftoabuf,
-^ ^ ^ ^ ^ ^ ^
 		  j->p_stats.st_planets + j->p_stats.st_tplanets);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
 		      W_RegularFont);
@@ -161,12 +155,10 @@ v v v v v v v
 	    }
 	  else
 	    {
-v v v v v v v
-              ftoab = ftoa(offenseRating(j), ftoabuf, 0, 2, 2);
-              ftoab[7] = '\0';
+	      ftoab = ftoa(offenseRating(j), ftoabuf, 0, 2, 2);
+	      ftoab[7] = '\0';
 	      sprintf(buf, "Offense: %s  %5d",
 		      ftoabuf,
-^ ^ ^ ^ ^ ^ ^
 		      j->p_stats.st_kills + j->p_stats.st_tkills);
 	    }
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
@@ -183,12 +175,10 @@ v v v v v v v
 	    }
 	  else
 	    {
-v v v v v v v
-              ftoab = ftoa(defenseRating(j), ftoabuf, 0, 2, 2);
-              ftoab[7] = '\0';
+	      ftoab = ftoa(defenseRating(j), ftoabuf, 0, 2, 2);
+	      ftoab[7] = '\0';
 	      sprintf(buf, "Defense: %s  %5d",
 		      ftoabuf,
-^ ^ ^ ^ ^ ^ ^
 		      j->p_stats.st_losses + j->p_stats.st_tlosses);
 	    }
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
