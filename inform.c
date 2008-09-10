@@ -34,7 +34,7 @@ static char *my_classes[NUM_TYPES] =
 void inform(W_Window ww, int x, int y, char key)
 {
   char    buf[BUFSIZ];
-  char    ftoabuf[8], *ftoab = ftoabuf;
+  char    ftoabuf[8];
   int     line = 0;
   register struct player *j;
   register struct planet *k;
@@ -129,15 +129,13 @@ void inform(W_Window ww, int x, int y, char key)
 	  STRNCPY(buf, "        Rating    Total", 25);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
 		      W_RegularFont);
-	  ftoab = ftoa(bombingRating(j), ftoabuf, 0, 2, 2);
-	  ftoab[7] = '\0';
+	  ftoa(bombingRating(j), ftoabuf, 0, 2, 2);
 	  sprintf(buf, "Bombing: %s  %5d",
 		  ftoabuf,
 		  j->p_stats.st_armsbomb + j->p_stats.st_tarmsbomb);
 	  W_WriteText(infow, W_Textwidth, W_Textheight * line++, playerColor(j), buf, strlen(buf),
 		      W_RegularFont);
-	  ftoab = ftoa(planetRating(j), ftoabuf, 0, 2, 2);
-	  ftoab[7] = '\0';
+	  ftoa(planetRating(j), ftoabuf, 0, 2, 2);
 	  sprintf(buf, "Planets: %s  %5d",
 		  ftoabuf,
 		  j->p_stats.st_planets + j->p_stats.st_tplanets);
@@ -155,8 +153,7 @@ void inform(W_Window ww, int x, int y, char key)
 	    }
 	  else
 	    {
-	      ftoab = ftoa(offenseRating(j), ftoabuf, 0, 2, 2);
-	      ftoab[7] = '\0';
+	      ftoa(offenseRating(j), ftoabuf, 0, 2, 2);
 	      sprintf(buf, "Offense: %s  %5d",
 		      ftoabuf,
 		      j->p_stats.st_kills + j->p_stats.st_tkills);
@@ -175,8 +172,7 @@ void inform(W_Window ww, int x, int y, char key)
 	    }
 	  else
 	    {
-	      ftoab = ftoa(defenseRating(j), ftoabuf, 0, 2, 2);
-	      ftoab[7] = '\0';
+	      ftoa(defenseRating(j), ftoabuf, 0, 2, 2);
 	      sprintf(buf, "Defense: %s  %5d",
 		      ftoabuf,
 		      j->p_stats.st_losses + j->p_stats.st_tlosses);
