@@ -75,15 +75,16 @@ static char *metaWindowName;		/* The window's name.           */
 static int statusLevel;
 static W_Window metaWin, metaHelpWin = NULL;
 
-#define N_TITLES 1
-#define N_BUTTONS 3
-#define N_GAP 1
-#define N_OVERHEAD N_TITLES+N_BUTTONS+N_GAP
-
 /* button offsets from end of list */
+#define B_ADD 4
 #define B_REFRESH 3
 #define B_HELP 2
 #define B_QUIT 1
+
+#define N_TITLES 1
+#define N_BUTTONS 4
+#define N_GAP 1
+#define N_OVERHEAD N_TITLES+N_BUTTONS+N_GAP
 
 /* The status strings:  The order of the strings up until statusNull is
  * important because the meta-client will display all the strings up to a
@@ -677,6 +678,8 @@ static void version_s(struct sockaddr_in *address)
   sp->typeflag = type;
   strncpy(sp->comment, comment, LINE);
   sp->pid = -1;
+  sp->exitstatus = 0;
+  sp->observer = 0;
   free(comment);
 }
 
@@ -1216,6 +1219,70 @@ static void redraw(int i)
 }
 
 
+static char add_buffer[LINE];
+static int add_offset;
+
+static void add_init()
+{
+  add_buffer[0] = '\0';
+  add_offset = 0;
+}
+
+static void add_redraw()
+{
+  char buf[LINE + 1];
+
+  snprintf(buf, LINE, "Add a server: %s_", add_buffer);
+  W_WriteText(metaWin, 0, metaHeight-B_ADD, W_Yellow, buf, -1, 0);
+}
+
+static void add_commit()
+{
+  struct servers *sp;
+
+  grow(1);
+  sp = serverlist + num_servers;
+  num_servers++;
+  strncpy(sp->address, add_buffer, LINE);
+  sp->port = 2592;
+  sp->age = 0;
+  sp->when = time(NULL);
+  sp->refresh = 1;
+  sp->lifetime = 20;
+  sp->players = 0;
+  sp->status = statusNobody;
+  sp->typeflag = 'U';
+  strncpy(sp->comment, add_buffer, LINE);
+  sp->pid = -1;
+  sp->exitstatus = 0;
+  sp->observer = 0;
+  metawindow();
+}
+
+static int add_key(W_Event *data)
+{
+  if (data->key == '\r') {
+    add_commit();
+    add_init();
+    add_redraw();
+  } else if (data->key == 21) {
+    add_init();
+    add_redraw();
+  } else if (data->key == 8 || data->key == '\177') {
+    if (add_offset > 0) {
+      add_buffer[add_offset-1] = '\0';
+      add_offset--;
+      add_redraw();
+    }
+  } else if (add_offset < (LINE-1)) {
+    add_buffer[add_offset+1] = '\0';
+    add_buffer[add_offset] = data->key;
+    add_offset++;
+    add_redraw();
+  }
+  return 0;
+}
+
 void    metawindow()
 /* Show the meta server menu window */
 {
@@ -1250,6 +1317,7 @@ void    metawindow()
     W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Yellow,
                 "Refresh                                           (r)",
                 -1, 0);
+  add_redraw();
   W_WriteText(metaWin, 0, metaHeight-B_HELP, W_Yellow,
 	        "Help                                              (h)",
 	      -1, 0);
@@ -1306,6 +1374,10 @@ static void choose(int way)
   int was;
   int lo = 0;
   int hi = num_servers - 1;
+
+  if (hi < 0) {
+    return;
+  }
 
   was = chosen;
   if (chosen == -1) {
@@ -1393,6 +1465,7 @@ static int button(W_Event *data)
 
 static int key(W_Event *data)
 {
+  if (data->y == (metaHeight-B_ADD)) return add_key(data);
   if (data->key == 113 || data->key == 196) { /* q or ^d */
     metadone();
     terminate(0);
