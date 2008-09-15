@@ -4,9 +4,9 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.2.6
+export VERSION=3.2.7
 
-# update version.h patchlevel.h cow.spec index.html
+# update version.h patchlevel.h cow.spec
 
 # update ChangeLog and NEWS with a release date
 
@@ -40,6 +40,8 @@ cd ~/public_html/external/
 . to-au
 http://quozl.linux.org.au/netrek/
 
+# orion upload
+
 # sf.net upload
 ftp -n upload.sourceforge.net <<EOF
 user anonymous quozl@us.netrek.org
@@ -48,3 +50,5 @@ passive
 hash
 put netrek-client-cow-${VERSION}.tar.gz 
 EOF
+
+# packaging

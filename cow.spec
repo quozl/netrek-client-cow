@@ -16,7 +16,7 @@
 
 Summary: Netrek Client
 Name: cow
-Version: 3.2.6
+Version: 3.2.7
 Release: realtime.1
 Copyright: Undetermined
 URL: http://cow.netrek.org/

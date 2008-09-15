@@ -23,9 +23,6 @@ X Error of failed request:  XF86VidModeClientNotLocal
   Serial number of failed request:  12933
   Current serial number in output stream:  12934
 
---
-
-Can't type control/d on password prompt to exit.
 
 --
 
@@ -62,13 +59,6 @@ Create an rc editor that will allow:
 	- choosing fonts
 	- macro editing
 	- etc...
-
------------------------------------------------------------------
-
-Create a nicer gtk+ front-end alternative to the current
-metaserver window.  Allow launching clients and the rc
-editor.  Let players also choose whether they wish to 
-connect and play or just observe.
 
 -----------------------------------------------------------------
 
@@ -201,12 +191,6 @@ Last suggestion : the help window is a mess. A bit of sorting (by themes
 for ex.) would be a good idea...
 
 -----------------------------------------------------------------
-
-Look for a way to keep metawindow data around so a player who decides
-he/she doesn't like the first server connected to, can reconnect
-without contacting the metaserver to get another listing.
-
-------------------------------------------------------------------
 
 Someone wrote:
 >Hmm.. I just tried un-keymapping the ` key.
