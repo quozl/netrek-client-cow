@@ -690,6 +690,8 @@ process_event(void)
 	  if ((handler = W_GetWindowKeyDownHandler(data.Window)) != NULL)
 	    (*handler) (&data);
 
+	  if (data.Window == messagew)
+	    break;
 	  if (isServerDead()) {
 	    if (data.key == 'q') terminate(EXIT_DISCONNECTED);
 	  }
