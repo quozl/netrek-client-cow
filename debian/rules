@@ -1,47 +1,96 @@
 #!/usr/bin/make -f
-#
-# NAME
-#   debian/rules -- Debian build rules for netrek-client-cow
-#
-# DESCRIPTION
-#   This Makefile uses the CDBS makefiles to wrap the common package building
-#   steps necessary to make the netrek-client-cow packages.
-#
-# COPYRIGHT
-#   Copyright (c) 2006 Bob Tanner <tanner@real-time.com>
-#
-# LICENSE
-#   This program is free software; you can redistribute it and/or modify it
-#   under the terms of the GNU General Public License as published by the Free
-#   Software Foundation version 2
-#
-#   This program is distributed in the hope that it will be useful, but WITHOUT
-#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-#   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-#   more details.
-#
-#   You should have received a copy of the GNU General Public License along
-#   with this program; if not, write to the Free Software Foundation, Inc., 59
-#   Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-#
+# -*- makefile -*-
 
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/autotools.mk
-include /usr/share/cdbs/1/rules/simple-patchsys.mk
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+CROSS= --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+else
+CROSS= --build $(DEB_BUILD_GNU_TYPE)
+endif
 
 
-DEB_CONFIGURE_EXTRA_FLAGS := --enable-unstable \
-	--x-includes=/usr/X11R6/include
+
+config.status: configure
+	dh_testdir
+	# Add here commands to configure the package.
+ifneq "$(wildcard /usr/share/misc/config.sub)" ""
+	cp -f /usr/share/misc/config.sub config.sub
+endif
+ifneq "$(wildcard /usr/share/misc/config.guess)" ""
+	cp -f /usr/share/misc/config.guess config.guess
+endif
+	./configure $(CROSS) --prefix=/usr \
+		--bindir=\$${prefix}/games \
+		--datadir=\$${prefix}/share/games \
+		--mandir=\$${prefix}/share/man \
+		--infodir=\$${prefix}/share/info \
+		CFLAGS="$(CFLAGS)" \
+		LDFLAGS="-Wl,-z,defs"
 
 
-# Delegate finding KEYDEF find-key
-#
-DEB_MAKE_ENVVARS := KEYDEF=`debian/find-key.sh`
+build: build-stamp
 
-install/netrek-client-cow::
-	install netrek debian/netrek-client-cow/usr/bin/netrek-client-cow
-	rm -f debian/netrek-client-cow/netrek
+build-stamp:  config.status 
+	dh_testdir
 
-clean::
-	rm -rf autom4te.cache config.guess.cdbs-orig config.sub.cdbs-orig
-	rm -rf cflags.c key.cow.unix key.cow.unix.secret
+	# Add here commands to compile the package.
+	$(MAKE)
+
+	touch $@
+
+clean: 
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp 
+
+	# Add here commands to clean up after the build process.
+	[ ! -f Makefile ] || [ ! -f key.mk ] ||  $(MAKE) distclean
+	rm -f config.sub config.guess
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# Add here commands to install the package into debian/netrek-client-cow.
+	#$(MAKE) prefix=$(CURDIR)/debian/netrek-client-cow/usr install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/netrek-client-cow BINDIR=/usr/games install
+
+	mv $(CURDIR)/debian/netrek-client-cow/usr/games/netrek \
+		$(CURDIR)/debian/netrek-client-cow/usr/games/netrek-client-cow
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs
+	dh_installexamples
+	dh_install
+	dh_installmenu
+	dh_installman debian/netrek-client-cow.6
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install 

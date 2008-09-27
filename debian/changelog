@@ -1,58 +1,6 @@
-netrek-client-cow (3.2.8-1) unstable; urgency=low
+netrek-client-cow (3.2.7-1) unstable; urgency=low
 
-  * upstream potential release, fix this version number
+  * Initial release (Closes: #1111).
 
- -- James Cameron <quozl@us.netrek.org>  Sat, 27 Sep 2008 19:36:06 +1000
-
-netrek-client-cow (3.2.5-1) unstable; urgency=low
-
-  * added missing dependencies and verified clean build for etch
-
- -- James Cameron <quozl@us.netrek.org>  Thu, 24 Jul 2008 10:47:16 +1000
-
-netrek-client-cow (3.2.5-0) unstable; urgency=low
-
-  * upstream release
-
- -- James Cameron <quozl@us.netrek.org>  Tue, 22 Jul 2008 20:02:57 +1000
-
-netrek-client-cow (3.2.4-0) unstable; urgency=low
-
-  * upstream release
-
- -- James Cameron <quozl@us.netrek.org>  Wed, 16 Jul 2008 09:30:00 +1000
-
-netrek-client-cow (3.2.2-0) unstable; urgency=low
-
-  * upstream release
-
- -- James Cameron <quozl@us.netrek.org>  Wed, 16 May 2007 16:05:00 +1000
-
-netrek-client-cow (3.2.0-1) unstable; urgency=low
-
-  * Fix regression caused by previous change, resulting in bad file
-    descriptor errors from select in ReadMetasRecv(). (Quozl)
-  * Change to Quozl's new release numbering scheme, he is the official 
-    librarian you know. :-)
-
- -- Robert J. Tanner <tanner@real-time.com>  Wed, 22 Feb 2006 22:53:25 -0600
-
-netrek-client-cow (3.2.0) unstable; urgency=low
-
-  * oh wow
-
- -- James Cameron <quozl@us.netrek.org>  Tue, 28 Feb 2006 12:26:09 +1100
-
-netrek-client-cow (3.01pl0-2) unstable; urgency=low
-
-  * At compile time figure out what RSA key to build against
-  * Created find-key.sh 
-
- -- Robert J. Tanner <tanner@real-time.com>  Wed,  1 Feb 2006 02:20:12 -0600
-
-netrek-client-cow (3.01pl0-1) unstable; urgency=low
-
-  * Initial release
-
- -- Robert J. Tanner <tanner@real-time.com>  Fri, 27 Jan 2006 01:37:21 -0600
+ -- Barry deFreese <bdefreese@debian.org>  Fri, 26 Sep 2008 21:44:49 -0400
 

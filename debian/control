@@ -1,15 +1,15 @@
 Source: netrek-client-cow
 Section: non-free/x11
 Priority: optional
-Maintainer:  Robert J. Tanner <tanner@real-time.com>
-Uploaders: James Cameron <quozl@us.netrek.org>
-Build-Depends: debhelper (>= 4.2.32), cdbs (>= 0.4.27), build-essential (>= 10.1), libsdl1.2-dev, libsdl-mixer1.2-dev, libgmp3-dev, libxt-dev, libxxf86vm-dev, libimlib2-dev
-Standards-Version: 3.6.2
+Maintainer: Barry deFreese <bdefreese@debian.org>
+Build-Depends: debhelper (>= 7), autotools-dev, libsdl1.2-dev, libsdl-mixer1.2-dev, libgmp3-dev, libxt-dev, libxxf86vm-dev, libimlib2-dev
+Standards-Version: 3.8.0
+Homepage: http://www.netrek.org
 
 Package: netrek-client-cow
 Architecture: any
-Depends: ${shlibs:Depends}
-Description: netrek Client
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: client for netrek online game
  This is a client for the multi-player game of Netrek.
  .
  Netrek is the probably the first video game which can accurately be
@@ -35,5 +35,4 @@ Description: netrek Client
  .
  To start the client program, run /usr/bin/netrek-client-cow, and a list of
  servers should be displayed.
- .
- Homepage: http://www.netrek.org
+
