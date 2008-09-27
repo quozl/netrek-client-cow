@@ -26,9 +26,6 @@ netrek.shared: name system.mk
 profile:
 	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" KEYDEF=$(KEYDEF) netrek
 
-java: netrek.shared
-	cd java; $(MAKE)
-
 convert: mkkey $(KEYFILE) $(KEYSH)
 	./mkkey -h $(KEYSH) $(KEYFILE) "Client Of Win" \
 	$(DESC) $(MAKER) $(COMMENT)
@@ -42,7 +39,6 @@ mkkey: system.mk
 
 clean:
 	rm -f *.o $(OBJ) $(SHAREDTARGET)
-	cd java; $(MAKE) clean
 
 reallyclean: clean
 	rm -f netrek randomize mkkey rsa_box*.c name mkcflags \
