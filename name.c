@@ -1,11 +1,5 @@
-/*
- * $Log: name.c,v $
- * Revision 1.2  2006/02/28 01:45:56  quozl
- * prerelease
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+#include <stdio.h>
+#include <stdlib.h>
 #include "version.h"
 #include "patchlevel.h"
 
@@ -37,5 +31,5 @@ main (int argc, char **argv)
 #endif
 
   printf ("\n");
-  exit (0);
+  exit(0);
 }
