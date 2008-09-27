@@ -1,3 +1,9 @@
+netrek-client-cow (3.2.8-1) unstable; urgency=low
+
+  * upstream potential release, fix this version number
+
+ -- James Cameron <quozl@us.netrek.org>  Sat, 27 Sep 2008 19:36:06 +1000
+
 netrek-client-cow (3.2.5-1) unstable; urgency=low
 
   * added missing dependencies and verified clean build for etch
