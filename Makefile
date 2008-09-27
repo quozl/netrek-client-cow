@@ -9,6 +9,10 @@ MAIL   = mail
 
 include $(KEYDEF)
 
+PACKAGE=netrek-client-cow
+VERSION=$(shell ./name)
+DVERSION=$(shell head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\))
+
 all: netrek 
 
 netrek: system.mk netrekI
@@ -50,27 +54,31 @@ distclean: clean reallyclean
 tags: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) tags
 
-PACKAGE=netrek-client-cow
+names: name
+	@echo "PACKAGE=$(PACKAGE)"
+	@echo "VERSION=$(VERSION)"
+	@echo "PACKAGE_VERSION=$(PACKAGE)-$(VERSION)"
+	@echo "DEBIAN_PACKAGE_VERSION=$(PACKAGE)-$(DVERSION)"
 
 dist: name
-	mkdir $(PACKAGE)-`./name`
-	tar cf - `cat manifest` | (cd $(PACKAGE)-`./name`;tar xf -)
-	tar cvf - $(PACKAGE)-`./name` | gzip -9 > $(PACKAGE)-`./name`.tar.gz
-	rm -rf $(PACKAGE)-`./name`
+	mkdir $(PACKAGE)-$(VERSION)
+	tar cf - `cat manifest` | (cd $(PACKAGE)-$(VERSION);tar xf -)
+	tar cvf - $(PACKAGE)-$(VERSION) | gzip -9 > $(PACKAGE)-$(VERSION).tar.gz
+	rm -rf $(PACKAGE)-$(VERSION)
 
 distdoc: name XTREKRC
-	mkdir $(PACKAGE)-`./name`.doc
+	mkdir $(PACKAGE)-$(VERSION).doc
 	tar cf - README.* COW.DOC CHANGES XTREKRC netrekrc.example \
-		*.html *.css stars.gif | (cd $(PACKAGE)-`./name`.doc; tar xf -)
-	tar cvf - $(PACKAGE)-`./name`.doc | gzip -9 > $(PACKAGE)-`./name`.doc.tar.gz
-	rm -rf $(PACKAGE)-`./name`.doc
+		*.html *.css stars.gif | (cd $(PACKAGE)-$(VERSION).doc; tar xf -)
+	tar cvf - $(PACKAGE)-$(VERSION).doc | gzip -9 > $(PACKAGE)-$(VERSION).doc.tar.gz
+	rm -rf $(PACKAGE)-$(VERSION).doc
 
 distbin: name netrek
 	-strip netrek
-	-rm -f $(PACKAGE)-`./name`.$(ARCH)
-	cp netrek $(PACKAGE)-`./name`.$(ARCH)
-	-rm -f $(PACKAGE)-`./name`.$(ARCH).gz
-	gzip -9 $(PACKAGE)-`./name`.$(ARCH)
+	-rm -f $(PACKAGE)-$(VERSION).$(ARCH)
+	cp netrek $(PACKAGE)-$(VERSION).$(ARCH)
+	-rm -f $(PACKAGE)-$(VERSION).$(ARCH).gz
+	gzip -9 $(PACKAGE)-$(VERSION).$(ARCH)
 
 distkey: netrek $(KEYFILE)
 	echo "This is an automatic generated mail." >key.mail
@@ -83,25 +91,6 @@ distkey: netrek $(KEYFILE)
 
 name: name.c version.h patchlevel.h
 	$(CC) $(CFLAGS) -o name name.c
-
-# make patches file from old directory
-patches: name
-	cd $(PATCHDIR); make name
-	@echo Making COW.`./name`\-`$(PATCHDIR)/name`.diffs
-	-rm ../COW.`./name`\-`$(PATCHDIR)/name`.diffs
-	-for f in `cat manifest` ; do \
-	if [ ! -f $(PATCHDIR)/$${f} ] ; then touch $(PATCHDIR)/$${f} ; fi ; \
-	diff -w -r -c $(PATCHDIR)/$${f} $${f} >> ../COW.`./name`\-`$(PATCHDIR)/name`.diffs ; \
-	done
-
-# make patches file from specified tar file (slower than above)
-tarpatches: name
-	@echo Making COW.`name`\-$(OLD).diffs
-	-rm ../COW.`name`\-$(OLD).diffs
-	-for f in `cat manifest` ; do \
-	echo tar -xOzf $(TF) $${f} \| diff -c - $${f} ;\
-	tar -xOzf $(TF) $${f} | diff -c - $${f} >> ../COW.`name`\-$(OLD).diffs ; \
-	done
 
 depend: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) depend
@@ -151,12 +140,11 @@ install.alpha: netrek
 	./netrek -v | head -1 > $(ALPHADIR)/HEADER
 	chmod 644 $(ALPHADIR)/HEADER
 
-PACKAGE=`head -1 debian/changelog|cut -f1 -d\ `
-VERSION=`head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\)`
-WWW=~/public_html/external/mine/netrek
-
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt
+
+# targets specific to quozl
+WWW=~/public_html/external/mine/netrek
 
 upload:
 	mv ../$(PACKAGE)_$(VERSION)*{.dsc,.changes,.tar.gz,.deb} $(WWW)
