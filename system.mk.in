@@ -138,9 +138,7 @@ $(RSASRC): mkkey $(SECKEYFILE)
 	@echo "int sock = -1;" >>rsa_box_1.c
 
 $(SECKEYFILE):
-	@echo WARNING: No keyfile found, generating a new key.
-	@echo "         You have 5 seconds time to abort"
-	sleep 5
+	@echo generating a new client key
 	$(MAKE) newkey
 
 mkkey: mkkey.c $(RANDOMOBJ) defs.h
