@@ -123,18 +123,7 @@ to_dos: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
 
 install: netrek
-	if [ -f $(BINDIR)/netrek ] ; then \
-	  mv $(BINDIR)/netrek $(BINDIR)/netrek.old ; \
-	fi 
-	install -cs netrek $(DESTDIR)$(BINDIR)
-
-install.alpha: netrek
-	rm -f $(ALPHADIR)/netrek.gz
-	install -cs -m 755 netrek $(ALPHADIR)
-	gzip -9 $(ALPHADIR)/netrek
-	install -c -m 644 README.rel $(ALPHADIR)/rel.README
-	./netrek -v | head -1 > $(ALPHADIR)/HEADER
-	chmod 644 $(ALPHADIR)/HEADER
+	install netrek $(DESTDIR)$(BINDIR)
 
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt
