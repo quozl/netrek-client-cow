@@ -13,18 +13,18 @@ PACKAGE=netrek-client-cow
 VERSION=$(shell ./name)
 DVERSION=$(shell head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\))
 
-all: netrek 
+all: netrek-client-cow
 
-netrek: system.mk netrekI
+netrek-client-cow: system.mk netrekI
 
 netrekI::
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) netrek
+	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) netrek-client-cow
 
 netrek.shared: name system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) S=SHARED netrek.shared
 
 profile:
-	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" KEYDEF=$(KEYDEF) netrek
+	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" KEYDEF=$(KEYDEF) netrek-client-cow
 
 convert: mkkey $(KEYFILE) $(KEYSH)
 	./mkkey -h $(KEYSH) $(KEYFILE) "Client Of Win" \
@@ -41,9 +41,9 @@ clean:
 	rm -f *.o $(OBJ) $(SHAREDTARGET)
 
 reallyclean: clean
-	rm -f netrek randomize mkkey rsa_box*.c name mkcflags \
-	config.h system.mk config.status config.log config.cache key.mail null \
-	netrek.shared lib*
+	rm -f netrek-client-cow randomize mkkey rsa_box*.c name mkcflags \
+	config.h system.mk config.status config.log config.cache key.mail \
+	null netrek.shared lib*
 
 distclean: clean reallyclean
 
@@ -69,20 +69,20 @@ distdoc: name XTREKRC
 	tar cvf - $(PACKAGE)-$(VERSION).doc | gzip -9 > $(PACKAGE)-$(VERSION).doc.tar.gz
 	rm -rf $(PACKAGE)-$(VERSION).doc
 
-distbin: name netrek
-	-strip netrek
+distbin: name netrek-client-cow
+	-strip netrek-client-cow
 	-rm -f $(PACKAGE)-$(VERSION).$(ARCH)
-	cp netrek $(PACKAGE)-$(VERSION).$(ARCH)
+	cp netrek-client-cow $(PACKAGE)-$(VERSION).$(ARCH)
 	-rm -f $(PACKAGE)-$(VERSION).$(ARCH).gz
 	gzip -9 $(PACKAGE)-$(VERSION).$(ARCH)
 
-distkey: netrek $(KEYFILE)
+distkey: netrek-client-cow $(KEYFILE)
 	echo "This is an automatic generated mail." >key.mail
 	echo "Please add the following $(ARCH) COW key to the metaserver:" >>key.mail
 	echo "" >>key.mail
 	cat $(KEYFILE) >>key.mail
 	echo "" >>key.mail
-	./netrek -v >>key.mail
+	./netrek-client-cow -v >>key.mail
 	cat key.mail | $(MAIL) $(KEYGOD)
 
 name: name.c version.h patchlevel.h
@@ -122,8 +122,8 @@ to_unix: system.mk
 to_dos: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
 
-install: netrek
-	install netrek $(DESTDIR)$(BINDIR)
+install: netrek-client-cow
+	install netrek-client-cow $(DESTDIR)$(BINDIR)
 
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt
