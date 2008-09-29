@@ -1,8 +1,16 @@
-Sat Sep 27 20:01:36 2008  James Cameron  <quozl@us.netrek.org>
+Mon Sep 29 14:28:07 2008  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.2.8: released
+
+	- change of binary name, from netrek to netrek-client-cow.
 
 	- COPYING: copyright and license review.
 
-Tue Sep 16 16:10:18 2008  James Cameron  <quozl@us.netrek.org>
+	- remove Java and Windows support.
+
+	- remove debian/ directory from .tar.gz.
+
+	- add mkportable script.
 
 	- placing mouse in message composition window and typing did not
 	behave in the historical fashion, the keystrokes were handled by
