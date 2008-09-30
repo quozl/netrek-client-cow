@@ -108,7 +108,7 @@ SDL_MIXER_LIBS	= @SDL_MIXER_LIBS@
 # full screen support
 XXF86VM_LIBS    = -lXxf86vm
 # camera snapshot support
-IMLIB2_LIBS     = -lImlib2
+IMLIB2_LIBS     = $(shell imlib2-config --libs)
 
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(MPINC) $(INCS)
