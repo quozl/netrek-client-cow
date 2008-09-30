@@ -27,7 +27,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-878a7f85e8d7f4c619f69192d36ad564  netrek-client-cow-3.2.7.tar.gz
+e8abc39e8aeaefda6ebe56cda7fc6b24  netrek-client-cow-3.2.8.tar.gz
 
 # test build the .tar.gz
 cd /tmp
@@ -35,9 +35,10 @@ tar xfv netrek-client-cow-${VERSION}.tar.gz
 cd netrek-client-cow-${VERSION}
 ./configure
 make
-./netrek
+./netrek-client-cow
 
 # release
+cd /tmp
 cp netrek-client-cow-${VERSION}.tar.gz ~/public_html/external/mine/netrek/
 cd ~/public_html/external/
 . to-au
