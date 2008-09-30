@@ -4,7 +4,7 @@
 # Store this file along with you secret key file for further use.          #
 ############################################################################
 
-ARCH 		= unix
+ARCH 		= linux
 
 #
 # NOTE: If you have to make a key from keys.h then after you have changed
@@ -14,9 +14,9 @@ ARCH 		= unix
 
 KEYSH 		= keys.h
 KEYNAME 	= $(ARCH)
-DESC 		= "$(ARCH) / Sample key"
-MAKER 		= "007@netrek.org"
-COMMENT 	= "reserved.c blessed. Located via http at cow.netrek.org"
+DESC 		= "automatic packaged key"
+MAKER 		= "quozl@us.netrek.org"
+COMMENT 	= "netrek.org/files/COW/"
 
 # If you have already an valid RSA key change the name of the file below.
 # Otherwise make will automaticaly generate one for you.
