@@ -1,26 +1,8 @@
-
-
-
 /* struct.h for the client of an xtrek socket protocol.
  * 
  * Most of the unneeded stuff in the structures has been thrown away.
  *
- * $Log: struct.h,v $
- * Revision 1.5  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.4  2006/05/16 06:20:18  quozl
- * add PLCORE
- *
- * Revision 1.3  2002/06/21 00:26:03  quozl
- * fix description of PFOBSERV
- *
- * Revision 1.2  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "copyright.h"
 
 #ifndef _h_struct
