@@ -47,6 +47,7 @@ void openmem(void)
   mctl = universe.mctl;
   messages = universe.messages;
   context = universe.context;
+  context->gameup = GU_UNSAFE;
   for (i = 0; i < MAXPLAYER; i++)
     {
       players[i].p_status = PFREE;
