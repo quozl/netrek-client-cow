@@ -120,7 +120,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	      !strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
 	      printf("dmessage:flags==team PIG call from=%d\n", from);
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	}
 
@@ -138,7 +138,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
 	      printf("dmessage:MINDIV PIG call from=%d\n", from);
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	}
       else
@@ -149,7 +149,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	  W_WriteText(messwa, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	}
       W_WriteText(reviewWin, 0, 0, color, message, len, 0);
@@ -192,7 +192,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	  W_WriteText(messwt, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	  if (logmess)
 	    {
@@ -214,7 +214,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	    W_WriteText(messwi, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	  if (logmess)
 	    {
@@ -235,7 +235,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
 	  W_WriteText(messwa, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(cowid, from, MINDIV);
 	    }
 	  if (logmess)
 	    {

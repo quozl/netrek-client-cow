@@ -645,6 +645,7 @@ int     cowmain(char *server, int port, char *name)
 
   initDefaults(deffile);
   identityBlind = booleanDefault("identityBlind", identityBlind);
+  versionHide = booleanDefault("versionHide", versionHide);
 
   xtrekPort = port;
   if (server)

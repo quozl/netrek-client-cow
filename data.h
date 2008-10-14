@@ -586,4 +586,5 @@ extern int portSwap;
 extern int F_show_all_tractors;
 extern int fastGuest;
 extern int identityBlind;
+extern int versionHide;
 #endif /* _h_data */
