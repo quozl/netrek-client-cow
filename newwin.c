@@ -384,13 +384,13 @@ void mapAll(void)
     W_MapWindow(rankw);
   if (checkMapped("help"))
     W_MapWindow(helpWin);
-  if (checkMapped("review_all"))
+  if (checkMapped("review_all") && !identityBlind)
     W_MapWindow(messwa);
-  if (checkMapped("review_team"))
+  if (checkMapped("review_team") && !identityBlind)
     W_MapWindow(messwt);
-  if (checkMapped("review_your"))
+  if (checkMapped("review_your") && !identityBlind)
     W_MapWindow(messwi);
-  if (checkMapped("review_kill"))
+  if (checkMapped("review_kill") && !identityBlind)
     W_MapWindow(messwk);
   if (checkMapped("netstat"))
     nswindow(netstatWin);
@@ -405,7 +405,7 @@ void mapAll(void)
     }
   if (checkMappedPref("player", 1))
     W_MapWindow(playerw);
-  if (checkMappedPref("review", 1))
+  if (checkMappedPref("review", 1) && !identityBlind)
     W_MapWindow(reviewWin);
   if (checkMapped("UDP"))
     udpwindow();

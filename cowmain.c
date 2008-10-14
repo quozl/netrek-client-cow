@@ -644,6 +644,7 @@ int     cowmain(char *server, int port, char *name)
   SRANDOM(time(0));
 
   initDefaults(deffile);
+  identityBlind = booleanDefault("identityBlind", identityBlind);
 
   xtrekPort = port;
   if (server)
@@ -792,7 +793,6 @@ int     cowmain(char *server, int port, char *name)
 
   loggedIn = 1;
   phaserWindow = booleanDefault("phaserWindow", phaserWindow);
-  identityBlind = booleanDefault("identityBlind", identityBlind);
 
 #ifdef AUTOKEY
   /* autokey.c */
