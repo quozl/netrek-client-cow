@@ -792,6 +792,7 @@ int     cowmain(char *server, int port, char *name)
 
   loggedIn = 1;
   phaserWindow = booleanDefault("phaserWindow", phaserWindow);
+  identityBlind = booleanDefault("identityBlind", identityBlind);
 
 #ifdef AUTOKEY
   /* autokey.c */

@@ -2511,9 +2511,15 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
 
   pl = &players[p_no];
 
-  strcpy(pl->p_name, packet->name);
-  strcpyp_return(pl->p_monitor, packet->monitor, sizeof(pl->p_monitor));
-  strcpy(pl->p_login, packet->login);
+  if (identityBlind) {
+    strcpy(pl->p_name, "");
+    strcpy(pl->p_monitor, "");
+    strcpy(pl->p_login, "");
+  } else {
+    strcpy(pl->p_name, packet->name);
+    strcpyp_return(pl->p_monitor, packet->monitor, sizeof(pl->p_monitor));
+    strcpy(pl->p_login, packet->login);
+  }
   pl->p_stats.st_rank = packet->rank;
 
   if (p_no == me->p_no)
