@@ -27,6 +27,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
+fc88442fa81dc40c6cb65a6ebf0b994b  netrek-client-cow-3.2.9.tar.gz
 
 # test build the .tar.gz
 cd /tmp
@@ -46,12 +47,7 @@ http://quozl.linux.org.au/netrek/
 # orion upload
 
 # sf.net upload
-ftp -n upload.sourceforge.net <<EOF
-user anonymous quozl@us.netrek.org
-cd incoming
-passive
-hash
-put netrek-client-cow-${VERSION}.tar.gz 
-EOF
+rsync -avP netrek-client-cow-${VERSION}.tar.gz quozl@frs.sf.net:uploads/
+http://sourceforge.net/projects/netrek
 
 # packaging
