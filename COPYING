@@ -1,4 +1,4 @@
-Copyright review of netrek-client-cow-3.2.8 by James Cameron on 2008-09-27
+Copyright review of netrek-client-cow-3.2.9 by James Cameron on 2009-01-05.
 
 1.  copyright.h, 1986 Chris Guthrie, 1989 Kevin P. Smith, Scott
     Silvey, 1993 Kevin Powell, Nick Trown, Jeff Nelson, Kurt Siegl,
@@ -8,7 +8,7 @@ Copyright review of netrek-client-cow-3.2.8 by James Cameron on 2008-09-27
 
 3.  cowapi.h, 1996 Kurt Siegl,
 
-4.  dashboard.c, dashboard3.c, 1993 Lars Bernhardsson,
+4.  dashboard.c, dashboard3.c, 1993 1996 Lars Bernhardsson,
 
 5.  helpwin.c, defwin.c (derived), 1991 Eric Mehlhaff,
 
