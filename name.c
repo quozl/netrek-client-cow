@@ -26,10 +26,6 @@ main (int argc, char **argv)
 
   printf ("%s.%d", mvers, PATCHLEVEL);
 
-#ifdef ALPHACODER
-  printf (".%s(%s)", ALPHACODER, ALPHAREF);
-#endif
-
   printf ("\n");
   exit(0);
 }

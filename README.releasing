@@ -4,7 +4,7 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.2.8
+export VERSION=3.2.9
 
 # update version.h patchlevel.h cow.spec
 
@@ -27,7 +27,6 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-e8abc39e8aeaefda6ebe56cda7fc6b24  netrek-client-cow-3.2.8.tar.gz
 
 # test build the .tar.gz
 cd /tmp

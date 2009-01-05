@@ -135,13 +135,6 @@ pigcallresp (pigcall, cdate, arch)
   strcat (pigcall, "-STABLE");
 #endif
 
-#ifdef ALPHACODER
-  strcat (pigcall, ", Alpha ver. ");
-  strcat (pigcall, ALPHACODER);
-  strcat (pigcall, "-");
-  strcat (pigcall, ALPHAREF);
-#endif
-
   return (pigcall);
 }
 
