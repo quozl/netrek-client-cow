@@ -58,6 +58,9 @@ void death(void)
   W_ClearWindow(w);
   W_ClearWindow(mapw);
   W_ClearWindow(iconWin);
+
+  sound_flags = PFSHIELD;
+
   if (oldalert != PFGREEN)
     {
       if (extraBorder)
@@ -188,6 +191,10 @@ void death(void)
       break;
     case TOURNSTART:
       strcpy(deathmessage, "The tournament game has begun!");
+
+#if defined(SOUND) && defined(sgi)
+	Play_Sound(BUZZER_SOUND);
+#endif
       break;
     case TOURNEND:
       strcpy(deathmessage, "The tournament game has ended.");

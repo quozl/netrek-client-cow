@@ -87,7 +87,10 @@ int
         pbmain(char *name)
 {
   int     i;
+
+#if 0 /* unused? */
   int     s_type;
+#endif
 
   char index_filename[FILENAME_MAX+1];
   char context_filename[FILENAME_MAX+1];
@@ -273,9 +276,12 @@ int
     return (i - RETURNBASE);			 /* Terminate with retcode */
 
 #if defined(SOUND)
-  /* text in sound.c:soundrefresh() says engine sound is not supported
-  Abort_Sound(ENGINE_SOUND);
-  */
+#if defined(sgi)
+	Engine_Sound(ENG_OFF);			/* Stop engine sound */
+#else
+	/* text in sound.c:soundrefresh() says engine sound is not supported
+	Abort_Sound(ENGINE_SOUND); */
+#endif
 #endif
 
 #ifdef nodef
@@ -315,10 +321,14 @@ int
     redrawPStats();
 
 #ifdef SOUND
-  Play_Sound(ENTER_SHIP_SOUND);
-  /* text in sound.c:soundrefresh() says engine sound is not supported
-  Play_Sound(ENGINE_SOUND);
-  */
+#if defined(sgi)
+	Engine_Sound(ENG_ON);
+#else
+	/* text in sound.c:soundrefresh() says engine sound is not supported
+	Play_Sound(ENGINE_SOUND);
+	*/
+#endif
+	Play_Sound(ENTER_SHIP_SOUND);
 #endif
 
 #ifdef HOCKEY_LINES
@@ -392,7 +402,7 @@ void
       case 'J': /* abort jump */
           jump_on = 0;
           playback = tmp_playback;
-          printf("Aborting jump.\n", jump_str);
+          printf("Aborting jump.\n");
           jump_str[0] = '\0';
           break;
       default: /* Done entering jump data when non-digit key hit. */
@@ -714,7 +724,10 @@ readFromFile0()
   int diskpos;
   int sequence_start_pos = -1;
   int sequence_num_context = 0;
+
+#if 0 /* unused? */
   int read_context = 0;
+#endif
 
 
   if (playback == PL_PAUSE)

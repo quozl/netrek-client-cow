@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef SOUND
+#if defined(SOUND) && !defined(sgi)
 #include <stdio.h>
 #include INC_UNISTD
 #include INC_STDLIB

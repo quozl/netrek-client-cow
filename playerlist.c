@@ -305,7 +305,10 @@ void    UpdatePlistFn()
     {
       /* Redraw the lines that have changed. */
 
-      update = updatePlayer - 1;
+#if defined(sgi)
+#pragma set woff 1167
+#endif
+      update = updatePlayer-1;
 
       for (;;)
 	{
@@ -528,7 +531,10 @@ static void WriteUnsortedPlist(void)
     }
 
 
-  update = updatePlayer - 1;
+#if defined(sgi)
+#pragma set woff 1167
+#endif
+	update = updatePlayer - 1;
 
   for (;;)
     {

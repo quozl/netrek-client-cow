@@ -100,6 +100,7 @@ extern struct memory universe;
 extern struct planet pdata[];
 
 extern int oldalert;
+extern unsigned int sound_flags;
 extern int remap[];
 extern int udcounter;
 extern char *title;

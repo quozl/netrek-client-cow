@@ -93,7 +93,7 @@ int     gen_distress = 0;			 /* generic distress/macro *
 						  * 
 						  * * system support */
 int     niftyNewMessages = 1;
-int     oldalert = 0;
+int     oldalert = PFGREEN;
 int     remap[16] =
 {0, 1, 2, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0};
 int     messpend = 0;
@@ -700,8 +700,8 @@ char   *bugURL = "http://bugzilla.us.netrek.org/cow?version=%s&pl=%i&arch=%s";
 #endif
 
 #ifdef SOUND
-int     sound_init = 1;
-int     sound_toggle = 0;
+int    sound_init = 1;
+int    sound_toggle = 0;
 char   *sounddir = NULL;
 W_Window soundWin = NULL;
 

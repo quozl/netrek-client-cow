@@ -723,7 +723,7 @@ int     cowmain(char *server, int port, char *name)
 
   resetdefaults();
 
-#if defined(SOUND) && defined(HAVE_SDL)
+#if defined(SOUND) && (defined(HAVE_SDL) || defined(sgi))
     Init_Sound();
 #endif
 
@@ -839,7 +839,7 @@ int     cowmain(char *server, int port, char *name)
   /* Moved SDL sound initialization to right after readdefaults() so
    * the intro can start playing ASAP 
    */
-#if defined(SOUND) && !defined(HAVE_SDL)
+#if defined(SOUND) && !defined(HAVE_SDL) && !defined(sgi)
   Init_Sound();
 #endif
 
@@ -870,9 +870,12 @@ int     cowmain(char *server, int port, char *name)
 #endif
 
 #if defined(SOUND)
+#if defined(sgi)
+      Engine_Sound(ENG_OFF);			/* turn off engine sound */
+#else
       /* text in sound.c:soundrefresh() says engine sound is not supported
-      Abort_Sound(ENGINE_SOUND);
-      */
+      Abort_Sound(ENGINE_SOUND); */
+#endif
 #endif
 
       /* give the player the motd and find out which team he wants */
@@ -922,10 +925,10 @@ int     cowmain(char *server, int port, char *name)
 	  sendByeReq();
 
 	  fprintf(stderr, "you quit\n");
+
 #if defined(SOUND)
 	  Exit_Sound();
 #endif
-
 	  if (logFile != NULL)
 	    fclose(logFile);
 
@@ -958,7 +961,10 @@ int     cowmain(char *server, int port, char *name)
       W_ClearWindow(w);
       /* for (i = 0; i < NSIG; i++) { (void) SIGNAL(i, SIG_IGN); } */
 
-      me->p_status = PALIVE;			 /* Put player in game */
+      me->p_flags &= ~(PFYELLOW | PFRED | PFENG);	/* Reset flags to avoid sounds */
+      me->p_flags |= PFGREEN | PFSHIELD;		/* ... from previous alerts */
+      me->p_status = PALIVE;				/* Put player in game */
+
       PlistNoteUpdate(me->p_no);
 
       if (showStats)				 /* Default showstats are on. 
@@ -1000,10 +1006,14 @@ int     cowmain(char *server, int port, char *name)
       DisplayMessage();
 
 #ifdef SOUND
-      Play_Sound(ENTER_SHIP_SOUND);
+#if defined(sgi)
+	Engine_Sound(ENG_ON);
+#else
       /* text in sound.c:soundrefresh() says engine sound is not supported
-      Play_Sound(ENGINE_SOUND);
-      */
+      Play_Sound(ENGINE_SOUND); */
+#endif
+
+      Play_Sound(ENTER_SHIP_SOUND);
 #endif
 
 #ifdef HOCKEY_LINES

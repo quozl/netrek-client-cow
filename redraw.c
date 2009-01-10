@@ -18,138 +18,117 @@
 #include "map.h"
 #include "redraw.h"
 
-void    redrawTstats(void);
-
-
-static unsigned short milli_time = 0;
+static void stline(int flag);
+static void updateMaxStats(int redraw);
 
 static time_t lastread;
 static int needredraw = 0;
 static unsigned long lastredraw = 0;
 
-intrupt(fd_set * readfds)
-{
-  time_t  time(time_t *);
-  unsigned long t;
+void intrupt(fd_set *readfds) {
+	time_t  time(time_t *);
+	unsigned long t;
 
-  udcounter++;
+	udcounter++;
 
 #ifdef RECORDGAME
-  if (playback)
-    needredraw |= readFromFile();
-  else
+	if (playback)
+		needredraw |= readFromFile();
+	else
 #endif
+	needredraw |= readFromServer(readfds);
 
-    needredraw |=
+	t = msetime();
+	if (needredraw && (t >= lastredraw + redrawDelay * 100)) {
+		lastredraw = t;
+		needredraw = 0;
+		lastread = time(NULL);
+		redraw();
 
-	readFromServer(readfds);
-
-  t = msetime();
-  if (needredraw && (t >= lastredraw + redrawDelay * 100))
-    {
-      lastredraw = t;
-      needredraw = 0;
-      lastread = time(NULL);
-      redraw();
-
-      updateMaxStats(0);			 /* Update the max stats * *
-						  * <isae> */
+		updateMaxStats(0);	/* update the max stats <isae> */
 
 #ifdef WIN32
-      W_FlushScrollingWindow(messwa);
-      W_FlushScrollingWindow(messwt);
-      W_FlushScrollingWindow(messwi);
-      W_FlushScrollingWindow(messwk);
-      W_FlushScrollingWindow(reviewWin);
-      W_FlushScrollingWindow(phaserwin);
+		W_FlushScrollingWindow(messwa);
+		W_FlushScrollingWindow(messwt);
+		W_FlushScrollingWindow(messwi);
+		W_FlushScrollingWindow(messwk);
+		W_FlushScrollingWindow(reviewWin);
+		W_FlushScrollingWindow(phaserwin);
 #endif
+		UpdatePlayerList();
+	}
 
-      UpdatePlayerList();
-    }
+	if (reinitPlanets) {
+		initPlanets();
+		reinitPlanets = 0;
+	}
 
-  if (reinitPlanets)
-    {
-      initPlanets();
-      reinitPlanets = 0;
-    }
-
-  if (me->p_status == POUTFIT)
-    {
-      death();
-    }
+	if (me->p_status == POUTFIT) {
+		death();
+	}
+#if defined(SOUND) && defined(sgi)
+	  else
+		Engine_Sound(me->p_speed, me->p_ship.s_maxspeed);
+#endif
+	return;
 }
 
-redraw(void)
-{
-  /* erase warning line if necessary */
-  if ((warntimer <= udcounter) && (warncount > 0))
-    {
-      /* XFIX */
-      W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
-      warncount = 0;
-    }
+void redraw(void) {
+	/* erase warning line if necessary */
+	if ((warntimer <= udcounter) && (warncount > 0)) {	/* XFIX */
+		W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
+		warncount = 0;
+	}
 
-  run_clock(lastread);				 /* for hosers who don't know
-						  * * * what a Xclock is */
-  clearLocal();
+	run_clock(lastread);		/* for hosers who don't know what a Xclock is */
+	clearLocal();
 
 #ifdef BEEPLITE
-  if (tts_timer)
-    {
-      static int last_width;
+	if (tts_timer) {
+		static int last_width;
 
-      tts_timer--;
-      if (!tts_timer)
-	{
-	  /* timed out */
-	  W_EraseTTSText(w, TWINSIDE, tts_pos, last_width);
-	  last_width = 0;
+		tts_timer--;
+		if (!tts_timer) {	/* timed out */
+			W_EraseTTSText(w, TWINSIDE, tts_pos, last_width);
+			last_width = 0;
+		} else if (tts_timer == tts_time - 1 && last_width) {
+			/* first draw -- erase previous */
+			W_EraseTTSText(w, TWINSIDE, tts_pos, last_width);
+			/* draw new */
+			W_WriteTTSText(w, TWINSIDE, tts_pos, tts_width, lastIn, tts_len);
+			last_width = tts_width;
+		} else {		/* regular draw */
+			W_WriteTTSText(w, TWINSIDE, tts_pos, tts_width, lastIn, tts_len);
+			last_width = tts_width;
+		}
 	}
-      else if (tts_timer == tts_time - 1 && last_width)
-	{
-	  /* first draw -- erase previous */
-	  W_EraseTTSText(w, TWINSIDE, tts_pos, last_width);
-	  /* draw new */
-	  W_WriteTTSText(w, TWINSIDE, tts_pos, tts_width, lastIn,
-			 tts_len);
-	  last_width = tts_width;
-	}
-      else
-	{
-	  /* regular draw */
-	  W_WriteTTSText(w, TWINSIDE, tts_pos, tts_width, lastIn, tts_len);
-	  last_width = tts_width;
-	}
-    }
 #endif
 
-  local();					 /* redraw local window */
+	local();			/* redraw local window */
+	W_FlushLineCaches(w);		/* XFIX */
 
-  /* XFIX */
-  W_FlushLineCaches(w);
+	if (newDashboard)		/* 6/2/93 LAB */
+		if (newDashboard == old_db)
+			db_redraw(0);
+		else
+			redrawTstats();
 
-  if (newDashboard)				 /* 6/2/93 LAB */
-    if (newDashboard == old_db)
-      db_redraw(0);
-    else
-      redrawTstats();
-  else if (newDashboard == old_db)
-    stline(0);
-  else
-    redrawTstats();
+	else if (newDashboard == old_db)
+		stline(0);
+	else
+		redrawTstats();
 
-  old_db = newDashboard;
+	old_db = newDashboard;
 
-  if (W_IsMapped(statwin))
-    updateStats();
+	if (W_IsMapped(statwin))
+		updateStats();
 
-  /* XFIX: last since its least accurate information */
-  map();
+	/* XFIX: last since its least accurate information */
+	map();
+	return;
 }
 
-
-stline(int flag)
-{
+static void stline(int flag) {
   static char buf1[80];
   static char buf2[80];
   static char whichbuf = 0;
@@ -353,24 +332,19 @@ stline(int flag)
  * return ((unsigned char) nint(atan2((double) (x - me->p_x), (double)
  * (me->p_y - y)) / 3.14159 * 128.)); } */
 
-void    redrawTstats(void)
-{
-  if (newDashboard)				 /* 6/2/93 LAB */
-    db_redraw(1);
-  else
-    {
-      W_ClearWindow(tstatw);
-      stline(1);				 /* This is for refresh. We * 
-						  * 
-						  * * redraw player stats too 
-						  */
-      updateMaxStats(1);			 /* <isae> Seperated it */
-    }
+void redrawTstats(void) {
+	if (newDashboard)		/* 6/2/93 LAB */
+		db_redraw(1);
+	else {
+		W_ClearWindow(tstatw);
+		stline(1);		/* This is for refresh. We redraw player stats too */
+		updateMaxStats(1);	/* <isae> Seperated it */
+	}
+	return;
 }
 
 /* update stat window record for max speed, army capacity */
-updateMaxStats(int redraw)
-{
+static void updateMaxStats(int redraw) {
   char    buf[BUFSIZ];
   static int lastdamage = -1;
   static int lastkills = -1;
