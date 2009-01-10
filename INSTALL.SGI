@@ -1,0 +1,178 @@
+Contributed by Stefan Stapelberg <stefan@RENT-A-GURU.DE> on 2009-01-10
+
+Please find attached the patches to the netrek sound extension for
+SGIs.  I have used the AL (audio library) so that I will work on any
+IRIX version from 5.2 to 6.5. I have also modified some
+sound-unrelated files to have a defined state for the sound engine
+after entering the game (e.g. green alert, etc.).
+
+The commands I use to configure the Makefile for netrek on SGI systems
+are:
+
+export ac_cv_lib_sun=no ac_cv_lib_sun_getpwnam=no
+ac_cv_lib_sun_getmntent=no ac_cv_lib_sun_yp_match=noexport
+export ac_cv_lib_gen_getmntent=no ac_cv_lib_socket=no
+ac_cv_lib_socket_main=no
+
+export CC=cc
+export CFLAGS="-n32 -mips4 -xansi -TARG:platform=IP27:proc=r10000 -O3
+-OPT:Olimit=2000:roundoff=3:fast_io=ON -IPA:aggr_cprop=ON
+-INLINE:dfe=ON:list=OFF"
+export LDFLAGS="-n32 -mips4 -IPA:aggr_cprop=ON -INLINE:dfe=ON:list=OFF
+-no_unresolved"
+
+./configure -C \
+        --prefix=/usr/local/games/netrek \
+        --with-x
+
+*** netrek-client-cow-3.2.8/system.mk	Mon Dec 01 01:09:56 CET 2008
+--- netrek-client-cow-3.2.8-sgi/system.mk	Fri Dec 19 22:35:06 CET 2008
+***************
+*** 4,10 ****
+  ############################################################################
+  
+  SHELL	= /bin/sh
+! CC      = cc -n32 -mips4 -xansi
+  LN	= ln -s
+  
+  PROTOIZE   = protoize
+--- 4,10 ----
+  ############################################################################
+  
+  SHELL	= /bin/sh
+! CC      = cc
+  LN	= ln -s
+  
+  PROTOIZE   = protoize
+***************
+*** 31,43 ****
+  
+  # Other libraries neeeded. (All systems need -lX11 -lm)
+  
+! LIBS            =   -lXpm -lX11 -lm 
+  INCS		=  
+  
+  # Flags for optimizing
+  # (-O, -g, -O2)
+  
+! #OPT             = 
+  
+  # Flags for shared libraries
+  
+--- 31,43 ----
+  
+  # Other libraries neeeded. (All systems need -lX11 -lm)
+  
+! LIBS            = -lXpm -lX11 -lm -laudio -laudiofile
+  INCS		=  
+  
+  # Flags for optimizing
+  # (-O, -g, -O2)
+  
+! #OPT             = -g -Wall
+  
+  # Flags for shared libraries
+  
+***************
+*** 94,101 ****
+  MAINOBJ 	= main.o
+  MAINSRC 	= main.c
+  
+! X11OBJ	 	=  x11window.o x11sprite.o audio.o
+! X11SRC		=  x11window.c x11sprite.c audio.c
+  
+  WIN32OBJ	= # gnu_win32.o winsprite.o winsndlib.o
+  WIN32SRC	= # gnu_win32.c winsprite.c winsndlib.c
+--- 94,101 ----
+  MAINOBJ 	= main.o
+  MAINSRC 	= main.c
+  
+! X11OBJ	 	=  audio.o x11window.o x11sprite.o
+! X11SRC		=  audio.c x11window.c x11sprite.c
+  
+  WIN32OBJ	= # gnu_win32.o winsprite.o winsndlib.o
+  WIN32SRC	= # gnu_win32.c winsprite.c winsndlib.c
+***************
+*** 113,119 ****
+  SHARED 	= $(SL_CFLAGS)
+  INCDIRS = $(MPINC) $(INCS)
+  CFLAGS = $(OPT) $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
+! LFLAGS = -g $(EXTRALINKFLAGS)
+  LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
+  
+  netrek-client-cow: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
+--- 113,119 ----
+  SHARED 	= $(SL_CFLAGS)
+  INCDIRS = $(MPINC) $(INCS)
+  CFLAGS = $(OPT) $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
+! LFLAGS = $(EXTRALINKFLAGS)
+  LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
+  
+  netrek-client-cow: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
+***************
+*** 131,162 ****
+  	$(TOUCH) done.libcow
+  
+  #rsa_box.c: mkkey $(SECKEYFILE)
+! $(RSASRC): mkkey $(SECKEYFILE)
+! 	-$(RM) $(RSASRC)
+! 	./mkkey -c -k $(SECKEYFILE)
+! 	$(TOUCH) $(RSASRC)
+! 	@echo "int sock = -1;" >>rsa_box_1.c
+! 
+! $(SECKEYFILE):
+! 	@echo WARNING: No keyfile found, generating a new key.
+! 	@echo "         You have 5 seconds time to abort"
+! 	sleep 5
+! 	$(MAKE) newkey
+  
+  mkkey: mkkey.c $(RANDOMOBJ) defs.h
+  	$(CC) $(CFLAGS) $(MPINC) $(MPLIB) -o mkkey mkkey.c $(RANDOMOBJ) $(LIBRARIES)
+  
+  randomize: randomize.c $(RANDOMOBJ) defs.h
+! 	$(CC) $(OPT) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
+  
+  sound.o: sound.c
+! 	$(CC) $(SDL_CFLAGS) -c sound.c
+  
+  random.o: random.c
+! 	$(CC) -c -O random.c
+  
+  strdup.o: strdup.c
+! 	$(CC) -c -O strdup.c
+  
+  cflags.c: mkcflags
+  	./mkcflags "$(CC) $(CFLAGS)" "$(ARCH)"  > cflags.c
+--- 131,162 ----
+  	$(TOUCH) done.libcow
+  
+  #rsa_box.c: mkkey $(SECKEYFILE)
+! #$(RSASRC): mkkey $(SECKEYFILE)
+! #	-$(RM) $(RSASRC)
+! #	./mkkey -c -k $(SECKEYFILE)
+! #	$(TOUCH) $(RSASRC)
+! #	@echo "int sock = -1;" >>rsa_box_1.c
+! #
+! #$(SECKEYFILE):
+! #	@echo WARNING: No keyfile found, generating a new key.
+! #	@echo "         You have 5 seconds time to abort"
+! #	sleep 5
+! #	$(MAKE) newkey
+  
+  mkkey: mkkey.c $(RANDOMOBJ) defs.h
+  	$(CC) $(CFLAGS) $(MPINC) $(MPLIB) -o mkkey mkkey.c $(RANDOMOBJ) $(LIBRARIES)
+  
+  randomize: randomize.c $(RANDOMOBJ) defs.h
+! 	$(CC) $(CFLAGS) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
+  
+  sound.o: sound.c
+! 	$(CC) $(CFLAGS) -c sound.c
+  
+  random.o: random.c
+! 	$(CC) $(CFLAGS) -c random.c
+  
+  strdup.o: strdup.c
+! 	$(CC) $(CFLAGS) -c strdup.c
+  
+  cflags.c: mkcflags
+  	./mkcflags "$(CC) $(CFLAGS)" "$(ARCH)"  > cflags.c
