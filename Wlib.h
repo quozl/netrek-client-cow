@@ -117,6 +117,7 @@ extern void W_SetIconWindow (W_Window main, W_Window icon);
 extern void W_CacheLine(W_Window, int, int, int, int, int);
 extern void W_MakeTractLine(W_Window, int, int, int, int, W_Color);
 extern void W_MakePhaserLine(W_Window, int, int, int, int, W_Color);
+extern void W_WriteCircle(W_Window, int, int, int, W_Color);
 extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_CacheClearArea(W_Window, int, int, int, int);
 extern void W_FlushClearAreaCache(W_Window);

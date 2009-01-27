@@ -14,9 +14,10 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "netstat.h"
+#include "netstatopt.h"
 
-
-nswindow(void)
+void nswindow(void)
 {
   register int i;
 
@@ -28,7 +29,7 @@ nswindow(void)
 }
 
 /* Refresh item i */
-nsrefresh(int i)
+void nsrefresh(int i)
 {
   double  ns_get_tstat(void), ns_get_lstat(void);
   char    buf[BUFSIZ], *ns_get_nfthresh_s(void);
@@ -164,7 +165,7 @@ void    nsaction(W_Event * data)
     }
 }
 
-nsdone(void)
+void nsdone(void)
 {
   /* Unmap window */
   W_UnmapWindow(netstatWin);

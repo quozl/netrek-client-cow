@@ -20,6 +20,8 @@
 
 #include "lagmeter.h"
 #include "netstat.h"
+#include "netstatopt.h"
+#include "interface.h"
 
 /* #define NETDEBUG */
 
