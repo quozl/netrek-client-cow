@@ -35,6 +35,7 @@
 #include "spopt.h"
 #include "defs.h"
 #include "playerlist.h"
+#include "playback.h"
 
 #ifdef RECORDGAME
 extern int opened_info;				 /* counter for infowin *

@@ -13,10 +13,16 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "playback.h"
 #include "playerlist.h"
 #include "local.h"
 #include "map.h"
+#include "socket.h"
+#include "interface.h"
 #include "redraw.h"
+#include "death.h"
+#include "dashboard.h"
+#include "stats.h"
 
 static void stline(int flag);
 static void updateMaxStats(int redraw);

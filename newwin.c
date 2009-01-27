@@ -37,6 +37,7 @@
 #include "redraw.h"
 #include "udpopt.h"
 #include "cowmain.h"
+#include "death.h"
 
 extern char cbugs[];
 

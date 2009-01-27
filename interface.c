@@ -1,19 +1,9 @@
-
 /* interface.c
  * 
  * This file will include all the interfaces between the input routines and the
  * daemon.  They should be useful for writing robots and the like
  *
- * $Log: interface.c,v $
- * Revision 1.3  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.2  1999/07/24 19:23:43  siegl
- * New default portSwap for UDP_PORTSWAP feature
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright.h"
 
@@ -29,6 +19,7 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "interface.h"
 
 set_speed(int speed)
 {
@@ -183,7 +174,7 @@ unsigned long msetime(void)
 #endif
 }
 
-run_clock(time_t curtime)
+void run_clock(time_t curtime)
 {
   char    timebuf[9];
   struct tm *tm;
