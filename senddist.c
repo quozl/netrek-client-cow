@@ -15,8 +15,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-
-
+#include "smessage.h"
 
 /* this loads all sorts of useful data into a distress struct. */
 struct distress *

@@ -36,6 +36,7 @@
 #include "newwin.h"
 #include "redraw.h"
 #include "udpopt.h"
+#include "cowmain.h"
 
 extern char cbugs[];
 

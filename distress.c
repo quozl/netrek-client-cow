@@ -94,9 +94,6 @@ extern char *shiptypes[];
 #define warning(x)      fprintf(stderr,x)
 #endif
 
-
-char   *getaddr(char who), *getaddr2(int flags, int recip);
-
 #ifdef RCM
 extern char *whydeadmess[];
 

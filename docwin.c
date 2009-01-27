@@ -26,6 +26,7 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "cowmain.h"
 
 										/* #ifndef 
 										 * _IBMR2 

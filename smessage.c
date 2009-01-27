@@ -449,8 +449,7 @@ char   *
     }
 }
 
-char   *
-        getaddr2(int flags, int recip)
+char *getaddr2(int flags, int recip)
 {
   static char addrmesg[ADDRLEN];
 
