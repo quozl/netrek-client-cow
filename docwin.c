@@ -1,25 +1,8 @@
-
-/*
- * $Log: docwin.c,v $
- * Revision 1.2  2001/04/28 04:05:27  quozl
- * remove minor compiler warning.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
-
 #include "config.h"
 #include "copyright.h"
 
 #include <stdio.h>
-#include <math.h>
-#include <signal.h>
-#include <sys/types.h>
-
-#include <time.h>
-#include INC_SYS_TIME
-#include INC_SYS_SELECT
-#include INC_STRINGS
+#include <stdlib.h>
 
 #include "Wlib.h"
 #include "defs.h"
@@ -27,24 +10,8 @@
 #include "data.h"
 #include "packets.h"
 #include "cowmain.h"
-
-										/* #ifndef 
-										 * _IBMR2 
-										 * char 
-										 * *malloc 
-										 * (size_t); 
-										 * #else 
-										 * void 
-										 * *malloc 
-										 * (size_t); 
-										 * #endifi 
-																				 *//* _
-																				 * *
-																				 * *
-																				 * *
-																				 * IBMR2 
-																				 * 
-																				 */
+#include "defaults.h"
+#include "docwin.h"
 
 extern char cbugs[];
 
@@ -62,9 +29,10 @@ struct list
 static struct list *docdata = NULL;
 static struct list *xtrekrcdata = NULL;
 
-showdocs(int atline)
+char *malloc_fail = "Warning: couldn't malloc space for a new doc line!\n";
+
+void showdocs(int atline)
 {
-  FILE   *fptr;
   int     i, length, top, center;
   struct list *data;
   int     count;
@@ -84,7 +52,7 @@ showdocs(int atline)
   length = strlen(buf);
 
   /* using GWINSIDE instead of TWINSIDE because with SMALL_SCREEN defined it
-   * * makes more sense to use the smaller width in the interest of saving *
+   * makes more sense to use the smaller width in the interest of saving
    * screen real estate */
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(docwin, center, W_Textheight, textColor,
@@ -116,8 +84,7 @@ showdocs(int atline)
       data = data->next;
     }
 
-  count = 28;					 /* Magical # of lines to * * 
-						  * display */
+  count = 28;		/* Magical # of lines to display */
 
   for (i = top; i < 50; i++)
     {
@@ -151,7 +118,7 @@ showdocs(int atline)
     }
 }
 
-loaddocs(void)
+void loaddocs(void)
 {
   FILE   *fptr;
   struct list *temp = NULL;
@@ -172,9 +139,8 @@ loaddocs(void)
   temp = (struct list *) malloc(sizeof(struct list));
 
   if (temp == NULL)
-    {						 /* malloc error checking --
-						  * * * 10/30/92 EM */
-      printf("Warning:  Couldn't malloc space for a new doc line!");
+    { /* malloc error checking -- 10/30/92 EM */
+      printf(malloc_fail);
       return;
     }
 
@@ -216,9 +182,8 @@ loaddocs(void)
       temp->next = (struct list *) malloc(sizeof(struct list));
 
       if (temp->next == NULL)
-	{					 /* malloc error checking --
-						  * * * 10/30/92 EM */
-	  printf("Warning:  Couldn't malloc space for a new doc line!");
+	{ /* malloc error checking -- 10/30/92 EM */
+	  printf(malloc_fail);
 	  return;
 	}
 
@@ -233,9 +198,8 @@ loaddocs(void)
 }
 
 
-showxtrekrc(int atline)
+void showxtrekrc(int atline)
 {
-  FILE   *fptr;
   int     i, length, top, center;
   struct list *data;
   int     count;
@@ -283,8 +247,7 @@ showxtrekrc(int atline)
       data = data->next;
     }
 
-  count = 28;					 /* Magical # of lines to * * 
-						  * display */
+  count = 28;		/* Magical # of lines to display */
 
   for (i = top; i < 50; i++)
     {
@@ -318,7 +281,7 @@ showxtrekrc(int atline)
     }
 }
 
-loadxtrekrc(void)
+void loadxtrekrc(void)
 {
   FILE   *fptr;
   struct list *temp = NULL;
@@ -342,9 +305,8 @@ loadxtrekrc(void)
   temp = (struct list *) malloc(sizeof(struct list));
 
   if (temp == NULL)
-    {						 /* malloc error checking --
-						  * * * 10/30/92 EM */
-      printf("Warning:  Couldn't malloc space for a new doc line!");
+    { /* malloc error checking -- 10/30/92 EM */
+      printf(malloc_fail);
       return;
     }
 
@@ -374,9 +336,8 @@ loadxtrekrc(void)
       temp->next = (struct list *) malloc(sizeof(struct list));
 
       if (temp->next == NULL)
-	{					 /* malloc error checking --
-						  * * * 10/30/92 EM */
-	  printf("Warning:  Couldn't malloc space for a new doc line!");
+	{ /* malloc error checking -- 10/30/92 EM */
+	  printf(malloc_fail);
 	  return;
 	}
 

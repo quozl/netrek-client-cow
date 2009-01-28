@@ -1,2 +1,2 @@
 /* warning.c */
-int warning(char *text);
+void warning(char *text);

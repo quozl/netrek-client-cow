@@ -3470,15 +3470,7 @@ W_ResizeMenu(W_Window window, int neww, int newh) /* TSH 2/93 */
 }
 
 void
-        W_ResizeTextWindow(W_Window window, int neww, int newh)		/* TSH 
-									 * 
-									 * *
-									 * 2/93 
-									 * 
-									 */
-
-
-
+        W_ResizeTextWindow(W_Window window, int neww, int newh) /* TSH 2/93 */
 {
   W_ResizeWindow(window, neww * W_Textwidth + WIN_EDGE * 2,
 		 newh * W_Textheight + WIN_EDGE * 2);

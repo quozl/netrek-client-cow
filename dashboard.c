@@ -54,7 +54,6 @@ void
         db_box(int x, int y, int w, int h, int f, int color)
 {
   int     border = W_White;
-  register int i;
 
   if (color == W_Red)
     border = color;
@@ -239,7 +238,6 @@ void
   register int cur_max;
   register int value;
   int     color;
-  struct player *plr;
   float   kills;
 
   if ((me->p_flags & (PFPLOCK | PFOBSERV)) == (PFPLOCK | PFOBSERV))
@@ -380,7 +378,7 @@ void    db_redraw_COW(int fr)
   static int old_arm = -1, old_cur_arm = -1;
   static int old_wpn = -1, old_egn = -1;
   static int old_ful = -1;
-  register int cur_max, maximum, minimum;
+  register int cur_max;
   register int value;
   int     color;
   float   kills;

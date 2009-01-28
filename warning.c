@@ -1,30 +1,22 @@
-
-/* warning.c
- *
- * $Log: warning.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 
 #include <stdio.h>
-#include <math.h>
-#include <signal.h>
+#include <time.h>
+#include INC_SYS_TIME
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-#include <time.h>
-#include INC_SYS_TIME
 
-/* * The warning in text will be printed in the warning window. * The message
- * will last WARNTIME/10 seconds unless another message * comes through and
+/* The warning in text will be printed in the warning window.  The message
+ * will last WARNTIME/10 seconds unless another message comes through and
  * overwrites it. */
-warning(char *text)
+void warning(char *text)
 {
   int     doPhaser;
-  LONG    curtime;
+  time_t  curtime;
   struct tm *tm;
   char    newtext[128];
 

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
@@ -14,6 +15,13 @@
 
 #include "option.h"
 #include "rotate.h"
+#include "docwin.h"
+#include "udpopt.h"
+#include "netstatopt.h"
+#include "pingstats.h"
+#include "spopt.h"
+#include "defwin.h"
+#include "socket.h"
 
 int     notdone;				 /* not done flag */
 

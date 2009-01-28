@@ -1,5 +1,3 @@
-
-
 #include "config.h"
 
 #ifdef XTREKRC_HELP
@@ -9,17 +7,10 @@
  * responsibility for damages, real, potential, or imagined, resulting  from
  * the use of it.)
  * 
- * $Log: defwin.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include <stdio.h>
-#include "math.h"
-#include <signal.h>
-#include <sys/types.h>
-#include <time.h>
-#include INC_SYS_TIME
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
@@ -847,7 +838,7 @@ def_messages[] =
 #endif
 };
 
-char   *
+static char   *
         itos(int v)
 {
   static char value[10];
@@ -856,7 +847,7 @@ char   *
   return value;
 }
 
-char   *
+static char   *
         btoa(int v)
 {
   if (v)
@@ -868,9 +859,8 @@ char   *
 void
         showdef(void)
 {
-  register i, j, x = 0, y = 0, xo = 0, yo = 0, max_desc = 0, height = 1,
-          width = 1;
-  register struct def *d;
+  int i, j, x = 0, y = 0, xo = 0, yo = 0, max_desc = 0, height = 1, width = 1;
+  struct def *d;
   char   *val;
 
   name = getdefault("name");

@@ -122,6 +122,8 @@ extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_CacheClearArea(W_Window, int, int, int, int);
 extern void W_FlushClearAreaCache(W_Window);
 extern void W_FlushLineCaches(W_Window);
+extern void W_ResizeTextWindow(W_Window, int, int);
+extern int W_Mono(void);
 extern int W_EventsQueuedCk(void);
 extern void W_OverlayBitmap(int, int, W_Icon, W_Color);
 extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
