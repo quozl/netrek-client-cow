@@ -2,14 +2,6 @@
 /***  File:  check.c                                                      ***/
 /***  Function:                                                           ***/
 /***  Revisions:                                                          ***/
-/*
- * $Log: check.c,v $
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
 /***   9/20/93  VEG changed last while loop of file to improve clarity.   ***/
 /***   Also re-indented and spaced to make source easier to read.         ***/
 /***   Lastly, changed size of declared character buffer from 4096 + 1    ***/

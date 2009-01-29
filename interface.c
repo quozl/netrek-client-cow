@@ -8,30 +8,30 @@
 #include "copyright.h"
 
 #include <stdio.h>
-#include <math.h>
-#include <sys/types.h>
 #include <time.h>
 #include INC_SYS_TIME
 #include INC_SYS_TIMEB
-#include <signal.h>
+
 #include "Wlib.h"
 #include "defs.h"
+#include "socket.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
 #include "interface.h"
 
-set_speed(int speed)
+void set_speed(int speed)
 {
   sendSpeedReq(speed);
 }
 
-set_course(unsigned char dir)
+void set_course(unsigned char dir)
 {
   sendDirReq(dir);
 }
 
-shield_up(void)
+void shield_up(void)
 {
   if (!(me->p_flags & PFSHIELD))
     {
@@ -39,7 +39,7 @@ shield_up(void)
     }
 }
 
-shield_down(void)
+void shield_down(void)
 {
   if (me->p_flags & PFSHIELD)
     {
@@ -47,7 +47,7 @@ shield_down(void)
     }
 }
 
-shield_tog(void)
+void shield_tog(void)
 {
   if (me->p_flags & PFSHIELD)
     {
@@ -59,7 +59,7 @@ shield_tog(void)
     }
 }
 
-bomb_planet(void)
+void bomb_planet(void)
 {
   if (!(me->p_flags & PFBOMB))
     {
@@ -67,7 +67,7 @@ bomb_planet(void)
     }
 }
 
-beam_up(void)
+void beam_up(void)
 {
   if (!(me->p_flags & PFBEAMUP))
     {
@@ -75,7 +75,7 @@ beam_up(void)
     }
 }
 
-beam_down(void)
+void beam_down(void)
 {
   if (!(me->p_flags & PFBEAMDOWN))
     {
@@ -83,7 +83,7 @@ beam_down(void)
     }
 }
 
-repair(void)
+void repair(void)
 {
   if (!(me->p_flags & PFREPAIR))
     {
@@ -91,7 +91,7 @@ repair(void)
     }
 }
 
-repair_off(void)
+void repair_off(void)
 {
   if (me->p_flags & PFREPAIR)
     {
@@ -99,13 +99,13 @@ repair_off(void)
     }
 }
 
-repeat_message(void)
+void repeat_message(void)
 {
   if (++lastm == MAXMESSAGE);
   lastm = 0;
 }
 
-cloak(void)
+void cloak(void)
 {
   if (me->p_flags & PFCLOAK)
     {
@@ -117,7 +117,7 @@ cloak(void)
     }
 }
 
-cloak_on(void)
+void cloak_on(void)
 {
   if (!(me->p_flags & PFCLOAK))
     {
@@ -125,7 +125,7 @@ cloak_on(void)
     }
 }
 
-cloak_off(void)
+void cloak_off(void)
 {
   if (me->p_flags & PFCLOAK)
     {

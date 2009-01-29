@@ -1,4 +1,3 @@
-
 /* macrowin.c from helpwin.c copyright 1993 Nick Trown copyright 1991 ERic
  * mehlhaff Free to use, hack, etc. Just keep these credits here. Use of this
  * code may be dangerous to your health and/or system. Its use is at your own
@@ -12,13 +11,7 @@
 
 #include "config.h"
 #include <stdio.h>
-#include "math.h"
-#include <signal.h>
-#include <sys/types.h>
-
-#include <time.h>
-#include INC_SYS_TIME
-#include INC_STRINGS
+#include <stdlib.h>
 
 #include "Wlib.h"
 #include "defs.h"
@@ -41,7 +34,7 @@ int     lineno = 0;
 char    maclines[10][MAXMACRO];
 int     maclevel = 0;
 
-int
+static int
         formatline(char *line)
 {
   register int end;
@@ -78,7 +71,7 @@ int
 }
 
 
-void
+static void
         filldist(int fill)
 {
   register int i;
@@ -93,9 +86,9 @@ void
       if (fill)
 	{
 	  if (distmacro[i].c < 128)
-	    sprintf(key, "%c\0", distmacro[i].c);
+	    sprintf(key, "%c", distmacro[i].c);
 	  else
-	    sprintf(key, "^%c\0", distmacro[i].c - 96);
+	    sprintf(key, "^%c", distmacro[i].c - 96);
 	  sprintf(maclines[0], "%-8s %s",
 		  key,
 		  distmacro[i].name);
@@ -126,14 +119,14 @@ void
   char    macromessage[MACROLEN];
 
   W_ClearWindow(macroWin);
-  sprintf(macromessage, "Packages active:  NBT%s%s\0",
+  sprintf(macromessage, "Packages active:  NBT%s%s",
 	  (UseNewMacro ? ", NEWMACRO" : ""),
 	  (UseSmartMacro ? ", SMARTMACRO" : ""));
 
   W_WriteText(macroWin, 2, 1, textColor,
 	      macromessage, strlen(macromessage), W_RegularFont);
 
-  sprintf(macromessage, "Currently showing: %s\0",
+  sprintf(macromessage, "Currently showing: %s",
 	  (maclevel ? "Macros" : "RCDS"));
 
   W_WriteText(macroWin, 2, 2, textColor,
@@ -152,9 +145,9 @@ void
   for (row = 4, i = 0; i < macrocnt; row++, i++)
     {
       if (macro[i].key <= 128)
-	sprintf(macromessage, "%c \0", macro[i].key);
+	sprintf(macromessage, "%c ", macro[i].key);
       else
-	sprintf(macromessage, "^%c\0", macro[i].key - 96);
+	sprintf(macromessage, "^%c", macro[i].key - 96);
       if (macro[i].type == NEWMMOUSE)
 	{
 	  switch (macro[i].who)
@@ -220,7 +213,7 @@ void
     }
 }
 
-void    switchmacros(void)
+static void    switchmacros(void)
 {
   int     num = macrocnt + 5;
 
@@ -245,7 +238,7 @@ void    switchmacros(void)
 
 
 
-showMacroWin(void)
+void showMacroWin(void)
 {
   int     num = macrocnt + 5;
 

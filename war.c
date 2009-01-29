@@ -14,16 +14,21 @@
 /****************************************************************************/
 #include "config.h"
 #include "copyright.h"
+
 #include <stdio.h>
 #include <math.h>
 #include <signal.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
 #include "socket.h"
 #include "warning.h"
+
+#include "war.h"
 
 /******************************************************************************/
 /***  newhostile - identifies user request from the war options window      ***/
@@ -47,7 +52,7 @@ static char *wars = "War";
 /******************************************************************************/
 /***  fillwin() displays text into war window, deciding which color to use  ***/
 /******************************************************************************/
-void
+static void
         fillwin(int menunum, char *string, int hostile, int warbits, int team)
 {
   char    buf[80];
@@ -72,7 +77,7 @@ void
 /******************************************************************************/
 /***  warrefresh()  redraws the text into the war options window            ***/
 /******************************************************************************/
-void
+static void
         warrefresh(void)
 {
   fillwin(0, feds, newhostile, me->p_swar, FED);

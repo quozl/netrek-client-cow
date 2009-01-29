@@ -17,11 +17,33 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
-#include "playerlist.h"
-#include "spopt.h"
+
+#include "cowmain.h"
+#include "defaults.h"
+#include "defwin.h"
+#include "docwin.h"
+#include "helpwin.h"
+#include "inform.h"
+#include "interface.h"
+#include "macrowin.h"
 #include "map.h"
+#include "netstatopt.h"
+#include "option.h"
+#include "pingstats.h"
+#include "playback.h"
+#include "playerlist.h"
+#include "redraw.h"
+#include "senddist.h"
 #include "short.h"
+#include "smessage.h"
+#include "socket.h"
+#include "spopt.h"
+#include "tools.h"
+#include "war.h"
+#include "warning.h"
 #include "udpopt.h"
+
+#include "input.h"
 
 static void detmine(void);
 static void keyaction(W_Event * data);
@@ -103,233 +125,233 @@ key_handler_type;
 
 key_handler_type key_handlers[MAXKEY] =
 {
-  emptyKey,					 /* \0 */
-  emptyKey,					 /* 1 */
-  emptyKey,					 /* 2 */
-  emptyKey,					 /* 3 */
-  emptyKey,					 /* 4 */
-  emptyKey,					 /* 5 */
-  emptyKey,					 /* 6 */
-  emptyKey,					 /* 7 */
-  emptyKey,					 /* 8 */
-  emptyKey,					 /* 9 */
-  emptyKey,					 /* 10 */
-  emptyKey,					 /* 11 */
-  emptyKey,					 /* 12 */
-  emptyKey,					 /* 13 */
-  emptyKey,					 /* 14 */
-  emptyKey,					 /* 15 */
-  emptyKey,					 /* 16 */
-  emptyKey,					 /* 17 */
-  emptyKey,					 /* 18 */
-  emptyKey,					 /* 19 */
-  emptyKey,					 /* 20 */
-  emptyKey,					 /* 21 */
-  emptyKey,					 /* 22 */
-  emptyKey,					 /* 23 */
-  emptyKey,					 /* 24 */
-  emptyKey,					 /* 25 */
-  emptyKey,					 /* 26 */
-  emptyKey,					 /* 27 */
-  emptyKey,					 /* 28 */
-  emptyKey,					 /* 29 */
-  emptyKey,					 /* 30 */
-  emptyKey,					 /* 31 */
+  { emptyKey },					 /* \0 */
+  { emptyKey },					 /* 1 */
+  { emptyKey },					 /* 2 */
+  { emptyKey },					 /* 3 */
+  { emptyKey },					 /* 4 */
+  { emptyKey },					 /* 5 */
+  { emptyKey },					 /* 6 */
+  { emptyKey },					 /* 7 */
+  { emptyKey },					 /* 8 */
+  { emptyKey },					 /* 9 */
+  { emptyKey },					 /* 10 */
+  { emptyKey },					 /* 11 */
+  { emptyKey },					 /* 12 */
+  { emptyKey },					 /* 13 */
+  { emptyKey },					 /* 14 */
+  { emptyKey },					 /* 15 */
+  { emptyKey },					 /* 16 */
+  { emptyKey },					 /* 17 */
+  { emptyKey },					 /* 18 */
+  { emptyKey },					 /* 19 */
+  { emptyKey },					 /* 20 */
+  { emptyKey },					 /* 21 */
+  { emptyKey },					 /* 22 */
+  { emptyKey },					 /* 23 */
+  { emptyKey },					 /* 24 */
+  { emptyKey },					 /* 25 */
+  { emptyKey },					 /* 26 */
+  { emptyKey },					 /* 27 */
+  { emptyKey },					 /* 28 */
+  { emptyKey },					 /* 29 */
+  { emptyKey },					 /* 30 */
+  { emptyKey },					 /* 31 */
 
-  Key32,					 /* space */
-  Key33,					 /* ! */
-  Key34,					 /* " */
-  Key35,					 /* # */
-  Key36,					 /* $ */
-  Key37,					 /* % */
-  Key38,					 /* & */
-  Key39,					 /* ' */
-  Key40,					 /* ( */
-  Key41,					 /* ) */
-  Key42,					 /* * */
-  Key43,					 /* + */
-  Key44,					 /* , */
-  Key45,					 /* - */
-  Key46,					 /* . */
-  Key47,					 /* / */
-  Key48,					 /* 0 */
-  Key49,					 /* 1 */
-  Key50,					 /* 2 */
-  Key51,					 /* 3 */
-  Key52,					 /* 4 */
-  Key53,					 /* 5 */
-  Key54,					 /* 6 */
-  Key55,					 /* 7 */
-  Key56,					 /* 8 */
-  Key57,					 /* 9 */
-  Key58,					 /* : */
-  Key59,					 /* ; */
-  Key60,					 /* < */
-  Key61,					 /* = */
-  Key62,					 /* > */
-  Key63,					 /* ?  -  you know this is *
+  { Key32 },					 /* space */
+  { Key33 },					 /* ! */
+  { Key34 },					 /* " */
+  { Key35 },					 /* # */
+  { Key36 },					 /* $ */
+  { Key37 },					 /* % */
+  { Key38 },					 /* & */
+  { Key39 },					 /* ' */
+  { Key40 },					 /* ( */
+  { Key41 },					 /* ) */
+  { Key42 },					 /* * */
+  { Key43 },					 /* + */
+  { Key44 },					 /* , */
+  { Key45 },					 /* - */
+  { Key46 },					 /* . */
+  { Key47 },					 /* / */
+  { Key48 },					 /* 0 */
+  { Key49 },					 /* 1 */
+  { Key50 },					 /* 2 */
+  { Key51 },					 /* 3 */
+  { Key52 },					 /* 4 */
+  { Key53 },					 /* 5 */
+  { Key54 },					 /* 6 */
+  { Key55 },					 /* 7 */
+  { Key56 },					 /* 8 */
+  { Key57 },					 /* 9 */
+  { Key58 },					 /* : */
+  { Key59 },					 /* ; */
+  { Key60 },					 /* < */
+  { Key61 },					 /* = */
+  { Key62 },					 /* > */
+  { Key63 },					 /* ?  -  you know this is *
 						  * * boring as hell... */
-  Key64,					 /* @ */
-  Key65,					 /* A */
-  Key66,					 /* B */
-  Key67,					 /* C */
-  Key68,					 /* D */
-  Key69,					 /* E */
-  Key70,					 /* F */
-  Key71,					 /* G */
-  Key72,					 /* H */
-  Key73,					 /* I */
-  Key74,					 /* J */
-  Key75,					 /* K */
-  Key76,					 /* L */
-  Key77,					 /* M */
-  Key78,					 /* N */
-  Key79,					 /* O */
-  Key80,					 /* P */
-  Key81,					 /* Q */
-  Key82,					 /* R */
-  Key83,					 /* S */
-  Key84,					 /* T */
-  Key85,					 /* U */
-  Key86,					 /* V */
-  Key87,					 /* W */
-  Key88,					 /* X */
-  Key89,					 /* Y */
-  Key90,					 /* Z */
-  Key91,					 /* [ */
-  Key92,					 /* \ */
-  Key93,					 /* ]  -  ascii is fucked... */
-  Key94,					 /* ^ */
-  Key95,					 /* _ */
-  Key96,					 /* ` */
-  Key97,					 /* a */
-  Key98,					 /* b */
-  Key99,					 /* c */
-  Key100,					 /* d */
-  Key101,					 /* e */
-  Key102,					 /* f */
-  Key103,					 /* g */
-  Key104,					 /* h */
-  Key105,					 /* i */
-  Key106,					 /* j */
-  Key107,					 /* k */
-  Key108,					 /* l */
-  Key109,					 /* m */
-  Key110,					 /* n */
-  Key111,					 /* o */
-  Key112,					 /* p */
-  Key113,					 /* q */
-  Key114,					 /* r */
-  Key115,					 /* s */
-  Key116,					 /* t */
-  Key117,					 /* u */
-  Key118,					 /* v */
-  Key119,					 /* w */
-  Key120,					 /* x */
-  Key121,					 /* y */
-  Key122,					 /* z */
-  Key123,					 /* { */
-  Key124,					 /* | */
-  Key125,					 /* } - my wife was once * *
+  { Key64 },					 /* @ */
+  { Key65 },					 /* A */
+  { Key66 },					 /* B */
+  { Key67 },					 /* C */
+  { Key68 },					 /* D */
+  { Key69 },					 /* E */
+  { Key70 },					 /* F */
+  { Key71 },					 /* G */
+  { Key72 },					 /* H */
+  { Key73 },					 /* I */
+  { Key74 },					 /* J */
+  { Key75 },					 /* K */
+  { Key76 },					 /* L */
+  { Key77 },					 /* M */
+  { Key78 },					 /* N */
+  { Key79 },					 /* O */
+  { Key80 },					 /* P */
+  { Key81 },					 /* Q */
+  { Key82 },					 /* R */
+  { Key83 },					 /* S */
+  { Key84 },					 /* T */
+  { Key85 },					 /* U */
+  { Key86 },					 /* V */
+  { Key87 },					 /* W */
+  { Key88 },					 /* X */
+  { Key89 },					 /* Y */
+  { Key90 },					 /* Z */
+  { Key91 },					 /* [ */
+  { Key92 },					 /* \ */
+  { Key93 },					 /* ]  -  ascii is fucked... */
+  { Key94 },					 /* ^ */
+  { Key95 },					 /* _ */
+  { Key96 },					 /* ` */
+  { Key97 },					 /* a */
+  { Key98 },					 /* b */
+  { Key99 },					 /* c */
+  { Key100 },					 /* d */
+  { Key101 },					 /* e */
+  { Key102 },					 /* f */
+  { Key103 },					 /* g */
+  { Key104 },					 /* h */
+  { Key105 },					 /* i */
+  { Key106 },					 /* j */
+  { Key107 },					 /* k */
+  { Key108 },					 /* l */
+  { Key109 },					 /* m */
+  { Key110 },					 /* n */
+  { Key111 },					 /* o */
+  { Key112 },					 /* p */
+  { Key113 },					 /* q */
+  { Key114 },					 /* r */
+  { Key115 },					 /* s */
+  { Key116 },					 /* t */
+  { Key117 },					 /* u */
+  { Key118 },					 /* v */
+  { Key119 },					 /* w */
+  { Key120 },					 /* x */
+  { Key121 },					 /* y */
+  { Key122 },					 /* z */
+  { Key123 },					 /* { */
+  { Key124 },					 /* | */
+  { Key125 },					 /* } - my wife was once * *
 						  * bitten by a lhama */
-  Key126,					 /* ~ */
-  Key127,					 /* delete */
-  emptyKey,					 /* 128 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key131,					 /* ^# */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key144,					 /* ^0 */
-  Key145,					 /* ^1 */
-  Key146,					 /* ^2 */
-  Key147,					 /* ^3 */
-  Key148,					 /* ^4 */
-  Key149,					 /* ^5 */
-  Key150,					 /* ^6 */
-  Key151,					 /* ^7 */
-  Key152,					 /* ^8 */
-  Key153,					 /* ^9 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key160,					 /* ^@ */
-  emptyKey,					 /* 31 */
-  Key162,					 /* ^B */
-  Key163,					 /* ^C */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key175,					 /* ^O */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key180,					 /* ^T */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key194,					 /* ^b */
-  Key195,					 /* ^c */
-  emptyKey,					 /* 31 */
-  Key197,					 /* ^e */
-  Key198,					 /* ^f */
-  emptyKey,					 /* 31 */
-  Key200,					 /* ^h */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key204,					 /* ^l */
-  Key205,					 /* ^m */
-  Key206,					 /* ^n */
-  Key207,					 /* ^o */
-  Key208,					 /* ^p */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  Key212,					 /* ^t */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 31 */
-  emptyKey,					 /* 223 */
+  { Key126 },					 /* ~ */
+  { Key127 },					 /* delete */
+  { emptyKey },					 /* 128 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key131 },					 /* ^# */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key144 },					 /* ^0 */
+  { Key145 },					 /* ^1 */
+  { Key146 },					 /* ^2 */
+  { Key147 },					 /* ^3 */
+  { Key148 },					 /* ^4 */
+  { Key149 },					 /* ^5 */
+  { Key150 },					 /* ^6 */
+  { Key151 },					 /* ^7 */
+  { Key152 },					 /* ^8 */
+  { Key153 },					 /* ^9 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key160 },					 /* ^@ */
+  { emptyKey },					 /* 31 */
+  { Key162 },					 /* ^B */
+  { Key163 },					 /* ^C */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key175 },					 /* ^O */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key180 },					 /* ^T */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key194 },					 /* ^b */
+  { Key195 },					 /* ^c */
+  { emptyKey },					 /* 31 */
+  { Key197 },					 /* ^e */
+  { Key198 },					 /* ^f */
+  { emptyKey },					 /* 31 */
+  { Key200 },					 /* ^h */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key204 },					 /* ^l */
+  { Key205 },					 /* ^m */
+  { Key206 },					 /* ^n */
+  { Key207 },					 /* ^o */
+  { Key208 },					 /* ^p */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { Key212 },					 /* ^t */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 31 */
+  { emptyKey },					 /* 223 */
 };
 
 unsigned char
@@ -357,7 +379,7 @@ unsigned char
 
 extern struct shipdef *myshipdef;
 
-initkeymap(void)
+void initkeymap(void)
 {
   unsigned char *str;
 
@@ -388,12 +410,12 @@ initkeymap(void)
 	   * documentation */
 	  mystats->st_keymap[*str - 32] = 'X';
 	}
-      else if (!strcmpi(str, "TAB"))
+      else if (!strcmpi((char *) str, "TAB"))
 	{
 	  p = (unsigned char *) "^i";
 	  mystats->st_keymap[getctrlkey(&p) - 32] = 'X';
 	}
-      else if (!strcmpi(str, "ESC"))
+      else if (!strcmpi((char *) str, "ESC"))
 	{
 	  p = (unsigned char *) "^[";
 	  mystats->st_keymap[getctrlkey(&p) - 32] = 'X';
@@ -577,7 +599,7 @@ detsetallow(int _dummy)
 }
 
 #ifdef THREADED
-input()
+void input()
 {
   W_Event event;
 
@@ -604,9 +626,9 @@ input()
   longjmp(env, 0);
 }
 
-void    input2()
+void input2()
 #else
-input()
+void input()
 #endif
 {
   fd_set  readfds;
@@ -671,7 +693,7 @@ input()
   }
 }
 
-process_event(void)
+int process_event(void)
 {
   W_Event data;
   int     loop = 0;
@@ -836,19 +858,6 @@ process_event(void)
 
 static void keyaction(W_Event * data)
 {
-  char    mbuf[80];
-  char    buf[80];
-  char   *t;
-  int     targettype;
-
-
-#ifdef NBT
-  int     c;
-  char    who;
-  int     found;
-
-#endif
-
   fastQuit = 0;					 /* any event, cancel * *
 						  * fastquit! */
 
@@ -1055,7 +1064,7 @@ static void keyaction(W_Event * data)
 }
 
 #ifdef MOUSE_AS_SHIFT
-mkeyaction(W_Event * data)
+void mkeyaction(W_Event * data)
 {
   unsigned char key = data->key;
 
@@ -1092,7 +1101,7 @@ mkeyaction(W_Event * data)
 }
 #endif
 
-buttonaction(W_Event * data)
+void buttonaction(W_Event * data)
 {
   unsigned char course;
   struct obtype *gettarget(W_Window ww, int x, int y, int targtype);
@@ -1251,7 +1260,7 @@ buttonaction(W_Event * data)
 #endif
 }
 
-getcourse(W_Window ww, int x, int y)
+int getcourse(W_Window ww, int x, int y)
 {
   if (ww == mapw)
     {
@@ -1266,10 +1275,6 @@ getcourse(W_Window ww, int x, int y)
     return ((unsigned char) nint((atan2((double) (x - TWINSIDE / 2),
 					(double) (TWINSIDE / 2 - y))
 				  / 3.14159 * 128.) + 0.5));
-}
-
-scan(W_Window w, int x, int y)
-{
 }
 
 static void detmine(void)
@@ -1293,10 +1298,8 @@ static void detmine(void)
     }
 }
 
-lockPlanetOrBase(W_Window ww, int x, int y)	 /* special version of * *
-						  * gettarget, 6/1/93 LAB */
-
-
+void lockPlanetOrBase(W_Window ww, int x, int y)
+/* special version of gettarget, 6/1/93 LAB */
 {
   register int i;
   register struct player *j;
@@ -1364,7 +1367,7 @@ lockPlanetOrBase(W_Window ww, int x, int y)	 /* special version of * *
 
 static void emptyKey(void)
 {
-  fprintf(stderr, "input.c: emptyKey\n", key);
+  fprintf(stderr, "input.c: emptyKey %d\n", key);
   W_Beep();
 }
 

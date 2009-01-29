@@ -42,8 +42,10 @@
 #include "playerlist.h"
 #include "parsemeta.h"
 #include "short.h"
+#include "smessage.h"
 #include "socket.h"
 #include "stats.h"
+#include "warning.h"
 
 void    initCensoring();
 
@@ -558,7 +560,6 @@ int     metaType;             /* which meta to use, UDP, cache, or TCP */
 
 int     cowmain(char *server, int port, char *name)
 {
-  int     intrupt(fd_set * readfds);
   int     team, s_type;
 
   char   *cp;

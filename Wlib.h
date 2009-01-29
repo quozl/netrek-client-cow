@@ -187,5 +187,9 @@ int W_FullScreenToggle(W_Window window);
 void W_FullScreenBegin(W_Window window);
 void W_FullScreen(W_Window window);
 void W_CameraSnap(W_Window window);
+int W_SpNextEvent(W_Event *wevent);
+int findMouseInWin(int *x, int *y, W_Window w);
+int W_EventsQueued(void);
+int W_EventsQueuedCk(void);
 
 #endif /* _h_Wlib */

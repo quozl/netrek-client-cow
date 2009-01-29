@@ -1,8 +1,3 @@
-/*
- * $Log: censor.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -51,9 +46,9 @@ void    initSkipArray(char *word, int *skip)
     skip[i] = wordLen;
   for (i = 0; i < wordLen; i++)
     {
-      skip[word[i]] = wordLen - i - 1;
+      skip[(int) word[i]] = wordLen - i - 1;
       if (isascii(toupper(word[i])))
-	skip[toupper(word[i])] = skip[word[i]];
+	skip[toupper(word[i])] = skip[(int) word[i]];
     }
 }
 
@@ -72,7 +67,7 @@ static int search(char *word, char *text, int *skip)
   for (i = j = wordLen - 1; j >= 0; i--, j--)
     while (tolower(text[i]) != word[j])
       {
-	int     t = skip[text[i]];
+	int     t = skip[(int) text[i]];
 
 	i += (wordLen - j > t) ? wordLen - j : t;
 	if (i >= textLen)

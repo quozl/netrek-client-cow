@@ -31,13 +31,17 @@
 
 #include "oldbitmaps.h"
 #include "packets.h"
-#include "spopt.h"
-#include "option.h"
-#include "newwin.h"
-#include "redraw.h"
-#include "udpopt.h"
+
 #include "cowmain.h"
 #include "death.h"
+#include "macrowin.h"
+#include "option.h"
+#include "redraw.h"
+#include "spopt.h"
+#include "udpopt.h"
+#include "war.h"
+
+#include "newwin.h"
 
 extern char cbugs[];
 
@@ -84,12 +88,11 @@ static char press_bits[] =
 
 /* Event Handlers. */
 extern void drawIcon(void), redrawTstats(void), planetlist(void);
-extern void ranklist(void), fillhelp(void), fillmacro(void);
+extern void ranklist(void), fillhelp(void);
 extern void redrawLMeter(void), redrawPStats(void), redrawStats(void);
 
 extern void nsaction(W_Event * data);
 extern void optionaction(W_Event * data);
-extern void waraction(W_Event * data);
 
 /* Other function declarations */
 extern int smessage(char ichar);

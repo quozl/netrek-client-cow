@@ -1,36 +1,19 @@
-
 /* helpwin.c copyright 1991 ERic mehlhaff Free to use, hack, etc. Just keep
  * these credits here. Use of this code may be dangerous to your health
  * and/or system. Its use is at your own risk. I assume no responsibility for
  * damages, real, potential, or imagined, resulting  from the use of it.
  *
- * $Log: helpwin.c,v $
- * Revision 1.2  2001/04/28 04:06:57  quozl
- * Rethink each help message, remove the
- * word toggle and replace with on/off, as toggle is a technical
- * term, remove mixed case descriptions in favour of lower case, move
- * some verbs to the end of the message, and change the column fit
- * algorithm to avoid overflow in normal and 800x600 mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 #include <stdio.h>
-#include "math.h"
-#include <signal.h>
-#include <sys/types.h>
-
-#include <time.h>
-#include INC_SYS_TIME
-#include INC_STRINGS
 
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 
+#include "helpwin.h"
 
 /* this is a set of routines that makes up a multi column help window, * and
  * shows just what the keymaps current keymap representation of the * keys
@@ -64,7 +47,7 @@
 
 /* fills in the help window to note all keys also mapped to the listed
  * functions */
-void    update_Help_to_Keymap(char *helpmessage);
+static void update_Help_to_Keymap(char *helpmessage);
 
 #define HELPMESSAGES	(sizeof(help_message)/ sizeof(char *))
 /* this is the number of help messages there are */
@@ -205,7 +188,7 @@ void
  * 
  * ordinary format:       "U     Show rankings window", translatedd here to "[
  * sE  Computer options window", */
-void
+static void
         update_Help_to_Keymap(char *helpmessage)
 {
   int     i, num_mapped = 0;

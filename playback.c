@@ -32,6 +32,7 @@
 #include "patchlevel.h"
 #include "cowapi.h"
 #include "map.h"
+#include "socket.h"
 #include "spopt.h"
 #include "defs.h"
 #include "playerlist.h"
@@ -361,7 +362,7 @@ int
 	  /* W_Flush(); */
 	}
 
-      intrupt();
+      intrupt(NULL);
       W_Flush();
       if (!pb_stepping) usleep(pbdelay);
       if (pb_snapping) W_CameraSnap(w);

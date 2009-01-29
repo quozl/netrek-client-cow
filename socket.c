@@ -42,9 +42,10 @@
 #include "rotate.h"
 #include "redraw.h"
 #include "short.h"
-#include "socket.h"
 #include "stats.h"
 #include "udpopt.h"
+
+#include "socket.h"
 
 #define statsFile stderr        /* use stderr for stats output for now */
 int gather_stats = 0;
@@ -965,7 +966,7 @@ void socketPause(void)
   socketPauseCommon(1);
 }
 
-readFromServer(fd_set * readfds)
+int readFromServer(fd_set *readfds)
 {
   int     retval = 0;
 
@@ -1714,7 +1715,7 @@ void    handleWarning(struct warning_spacket *packet)
   warning(packet->mesg);
 }
 
-sendShortPacket(char type, char state)
+void sendShortPacket(char type, char state)
 {
   struct speed_cpacket speedReq;
 
@@ -2086,7 +2087,7 @@ void    handleLogin(struct login_spacket *packet)
     }
 }
 
-sendTractorReq(char state, char pnum)
+void sendTractorReq(char state, char pnum)
 {
   struct tractor_cpacket tractorReq;
 
@@ -2101,7 +2102,7 @@ sendTractorReq(char state, char pnum)
     fTractor = 0;
 }
 
-sendRepressReq(char state, char pnum)
+void sendRepressReq(char state, char pnum)
 {
   struct repress_cpacket repressReq;
 
@@ -2116,7 +2117,7 @@ sendRepressReq(char state, char pnum)
     fRepress = 0;
 }
 
-sendDetMineReq(short int torp)
+void sendDetMineReq(short int torp)
 {
   struct det_mytorp_cpacket detReq;
 

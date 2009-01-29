@@ -1,12 +1,8 @@
-
 /* colors.c
  * 
  * Kevin P. Smith  6/11/89
  *
- * $Log: colors.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
 #include <stdio.h>

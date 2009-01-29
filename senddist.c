@@ -1,32 +1,30 @@
-
-/* distress.c
- *
- * $Log: senddist.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+/*
+ * distress.c
+ */
 #include "config.h"
 #include "copyright.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <ctype.h>
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
+#include "distress.h"
 #include "smessage.h"
 
+#include "senddist.h"
+
 /* this loads all sorts of useful data into a distress struct. */
-struct distress *
+static struct distress *
         loaddistress(enum dist_type i, W_Event * data)
 {
-  struct distress d;
   struct distress *dist;
   struct obtype *gettarget(W_Window ww, int x, int y, int targtype), *gettarget2(int x, int y, int targtype),
          *target;
-  struct player *j;
-  struct planet *l;
 
   dist = (struct distress *) malloc(sizeof(struct distress));
 
@@ -87,9 +85,8 @@ struct distress *
 /* Coordinating function for _SENDING_ a RCD */
 /* Send an emergency signal out to everyone. */
 
-emergency(enum dist_type i, W_Event * data)
+void emergency(enum dist_type i, W_Event * data)
 {
-  char    addrbuf[ADDRLEN];
   char    ebuf[200];
   struct distress *dist;
   char    cry[MSG_LEN];
@@ -97,7 +94,6 @@ emergency(enum dist_type i, W_Event * data)
   int     len;
   int     recip;
   int     group;
-  char    newbuf[100];
 
 
   group = MTEAM;
@@ -139,7 +135,7 @@ emergency(enum dist_type i, W_Event * data)
  * newmacro syntax into an actual message. * This is about as inefficient as
  * they come, but how often is the player * going to send a macro?? *  6/3/93
  * - jn */
-pmacro(int mnum, char who, W_Event * data)
+int pmacro(int mnum, char who, W_Event * data)
 {
   char    addr;
   int     group, len, recip;
@@ -156,7 +152,7 @@ pmacro(int mnum, char who, W_Event * data)
 #ifdef TOOLS
   if (keys[0] != '\0')
     {
-      if (pm = INDEX((char *) keys, who))
+      if ((pm = INDEX((char *) keys, who)))
 	who = macroKeys[((int) pm) - ((int) keys)].dest;
     }
 #endif

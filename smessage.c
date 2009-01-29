@@ -1,13 +1,6 @@
-
-/* smessage.c
- *
- * $Log: smessage.c,v $
- * Revision 1.2  2006/05/22 13:11:58  quozl
- * fix compilation warnings
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+/*
+ * smessage.c
+ */
 #include "config.h"
 #include "copyright.h"
 
@@ -20,8 +13,12 @@
 #include "struct.h"
 #include "data.h"
 
-#include "smessage.h"
+#include "dmessage.h"
 #include "socket.h"
+#include "tools.h"
+#include "warning.h"
+
+#include "smessage.h"
 
 static int lcount;
 static int HUDoffset;
@@ -129,7 +126,7 @@ void    smessage(char ichar)
 #ifdef TOOLS
       if (keys[0] != '\0')
 	{
-	  if (pm = INDEX((char *) keys, ichar))
+	  if ((pm = INDEX((char *) keys, ichar)))
 	    ichar = macroKeys[((int) pm) - ((int) keys)].dest;
 	}
 #endif
@@ -324,7 +321,7 @@ void    smessage(char ichar)
     }
 }
 
-pmessage(char *str, int recip, int group)
+void pmessage(char *str, int recip, int group)
 {
   char    newbuf[100];
 
@@ -493,7 +490,7 @@ char *getaddr2(int flags, int recip)
   return (addrmesg);
 }
 
-message_on(void)
+void message_on(void)
 {
   messageon = 1;
   W_DefineTextCursor(w);
@@ -506,7 +503,7 @@ message_on(void)
 #endif
 }
 
-message_off(void)
+void message_off(void)
 {
   messageon = 0;
   W_DefineLocalcursor(w);
@@ -514,7 +511,7 @@ message_off(void)
 }
 
 #ifdef XTRA_MESSAGE_UI
-message_hold(void)
+void message_hold(void)
 {
   char    twochar[2] =
   {'#', ' '};
@@ -627,7 +624,7 @@ int
 }
 
 
-pnbtmacro(int c)
+void pnbtmacro(int c)
 {
   switch (macro[c].who)
     {
