@@ -1,12 +1,6 @@
-/* distress.c
- *
- * $Log: distress.c,v $
- * Revision 1.2  2006/08/15 22:37:09  quozl
- * follow bill
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+/*
+ * distress.c
+ */
 #include "config.h"
 #include "copyright.h"
 
@@ -22,13 +16,18 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "warning.h"
 
 #include "string_util.h"
 
 /* #$!@$#% length of address field of messages */
 #define ADDRLEN 10
 
-void    testmacro(char *bufa, char *bufb, int *inda, int *indb);
+/* file scope prototypes */
+static void testmacro (char *bufa, char *bufb, int *inda, int *indb);
+static int solvetest (char *bufa, int *inda);
+static int condmacro (char *bufa, char *bufb, int *inda, int *indb, int flag);
+static int skipmacro (char *buf, int index);
 
 /* The two in-line defs that follow enable us to avoid calling strcat over
  * and over again. */
@@ -49,7 +48,7 @@ char   *pappend;
 
 /* This is a hacked version from the K&R book.  Basically it puts <n> into
  * <s> in reverse and then reverses the string... MH.  10-18-93 */
-itoa2(int n, char *s)
+int itoa2(int n, char *s)
 {
   int     i, c, j, len;
 
@@ -101,7 +100,7 @@ extern char *whydeadmess[];
 
 
 /* This takes an MDISTR flagged message and makes it into a dist struct */
-HandleGenDistr(char *message, unsigned char from, unsigned char to, struct distress *dist)
+void HandleGenDistr(char *message, unsigned char from, unsigned char to, struct distress *dist)
 {
 
   char   *mtext;
@@ -160,7 +159,7 @@ HandleGenDistr(char *message, unsigned char from, unsigned char to, struct distr
  * bit).. sorry if this is not what we said earlier jeff.. but I lost the
  * paper towel I wrote it all down on */
 
-Dist2Mesg(struct distress *dist, char *buf)
+void Dist2Mesg(struct distress *dist, char *buf)
 {
   int     len, i;
 
@@ -205,7 +204,7 @@ Dist2Mesg(struct distress *dist, char *buf)
 /* small permutation on the newmacro code... this takes a pointer to a
  * distress structure and a pointer to a macro syntax string, and converts it
  * into a line of text.  9/1/93 - jn */
-makedistress(struct distress *dist, char *cry, char *pm)
+int makedistress(struct distress *dist, char *cry, char *pm)
 /* the info */
 /* the call for help! (output) - should be array */
 /* macro to parse, used for distress and macro */
@@ -245,7 +244,7 @@ makedistress(struct distress *dist, char *cry, char *pm)
   if (!(*pm))
     {
       cry[0] = '\0';
-      return (0);
+      return 0;
     }
 
   buf1[0] = '\0';
@@ -273,7 +272,8 @@ makedistress(struct distress *dist, char *cry, char *pm)
 	    case 'o':				 /* push a 3 character team * 
 						  * 
 						  * * name into buf */
-	      APPEND_CAP(pbuf1, cap, teamshort[sender->p_team]);
+	      if (sender->p_team != ALLTEAM)
+		APPEND_CAP(pbuf1, cap, teamshort[sender->p_team]);
 	      cap = 0;
 	      break;
 	    case 'a':				 /* push army number into buf 
@@ -422,7 +422,6 @@ makedistress(struct distress *dist, char *cry, char *pm)
 		j = &players[dist->tclose_j];
 	      else
 		j = sender;
-
 #ifdef RCM
 	      if (dist->distype == rcm)
 		{
@@ -434,18 +433,8 @@ makedistress(struct distress *dist, char *cry, char *pm)
 	      else
 		{
 #endif
-
-#ifdef nodef
-		  if (j->p_ship.s_type == STARBASE)
-		    sprintf(tmp, "%5.2f\0", j->p_stats.st_sbkills);
-		  else
-		    sprintf(tmp, "%5.2f\0", j->p_stats.st_kills + j->p_stats.st_tkills);
-#else
-		  sprintf(tmp, "%5.2f\0", j->p_kills);
-#endif
-
+		  sprintf(tmp, "%5.2f", j->p_kills);
 		  APPEND(pbuf1, tmp);
-
 #ifdef RCM
 		}
 #endif
@@ -570,7 +559,7 @@ makedistress(struct distress *dist, char *cry, char *pm)
   if (index2 <= 0)
     {
       cry[0] = '\0';
-      return (0);
+      return 0;
     }
 
   index2 = 0;
@@ -581,7 +570,7 @@ makedistress(struct distress *dist, char *cry, char *pm)
   if (index3 <= 0)
     {
       cry[0] = '\0';
-      return (0);
+      return 0;
     }
 
   buf3[index3] = '\0';
@@ -589,10 +578,10 @@ makedistress(struct distress *dist, char *cry, char *pm)
   cry[0] = '\0';
   strncat(cry, buf3, MSG_LEN - 1);
 
-  return (index3);
+  return index3;
 }
 
-void    testmacro(char *bufa, char *bufb, int *inda, int *indb)
+static void    testmacro(char *bufa, char *bufb, int *inda, int *indb)
 {
   int     state = 0;
   char    c;
@@ -668,7 +657,7 @@ void    testmacro(char *bufa, char *bufb, int *inda, int *indb)
     }
 }
 
-int     solvetest(char *bufa, int *inda)
+static int     solvetest(char *bufa, int *inda)
 {
   int     state = 0;
   char    bufh[10 * MAXMACLEN];
@@ -718,47 +707,47 @@ int     solvetest(char *bufa, int *inda)
 
   if (!operation)				 /* incomplete is truth, just
 						  * * * ask Godel */
-    return (1);
+    return 1;
 
   switch (operation)
     {
     case '=':					 /* character by character *
 						  * * equality */
       if (indc != indh)
-	return (0);
+	return 0;
       for (i = 0; i < indc; i++)
 	{
 	  if (bufc[i] != bufh[i])
-	    return (0);
+	    return 0;
 	}
-      return (1);
+      return 1;
       break;
 
     case '<':
       if (atoi(bufh) < atoi(bufc))
-	return (1);
+	return 1;
       else
-	return (0);
+	return 0;
       break;
 
     case '>':
       if (atoi(bufh) > atoi(bufc))
-	return (1);
+	return 1;
       else
-	return (0);
+	return 0;
       break;
 
     default:
       warning("Bad operation in Macro!");
       printf("Unrecognizable operation in macro pass3: %c  Trying to continue.\n",
 	     operation);
-      return (1);				 /* don't know what happened,
+      return 1;				 /* don't know what happened,
 						  * * * pretend we do */
       break;
     }
 }
 
-int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
+static int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
 {
   int     newflag, include;
   int     state = 0;
@@ -777,7 +766,7 @@ int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
 	    {
 	    case '}':				 /* done with this * *
 						  * conditional, return */
-	      return (0);
+	      return 0;
 	      break;
 
 	    case '{':				 /* handle new conditional */
@@ -821,7 +810,7 @@ int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
 		  /* abort this macro */
 		  bufb[0] = '\0';
 		  *indb = 0;
-		  return (0);
+		  return 0;
 		}
 
 	      state = 0;
@@ -837,7 +826,7 @@ int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
 		      (*indb)++;
 		    }
 		  else
-		    return (0);
+		    return 0;
 		}
 	      state = 0;
 	      continue;
@@ -879,7 +868,7 @@ int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
 	      (*indb)++;
 	    }
 	  else
-	    return (0);
+	    return 0;
 	}
       else
 	(*inda)++;
@@ -887,7 +876,7 @@ int     condmacro(char *bufa, char *bufb, int *inda, int *indb, int flag)
   return 0;
 }
 
-skipmacro(char *buf, int index)
+static int skipmacro(char *buf, int index)
 {
   int     state = 0;
   int     end = 0;
@@ -935,7 +924,7 @@ skipmacro(char *buf, int index)
       index++;
     }
 
-  return (index);
+  return index;
 }
 
 

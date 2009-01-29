@@ -1,13 +1,6 @@
-
 #include "config.h"
 
 #ifdef BEEPLITE
-/* beeplite.c
- *
- * $Log: beeplite.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
 #include "copyright.h"
 
 #include <stdio.h>
@@ -23,9 +16,12 @@
 #include "struct.h"
 #include "data.h"
 #include "map.h"
+#include "distress.h"
+#include "warning.h"
 
+int makelite(struct distress * dist, char *pm);
 
-rcdlite(struct distress *dist)
+void rcdlite(struct distress *dist)
 /* the info */
 {
   char    message[100];
@@ -47,7 +43,7 @@ rcdlite(struct distress *dist)
 }
 
 
-litedefaults(void)
+void litedefaults(void)
 {
   if (distlite[take] == NULL)
     distlite[take] = "/c/l";
@@ -59,14 +55,14 @@ litedefaults(void)
     distlite[generic] = "%?%S=SB%{/c%}";
 }
 
-liteplanet(struct planet *l)
+void liteplanet(struct planet *l)
 {
   emph_planet_seq_n[l->pl_no] = beep_lite_cycle_time_planet * server_ups / 10;
   l->pl_flags |= PLREDRAW;			 /* Leave redraw on until * * 
 						  * done highlighting */
 }
 
-liteplayer(struct player *j)
+void liteplayer(struct player *j)
 {
   if (!j || (j->p_flags & PFCLOAK))
     return;
@@ -80,7 +76,7 @@ liteplayer(struct player *j)
 /* small permutation on makedistress.  Searches for the highliting *
  * arguments, ignores everything else. */
 
-makelite(struct distress * dist, char *pm)
+int makelite(struct distress * dist, char *pm)
 /* the info */
 /* macro to parse, used for distress and macro */
 {
@@ -95,7 +91,7 @@ makelite(struct distress * dist, char *pm)
 
   if (!(*pm))
     {
-      return (0);
+      return 0;
     }
 
   /* first step is to substitute variables */
@@ -268,6 +264,6 @@ makelite(struct distress * dist, char *pm)
 
     }
 
-  return (1);
+  return 1;
 }
 #endif /* BEEPLITE */
