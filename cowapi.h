@@ -12,27 +12,7 @@
  *
  * The COW development team
  *
- * $Log: cowapi.h,v $
- * Revision 1.5  2001/04/28 04:03:56  quozl
- * change -U to also adopt a local port number for TCP mode.
- * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
- *
- * Revision 1.4  2000/05/19 14:24:52  jeffno
- * Improvements to playback.
- * - Can jump to any point in recording.
- * - Can lock on to cloaked players.
- * - Tactical/galactic repaint when paused.
- * - Can lock on to different players when recording paused.
- *
- * Revision 1.3  1999/08/20 18:32:45  siegl
- * WindowMaker Docking support
- *
- * Revision 1.2  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifndef _h_cowapi
 #define _h_cowapi

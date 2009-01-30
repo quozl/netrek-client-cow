@@ -4,11 +4,7 @@
    The client actually uses lots of string functions, mostly to
    format the information it displays.  This module provides
    housing for all these string functions.
- *
- * $Log: string_util.h,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+*/
 
 #ifndef string_util_h
 #define string_util_h

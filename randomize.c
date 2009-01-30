@@ -1,12 +1,8 @@
-
 #include "config.h"
 
 /* randomize argv's - stolen from beorn
  *
- * $Log: randomize.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 main (ac, av)
      int ac;
      char *av[];

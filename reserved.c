@@ -1,30 +1,23 @@
-
 /* reserved.c (adapted for trekhopd)
  * 
  * Kevin P. Smith   7/3/89
  *
- * $Log: reserved.c,v $
- * Revision 1.3  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.2  1999/03/25 20:56:26  siegl
- * CygWin32 autoconfig fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
+
 #include <stdio.h>
-#include <sys/types.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include INC_NETINET_IN
-#include <netdb.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
+#include "reserved.h"
 
 #ifdef GATEWAY
 extern unsigned LONG netaddr;
@@ -32,7 +25,7 @@ extern unsigned LONG netaddr;
 #endif
 extern void terminate(int error);
 
-makeReservedPacket(struct reserved_spacket *packet)
+void makeReservedPacket(struct reserved_spacket *packet)
 {
   int     i;
 
@@ -65,11 +58,9 @@ static unsigned char swap[16][16] =
   {12, 6, 5, 8, 14, 4, 13, 15, 10, 0, 11, 9, 3, 1, 7, 2}
 };
 
-encryptReservedPacket(struct reserved_spacket *spacket, struct reserved_cpacket *cpacket, int server, int pno)
+void encryptReservedPacket(struct reserved_spacket *spacket, struct reserved_cpacket *cpacket, char *server, int pno)
 {
   struct sockaddr_in saddr;
-  struct hostent *hp;
-  struct in_addr address;
   unsigned char mixin1, mixin2, mixin3, mixin4, mixin5;
   int     i, j, k;
   char    buf[16];

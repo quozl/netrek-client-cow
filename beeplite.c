@@ -19,7 +19,7 @@
 #include "distress.h"
 #include "warning.h"
 
-int makelite(struct distress * dist, char *pm);
+static int makelite(struct distress * dist, char *pm);
 
 void rcdlite(struct distress *dist)
 /* the info */
@@ -55,14 +55,14 @@ void litedefaults(void)
     distlite[generic] = "%?%S=SB%{/c%}";
 }
 
-void liteplanet(struct planet *l)
+static void liteplanet(struct planet *l)
 {
   emph_planet_seq_n[l->pl_no] = beep_lite_cycle_time_planet * server_ups / 10;
   l->pl_flags |= PLREDRAW;			 /* Leave redraw on until * * 
 						  * done highlighting */
 }
 
-void liteplayer(struct player *j)
+static void liteplayer(struct player *j)
 {
   if (!j || (j->p_flags & PFCLOAK))
     return;
@@ -76,7 +76,7 @@ void liteplayer(struct player *j)
 /* small permutation on makedistress.  Searches for the highliting *
  * arguments, ignores everything else. */
 
-int makelite(struct distress * dist, char *pm)
+static int makelite(struct distress * dist, char *pm)
 /* the info */
 /* macro to parse, used for distress and macro */
 {

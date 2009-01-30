@@ -8,7 +8,13 @@
 
 #define MAXBADVERSION 6
 
-static char *badversion_long_strings[] =
+#ifdef __GNUC__
+#define UNUSED __attribute__ ((unused))
+#else
+#define UNUSED
+#endif
+
+UNUSED static char *badversion_long_strings[] =
   {
     /* 0 */ "CP_SOCKET version does not match.\n"
             "You need a new version of the client code.",
@@ -20,7 +26,7 @@ static char *badversion_long_strings[] =
     /* 6 */ "Server reports internal error."
   };
 
-static char *badversion_short_strings[] =
+UNUSED static char *badversion_short_strings[] =
   {
     /* 0 */ "Bad Version",
     /* 1 */ "Access Denied",

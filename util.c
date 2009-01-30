@@ -1,23 +1,18 @@
-
 /* util.c
- *
- * $Log: util.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright.h"
 
 #include <stdio.h>
 #include <math.h>
-#include <signal.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 
 /* * Provide the angular distance between two angles. */
-angdist(unsigned char x, unsigned char y)
+int angdist(unsigned char x, unsigned char y)
 {
   register unsigned char res;
 
@@ -149,7 +144,7 @@ struct rusage *buf;
  * sigvec *) 0); } */
 #endif /* hpux */
 
-troop_capacity(void)
+int troop_capacity(void)
 {
   if (me->p_ship.s_type == ASSAULT)
     return (((me->p_kills * 3) > me->p_ship.s_maxarmies) ?

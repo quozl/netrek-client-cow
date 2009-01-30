@@ -14,10 +14,11 @@
 
 #include "Wlib.h"
 #include "defs.h"
-#include "socket.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
+#include "socket.h"
 
 #include "interface.h"
 

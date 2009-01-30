@@ -1,4 +1,3 @@
-
 /****************************************************************************/
 /***  File:  defaults.c                                                   ***/
 /***  Function: This file reads the default parameters from .xtrekrc and  ***/
@@ -6,38 +5,25 @@
 /***                                                                      ***/
 /***  Author:  Kevin P. Smith 6/11/89                                     ***/
 /****************************************************************************/
-/*
- * $Log: defaults.c,v $
- * Revision 1.6  2006/05/22 13:11:58  quozl
- * fix compilation warnings
- *
- * Revision 1.5  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.4  2001/04/28 04:03:56  quozl
- * change -U to also adopt a local port number for TCP mode.
- * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
- *
- * Revision 1.3  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.2  1999/07/24 19:23:43  siegl
- * New default portSwap for UDP_PORTSWAP feature
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
 
 #include "config.h"
 #include "copyright2.h"
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/file.h>
 #include <string.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-#include <sys/file.h>
+
+#include "beeplite.h"
+#include "getship.h"
+#include "input.h"
 #include "playerlist.h"
+
 #include "defaults.h"
 
 #include INC_IO
@@ -77,15 +63,6 @@ char   *getenv(const char *);
 int     playerlistnum(void);
 extern unsigned char getctrlkey(unsigned char **s);
 
-/*************************************************************************/
-/***  prob_desc[] will allow us to have simpler code to handle parsing ***/
-/***  for these key words.                                             ***/
-/*************************************************************************/
-static char *prob_desc[] =
-{"shld", "dam", "wtmp", "etmp", "arms", "fuel"};
-static char *prob_severity[] =
-{"low", "mid", "high"};
-
 #ifdef HAVE_WIN32
 int     DefaultsLoaded;
 char   *GetExeDir();
@@ -99,13 +76,10 @@ char   *GetExeDir();
 #define NETREKRC ".netrekrc"
 #endif /* Win32 */
 
-
-
-initDefaults(char *deffile)
+void initDefaults(char *deffile)
 {
   FILE   *fp;
   char    file[256];
-  char   *home;
   char   *v;
   struct stringlist *new;
   struct dmacro_list *dm;
@@ -133,11 +107,13 @@ initDefaults(char *deffile)
 
   getshipdefaults();
 
-  if (!deffile)
-    if (findDefaults(deffile, file))
+  if (!deffile) {
+    if (findDefaults(deffile, file)) {
       deffile = file;
-    else
+    } else {
       return;					 /* No defaults file! */
+    }
+  }
 
   fp = fopen(deffile, "r");
   if (!fp)
@@ -445,7 +421,7 @@ char *getdefault(char *str)
  * with... And tweaked again by NBT. Some systems have a demented strdup that
  * doesn't put an end of string at the end and this causes no end of
  * trouble... */
-strcmpi(char *str1, char *str2)
+int strcmpi(char *str1, char *str2)
 {
   char    chr1, chr2;
   register int duh, stop;
@@ -476,7 +452,7 @@ strcmpi(char *str1, char *str2)
 #ifndef HAVE_STRNCMPI
 /* grr... are you telling me this sort of function isn't in the std libraries
  * somewhere?! sons of satan... - jn */
-strncmpi(char *str1, char *str2, int max)
+int strncmpi(char *str1, char *str2, int max)
 {
   char    chr1, chr2;
   register int duh, stop;
@@ -509,7 +485,7 @@ strncmpi(char *str1, char *str2, int max)
 }
 #endif
 
-booleanDefault(char *def, int preferred)
+int booleanDefault(char *def, int preferred)
 {
   char   *str;
 
@@ -528,7 +504,7 @@ booleanDefault(char *def, int preferred)
     }
 }
 
-intDefault(char *def, int preferred)
+int intDefault(char *def, int preferred)
 {
   char   *str;
 
@@ -567,12 +543,11 @@ int     findDefaults(char *deffile, char *file)
   return 0;
 }
 
-resetdefaults(void)
+void resetdefaults(void)
 {
   char   *pek;
   char    tmp[100];
   int     i;
-  int     tmp_int;
 
   keepInfo = intDefault("keepInfo", keepInfo);
   showPlanetOwner = booleanDefault("showPlanetOwner", showPlanetOwner);
@@ -802,28 +777,28 @@ resetdefaults(void)
     {
       STRNCPY(tmp, "rcfile-", 8);
       strcat(tmp, shipdefaults[i].name);
-      if (pek = getdefault(tmp))
+      if ((pek = getdefault(tmp)))
 	shipdefaults[i].rcfile = pek;
       else
 	shipdefaults[i].rcfile = shipdefaults[DEFAULTSHIP].rcfile;
 
       STRNCPY(tmp, "keymap-", 8);
       strcat(tmp, shipdefaults[i].name);
-      if (pek = getdefault(tmp))
+      if ((pek = getdefault(tmp)))
 	shipdefaults[i].keymap = (unsigned char *) pek;
       else
 	shipdefaults[i].keymap = shipdefaults[DEFAULTSHIP].keymap;
 
       STRNCPY(tmp, "ckeymap-", 9);
       strcat(tmp, shipdefaults[i].name);
-      if (pek = getdefault(tmp))
+      if ((pek = getdefault(tmp)))
 	shipdefaults[i].ckeymap = (unsigned char *) pek;
       else
 	shipdefaults[i].ckeymap = shipdefaults[DEFAULTSHIP].ckeymap;
 
       STRNCPY(tmp, "buttonmap-", 11);
       strcat(tmp, shipdefaults[i].name);
-      if (pek = getdefault(tmp))
+      if ((pek = getdefault(tmp)))
 	shipdefaults[i].buttonmap = (unsigned char *) pek;
       else
 	shipdefaults[i].buttonmap = shipdefaults[DEFAULTSHIP].buttonmap;
@@ -831,7 +806,7 @@ resetdefaults(void)
   myshipdef = &shipdefaults[myshiptype];
 }
 
-shipchange(int type)
+void shipchange(int type)
 {
   if (type == myshiptype)
     return;

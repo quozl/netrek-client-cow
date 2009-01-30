@@ -10,17 +10,7 @@
  *     W_RegularFont, W_UnderlineFont, W_HighlightFont, W_White, W_Black,
  *     W_Red, W_Green, W_Yellow, W_Cyan, W_Grey, W_Textwidth, and W_Textheight.
  *
- * $Log: Wlib.h,v $
- * Revision 1.3  2006/05/22 13:12:19  quozl
- * fix compilation warnings
- *
- * Revision 1.2  2001/08/21 20:52:15  siegl
- *
- * mouse wheel support
- *
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifndef _h_Wlib
 #define _h_Wlib

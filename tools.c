@@ -1,4 +1,3 @@
-
 /* tools.c - shell escape, graphic toolsw - 10/10/93
  * 
  * copyright 1993 Kurt Siegl <007@netrek.org> Free to use, hack, etc.
@@ -7,24 +6,22 @@
  * responsibility for damages, real, potential, or imagined, resulting  from
  * the use of it.
  * 
- *
- * $Log: tools.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 
 #ifdef TOOLS
 #include <stdio.h>
-#include "math.h"
 #include <signal.h>
-#include <sys/types.h>
-#include INC_STRINGS
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
+#include "defaults.h"
+
+#include "tools.h"
 
 void
         sendTools(char *str)
@@ -70,7 +67,7 @@ void
     W_WriteText(toolsWin, 0, 0, textColor, str, strlen(str), W_RegularFont);
 }
 
-showToolsWin(void)
+void showToolsWin(void)
 {
   if (W_IsMapped(toolsWin))
     W_UnmapWindow(toolsWin);

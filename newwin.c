@@ -16,7 +16,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-#include "playerlist.h"
+
 #include "bitmaps.h"
 #include "moobitmaps.h"
 #include "rabbitbitmaps.h"
@@ -32,14 +32,26 @@
 #include "oldbitmaps.h"
 #include "packets.h"
 
+#include "colors.h"
 #include "cowmain.h"
 #include "death.h"
+#include "defaults.h"
+#include "lagmeter.h"
+#include "input.h"
+#include "interface.h"
 #include "macrowin.h"
+#include "map.h"
+#include "netstatopt.h"
 #include "option.h"
+#include "pingstats.h"
+#include "playerlist.h"
 #include "redraw.h"
+#include "smessage.h"
+#include "socket.h"
 #include "spopt.h"
 #include "udpopt.h"
 #include "war.h"
+#include "warning.h"
 
 #include "newwin.h"
 
@@ -86,6 +98,19 @@ static char press_bits[] =
 {
   0x0f, 0x11, 0x0f, 0x01, 0x01};
 
+struct list
+{
+  char    bold;
+  struct list *next;
+  char   *data;
+};
+static struct list *motddata = NULL;		 /* pointer to first bit of * 
+
+						  * 
+						  * 
+						  * * motddata */
+static int first = 1;
+
 /* Event Handlers. */
 extern void drawIcon(void), redrawTstats(void), planetlist(void);
 extern void ranklist(void), fillhelp(void);
@@ -93,11 +118,19 @@ extern void redrawLMeter(void), redrawPStats(void), redrawStats(void);
 
 extern void nsaction(W_Event * data);
 extern void optionaction(W_Event * data);
+extern int checkMapped(char *name);
+extern int checkMappedPref(char *name, int preferred);
+extern void pastebuffer(void);
 
-/* Other function declarations */
-extern int smessage(char ichar);
-
-static int teamRequest(int team, int ship);
+/* internal function declarations */
+static void savebitmaps(void);
+static void showValues(struct list *data);
+static void ClearMotd(void);
+static void getResources(char *prog);
+static void getTiles(void);
+static void redrawTeam(W_Window win, int teamNo, int *lastnum);
+static void redrawQuit(void);
+static void showTimeLeft(time_t time, time_t max);
 
 static void
         handleMessageWindowKeyDown(W_Event * event)
@@ -398,7 +431,7 @@ void mapAll(void)
   if (checkMapped("review_kill") && !identityBlind)
     W_MapWindow(messwk);
   if (checkMapped("netstat"))
-    nswindow(netstatWin);
+    nswindow();
   if (checkMapped("lagMeter"))
     W_MapWindow(lMeter);
   if (checkMapped("pingStats"))
@@ -422,7 +455,7 @@ void mapAll(void)
 
 }
 
-savebitmaps(void)
+static void savebitmaps(void)
 {
   register int i;
 
@@ -1156,7 +1189,7 @@ void entrywindow(int *team, int *s_type)
   }
 }
 
-static int deadTeam(int owner) /* unused */
+int deadTeam(int owner) /* unused */
 
 /* The team is dead if it has no planets and cannot coup it's home planet */
 {
@@ -1177,7 +1210,7 @@ static int deadTeam(int owner) /* unused */
   return (1);
 }
 
-checkBold(char *line)
+static int checkBold(char *line)
 /* Determine if that line should be highlighted on sign-on screen */
 /* Which is done when it is the players own score being displayed */
 
@@ -1213,19 +1246,6 @@ checkBold(char *line)
     }
   return (1);
 }
-
-struct list
-{
-  char    bold;
-  struct list *next;
-  char   *data;
-};
-static struct list *motddata = NULL;		 /* pointer to first bit of * 
-
-						  * 
-						  * 
-						  * * motddata */
-static int first = 1;
 
 void showMotd(W_Window motdwin, int atline)
 {
@@ -1316,7 +1336,7 @@ void showMotd(W_Window motdwin, int atline)
 }
 
 /* ATM: show the current values of the .sysdef parameters. */
-showValues(struct list *data)
+static void showValues(struct list *data)
 {
   int     i;
   static char *msg = "OPTIONS SET WHEN YOU STARTED WERE:";
@@ -1379,7 +1399,7 @@ void newMotdLine(char *line)
 }
 
 /* Free the current motdData */
-ClearMotd(void)
+static void ClearMotd(void)
 {
   struct list *temp, *temp2;
 
@@ -1399,18 +1419,18 @@ ClearMotd(void)
 }
 
 /* ARGSUSED */
-getResources(char *prog)
+static void getResources(char *prog)
 {
   getColorDefs();
   getTiles();
 }
 
-getTiles(void)
+static void getTiles(void)
 {
   stipple = W_StoreBitmap(stipple_width, stipple_height, stipple_bits, w);
 }
 
-redrawTeam(W_Window win, int teamNo, int *lastnum)
+static void redrawTeam(W_Window win, int teamNo, int *lastnum)
 {
   char    buf[BUFSIZ];
   static char *teams[] =
@@ -1430,7 +1450,7 @@ redrawTeam(W_Window win, int teamNo, int *lastnum)
   *lastnum = num;
 }
 
-redrawQuit(void)
+static void redrawQuit(void)
 {
   char *msg = "Quit";
   int tx = W_WindowWidth(qwin) / 2 - W_Textwidth * strlen(msg) / 2;
@@ -1450,7 +1470,7 @@ void    drawIcon(void)
 
 #define XPI             3.141592654
 
-showTimeLeft(time_t time, time_t max)
+static void showTimeLeft(time_t time, time_t max)
 {
   char    buf[BUFSIZ], *cp;
   int     cx, cy, ex, ey, tx, ty;
@@ -1472,7 +1492,7 @@ showTimeLeft(time_t time, time_t max)
   ey = cy - clock_height * cos(2 * XPI * time / max) / 2;
   W_MakeLine(qwin, cx, cy, ex, ey, foreColor);
 
-  sprintf(buf, "%d", max - time);
+  sprintf(buf, "%d", (int) (max - time));
   tx = cx - W_Textwidth * strlen(buf) / 2;
   ty = cy - W_Textheight / 2;
   W_WriteText(qwin, tx, ty, textColor, buf, strlen(buf), W_RegularFont);

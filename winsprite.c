@@ -2,16 +2,7 @@
  * Xpm Windowing code for GNU Win32 API
  * Kurt Siegl May 1998
  * 
- * $Log: winsprite.c,v $
- * Revision 1.3  1999/06/20 15:57:49  siegl
- * Add a magic 3 to draw the sprites on the correct position
- *
- * Revision 1.2  1999/01/31 16:38:17  siegl
- * Hockey rink background XPM on galactic map in hockey mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:12  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "copyright2.h"
 
 #include <windows.h>

@@ -1,13 +1,8 @@
-
-
 /* dmessage.c
  * 
  * for the client of a socket based protocol.
  *
- * $Log: dmessage.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright.h"
 
@@ -23,18 +18,26 @@
 #include "version.h"
 #include "patchlevel.h"
 
-char   *censor(char *text);
+#include "beeplite.h"
+#include "censor.h"
+#include "distress.h"
+#include "smessage.h"
+
+#include "dmessage.h"
+
 extern char cowid[];
 static int version_sent = 0;
 
-dmessage(char *message, unsigned char flags, unsigned char from, unsigned char to)
+static int instr(char *string1, char *string2);
+static void CheckFeatures(char *m);
+
+void dmessage(char *message, unsigned char flags, unsigned char from, unsigned char to)
 {
   register int len;
   W_Color color;
   char    timebuf[10];
   LONG    curtime;
   struct tm *tm;
-  char    buf[80];
   int     take, destroy, team, kill, killp, killa, bomb, conq;
   struct distress dist;
 
@@ -257,7 +260,7 @@ dmessage(char *message, unsigned char flags, unsigned char from, unsigned char t
     }
 }
 
-instr(char *string1, char *string2)
+static int instr(char *string1, char *string2)
 {
   char   *s;
   int     length;
@@ -271,15 +274,7 @@ instr(char *string1, char *string2)
   return (0);
 }
 
-nothing(void)
-{
-  int     foo;
-  char    buf[80];
-
-  STRNCPY(buf, "this does nothing, really", 30);
-}
-
-CheckFeatures(char *m)
+static void CheckFeatures(char *m)
 {
   char    buf[BUFSIZ];
   char   *pek = &m[10];
@@ -365,7 +360,7 @@ CheckFeatures(char *m)
 }
 
 
-sendVersion(void)
+void sendVersion(void)
 {
   char    client_ver[15];
 

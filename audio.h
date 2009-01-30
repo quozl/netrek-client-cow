@@ -5,13 +5,7 @@
  * modify, copy and distribute this software without fee is hereby granted as
  * long as this notice is left here.
  *
- * $Log: audio.h,v $
- * Revision 1.2  1999/12/31 17:27:58  siegl
- * Win32 fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:08  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifndef __SNDLIB_H
 #define __SNDLIB_H

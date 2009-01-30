@@ -1,4 +1,3 @@
-
 /*
  * map.h
  *
@@ -6,11 +5,7 @@
  * of code from redraw.c, which was too big before, and planets.c,
  * which was too small.
  *
- *
- * $Log: map.h,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
  
 #ifndef h_map
 #define h_map

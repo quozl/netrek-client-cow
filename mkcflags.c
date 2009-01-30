@@ -20,23 +20,7 @@
 /*  ANSI C defines the tm structure in time.h so better learn ANSI C         */
 /*                                                                           */
 /*****************************************************************************/
-/*
- * $Log: mkcflags.c,v $
- * Revision 1.5  2006/05/20 08:12:54  quozl
- * mkcflags compilation fixes
- *
- * Revision 1.4  2006/05/16 06:25:25  quozl
- * some compilation fixes
- *
- * Revision 1.3  2006/02/28 01:45:56  quozl
- * prerelease
- *
- * Revision 1.2  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+
 int
 main (argc, argv)
      int argc;

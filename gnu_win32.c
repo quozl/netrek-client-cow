@@ -6,17 +6,7 @@
  * Lots of stuff, Aug 1996
  * COW 3.0 support, based on gnu win32 development system
  * Kurt Siegl May 1998
- *
- * $Log: gnu_win32.c,v $
- * Revision 1.3  2001/09/08 13:27:13  siegl
- * Support for state of the art cygwin
- *
- * Revision 1.2  2001/08/26 10:02:16  siegl
- * Playback fixes
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "copyright2.h"
 
 // #undef DEBUG

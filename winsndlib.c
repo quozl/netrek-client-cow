@@ -13,14 +13,7 @@
    call. This made the whole thing a 40 line file, everything was just a wrapper.
    Sadly this didn't give the performance I expected; there was a noticable
    pause as the file was loaded. So this code implements an LRU cache of sounds.
- * 
- * $Log: winsndlib.c,v $
- * Revision 1.2  2001/09/08 13:27:13  siegl
- * Support for state of the art cygwin
- *
- * Revision 1.1.1.1  1998/11/01 17:24:12  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #undef DEBUG
 

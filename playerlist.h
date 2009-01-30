@@ -3,11 +3,7 @@
    
    All functions which update the playerlist should include this
    header file.
- *
- * $Log: playerlist.h,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifndef h_playerlist
 #define h_playerlist

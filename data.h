@@ -1,39 +1,6 @@
-
-/* data.h
- *
- * $Log: data.h,v $
- * Revision 1.9  2006/09/19 10:20:39  quozl
- * ut06 full screen, det circle, quit on motd, add icon, add desktop file
- *
- * Revision 1.8  2002/06/21 00:29:02  quozl
- * describe playback states
- *
- * Revision 1.7  2001/04/28 04:03:56  quozl
- * change -U to also adopt a local port number for TCP mode.
- * 		-- Benjamin `Quisar' Lerman  <quisar@quisar.ambre.net>
- *
- * Revision 1.6  2000/05/19 14:24:52  jeffno
- * Improvements to playback.
- * - Can jump to any point in recording.
- * - Can lock on to cloaked players.
- * - Tactical/galactic repaint when paused.
- * - Can lock on to different players when recording paused.
- *
- * Revision 1.5  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.4  1999/07/24 19:23:43  siegl
- * New default portSwap for UDP_PORTSWAP feature
- *
- * Revision 1.3  1999/06/11 16:14:17  siegl
- * cambot replay patches
- *
- * Revision 1.2  1999/01/31 16:38:17  siegl
- * Hockey rink background XPM on galactic map in hockey mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+/*
+ * data.h
+ */
 #include "copyright.h"
 
 #ifndef _h_data

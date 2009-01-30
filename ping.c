@@ -1,27 +1,23 @@
-
 /* ping.c
- *
- * $Log: ping.c,v $
- * Revision 1.2  2006/05/22 13:13:24  quozl
- * initialise packet buffers
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
-
+ */
 #include "config.h"
 #include "copyright2.h"
+
 #include <stdio.h>
 #include <sys/types.h>
 #include INC_NETINET_IN
 #include <sys/time.h>
 #include <math.h>
 #include <errno.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
+#include "pingstats.h"
+#include "socket.h"
 
 #include "ping.h"
 
@@ -51,6 +47,9 @@ static int sum, n;
 static int M, var;
 static double s2;
 
+static void sendServerPingResponse(int number);
+static void calc_lag(void);
+
 void    handlePing(struct ping_spacket *packet)	 /* SP_PING */
 {
   ping = 1;					 /* we got a ping */
@@ -69,7 +68,7 @@ void    handlePing(struct ping_spacket *packet)	 /* SP_PING */
     updatePStats();
 }
 
-startPing(void)
+void startPing(void)
 {
   static
   struct ping_cpacket packet;
@@ -86,7 +85,7 @@ startPing(void)
     }
 }
 
-stopPing(void)
+void stopPing(void)
 {
   static
   struct ping_cpacket packet;
@@ -104,13 +103,11 @@ stopPing(void)
 }
 
 
-sendServerPingResponse(int number)		 /* CP_PING_RESPONSE */
-
+static void sendServerPingResponse(int number)		 /* CP_PING_RESPONSE */
 {
   struct ping_cpacket packet;
   int     s;
   extern int serverDead;
-  int     ps;
 
   if (udpSock >= 0)
     {
@@ -145,7 +142,7 @@ sendServerPingResponse(int number)		 /* CP_PING_RESPONSE */
     }
 }
 
-calc_lag(void)
+static void calc_lag(void)
 {
 
 #ifdef nodef

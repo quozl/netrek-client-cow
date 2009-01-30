@@ -4,10 +4,7 @@
  * risk. I assume no responsibility for damages, real, potential, or
  * imagined, resulting  from the use of it. Yeah.....what Eric said...
  *
- * $Log: macrowin.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 #include <stdio.h>

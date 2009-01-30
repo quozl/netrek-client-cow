@@ -20,15 +20,17 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-#include "defaults.h"
 
 #include "badversion.h"
-#include "parsemeta.h"
+#include "defaults.h"
 #include "newwin.h"
+
+#include "parsemeta.h"
 
 #ifdef WIN32 /* socket garbage in case the client is not running on NT */
 #define read(f,b,l) recv(f,b,l,0)
@@ -640,7 +642,7 @@ static void version_s(struct sockaddr_in *address)
 
   p = strtok(NULL,",");		/* number of ports */
   if (p == NULL) return;
-  int ports = atoi(p);		/* not currently used */
+  // int ports = atoi(p);		/* not currently used */
 
   // TODO: accept more than one port reply
   
@@ -654,7 +656,7 @@ static void version_s(struct sockaddr_in *address)
 
   p = strtok(NULL,",");		/* queue size */
   if (p == NULL) return;
-  int queue = atoi(p);		/* not currently used */
+  // int queue = atoi(p);		/* not currently used */
 
   /* find in current server list? */
   struct servers *sp = server_find(host, port);

@@ -1,5 +1,5 @@
 /* short.c */
-int sendThreshold(short unsigned int v);
+void sendThreshold(short unsigned int v);
 void handleVTorp(unsigned char *sbuf);
 void handleSelfShort(struct youshort_spacket *packet);
 void handleSelfShip(struct youss_spacket *packet);
@@ -11,7 +11,7 @@ void handleVPlanet(unsigned char *sbuf);
 void resetWeaponInfo(void);
 void sendShortReq(char state);
 void handleSWarning(struct warning_s_spacket *packet);
-int add_whydead(char *s, int m);
+void add_whydead(char *s, int m);
 void handleVKills(unsigned char *sbuf);
 void handleVPhaser(unsigned char *sbuf);
 void handle_s_Stats(struct stats_s_spacket *packet);

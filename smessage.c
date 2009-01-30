@@ -12,6 +12,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "packets.h"
 
 #include "dmessage.h"
 #include "socket.h"

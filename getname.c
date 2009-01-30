@@ -18,11 +18,12 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-
-#include "getname.h"
+#include "packets.h"
 
 #include "myf.h"
 #include "socket.h"
+
+#include "getname.h"
 
 static char *n_def;
 static char n_buf[16];

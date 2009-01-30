@@ -2,27 +2,23 @@
  * spopt.c
  * 
  * Functions to look after the Short Packet window.
- * *
- * * $Log: spopt.c,v $
- * * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * * COW 3.0 initial revision
- * * */
-
+ */
 #include "config.h"
 
 #ifdef SHORT_PACKETS
-/* */
 #include "copyright.h"
 
 #include <stdio.h>
-#include <ctype.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
-#include "spopt.h"
 
+#include "short.h"
+
+#include "spopt.h"
 
 void    sprefresh(int i)
 /*

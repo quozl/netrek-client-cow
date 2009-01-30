@@ -1,20 +1,10 @@
-
 /* map.c
  *
  * Functions to maintain the galactic map.  This file is a merger
  * of code from redraw.c, which was too big before, and planets.c,
  * which was too small.
  *
- * $Log: map.c,v $
- * Revision 1.3  1999/08/05 16:46:32  siegl
- * remove several defines (BRMH, RABBITEARS, NEWDASHBOARD2)
- *
- * Revision 1.2  1999/01/31 16:38:17  siegl
- * Hockey rink background XPM on galactic map in hockey mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #include "config.h"
 #include "copyright2.h"
@@ -25,6 +15,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+
 #include "map.h"
 
 /* debugging feature, show rectangular redraw regions on galactic */

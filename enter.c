@@ -1,12 +1,8 @@
-
 /* enter.c
  * 
  * This version modified to work as the client in a socket based protocol.
  *
- * $Log: enter.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright.h"
 

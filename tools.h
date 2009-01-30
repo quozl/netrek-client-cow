@@ -1,3 +1,3 @@
 /* tools.c */
 void sendTools(char *str);
-int showToolsWin(void);
+void showToolsWin(void);

@@ -38,12 +38,16 @@
 #include "getship.h"
 #include "local.h"
 #include "map.h"
+#include "netstat.h"
 #include "newwin.h"
+#include "reserved.h"
+#include "playback.h"
 #include "rotate.h"
 #include "redraw.h"
 #include "short.h"
 #include "stats.h"
 #include "udpopt.h"
+#include "warning.h"
 
 #include "socket.h"
 
@@ -174,7 +178,7 @@ void
 }
 
 #ifdef SHORT_PACKETS
-char    numofbits[256] =
+unsigned char numofbits[256] =
 {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1,
  2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 1,
  2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2,
@@ -461,6 +465,9 @@ static short fSpeed, fDirection, fShield, fOrbit, fRepair, fBeamup, fBeamdown,
         fCloak, fBomb, fDockperm, fPhaser, fPlasma, fPlayLock, fPlanLock,
         fTractor, fRepress;
 
+/* internal prototypes */
+static void dotimers(void);
+
 /* print the SP_S_TORP* packets.  */
 /* sbuf = pointer to packet buff  */
 /* type=1 print SP_S_TORP         */
@@ -534,7 +541,7 @@ void print_sp_s_torp(char *sbuf, int type)
       fprintf(stderr, "  bitset=0x%0X, which=%d, infobitset=0x%0X, ",
 	      bitset, which, infobitset);
 
-      infodata = (unsigned char *) &sbuf[vtisize[(int) numofbits[(unsigned char) sbuf[1]]]];
+      infodata = (unsigned char *) &sbuf[vtisize[numofbits[(unsigned char) sbuf[1]]]];
       
       for (shift = 0, i = 0; i < 8; bitset >>= 1, infobitset >>= 1, i++)
 	{
@@ -666,7 +673,7 @@ void connectToServer(int port)
   int     s;
   struct sockaddr_in addr;
   struct sockaddr_in naddr;
-  int     len;
+  socklen_t len;
   fd_set  readfds;
   struct timeval timeout;
   struct hostent *hp;
@@ -745,7 +752,7 @@ tryagain:
       terminate(0);
     }
 
-  sock = accept(s, (struct sockaddr *) &naddr, (socklen_t *) &len);
+  sock = accept(s, (struct sockaddr *) &naddr, &len);
 
   if (sock == -1)
     {
@@ -765,7 +772,7 @@ tryagain:
    * "serverName" and "serveraddr" appropriately. */
   len = sizeof(struct sockaddr_in);
 
-  if (getpeername(sock, (struct sockaddr *) &addr, (socklen_t *) &len) < 0)
+  if (getpeername(sock, (struct sockaddr *) &addr, &len) < 0)
     {
       perror("unable to get peername");
       serverName = "nowhere";
@@ -929,7 +936,7 @@ void callServer(int port, char *server)
   pickSocket(port);				 /* new socket != port */
 }
 
-isServerDead(void)
+int isServerDead(void)
 {
   return serverDead;
 }
@@ -981,7 +988,6 @@ int readFromServer(fd_set *readfds)
 
       readfds = &mask;
 
-    tryagain:
       FD_ZERO(readfds);
       FD_SET(sock, readfds);
       if (udpSock >= 0)
@@ -1044,7 +1050,7 @@ int readFromServer(fd_set *readfds)
   return retval != 0;				 /* convert to 1/0 */
 }
 
-dotimers(void)
+static void dotimers(void)
 {
   /* if switching comm mode, decrement timeout counter */
   if (commSwitchTimeout > 0)
@@ -1238,7 +1244,9 @@ static int doRead(int asock)
     {
       /* this goto label for a bug w/ short packets */
     computesize:
-      if (*bufptr < 1 || *bufptr > NUM_PACKETS || handlers[*bufptr].size == 0)
+      if (*bufptr < 1 || 
+          *bufptr > NUM_PACKETS || 
+          handlers[(unsigned char) *bufptr].size == 0)
 	{
 	  fprintf(stderr, "Unknown packet type: %d\n", *bufptr);
 
@@ -1253,7 +1261,7 @@ static int doRead(int asock)
 
 	  return 0;
 	}
-      size = handlers[*bufptr].size;
+      size = handlers[(unsigned char) *bufptr].size;
 
 #ifdef SHORT_PACKETS
       if (size == -1)
@@ -1278,7 +1286,6 @@ static int doRead(int asock)
 	{
 	  /* We wait for up to ten seconds for rest of packet. If we don't *
 	   * * get it, we assume the server died. */
-	tryagain1:
 	  timeout.tv_sec = 20;
 	  timeout.tv_usec = 0;
 	  FD_ZERO(&readfds);
@@ -1312,7 +1319,7 @@ static int doRead(int asock)
 	  if (size == 0)
 	    goto computesize;
 	}
-      if (handlers[*bufptr].handler != NULL)
+      if (handlers[(unsigned char) *bufptr].handler != NULL)
 	{
 	  if (asock != udpSock ||
 	      (!drop_flag || *bufptr == SP_SEQUENCE || *bufptr == SP_SC_SEQUENCE))
@@ -1343,7 +1350,7 @@ static int doRead(int asock)
 	      if (asock == udpSock)
 		packets_received++;
 
-	      (*(handlers[*bufptr].handler)) (bufptr
+	      (*(handlers[(unsigned char) *bufptr].handler)) (bufptr
 
 #ifdef CORRUPTED_PACKETS
 					      ,asock
@@ -1374,7 +1381,6 @@ static int doRead(int asock)
 	  MCOPY(buf + BUFSIZ, buf, BUFSIZ);
 	  if (count == BUFSIZ * 2)
 	    {
-	    tryagain2:
 	      FD_ZERO(&readfds);
 	      FD_SET(asock, &readfds);
 	      /* readfds = 1<<asock; */
@@ -1562,7 +1568,7 @@ void    handleSelf(struct you_spacket *packet) /* SP_YOU */
   struct player* pl;
   static int seen = 0;
 
-  pl = &players[packet->pnum];
+  pl = &players[(unsigned char) packet->pnum];
 
 #ifdef CORRUPTED_PACKETS
   if (packet->pnum < 0 || packet->pnum >= MAXPLAYER)
@@ -1642,7 +1648,7 @@ void    handlePlayer(struct player_spacket *packet)
 #endif
 
 
-  pl = &players[packet->pnum];
+  pl = &players[(unsigned char) packet->pnum];
 
   pl->p_dir = packet->dir;
   pl->p_speed = packet->speed;
@@ -1676,7 +1682,7 @@ void    handlePlayer(struct player_spacket *packet)
   pl->p_x = x;
   pl->p_y = y;
 
-  redrawPlayer[packet->pnum] = 1;
+  redrawPlayer[(unsigned char) packet->pnum] = 1;
 
   if (me == pl)
     {
@@ -1790,12 +1796,14 @@ void sendServerPacket(void *buffer)
 
   if (serverDead)
     return;
-  if (packet->type < 1 || packet->type > NUM_SIZES || sizes[packet->type] == 0)
+  if (packet->type < 1 ||
+      packet->type > NUM_SIZES ||
+      sizes[(unsigned char) packet->type] == 0)
     {
       printf("Attempt to send strange packet %d!\n", packet->type);
       return;
     }
-  size = sizes[packet->type];
+  size = sizes[(unsigned char) packet->type];
 
 #ifdef PACKET_LOG
   if (log_packets)
@@ -1862,7 +1870,7 @@ void sendServerPacket(void *buffer)
 	  packets_sent++;
 
 	  V_UDPDIAG(("Sent %d on UDP port\n", packet->type));
-	  if (gwrite(udpSock, packet, size) != size)
+	  if (gwrite(udpSock, (char *) packet, size) != size)
 	    {
 	      UDPDIAG(("gwrite on UDP failed.  Closing UDP connection\n"));
 	      warning("UDP link severed");
@@ -1906,7 +1914,7 @@ void    handlePlanet(struct planet_spacket *packet)
     }
 #endif
 
-  plan = &planets[packet->pnum];
+  plan = &planets[(unsigned char) packet->pnum];
 
 #ifdef nodef
   monpoprate(plan, packet);
@@ -1971,7 +1979,7 @@ void    handlePhaser(struct phaser_spacket *packet)
 #endif
 
   weaponUpdate = 1;
-  phas = &phasers[packet->pnum];
+  phas = &phasers[(unsigned char) packet->pnum];
   phas->ph_status = packet->status;
   phas->ph_dir = packet->dir;
   phas->ph_x = ntohl(packet->x);
@@ -2213,7 +2221,7 @@ void    handleFlags(struct flags_spacket *packet)
 {
   struct player* pl;
 
-  pl = &players[packet->pnum];
+  pl = &players[(unsigned char) packet->pnum];
 
 #ifdef CORRUPTED_PACKETS
   if (packet->pnum >= MAXPLAYER)
@@ -2223,30 +2231,31 @@ void    handleFlags(struct flags_spacket *packet)
     }
 #endif
 
-  if (players[packet->pnum].p_flags != ntohl(packet->flags)
+  if (players[(unsigned char) packet->pnum].p_flags != ntohl(packet->flags)
 
 #ifdef INCLUDE_VISTRACT
-      || players[packet->pnum].p_tractor !=
+      || players[(unsigned char) packet->pnum].p_tractor !=
       ((short) packet->tractor & (~0x40))
 #endif
 
       )
     {
       /* FAT: prevent redundant player update */
-      redrawPlayer[packet->pnum] = 1;
+      redrawPlayer[(unsigned char) packet->pnum] = 1;
     }
   else
     return;
 
-  players[packet->pnum].p_flags = ntohl(packet->flags);
+  players[(unsigned char) packet->pnum].p_flags = ntohl(packet->flags);
 
 #ifdef INCLUDE_VISTRACT
   if (packet->tractor & 0x40) {
-    players[packet->pnum].p_tractor = (short) packet->tractor & (~0x40); /* ATM visible tractors */
+    players[(unsigned char) packet->pnum].p_tractor =
+      (short) packet->tractor & (~0x40); /* ATM visible tractors */
   } else
 #endif /* INCLUDE_VISTRACT */
 
-    players[packet->pnum].p_tractor = -1;
+    players[(unsigned char) packet->pnum].p_tractor = -1;
 }
 
 void    handleKills(struct kills_spacket *packet)
@@ -2260,14 +2269,16 @@ void    handleKills(struct kills_spacket *packet)
     }
 #endif
 
-  if (players[packet->pnum].p_kills != ntohl(packet->kills) / 100.0)
+  if (players[(unsigned char) packet->pnum].p_kills !=
+      ntohl(packet->kills) / 100.0)
     {
-      players[packet->pnum].p_kills = ntohl(packet->kills) / 100.0;
+      players[(unsigned char) packet->pnum].p_kills =
+        ntohl(packet->kills) / 100.0;
       /* FAT: prevent redundant player update */
-      PlistNoteUpdate(packet->pnum);
+      PlistNoteUpdate((unsigned char) packet->pnum);
 
 #ifdef ARMY_SLIDER
-      if (me == &players[packet->pnum])
+      if (me == &players[(unsigned char) packet->pnum])
 	{
 	  calibrate_stats();
 	  redrawStats();
@@ -2296,7 +2307,7 @@ void    handlePStatus(struct pstatus_spacket *packet)
     }
 #endif
 
-  j = &players[packet->pnum];
+  j = &players[(unsigned char) packet->pnum];
 
   if (packet->status == j->p_status)
     return;
@@ -2324,12 +2335,12 @@ void    handlePStatus(struct pstatus_spacket *packet)
     j->p_kills = 0.;
 
   /* update the player list, especially if this signals a new arrival */
-  PlistNoteUpdate(packet->pnum);
+  PlistNoteUpdate((unsigned char) packet->pnum);
   if (j->p_status == PFREE || packet->status == PFREE)
     PlistNoteArrive(packet->pnum);
 
   j->p_status = packet->status;
-  redrawPlayer[packet->pnum] = 1;
+  redrawPlayer[(unsigned char) packet->pnum] = 1;
 }
 
 void    handleMotd(struct motd_spacket *packet)
@@ -2866,8 +2877,7 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
 {
   struct rsa_key_cpacket response;
   struct sockaddr_in saddr;
-  int     len;
-  unsigned short port;
+  socklen_t len;
   unsigned char *data;
 
 #ifdef GATEWAY

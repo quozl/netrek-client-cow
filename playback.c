@@ -4,15 +4,16 @@
  *
  * Routines neccessary to playback a game recording.
  */
-#include <setjmp.h>
 #include "config.h"
 
 #include INC_MACHINE_ENDIAN
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <time.h>
+#include <setjmp.h>
 #include INC_SYS_TIME
 #include INC_SYS_WAIT
 #include INC_SYS_RESOURCE
@@ -23,19 +24,35 @@
 #include <pwd.h>
 #include <string.h>
 #include <ctype.h>
+#include <arpa/inet.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+
 #include "version.h"
 #include "patchlevel.h"
+
+#include "censor.h"
 #include "cowapi.h"
+#include "defaults.h"
+#include "enter.h"
+#include "getship.h"
+#include "inform.h"
+#include "input.h"
+#include "lagmeter.h"
 #include "map.h"
+#include "newwin.h"
+#include "pingstats.h"
+#include "redraw.h"
 #include "socket.h"
 #include "spopt.h"
+#include "stats.h"
 #include "defs.h"
 #include "playerlist.h"
+
 #include "playback.h"
 
 #ifdef RECORDGAME
@@ -81,6 +98,7 @@ int pb_index_compare(const void *a, const void *b);
 void rpb_init(void);
 void rpb_analyze(int diskpos, void *packet);
 void rpb_dorev(char *buf);
+static int readFromFile0();
 
 struct player *packetsme;
 struct player *displayme;
@@ -544,7 +562,7 @@ void
    displayme = me;
 }
 
-inline int
+int
         ckRecordPacket(char packet)
 {
   return 1;
@@ -626,7 +644,7 @@ pb_dopacket(char *buf)
 
 
   /* Determine how many more bytes we need to read. */
-  size = handlers[buf[0]].size;
+  size = handlers[(unsigned char) buf[0]].size;
   if (size == -1)
     {
       if (buf[0] == SP_S_MESSAGE)
@@ -656,7 +674,7 @@ pb_dopacket(char *buf)
     }
 
   /* Call the packet handler and return success (zero). */
-  (*(handlers[buf[0]].handler)) (buf
+  (*(handlers[(unsigned char) buf[0]].handler)) (buf
 #ifdef CORRUPTED_PACKETS
 				 ,recordFile
 #endif
@@ -715,8 +733,7 @@ int readFromFile() {
 }
 
 
-int
-readFromFile0()
+static int readFromFile0()
 {
 #define MAXPACKETSIZE 128
   static uint aligned_buf[MAXPACKETSIZE/sizeof(uint)];
@@ -1227,11 +1244,13 @@ rpb_analyze(int diskpos, void *packet)
  	else if (sbuf[1] & 64)
  	  {
  	    offset = 0;
- 	    if (shortversion == SHORTVERSION)
- 	      if (sbuf[2] == 2)
- 		sbuf += 8;
- 	      else if (sbuf[2] == 1)
- 		sbuf += 4;
+            if (shortversion == SHORTVERSION) {
+              if (sbuf[2] == 2) {
+                sbuf += 8;
+              } else if (sbuf[2] == 1) {
+                sbuf += 4;
+              }
+            }
  	  }
  	else
  	  {

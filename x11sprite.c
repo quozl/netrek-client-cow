@@ -1,19 +1,3 @@
-
-/*
- * $Log: x11sprite.c,v $
- * Revision 1.4  2006/05/22 13:11:58  quozl
- * fix compilation warnings
- *
- * Revision 1.3  1999/06/11 16:14:17  siegl
- * cambot replay patches
- *
- * Revision 1.2  1999/01/31 16:38:17  siegl
- * Hockey rink background XPM on galactic map in hockey mode.
- *
- * Revision 1.1.1.1  1998/11/01 17:24:12  siegl
- * COW 3.0 initial revision
- * */
-
 #include "config.h"
 
 #ifdef HAVE_XPM
@@ -31,9 +15,11 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
-#include "x11window.h"
-#include "x11sprite.h"
+
 #include "defaults.h"
+#include "x11window.h"
+
+#include "x11sprite.h"
 
 #define W_Void2Window(win) ((win) ? ((struct window *) (win)) : (mylocal))
 #define NoPixmapError 0

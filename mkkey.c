@@ -60,10 +60,7 @@
  *
  * Sam Shen (sls@aero.org)
  *
- * $Log: mkkey.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 /* if you hack mkkey and release it change the following line in
  * some reasonable way, perhaps like this:
@@ -89,6 +86,7 @@ MPTYPEDEF
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <assert.h>
 #include <sys/param.h>
@@ -545,7 +543,7 @@ void gen_key(fp, name, key, len)
     for (i = len-4; i >= 0; i-= 4) {
 	limb = (key[i+3] << 24) + (key[i+2] << 16) + (key[i+1] << 8) + key[i];
 	fprintf(fp, "    mpz_mul_2exp(&m_%s, &m_%s, 32);\n", name, name);
-	fprintf(fp, "    mpz_add_ui(&m_%s, &m_%s, (unsigned LONG) 0x%x);\n",
+	fprintf(fp, "    mpz_add_ui(&m_%s, &m_%s, (unsigned LONG) 0x%lx);\n",
 		name, name, limb);
     }
     fprintf(fp, "    if (%s != NULL) {\n", name);

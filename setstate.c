@@ -1,10 +1,7 @@
 #include "config.h"
 /* Avoid conflict with random in Xbsd 		24/03/94 [007]
  *
- * $Log: setstate.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #if defined(HAVE_RANDOM)
 #define random rrandom
 #define srandom ssrandom

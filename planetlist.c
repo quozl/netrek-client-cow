@@ -1,16 +1,8 @@
-
-/* planetlist.c
- *
- * $Log: planetlist.c,v $
- * Revision 1.2  2006/05/16 06:16:35  quozl
- * add PLCORE
- *
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
+
 #include <stdio.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"

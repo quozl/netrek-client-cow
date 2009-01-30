@@ -5,10 +5,12 @@
 
 #include <stdio.h>
 #include <ctype.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "packets.h"
 
 #include "socket.h"
 #include "udpopt.h"

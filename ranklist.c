@@ -1,12 +1,8 @@
-
 /* ranklist.c
  * 
  * Kevin P. Smith 12/5/88
  *
- * $Log: ranklist.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
+ */
 #include "config.h"
 #include "copyright2.h"
 

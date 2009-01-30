@@ -1,10 +1,3 @@
-
-/* sintab.c
- *
- * $Log: sintab.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:11  siegl
- * COW 3.0 initial revision
- * */
 #include "config.h"
 #include "copyright.h"
 

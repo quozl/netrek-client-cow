@@ -1,12 +1,7 @@
-
-
 /* getship.c for client of socket protocol.
- * 
- * This file has been mangled so it only sets the ship characteristics needed.  *
- * $Log: getship.c,v $
- * Revision 1.1.1.1  1998/11/01 17:24:09  siegl
- * COW 3.0 initial revision
- * */
+ *
+ * This file has been mangled so it only sets the ship characteristics needed.
+ */
 #include "config.h"
 #include "copyright.h"
 

@@ -25,6 +25,7 @@
 #include "version.h"
 #include "patchlevel.h"
 
+#include "censor.h"
 #include "check.h"
 #include "defaults.h"
 #include "dmessage.h"
@@ -47,7 +48,7 @@
 #include "stats.h"
 #include "warning.h"
 
-void    initCensoring();
+#include "cowmain.h"
 
 int     takeNearest = 0;
 

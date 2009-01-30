@@ -3,11 +3,7 @@
  *
  * Functions to maintain the local map.
  *
- *
- * $Log: local.h,v $
- * Revision 1.1.1.1  1998/11/01 17:24:10  siegl
- * COW 3.0 initial revision
- * */
+ */
 
 #ifndef h_local
 #define h_local

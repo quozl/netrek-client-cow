@@ -5,27 +5,30 @@
 #ifdef SHORT_PACKETS
 #include INC_MACHINE_ENDIAN
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include INC_SYS_SELECT
-#include INC_NETINET_IN
-#include INC_NETINET_TCP
+#include <stdlib.h>
 #include <netdb.h>
-#include <math.h>
-#include <errno.h>
+
 #include "Wlib.h"
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
-#include "playerlist.h"
-#include "map.h"
+
+#include "distress.h"
+#include "dmessage.h"
 #include "local.h"
+#include "map.h"
+#include "playerlist.h"
+#include "rotate.h"
+#include "socket.h"
+#include "spopt.h"
+#include "stats.h"
+#include "warning.h"
+
+#include "short.h"
 
 /* from here on all SHORT_PACKETS */
-#include "wtext.h"				 /* here are all * *
-						  * warningdefines */
+#include "wtext.h" /* here are all warningdefines */
 
 /* Here are all warnings that are send with SP_S_WARNING */
 /* HW 93           */
@@ -284,11 +287,7 @@ extern int gather_stats;
 extern void sendShortReq(char);
 void    new_flags(unsigned int data, int which);
 
-extern char numofbits[];			 /* How many 1 bits in a char 
-
-						  * 
-						  * 
-						  */
+extern unsigned char numofbits[]; /* How many 1 bits in a char */
 extern int vtisize[];				 /* 4 byte Header + torpdata */
 int     Plx[MAXPLAYER], Ply[MAXPLAYER], Pgx[MAXPLAYER], Pgy[MAXPLAYER];
 unsigned char Pdir[MAXPLAYER];
@@ -316,7 +315,7 @@ int     spwinside = 500;			 /* WINSIDE from Server */
 LONG    spgwidth = GWIDTH;
 
 
-sendThreshold(short unsigned int v)
+void    sendThreshold(short unsigned int v)
 {
   struct threshold_cpacket p;
 
@@ -436,7 +435,7 @@ void    handleSelfShort(struct youshort_spacket *packet)
   struct player* pl;
   static int seen = 0;
 
-  pl = &players[packet->pnum];
+  pl = &players[(int) packet->pnum];
 
   if (seen && packet->pnum != me->p_no) become(pl);
   seen++;
@@ -471,7 +470,7 @@ void    handleSelfShip(struct youss_spacket *packet)
 
   if (F_many_self)
     {
-      pl = &players[packet->pad1];
+      pl = &players[(int) packet->pad1];
     }
   else
     {
@@ -508,8 +507,7 @@ void    handleSelfShip(struct youss_spacket *packet)
 
 void    handleVPlayer(unsigned char *sbuf)
 {
-  register int speed, x, y, i, numofplayers, pl_no, save, galactic;
-  unsigned char *savebuf = sbuf;
+  register int x, y, i, numofplayers, pl_no, save;
   register struct player *pl;
 
   numofplayers = (unsigned char) sbuf[1] & 0x3f;
@@ -916,7 +914,6 @@ void    handleSMessage(struct mesg_s_spacket *packet)
 {
   char    buf[100];
   char    addrbuf[9];
-  unsigned char flags;
 
   if (debug)
     printf("Length of Message is: %d  total Size %d \n", strlen(&packet->mesg), (int) packet->length);
@@ -1188,7 +1185,7 @@ void    handleVPlanet(unsigned char *sbuf)
       if (packet->pnum >= MAXPLANETS)
 	continue;
 
-      plan = &planets[packet->pnum];
+      plan = &planets[(unsigned char) packet->pnum];
 
 #ifdef ATM
       if (plan->pl_owner != packet->owner)
@@ -1345,11 +1342,11 @@ void    handleSWarning(struct warning_s_spacket *packet)
 						  * * for warnings with more
 						  * * * than 2 arguments */
   static int karg3, karg4, karg5 = 0;
-  char    killmess[20];
 
 #ifdef RCM
   struct distress dist;
-
+#else
+  char    killmess[20];
 #endif
 
   switch (packet->whichmessage)
@@ -1421,12 +1418,12 @@ void    handleSWarning(struct warning_s_spacket *packet)
       break;
     case BEAMUPSTARBASE_TEXT:
       sprintf(buf, "Starbase %s: Too few armies to beam up",
-	      players[packet->argument].p_name);
+	      players[(unsigned char) packet->argument].p_name);
       warning(buf);
       break;
     case BEAMDOWNSTARBASE_TEXT:
       sprintf(buf, "No more armies to beam down to Starbase %s.",
-	      players[packet->argument].p_name);
+	      players[(unsigned char) packet->argument].p_name);
       warning(buf);
 
       break;
@@ -1437,13 +1434,14 @@ void    handleSWarning(struct warning_s_spacket *packet)
       break;
     case SBREPORT:
       sprintf(buf, "Transporter Room:  Starbase %s reports all troop bunkers are full!",
-	      players[packet->argument].p_name);
+	      players[(unsigned char) packet->argument].p_name);
       warning(buf);
       break;
     case ONEARG_TEXT:
       if (packet->argument < NUMVARITEXTS)
 	{
-	  sprintf(buf, vari_texts[packet->argument], (unsigned char) packet->argument2);
+	  sprintf(buf, vari_texts[(unsigned char) packet->argument],
+		  (unsigned char) packet->argument2);
 	  warning(buf);
 	}
       break;
@@ -1461,7 +1459,9 @@ void    handleSWarning(struct warning_s_spacket *packet)
       break;
     case BEAM_U_TEXT:
       sprintf(buf, "Transfering ground units.  (%d/%d) Starbase %s has %d armies left",
-	      (unsigned char) arg3, (unsigned char) arg4, players[packet->argument].p_name, (unsigned char) packet->argument2);
+              (unsigned char) arg3, (unsigned char) arg4,
+              players[(unsigned char) packet->argument].p_name,
+              (unsigned char) packet->argument2);
       warning(buf);
       break;
     case LOCKPLANET_TEXT:
@@ -1469,31 +1469,33 @@ void    handleSWarning(struct warning_s_spacket *packet)
       warning(buf);
       break;
     case SBRANK_TEXT:
-      sprintf(buf, "You need a rank of %s or higher to command a starbase!", ranks[packet->argument].name);
+      sprintf(buf, "You need a rank of %s or higher to command a starbase!",
+              ranks[(unsigned char) packet->argument].name);
       warning(buf);
       break;
     case SBDOCKREFUSE_TEXT:
       sprintf(buf, "Starbase %s refusing us docking permission captain.",
-	      players[packet->argument].p_name);
+              players[(unsigned char) packet->argument].p_name);
       warning(buf);
       break;
     case SBDOCKDENIED_TEXT:
-      sprintf(buf, "Starbase %s: Permission to dock denied, all ports currently occupied.", players[packet->argument].p_name);
+      sprintf(buf, "Starbase %s: Permission to dock denied, all ports currently occupied.",
+              players[(unsigned char) packet->argument].p_name);
       warning(buf);
       break;
     case SBLOCKSTRANGER:
       sprintf(buf, "Locking onto %s (%c%c)",
-	      players[packet->argument].p_name,
-	      teamlet[players[packet->argument].p_team],
-	      shipnos[players[packet->argument].p_no]);
+              players[(unsigned char) packet->argument].p_name,
+              teamlet[players[(unsigned char) packet->argument].p_team],
+              shipnos[players[(unsigned char) packet->argument].p_no]);
       warning(buf);
       break;
     case SBLOCKMYTEAM:
       sprintf(buf, "Locking onto %s (%c%c) (docking is %s)",
-	      players[packet->argument].p_name,
-	      teamlet[players[packet->argument].p_team],
-	      shipnos[players[packet->argument].p_no],
-	      (players[packet->argument].p_flags & PFDOCKOK) ? "enabled" : "disabled");
+              players[(unsigned char) packet->argument].p_name,
+              teamlet[players[(unsigned char) packet->argument].p_team],
+              shipnos[players[(unsigned char) packet->argument].p_no],
+              (players[(unsigned char) packet->argument].p_flags & PFDOCKOK) ? "enabled" : "disabled");
       warning(buf);
       break;
     case DMKILL:
@@ -1505,7 +1507,9 @@ void    handleSWarning(struct warning_s_spacket *packet)
       {
 	struct mesg_spacket msg;
 	unsigned char killer, victim, armies;
+#ifndef RCM
 	float   kills;
+#endif
 
 	victim = (unsigned char) packet->argument & 0x3f;
 	killer = (unsigned char) packet->argument2 & 0x3f;
@@ -1627,7 +1631,6 @@ void    handleSWarning(struct warning_s_spacket *packet)
     case DMBOMB:
       {
 	struct mesg_spacket msg;
-	char    buf1[80];
 
 #ifdef RCM
 	dist.distype = rcm;
@@ -1640,6 +1643,7 @@ void    handleSWarning(struct warning_s_spacket *packet)
 	dist.wtmp = karg5;
 	makedistress(&dist, msg.mesg, rcm_msg[3].macro);
 #else
+	char    buf1[80];
 	(void) sprintf(buf, "%-3s->%-3s", planets[(unsigned char) packet->argument2].pl_name, teamshort[planets[(unsigned char) packet->argument2].pl_owner]);
 	(void) sprintf(buf1, "We are being attacked by %s %c%c who is %d%% damaged.",
 		       players[packet->argument].p_name,
@@ -1722,7 +1726,7 @@ void    handleSWarning(struct warning_s_spacket *packet)
 	msg.type = SP_MESSAGE;
 	msg.mesg[79] = '\0';
 	msg.m_flags = MTEAM | MTAKE | MVALID;
-	msg.m_recpt = players[packet->argument2].p_team;
+	msg.m_recpt = players[(unsigned char) packet->argument2].p_team;
 	msg.m_from = 255;
 	handleMessage(&msg);
       }
@@ -1910,9 +1914,8 @@ void    handleSWarning(struct warning_s_spacket *packet)
 
 #define MY_SIZEOF(a) (sizeof(a) / sizeof(*(a)))
 
-add_whydead(char *s, int m)			 /* 7/22/93 LAB */
-
-
+void
+        add_whydead(char *s, int m)			 /* 7/22/93 LAB */
 {
   char    b[256];
 
@@ -1973,7 +1976,6 @@ void
 unsigned char *sbuf;
 {
   struct phaser *phas;
-  register struct player *j;
   struct phaser_s_spacket *packet = (struct phaser_s_spacket *) &sbuf[0];
 
   /* not nice but.. */
@@ -2040,7 +2042,7 @@ struct stats_s_spacket *packet;
     }
 #endif
 
-  pl = &players[packet->pnum];
+  pl = &players[(unsigned char) packet->pnum];
 
   pl->p_stats.st_tkills = ntohs(packet->tkills);
   pl->p_stats.st_tlosses = ntohs(packet->tlosses);
@@ -2063,7 +2065,7 @@ struct stats_s_spacket *packet;
     }
   pl->p_stats.st_sbmaxkills = ntohl(packet->sbmaxkills) / 100.0;
 
-  PlistNoteUpdate(packet->pnum);
+  PlistNoteUpdate((unsigned char) packet->pnum);
 }
 
 void    new_flags(unsigned int data, int which)

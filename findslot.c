@@ -16,6 +16,7 @@
 #include "defs.h"
 #include "struct.h"
 #include "data.h"
+#include "packets.h"
 
 #include "defaults.h"
 #include "findslot.h"
