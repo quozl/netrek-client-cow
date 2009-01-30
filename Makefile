@@ -13,6 +13,11 @@ PACKAGE=netrek-client-cow
 VERSION=$(shell ./name)
 DVERSION=$(shell head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\))
 
+DESTDIR=
+prefix=/usr/local
+LIBDIR=${prefix}/share/games/${PACKAGE}
+BINDIR=${prefix}/games
+
 all: netrek-client-cow
 
 netrek-client-cow: system.mk netrekI
@@ -123,7 +128,9 @@ to_dos: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
 
 install: netrek-client-cow $(KEYFILE)
+	mkdir -p $(DESTDIR)$(BINDIR)
 	install netrek-client-cow $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(LIBDIR)
 	install $(KEYFILE) $(DESTDIR)$(LIBDIR)
 
 package:
