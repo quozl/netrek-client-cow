@@ -115,7 +115,6 @@ unsigned LONG netaddr = 0;			 /* for blessing */
 #endif
 
 int     msgBeep = 1;				 /* ATM - msg beep */
-int     scanmapped = 0;				 /* ATM - scanners */
 
 int     logmess = 0;
 int     continuetractor = 1;
@@ -390,7 +389,7 @@ struct rank ranks[NUMRANKS] =
 W_Window messagew, w, mapw, statwin, baseWin = 0, infow, iconWin, tstatw,
         war, warnw, helpWin, teamWin[4], qwin, messwa, messwt, messwi,
         messwk, playerw, planetw, rankw, optionWin = 0, reviewWin;
-W_Window scanw, scanwin, udpWin, phaserwin;
+W_Window scanw, udpWin, phaserwin;
 
 #ifdef SHORT_PACKETS
 W_Window spWin = NULL;

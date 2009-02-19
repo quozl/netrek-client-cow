@@ -96,7 +96,7 @@ static void emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
         Key82(void), Key83(void), Key84(W_Event * data), Key85(void), Key86(void),
         Key87(W_Event * data), Key88(void), Key89(W_Event * data), Key90(W_Event * data),
         Key91(void), Key92(void), Key93(void), Key94(W_Event * data), Key95(W_Event * data),
-        Key96(void), Key97(W_Event * data), Key98(void), Key99(void), Key100(void),
+        Key96(void), Key98(void), Key99(void), Key100(void),
         Key101(void), Key102(W_Event * data), Key103(W_Event * data), Key104(void),
         Key105(W_Event * data), Key106(W_Event * data), Key107(W_Event * data),
         Key108(W_Event * data), Key110(W_Event * data), Key111(void),
@@ -224,7 +224,7 @@ key_handler_type key_handlers[MAXKEY] =
   { Key94 },					 /* ^ */
   { Key95 },					 /* _ */
   { Key96 },					 /* ` */
-  { Key97 },					 /* a */
+  { emptyKey },					 /* a */
   { Key98 },					 /* b */
   { Key99 },					 /* c */
   { Key100 },					 /* d */
@@ -1135,8 +1135,7 @@ void buttonaction(W_Event * data)
 
 
   if (data->Window != w && data->Window != mapw
-      && data->Window != infow
-      && data->Window != scanwin)
+      && data->Window != infow)
     return;
 
 #ifdef SHIFTED_MOUSE
@@ -1594,11 +1593,6 @@ static void Key32(void)
   W_UnmapWindow(war);
   if (optionWin)
     optiondone();
-  if (scanmapped)
-    {
-      W_UnmapWindow(scanwin);
-      scanmapped = 0;
-    }
   if (udpWin)
     udpdone();
 }
@@ -2130,20 +2124,6 @@ static void Key96(void)
   else
     spwindow();
 #endif
-}
-
-static void Key97(W_Event * data)
-{
-  if (!W_IsMapped(scanwin))
-    {
-      scan(data->Window, data->x, data->y);
-    }
-  else
-    {
-      if (scanmapped)
-	W_UnmapWindow(scanwin);
-      scanmapped = 0;
-    }
 }
 
 static void Key98(void)

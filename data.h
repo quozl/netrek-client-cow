@@ -117,7 +117,6 @@ extern int msgBeep;				 /* ATM - msg beep */
 extern int warncount;
 extern int warntimer;
 extern int infomapped;
-extern int scanmapped;				 /* ATM - scanner stuff */
 extern int mustexit;
 extern int messtime;
 extern int keeppeace;
@@ -245,7 +244,6 @@ extern int phaserStatHit;
 #endif
 extern int censorMessages;
 
-extern int scanplayer;
 extern int showTractor;
 extern int commMode;				 /* UDP */
 extern int commModeReq;				 /* UDP */
@@ -335,7 +333,7 @@ extern struct rank ranks[NUMRANKS];
 extern W_Window messagew, w, mapw, statwin, baseWin, infow, iconWin, tstatw,
         war, warnw, helpWin, teamWin[4], qwin, messwa, messwt, messwi,
         messwk, planetw, rankw, playerw, optionWin, reviewWin;
-extern W_Window scanw, scanwin, udpWin, phaserwin;
+extern W_Window scanw, udpWin, phaserwin;
 
 #ifdef SHORT_PACKETS
 extern W_Window spWin;

@@ -349,7 +349,6 @@ void newwin(char *hostmon, char *progname)
 
   W_SetWindowExposeHandler(statwin, redrawStats);
 
-  scanwin = W_MakeWindow("scanner", 422, 13, 160, 120, baseWin, 5, foreColor);
   W_DefineArrowCursor(netstatWin);
   W_DefineArrowCursor(lMeter);
   W_DefineTrekCursor(baseWin);
@@ -371,7 +370,6 @@ void newwin(char *hostmon, char *progname)
   W_DefineTextCursor(messagew);
   W_DefineTrekCursor(tstatw);
   W_DefineWarningCursor(qwin);
-  W_DefineTrekCursor(scanwin);
   W_DefineArrowCursor(udpWin);
 
 #ifdef SHORT_PACKETS
