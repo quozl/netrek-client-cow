@@ -1,0 +1,21 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: dual display
+desc: |-
+  Place galactic on a second X11 display.
+  
+  (From wiki.us.netrek.org ClientIdeas ... "Allow for multiple displays to be leveraged effectively. Modern computers have more than 1 monitor, so we could have the Tactical on one monitor, and the Galactic on the other.")
+type: :feature
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-13 01:06:39.471437 Z
+references: []
+
+id: e4484429926bc99a6ddcfc7846f9fe82fa74355e
+log_events: 
+- - 2009-03-13 01:06:43.523993 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""

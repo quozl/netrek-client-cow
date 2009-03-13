@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: use new logo
+desc: http://www.jesujuva.org/netrek-logo/ has a new logo, use it.
+type: :feature
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-13 05:50:08.559469 Z
+references: []
+
+id: a2144bad141edf53d0816574022d3adeb23cd8d6
+log_events: 
+- - 2009-03-13 05:50:09.568953 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""

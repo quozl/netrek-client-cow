@@ -1,0 +1,20 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: "LP #331401 client failure is not reported to metaserver window"
+desc: |-
+  If the forked process terminates unnaturally, this is not reported on
+  the metaserver window, the game window just goes away.
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-01 02:03:23.404913 Z
+references: []
+
+id: 05f15891c7925eb1e619b5f586b3332fb41ac8a1
+log_events: 
+- - 2009-03-01 02:03:25.418767 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
