@@ -1,14 +1,96 @@
+www.ggzgamingzone.org/
+
+use diffuse
+
+use ditz
+
+how to get an account on a netrek server
+
+unnecessary error if no sound files
+
+	    % ./netrek-client-cow -r /dev/null
+	    Mix_PlayChannel: Tried to play a NULL chunk
+
+network resilience or reporting
+
+	handling of a stall is not graceful ... screen freezes, does
+	not update, should be able to detect this sooner in code,
+	without any network event received.
+
+	TCP connection closure was delayed by a long time, several
+	minutes, then tcpdump showed FIN exchange.
+
+	an ICMP port unreachable may be returned, especially when a
+	packet is delivered late and the sevrer is no longer
+	listening.  the ICMP packet contains the CP_ packets that were
+	sent.
+
+ship colours, eight per team.
+	extend colortable, which increases NCOLORS
+	change macros that determine colour for a ship to allocate a
+	colour from available team colours on a join.  sigh.
+
+http://mpt.net.nz/archive/2008/08/01/free-software-usability
+
+gettext, po, RCD translations.
+
+idle, not red alert if no T mode.
+
+metaserver window,
+	align columns flexibly.
+	fix orphan metaserver window,
+		reproducer: start in metaserver mode, connect a
+		client, close the metaserver window.
+		potential solution; kill all children too.
+	integrated newbie server
+	integrated league server
+	update information age every few seconds
+	new version warning
+	update less during an active game
+	detail status
+		use for queue position status.
+		"resolving, connecting, connected, login, outfit, playing",
+		needs a communication path from child to parent.
+
+login window,
+	make it clear that names are per server.
+	add a quit button, centre bottom
+		Can't type control/d on password prompt to exit, as it
+		may form part of a password.
+	add a guest button, left side, if port is pickup
+	if disconnect happens,
+		add a reconnect button, right side,
+		e.g. while user is reading docs on galactic?
+	galactic intro text, theme of game, how to play
+
+team selection window,
+
+flight windows,
+	turn keys, Key187, Key189 from xp
+	on disconnect, cache screen image for refresh.
+
+mouse-over hints for windows.
+	EnterNotify, set flag, enable MotionNotify, set timer,
+	LeaveNotify, clear flag, clear timer, unmap hint,
+	MotionNotify,
+		calculate coordinate change per second using time in event,
+		if above threshold then clear timer,
+	on timer expiry, map hint
+
+general user interface
+	clickable links in message windows,
+	clickable links in documentation windows.
+
+this, is a planet,
+	you can orbit it,
+	you can bomb it, but usually only if it is the enemy team,
+		and only if it has more than four armies,
+	etc
+--
+
 build static binary
 
 --
-
-when server terminates TCP connection,
-client hangs, hoping for a callback,
-so add a more graceful failure response,
-such as a relogin, or re-exec,
-
---
-
 
 $ DISPLAY=nestor:0 ./netrek -M -r /dev/null
 Reading defaults file /dev/null

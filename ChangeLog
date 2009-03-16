@@ -1,3 +1,20 @@
+Mon Mar 16 16:48:09 2009  James Cameron  <quozl@us.netrek.org>
+
+	* configure.in (AC_OUTPUT): Add po/Makefile.in.
+
+Thu Feb 19 16:34:15 2009  James Cameron  <quozl@us.netrek.org>
+
+	* input.c: fix segfault on "a" key, closes LP #331395.
+
+Fri Jan 30 11:52:49 2009  James Cameron  <quozl@us.netrek.org>
+
+	* Makefile (DESTDIR, prefix, LIBDIR, BINDIR): key file was being
+	placed in root directory by mistake, which debian/rules in 3.2.9-1
+	was having to handle specially.  Now we accept prefix or LIBDIR or
+	BINDIR variables instead.
+
+	- fix some prototypes, possibly closing Debian #512463,
+
 Mon Jan  5 19:14:26 2009  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.9: released
