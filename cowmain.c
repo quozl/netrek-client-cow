@@ -145,7 +145,7 @@ char   *str;
 
   if (!server_count)
     {
-      fprintf(stderr, "No server list, cannot resolve id\n");
+      fprintf(stderr, _("No server list, cannot resolve id\n"));
       return -1;
     }
 
@@ -163,7 +163,7 @@ char   *str;
     }
   if (i == server_count)
     {
-      fprintf(stderr, "Specified server not found.\n");
+      fprintf(stderr, _("Specified server not found.\n"));
       return -1;
     }
 

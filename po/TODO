@@ -1,0 +1,55 @@
+http://www.gnu.org/software/gettext/FAQ.html#integrating_howto
+
+# Add an invocation of AM_GNU_GETTEXT([external]) to the package's
+  configure.{ac,in} file.  [DONE]
+
+# Invoke \u201cgettextize --copy\u201d. It will do most of the
+  autoconf/automake related work for you.  [DONE]
+
+	Please add the files gettext.m4 iconv.m4 lib-ld.m4 lib-link.m4
+	lib-prefix.m4 nls.m4 po.m4 progtest.m4 from the
+	/usr/share/aclocal directory to your aclocal.m4 file.
+
+	cat
+	/usr/share/aclocal/{gettext.m4,iconv.m4,lib-ld.m4,lib-link.m4,lib-prefix.m4,nls.m4,po.m4,progtest.m4}
+	>> aclocal.m4
+
+# Add the gettext.h file to the package's source directory, and
+  include it in all source files that contain translatable strings or
+  do output via printf or fprintf.  [DONE]
+
+# In the source file defining the main() function of the program, add
+  these lines to the header
+
+#include <locale.h>
+#include "gettext.h"
+
+and these lines near the beginning of the main() function:
+
+setlocale (LC_ALL, "");
+bindtextdomain (PACKAGE, LOCALEDIR);
+textdomain (PACKAGE);
+
+[DONE]
+
+# Mark all strings that should be translated with _(), like this:
+  _("No errors found."). While doing this, try to turn the strings
+  into good English, one entire sentence per string, not more than one
+  paragraph per string, and use format strings instead of string
+  concatenation. This is needed so that the translators can provide
+  accurate translations.  [PARTLY DONE]
+
+# In every source file containing translatable strings, add these
+  lines to the header:
+
+#include "gettext.h"
+#define _(string) gettext (string)
+
+# In the freshly created po/ directory, set up the POTFILES.in file,
+  and do a \u201cmake update-po\u201d. Then distribute the generated
+  .pot file to your nearest translation project.
+
+[PARTLY DONE]
+
+# Shortly before a release, integrate the translators' .po files into
+  the po/ directory and do \u201cmake update-po\u201d again.

@@ -418,4 +418,5 @@ if test x$no_sdl != xyes; then
   fi
 fi
 
-AC_OUTPUT(system.mk key.mk)
+AM_GNU_GETTEXT([external])
+AC_OUTPUT(system.mk key.mk po/Makefile.in)

@@ -7,6 +7,8 @@
 #include INC_STRINGS
 #include <time.h>
 #include INC_SYS_TIME
+#include <locale.h>
+#include "gettext.h"
 
 #ifdef TOOLS
 #include <stdlib.h>
@@ -71,6 +73,10 @@ int main2(int argc, char **argv)
 
 #endif
   int     xtrekPort = -1;
+
+  setlocale(LC_ALL, "");
+  bindtextdomain("netrek-client-cow", "po/");
+  textdomain("netrek-client-cow");
 
 #ifdef WINDOWMAKER
   wm_argv=argv;
@@ -178,7 +184,7 @@ int main2(int argc, char **argv)
 	    case 'm': /* use multiple metaservers by UDP */
 	      if (usemeta && usemeta != 1)
 		{
-		  fputs("The options -k and -m and -M are mutually exclusive\n",
+		  fputs(_("The options -k and -m and -M are mutually exclusive\n"),
 			stderr);
 		  err++;
 		}
@@ -188,7 +194,7 @@ int main2(int argc, char **argv)
 	    case 'k': /* use metaserver cache from prior -M usage */
 	      if (usemeta && usemeta != 2)
 		{
-		  fputs("The options -k and -m and -M are mutually exclusive\n",
+		  fputs(_("The options -k and -m and -M are mutually exclusive\n"),
 			stderr);
 		  err++;
 		}
@@ -198,7 +204,7 @@ int main2(int argc, char **argv)
            case 'M': /* use single metaserver by TCP */
              if (usemeta && usemeta != 3)
                {
-                 fputs("The options -k, -m and -M are mutually exclusive\n",
+                 fputs(_("The options -k, -m and -M are mutually exclusive\n"),
                        stderr);
                  err++;
                }
@@ -212,20 +218,20 @@ int main2(int argc, char **argv)
 						  * * * negative here * to
 						  * flag * * that it should
 						  * override * * xtrekrc */
-	      printf("Using standard binary verification\n");
+	      printf(_("Using standard binary verification\n"));
 	      break;
 	    case 'R':
 	      RSA_Client = -2;			 /* will be reset leter, set
 						  * * * negative here * to
 						  * flag * * that it should
 						  * override * * xtrekrc */
-	      printf("Using RSA verification\n");
+	      printf(_("Using RSA verification\n"));
 	      break;
 #else
 	    case 'R':
-	      printf("This client does not support RSA verification\n");
+	      printf(_("This client does not support RSA verification\n"));
 	    case 'o':
-	      printf("Using standard binary verification\n");
+	      printf(_("Using standard binary verification\n"));
 	      break;
 #endif
 
@@ -255,7 +261,7 @@ int main2(int argc, char **argv)
 	    case 'U':
 	      if ((baseLocalPort = atoi(*argv)) == 0)
 		{
-		  fprintf(stderr, "Error: -U requires a port number\n");
+		  fprintf(stderr, _("Error: -U requires a port number\n"));
 		  exit(1);
 		}
 	      argc--;
@@ -273,7 +279,7 @@ int main2(int argc, char **argv)
 		{
 		  ghoststart++;
 		  ghost_pno = atoi(*argv);
-		  printf("Emergency restart being attempted...\n");
+		  printf(_("Emergency restart being attempted...\n"));
 		  argv++;
 		  argc--;
 		}
@@ -295,8 +301,8 @@ int main2(int argc, char **argv)
 	      break;
 	    case 'v':
 	      printf("%s\n", cowid);
-	      printf("Compile options used: %s\n", cflags);
-	      printf("Compiled on %s by %s\n", cdate, cwho);
+	      printf(_("Compile options used: %s\n"), cflags);
+	      printf(_("Compiled on %s by %s\n"), cdate, cwho);
 	      printf("%s\n", cbugs);
 
 #ifdef RSA
@@ -316,7 +322,7 @@ int main2(int argc, char **argv)
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
 	    case 'i':
-	      printf("Ignoring signals SIGSEGV and SIGBUS\n");
+	      printf(_("Ignoring signals SIGSEGV and SIGBUS\n"));
 	      ignore_signals = -1;
 	      break;
 #endif
@@ -351,7 +357,7 @@ int main2(int argc, char **argv)
 	      break;
 
 	    default:
-	      fprintf(stderr, "%s: unknown option '%c'\n", name, *ptr);
+	      fprintf(stderr, _("%s: unknown option '%c'\n"), name, *ptr);
 	      err++;
 	      break;
 	    }
