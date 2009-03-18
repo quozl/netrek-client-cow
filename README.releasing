@@ -27,7 +27,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-fc88442fa81dc40c6cb65a6ebf0b994b  netrek-client-cow-3.2.9.tar.gz
+80bb2fdbd2454ba63304dccd6092ec1c  netrek-client-cow-3.2.10.tar.gz
 
 # test build the .tar.gz
 cd /tmp
@@ -45,9 +45,9 @@ cd ~/public_html/external/
 http://quozl.linux.org.au/netrek/
 
 # orion upload
+rsync -avP netrek-client-cow-${VERSION}.tar.gz \
+    quozl@orion.netrek.org:/var/www/files.netrek.org/COW/
 
 # sf.net upload
 rsync -avP netrek-client-cow-${VERSION}.tar.gz quozl@frs.sf.net:uploads/
 http://sourceforge.net/projects/netrek
-
-# packaging
