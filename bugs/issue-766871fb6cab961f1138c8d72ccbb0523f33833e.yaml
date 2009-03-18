@@ -1,0 +1,23 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: make install fails if libgmp not available
+desc: |-
+  Configure reports:
+  Warning mp or gmp library not found, turning RSA off.
+  And "make install" says:
+  make[1]: *** No rule to make target `key.cow.linux', needed by
+  `install'.  Stop.
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-18 23:09:45.967970 Z
+references: []
+
+id: 766871fb6cab961f1138c8d72ccbb0523f33833e
+log_events: 
+- - 2009-03-18 23:10:09.518430 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - Subject of e-mail conversation with Barry deFreese on 18th March.
