@@ -4,7 +4,7 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.2.9
+export VERSION=3.2.10
 
 # update version.h patchlevel.h cow.spec
 

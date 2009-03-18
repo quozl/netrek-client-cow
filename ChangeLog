@@ -1,19 +1,24 @@
-Mon Mar 16 16:48:09 2009  James Cameron  <quozl@us.netrek.org>
+Wed Mar 18 18:57:36 2009  James Cameron  <quozl@us.netrek.org>
 
-	* configure.in (AC_OUTPUT): Add po/Makefile.in.
+	* netrek-client-cow-3.2.10: released
 
-Thu Feb 19 16:34:15 2009  James Cameron  <quozl@us.netrek.org>
+	- fix %c macro directive, should only work if team is known,
 
-	* input.c: fix segfault on "a" key, closes LP #331395.
+	- installation support and native sound for SGI IRIX 5.2 to 6.5,
 
-Fri Jan 30 11:52:49 2009  James Cameron  <quozl@us.netrek.org>
+	- correct location of key file on "make install",
 
-	* Makefile (DESTDIR, prefix, LIBDIR, BINDIR): key file was being
-	placed in root directory by mistake, which debian/rules in 3.2.9-1
-	was having to handle specially.  Now we accept prefix or LIBDIR or
-	BINDIR variables instead.
+	- deprecate README.CVS, remove CVS logs and history fragments,
 
-	- fix some prototypes, possibly closing Debian #512463,
+	- add distributed bug tracking system using ditz,
+
+	- remove most compilation warnings (some remain in RSA generated code),
+
+	- deprecate ATM scan feature, fixes segfault on "a", closes LP #331395,
+
+	- add missing prototypes, closes Debian #512463,
+
+	- commenced internationalisation infrastructure.
 
 Mon Jan  5 19:14:26 2009  James Cameron  <quozl@us.netrek.org>
 
