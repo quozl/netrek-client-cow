@@ -1,0 +1,44 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: fails if no sound configuration
+desc: |-
+  stat failed: No such file or directory
+  /usr/share/sounds/netrek-client-cow is not a directory, sound will not work
+  ALSA lib confmisc.c:768:(parse_card) cannot find card '0'
+  ALSA lib conf.c:3513:(_snd_config_evaluate) function snd_func_card_driver returned error: No such file or directory
+  ALSA lib confmisc.c:392:(snd_func_concat) error evaluating strings
+  ALSA lib conf.c:3513:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+  ALSA lib confmisc.c:1251:(snd_func_refer) error evaluating name
+  ALSA lib conf.c:3513:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+  ALSA lib conf.c:3985:(snd_config_expand) Evaluate error: No such file or directory
+  ALSA lib pcm.c:2144:(snd_pcm_open_noupdate) Unknown PCM default
+  
+  Segmentation fault (core dumped)
+  
+  (gdb) bt
+  #0  0xb7ed6b9d in pow () from /usr/lib/libmp.so.3
+  #1  0xb72259cf in _gsl_init_signal () from /usr/lib/libartsflow.so.1
+  #2  0xb720f813 in gsl_init () from /usr/lib/libartsflow.so.1
+  #3  0xb71d462e in Arts::StdFlowSystem::StdFlowSystem () from /usr/lib/libartsflow.so.1
+  #4  0xb71f07cd in Arts::SetFlowSystem::startup () from /usr/lib/libartsflow.so.1
+  #5  0xb5838992 in Arts::StartupManager::startup () from /usr/lib/libmcop.so.1
+  #6  0xb586592f in Arts::Dispatcher::Dispatcher () from /usr/lib/libmcop.so.1
+  #7  0xb72a71a1 in arts_backend_init () from /usr/lib/libartscbackend.so.0
+  #8  0xb790a6b0 in arts_init () from /usr/lib/libartsc.so.0
+  #9  0xb7cdfdf7 in ?? () from /usr/lib/libSDL-1.2.so.0
+  #10 0x00000000 in ?? ()
+  (gdb) quit
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-23 04:41:36.050381 Z
+references: []
+
+id: 9296e15277906b71eaf1fe232f4dbea2aff0ae61
+log_events: 
+- - 2009-03-23 04:41:40.785789 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - Reported by Zach

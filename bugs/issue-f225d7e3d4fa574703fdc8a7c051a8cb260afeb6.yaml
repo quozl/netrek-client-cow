@@ -1,0 +1,26 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: sound path changed, 3.2.9 to 3.2.10, sgi
+desc: |-
+  The location of the sound directory changed unexpectedly.
+  
+  3.2.9: /usr/share/sounds/netrek-client-cow is not a directory, sound will not work
+  3.2.10: /usr/local/games/netrek-sgi/sounds is not a directory, sound will not work
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-23 04:36:50.053662 Z
+references: []
+
+id: f225d7e3d4fa574703fdc8a7c051a8cb260afeb6
+log_events: 
+- - 2009-03-23 04:36:54.953316 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
+- - 2009-03-23 04:37:13.264945 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - Reported by Zach, advised Barry.
