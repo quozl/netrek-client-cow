@@ -1,0 +1,23 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: metaserver window requests no iconify attribute
+desc: |-
+  On some window managers, the metaserver window cannot be iconified,
+  presumably due to the window attributes it sets.
+  
+  Reported by zu22 in #netrek on 2009-03-24.
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-03-23 22:20:39.181713 Z
+references: []
+
+id: eff2eac72769e6049f126199609c46a0fede25b8
+log_events: 
+- - 2009-03-23 22:20:46.275224 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
+claimer: 
