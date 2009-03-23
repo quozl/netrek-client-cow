@@ -42,3 +42,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - Reported by Zach
+- - 2009-03-23 05:35:19.924133 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - "Workaround, add \"sound: off\" to .xtrekrc file."
+claimer: 
