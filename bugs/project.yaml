@@ -4,5 +4,63 @@ version: "0.5"
 components: 
 - !ditz.rubyforge.org,2008-03-06/component 
   name: netrek-client-cow
-releases: []
-
+releases: 
+- !ditz.rubyforge.org,2008-03-06/release 
+  name: 3.2.9
+  status: :released
+  release_time: 2009-01-05 08:14:26.000000 Z
+  log_events: 
+  - - 2009-03-23 04:58:36.055454 Z
+    - James Cameron <quozl@us.netrek.org>
+    - created
+    - |-
+      - add identity blinding feature, which removes names, ranks, versions,
+      
+      - remove safe-idle from clue games,
+      
+      - include key file in binary distribution,
+      
+      - clarify license on work contributed by Lars Bernhardsson.
+  - - 2009-03-23 05:00:00.089936 Z
+    - James Cameron <quozl@us.netrek.org>
+    - released
+    - Mon Jan  5 19:14:26 2009  James Cameron  <quozl@us.netrek.org>
+- !ditz.rubyforge.org,2008-03-06/release 
+  name: 3.2.10
+  status: :released
+  release_time: 2009-03-18 06:57:36.000000 Z
+  log_events: 
+  - - 2009-03-23 04:58:55.571030 Z
+    - James Cameron <quozl@us.netrek.org>
+    - created
+    - |-
+      - fix %c macro directive, should only work if team is known,
+      
+      - installation support and native sound for SGI IRIX 5.2 to 6.5,
+      
+      - correct location of key file on "make install",
+      
+      - deprecate README.CVS, remove CVS logs and history fragments,
+      
+      - add distributed bug tracking system using ditz,
+      
+      - remove most compilation warnings (some remain in RSA generated code),
+      
+      - deprecate ATM scan feature, fixes segfault on "a", closes LP #331395,
+      
+      - add missing prototypes, closes Debian #512463,
+      
+      - commenced internationalisation infrastructure.
+  - - 2009-03-23 05:00:11.179255 Z
+    - James Cameron <quozl@us.netrek.org>
+    - released
+    - Wed Mar 18 18:57:36 2009  James Cameron  <quozl@us.netrek.org>
+- !ditz.rubyforge.org,2008-03-06/release 
+  name: 3.2.11
+  status: :unreleased
+  release_time: 
+  log_events: 
+  - - 2009-03-23 04:59:25.424101 Z
+    - James Cameron <quozl@us.netrek.org>
+    - created
+    - ""

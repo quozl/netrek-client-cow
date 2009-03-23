@@ -24,3 +24,11 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - commented
   - Reported by Zach, advised Barry.
+- - 2009-03-23 05:01:08.338542 Z
+  - James Cameron <quozl@us.netrek.org>
+  - assigned to release 3.2.10 from unassigned
+  - ""
+- - 2009-03-23 05:07:47.319342 Z
+  - James Cameron <quozl@us.netrek.org>
+  - unassigned from release 3.2.10
+  - Reproduced in 3.2.10
