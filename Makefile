@@ -127,7 +127,7 @@ to_unix: system.mk
 to_dos: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
 
-install: netrek-client-cow $(KEYFILE)
+install: netrek-client-cow
 	mkdir -p $(DESTDIR)$(BINDIR)
 	install netrek-client-cow $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
