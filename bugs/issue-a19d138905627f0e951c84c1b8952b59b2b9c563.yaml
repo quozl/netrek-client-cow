@@ -1,0 +1,23 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: metaserver window misbehaves if quit while client connected
+desc: |-
+  The metaserver window remains on screen and is not updated.
+  
+  To reproduce, start the program, connect to a server (this forks a process
+  for that session), then press quit on the metaserver window.
+type: :bugfix
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-04-08 05:37:57.578310 Z
+references: []
+
+id: a19d138905627f0e951c84c1b8952b59b2b9c563
+log_events: 
+- - 2009-04-08 05:37:58.611359 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
+claimer: 

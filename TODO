@@ -1,15 +1,11 @@
 www.ggzgamingzone.org/
-
-use diffuse
-
-use ditz
-
-how to get an account on a netrek server
+	bug id 9b966bd6ed186fa7d55efa6062582065a390b7b7
 
 unnecessary error if no sound files
 
-	    % ./netrek-client-cow -r /dev/null
-	    Mix_PlayChannel: Tried to play a NULL chunk
+	% ./netrek-client-cow -r /dev/null
+	Mix_PlayChannel: Tried to play a NULL chunk
+	related bug id 9296e15277906b71eaf1fe232f4dbea2aff0ae61
 
 network resilience or reporting
 
@@ -26,17 +22,22 @@ network resilience or reporting
 	sent.
 
 ship colours, eight per team.
+
 	extend colortable, which increases NCOLORS
 	change macros that determine colour for a ship to allocate a
 	colour from available team colours on a join.  sigh.
 
 http://mpt.net.nz/archive/2008/08/01/free-software-usability
 
-gettext, po, RCD translations.
+RCD translations.
 
-idle, not red alert if no T mode.
+safe-idle
+
+	do not red alert
+	issue audio notification when safe-idle ends without user action
 
 metaserver window,
+
 	align columns flexibly.
 	fix orphan metaserver window,
 		reproducer: start in metaserver mode, connect a
@@ -51,9 +52,19 @@ metaserver window,
 		use for queue position status.
 		"resolving, connecting, connected, login, outfit, playing",
 		needs a communication path from child to parent.
+		related bug id 05f15891c7925eb1e619b5f586b3332fb41ac8a1
+	allow iconify
+		bug id eff2eac72769e6049f126199609c46a0fede25b8
+	time to play notifier
+		an audio sample
+		if player has not played in past minute
+		if n players moves from below threshold to threshold or above
 
 login window,
+
 	make it clear that names are per server.
+		how to get an account on a netrek server
+		bug id 9ceb1d26257c5d3a7d51dd49c53512ebc202ec88
 	add a quit button, centre bottom
 		Can't type control/d on password prompt to exit, as it
 		may form part of a password.
@@ -66,10 +77,11 @@ login window,
 team selection window,
 
 flight windows,
+
 	turn keys, Key187, Key189 from xp
-	on disconnect, cache screen image for refresh.
 
 mouse-over hints for windows.
+
 	EnterNotify, set flag, enable MotionNotify, set timer,
 	LeaveNotify, clear flag, clear timer, unmap hint,
 	MotionNotify,
@@ -78,14 +90,17 @@ mouse-over hints for windows.
 	on timer expiry, map hint
 
 general user interface
+
 	clickable links in message windows,
 	clickable links in documentation windows.
 
 this, is a planet,
+
 	you can orbit it,
 	you can bomb it, but usually only if it is the enemy team,
 		and only if it has more than four armies,
 	etc
+
 --
 
 build static binary
@@ -108,12 +123,6 @@ X Error of failed request:  XF86VidModeClientNotLocal
 
 --
 
-Andrew K. Bressen wrote "By the way, the docs for newbies, and maybe the server
-login prompt, should probably explicitly explain that logins are per-server;
-otherwise I think we might have folks creating, say, a warped login, and then
-being pissed when they can't get onto continuum with it."
-
---
 !!! PLCLEAR is set too often.  Does not need to be set for every draw,
 	just for BEEPLITE and moves
 
