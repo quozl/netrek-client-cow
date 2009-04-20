@@ -676,7 +676,11 @@ static void version_s(struct sockaddr_in *address)
   sp->refresh = 1;
   sp->lifetime = 20;
   sp->players = players;
-  sp->status = statusOpen;
+  if (type == 'u' && players == 0) {
+    sp->status = statusNobody;
+  } else {
+    sp->status = statusOpen;
+  }
   sp->typeflag = type;
   strncpy(sp->comment, comment, LINE);
   sp->pid = -1;
