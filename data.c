@@ -514,7 +514,7 @@ char   *distlite[NUM_DIST] =
 {
   NULL, 
   "/c/l/0/|%T%c Taking %L|",
-  "/|Ogg %T%c|",
+  "/|Ogg %p|",
   "/|Bomb %L|",
   "/|Control %L|",
   "/|Save %L|",

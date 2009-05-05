@@ -1,3 +1,5 @@
+	- fix ogg beeplite to identify oggee not caller [Pruitt]
+
 Wed Mar 18 18:57:36 2009  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.2.10: released
