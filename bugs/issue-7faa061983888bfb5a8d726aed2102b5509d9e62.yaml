@@ -1,0 +1,27 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: ship an xtrekrc system-wide
+desc: |-
+  Customisation of the client using configuration files is possible, but
+  without a system-wide xtrekrc file it is difficult for a user to discover
+  how to begin customisation.
+  
+  1.  generate an xtrekrc file automatically during build,
+  2.  place the file during install in /etc/netrek-client-cow/xtrekrc,
+  3.  at startup, search for the file first in ~ then in /etc,
+  4.  add customisation section to a manual page.
+type: :feature
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2009-05-05 23:36:45.355558 Z
+references: []
+
+id: 7faa061983888bfb5a8d726aed2102b5509d9e62
+log_events: 
+- - 2009-05-05 23:36:46.998042 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
+claimer: 
