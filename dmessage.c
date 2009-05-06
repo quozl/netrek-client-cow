@@ -362,12 +362,12 @@ static void CheckFeatures(char *m)
 
 void sendVersion(void)
 {
-  char    client_ver[15];
+  char    client_ver[80];
 
   if (!version_sent)
     {
       version_sent = 1;
-      sprintf(client_ver, "@%s.%d", mvers, PATCHLEVEL);
+      sprintf(client_ver, "@netrek-client-cow %s.%d", mvers, PATCHLEVEL);
 
       pmessage(client_ver, me->p_no, MINDIV | MCONFIG);
     }
