@@ -343,8 +343,8 @@ static int ReadMetasSend()
   char *metaservers;		/* our copy of the metaserver host names */
   char *token;			/* current metaserver host name          */
   struct sockaddr_in address;	/* the address of the metaservers	 */
-  char *req;			/* the request packet for the metaserver */
-  int reqlen;			/* the length of the request packet      */
+  static char *req;		/* the request packet for the metaserver */
+  static int reqlen;		/* the length of the request packet      */
 
   last = time(NULL);
 
