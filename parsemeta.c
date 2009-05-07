@@ -118,17 +118,12 @@ char *metahelp_message[] =
   {
     "Netrek Server List - Help",
     "",
-    "  -  click on a server to join the game there,",
-    "",
-    "  -  middle-click on a server to immediately join as guest,",
-    "",
-    "  -  right-click on a server to observe the game there,",
-    "",
-    "  -  click to refresh the list of servers,",
-    "",
-    "The information shown comes from the Netrek Metaserver,",
-    "or from any Netrek servers nearby on your local network.",
-    "",
+    "The server list shows the servers that you can play",
+    "on. Just click on one and get started. Right clicking",
+    "on a server allows you to become a spectator on the",
+    "server, basically when you watch the game currently",
+    "going on. Watch good players a lot while specating",
+    "if you are new to Netrek, and learn from them.",
     "For more information on Netrek, visit www.netrek.org/beginner",
     NULL
   };
