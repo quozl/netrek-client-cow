@@ -1024,14 +1024,6 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   class_hint.res_name = name;
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
-
-#ifdef UNDEF
-  set_transient_for_hint(newwin->window, name);
-UNFINISHED
-  if (wparent == W_Root && baseWin != NULL && strcmp(name, "wait") != 0
-      && strcmp(name, "waitmotd") != 0)
-    XSetTransientForHint(W_Display, newwin->window, W_Void2Window(baseWin)->window);
-#endif
   newwin->name = strdup(name);
   newwin->width = width;
   newwin->height = height;
@@ -2017,9 +2009,6 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   XSetWMNormalHints(W_Display, newwin->window, sz_hints);
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
-#ifdef UNDEF
-  if (wparent == W_Root && baseWin != NULL)
-    XSetTransientForHint(W_Display, newwin->window, W_Void2Window(baseWin)->window);
   newwin->name = strdup(name);
   newwin->width = width;
   newwin->height = height;
@@ -2153,9 +2142,6 @@ int     border;
   XFree((void *) sz_hints);
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
-  if (wparent == W_Root && baseWin != NULL)
-    XSetTransientForHint(W_Display, newwin->window, W_Void2Window(baseWin)->window);
-
   newwin->name = strdup(name);
   sw = (struct scrollingWindow *) malloc(sizeof(struct scrollingWindow));
 
@@ -2432,8 +2418,6 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   class_hint.res_name = name;
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
-  if (wparent == W_Root && baseWin != NULL)
-    XSetTransientForHint(W_Display, newwin->window, W_Void2Window(baseWin)->window);
   XStoreName(W_Display, newwin->window, name);
   newwin->name = strdup(name);
   items = (struct menuItem *) malloc(height * sizeof(struct menuItem));
@@ -3030,15 +3014,6 @@ void
   XDestroyWindow(W_Display, win->window);
   free((char *) win);
 }
-
-/* NOT USED */
-void
-        W_SetTransientForHint(W_Window w, W_Window pw)
-{
-  XSetTransientForHint(W_Display, W_Void2Window(w)->window,
-		       W_Void2Window(pw)->window);
-}
-
 
 void deleteWindow(struct window *window)
 {
