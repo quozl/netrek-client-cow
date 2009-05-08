@@ -88,7 +88,6 @@ int W_WindowWidth(W_Window window);
 int W_WindowHeight(W_Window window);
 int W_Socket(void);
 void W_DestroyWindow(W_Window window);
-void W_SetTransientForHint(W_Window w, W_Window pw);
 void deleteWindow(struct window *window);
 void W_SetIconWindow(W_Window main, W_Window icon);
 void checkParent(char *name, W_Window *parent);

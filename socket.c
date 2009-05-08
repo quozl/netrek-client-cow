@@ -1012,7 +1012,6 @@ int readFromServer(fd_set *readfds)
       chan = udpSock;
       if (commStatus == STAT_VERIFY_UDP)
 	{
-	  warning("UDP connection established");
 	  sequence = 0;				 /* reset sequence #s */
 	  resetForce();
 
