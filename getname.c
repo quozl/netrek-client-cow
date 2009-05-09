@@ -52,6 +52,8 @@ static int time_error_ends;
 
 #define ERROR_PAUSE_SECONDS 3
 
+#define X_L 90 /* X left edge, how far in to begin text writing */
+
 extern void terminate(int error);
 
 
@@ -83,14 +85,14 @@ static void redraw_readme(void)
   int i;
 
   for (i=0; i<SIZEOF(README); i++)
-    myf(100, i * W_Textheight + 180, W_Cyan, W_RegularFont, "%s", README[i]);
+    myf(X_L, i * W_Textheight + 180, W_Cyan, W_RegularFont, "%s", README[i]);
 }
 
 
 static void redraw_time_left()
 {
   if (automatic) return;
-  myf(100, 400, W_Grey, W_RegularFont, "Seconds to go: %d ", time_left);
+  myf(X_L, 400, W_Grey, W_RegularFont, "Seconds to go: %d ", time_left);
 }
 
 
@@ -104,42 +106,62 @@ static void redraw()
 
   if (state == ST_DISCONNECTED) {
     W_ClearWindow(w);
-    myf(100, TWINSIDE/2, W_Red, W_BoldFont,
+    myf(X_L, TWINSIDE/2, W_Red, W_BoldFont,
         "Connection to server lost, press enter to quit.");
     return;
   }
 
-  myf(100, 10, W_White, W_RegularFont, "Welcome to Netrek.");
-  myf(100, 20, W_Grey, W_RegularFont, "Connected to server %s.", serverName);
+  myf(X_L, 10, W_White, W_RegularFont, "Welcome to Netrek.");
+  myf(X_L, 20, W_Grey, W_RegularFont, "Connected to server %s.", serverName);
 
   if (state == ST_GETNAME) {
-    myf(100, 50, W_Green, W_RegularFont,
+    myf(X_L, 50, W_Green, W_RegularFont,
         "What is your name? : %s%s", strlen(n_buf) == 0 ? n_def : n_buf, pad);
-    if (xtrekPort == DEFAULT_PORT)
-      myf(100, 70, W_Grey, W_RegularFont,
+    if (xtrekPort == DEFAULT_PORT) {
+      myf(X_L, 70, W_Grey, W_RegularFont,
           "Use guest if you do not want to have your statistics saved.");
+      myf(X_L, 90, W_Grey, W_RegularFont,
+          "Servers keep statistics by name.");
+      myf(X_L, 100, W_Grey, W_RegularFont,
+          "This is the name the server will remember you by.");
+      myf(X_L, 110, W_Grey, W_RegularFont,
+          "You may want to use an alias, most players do.");
+      myf(X_L, 120, W_Grey, W_RegularFont,
+          "If the name is known, the server will ask for your password.");
+      myf(X_L, 130, W_Grey, W_RegularFont,
+          "If not an account is created and you get to set a password.");
+    }
   } else if (state == ST_GETPASS) {
-    myf(100, 50, W_Grey, W_RegularFont,
+    myf(X_L, 50, W_Grey, W_RegularFont,
         "What is your name? : %s%s", n_buf, pad);
-    myf(100, 60, W_Green, W_RegularFont,
+    myf(X_L, 60, W_Green, W_RegularFont,
         "What is your password? : %s%s", asterisks(p_buf_a), pad);
-    myc(100, 70);
+    myc(X_L, 70);
+    myc(X_L, 90);
+    myc(X_L, 100);
+    myc(X_L, 110);
+    myc(X_L, 120);
+    myc(X_L, 130);
   } else if (state == ST_MAKEPASS1 || state == ST_MAKEPASS2) {
-    myf(100, 50, W_Grey, W_RegularFont,
+    myf(X_L, 50, W_Grey, W_RegularFont,
         "What is your name? : %s%s", n_buf, pad);
-    myc(100, 70);
-    myf(100, 70, W_Grey, W_BoldFont,
-        "Name not known to server, so we will make one.");
-    myf(100, 80, W_Grey, W_RegularFont,
-        "So think of a password you can remember, and enter it.");
-    myf(100, 90, W_Green, W_RegularFont,
+    myc(X_L, 70);
+    myf(X_L, 70, W_Grey, W_BoldFont,
+        "Name not known to server, so it will make one.");
+    myf(X_L, 80, W_Grey, W_RegularFont,
+        "Think of a password you can remember, and enter it.");
+    myf(X_L, 90, W_Green, W_RegularFont,
         "What is your password? : %s%s", asterisks(p_buf_a), pad);
+    myc(X_L, 100);
+    myc(X_L, 110);
+    myc(X_L, 120);
+    myc(X_L, 130);
   }
 
   if (state == ST_MAKEPASS2) {
-    myf(100, 110, W_Grey, W_BoldFont,
+    myf(X_L, 110, W_Grey, W_BoldFont,
         "Enter it again to make sure you typed it right.");
-    myf(100, 120, W_Green, W_RegularFont,
+    myf(X_L, 120, W_Green, W_RegularFont,
         "Your password? : %s%s", asterisks(p_buf_b), pad);
   }
 
@@ -147,22 +169,22 @@ static void redraw()
 // prompt, and during errors.
 
   if (err != NULL) {
-    myf(100, 130, W_Red, W_BoldFont, err);
+    myf(X_L, 130, W_Red, W_BoldFont, err);
   } else {
-    myc(100, 130);
+    myc(X_L, 130);
   }
 
   switch (state) {
   case ST_RX_GUEST:
   case ST_RX_NAME:
   case ST_RX_LOGIN:
-    myf(100, 140, W_Yellow, W_BoldFont, "(server wait)");
+    myf(X_L, 140, W_Yellow, W_BoldFont, "(server wait)");
     break;
   default:
-    myc(100, 140);
+    myc(X_L, 140);
   }
 #ifdef DEBUG
-  myf(100, 150, W_Yellow, W_BoldFont, "client state %d", state);
+  myf(X_L, 150, W_Yellow, W_BoldFont, "client state %d", state);
 #endif
 
   redraw_readme();
@@ -182,7 +204,7 @@ static void automatic_failed()
   automatic = 0;
   *defpasswd = *p_buf_a = *p_buf_b = '\0';
   err = "Automatic login failed";
-  W_WriteText(w, 100, 130, W_Red, err, strlen(err), W_BoldFont);
+  W_WriteText(w, X_L, 130, W_Red, err, strlen(err), W_BoldFont);
 }
 
 
