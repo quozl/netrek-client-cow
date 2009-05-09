@@ -9,8 +9,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-03-23 22:20:39.181713 Z
 references: []
 
@@ -20,4 +20,10 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2009-05-09 04:48:48.662687 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - |-
+    Fixed by removing transient window support.
+    Tested on Debian Squeeze and Ubuntu Jaunty.
 claimer: 
