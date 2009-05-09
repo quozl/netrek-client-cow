@@ -39,24 +39,19 @@ metaserver window,
 	integrated league server
 	update information age every few seconds
 	new version warning
-	update less during an active game
 	detail status
 		use for queue position status.
 		"resolving, connecting, connected, login, outfit, playing",
 		needs a communication path from child to parent.
 		related bug id 05f15891c7925eb1e619b5f586b3332fb41ac8a1
-	allow iconify
-		bug id eff2eac72769e6049f126199609c46a0fede25b8
 	time to play notifier
 		an audio sample
 		if player has not played in past minute
 		if n players moves from below threshold to threshold or above
+		also change window or icon title
 
 login window,
 
-	make it clear that names are per server.
-		how to get an account on a netrek server
-		bug id 9ceb1d26257c5d3a7d51dd49c53512ebc202ec88
 	add a quit button, centre bottom
 		Can't type control/d on password prompt to exit, as it
 		may form part of a password.
@@ -80,6 +75,7 @@ mouse-over hints for windows.
 		calculate coordinate change per second using time in event,
 		if above threshold then clear timer,
 	on timer expiry, map hint
+	dashboard elements, player list, tactical objects.
 
 general user interface
 
