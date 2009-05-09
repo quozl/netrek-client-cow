@@ -8,8 +8,8 @@ type: :feature
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-03-01 02:02:13.136365 Z
 references: []
 
@@ -19,3 +19,16 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2009-05-09 07:12:16.276755 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - |-
+    Text added to the name prompt as follows:
+    
+    Use guest if you do not want to have your statistics saved.
+    Servers keep statistics by name.
+    This is the name the server will remember you by.
+    You may want to use an alias, most players do.
+    If the name is known, the server will ask for your password.
+    If not an account is created and you get to set a password.
+claimer: 

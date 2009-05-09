@@ -42,4 +42,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2009-05-09 06:48:59.133798 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - Cannot reproduce on Ubuntu Jaunty. -- Quozl.
 claimer: 
