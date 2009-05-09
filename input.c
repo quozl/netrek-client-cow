@@ -635,9 +635,12 @@ void input()
 #ifndef HAVE_WIN32
   int     xsock = W_Socket();
 #endif
-  int     doflush = 0;
+  struct timeval timeout;
+  int     retval;
+  int     flush = 0;
 
   while (1) {
+    /* manage expiry of info window */
     if (keepInfo > 0 && opened_info != -2) { /* 6/1/93 LAB */
       opened_info--;
       if (opened_info < 0 && infomapped) destroyInfo();
@@ -655,10 +658,18 @@ void input()
       warning("Lost connection to server, press q to quit.");
       redrawall = 1;
       redraw();
+      flush++;
     }
 
-    /* Skip read from server if select results in error. */
-    if (SELECT(max_fd, &readfds, 0, 0, 0) > 0) {
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 100000;
+    retval = SELECT(max_fd, &readfds, 0, 0, &timeout);
+    if (retval == 0) {
+      warning("Stall in data stream from server!");
+      redrawall = 1;
+      redraw();
+      flush++;
+    } else if (retval > 0) {
 #ifndef THREADED
 #ifndef HAVE_WIN32
       /* keyboard, mouse, and expose events from the X server
@@ -667,28 +678,29 @@ void input()
       if (FD_ISSET(xsock, &readfds)) {
 	while (W_EventsQueuedCk())
 	  process_event();
-	doflush = 1;
+	flush++;
       }
 #else
       if (W_EventsPending()) {
 	process_event();
-	doflush = 1;
+	flush++;
       }
 #endif /* !HAVE_WIN32 */
 #endif /* !THREADED */
+      /* read from server */
       if (FD_ISSET(sock, &readfds) ||
 	  (udpSock >= 0 && FD_ISSET(udpSock, &readfds))) {
 	intrupt(&readfds);
-	doflush = 1;
+	flush++;
 	if (isServerDead()) {
 	  warning("Lost connection to server!");
 	}
       }
     }
 
-    if (doflush) {
+    if (flush) {
       W_Flush();
-      doflush = 0;
+      flush = 0;
     }
   }
 }

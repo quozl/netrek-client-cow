@@ -1,3 +1,9 @@
+Welcome.  Of the things we would welcome work on, it's the initial
+appearance of the package that will generate the most result.  Placement
+in Gnome menus.  Placement in KDE menus.  Package description.
+Documentation.  Initial startup appearance.  Compatibility with all
+window managers.
+
 www.ggzgamingzone.org/
 	bug id 9b966bd6ed186fa7d55efa6062582065a390b7b7
 
@@ -6,20 +12,6 @@ unnecessary error if no sound files
 	% ./netrek-client-cow -r /dev/null
 	Mix_PlayChannel: Tried to play a NULL chunk
 	related bug id 9296e15277906b71eaf1fe232f4dbea2aff0ae61
-
-network resilience or reporting
-
-	handling of a stall is not graceful ... screen freezes, does
-	not update, should be able to detect this sooner in code,
-	without any network event received.
-
-	TCP connection closure was delayed by a long time, several
-	minutes, then tcpdump showed FIN exchange.
-
-	an ICMP port unreachable may be returned, especially when a
-	packet is delivered late and the sevrer is no longer
-	listening.  the ICMP packet contains the CP_ packets that were
-	sent.
 
 ship colours, eight per team.
 

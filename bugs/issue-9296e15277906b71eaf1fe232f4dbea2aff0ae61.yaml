@@ -46,4 +46,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - commented
   - "Workaround, add \"sound: off\" to .xtrekrc file."
+- - 2009-05-09 07:24:32.921734 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - Does not reproduce on Ubuntu Jaunty in a VM with pulseaudio stopped.
 claimer: 
