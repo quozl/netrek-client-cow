@@ -1,0 +1,35 @@
+/* XPM */
+static char *ga0[] = {
+/* width height ncolors chars_per_pixel */
+"20 20 8 1",
+/* colors */
+"  c #000000",
+"g c #00ff00",
+"o c #949494",
+"O c #a5a5a5",
+"% c #b5b5b5",
+"@ c #c6c6c6",
+"x c #b50000",
+"X c #ff0000",
+/* pixels */
+"                    ",
+"                    ",
+"        OxxO        ",
+"       o@XX@o       ",
+"       O@OO@O       ",
+" @     %@@@@%     @ ",
+" @     og@@go    @@ ",
+" @@     oggo     @@ ",
+" go  o  o%%o  o  og ",
+" goo o  o%%o  o oog ",
+" ggooo oO%%Oo ooogg ",
+" gogOo%%gOOg%%oOgog ",
+" oogOg%Og@@gO%gOgoo ",
+" o OOgOg@gg@gOgOO o ",
+"   oO%Og@@@ggO%Oo   ",
+"   o %gg@@@@gg% o   ",
+"     %ggoXXogg%     ",
+"      o% xx %o      ",
+"                    ",
+"                    ",
+};

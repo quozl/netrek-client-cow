@@ -1,0 +1,35 @@
+/* XPM */
+static char * C8_xpm[] = {
+/* width height colors chars_per_color */
+"20 20 8 1",
+/* colors */
+" 	c None",
+".	c #0000A0A00000",
+"X	c #0000FFFF0000",
+"o	c #000078780000",
+"O	c #0000C8C80000",
+"+	c #000078780000",
+"@	c #000078780000",
+"#	c #000078780000",
+/* pixels */
+"                    ",
+"         ..         ",
+"        .XX.        ",
+"        .XX.        ",
+"         ..         ",
+" X       ..       X ",
+" X       ..       X ",
+" o       ..       o ",
+" X      oOOo      X ",
+" .o     oOOo     o. ",
+" ooo.  o.OO.o  .ooo ",
+" oo...OOO..OOO...oo ",
+"  ...OO.XXXX.OO...  ",
+"   ..OO+XXXX+OO..   ",
+"    OO.+XXXX+.OO    ",
+"     O.+XXXX+.O     ",
+"       +o@@o+       ",
+"         ##         ",
+"                    ",
+"                    ",
+};

@@ -4,6 +4,16 @@ in Gnome menus.  Placement in KDE menus.  Package description.
 Documentation.  Initial startup appearance.  Compatibility with all
 window managers.
 
+package pixmaps by default
+	fix W_LocalBgd so it works
+
+package pixmaps as png
+	sample xpm set 471165 bytes,
+		converted to png 112934 bytes,
+		processed with pngcrush 69407 bytes.
+	x11sprite.c:ReadFileToSprite() convert to Imlib2
+	embed in code somehow?
+
 www.ggzgamingzone.org/
 	bug id 9b966bd6ed186fa7d55efa6062582065a390b7b7
 

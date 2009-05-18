@@ -1,0 +1,30 @@
+/* XPM */
+static char *ga0[] = {
+/* width height ncolors chars_per_pixel */
+"20 20 3 1",
+/* colors */
+"a c #000000",
+"b c #435243",
+"c c #7b947b",
+/* pixels */
+"aaaaaaaaaaaaaaaaaaaa",
+"aaaaaaaaaaaaaaaaaaaa",
+"aaaaaaaaaaaaaaaaaaaa",
+"aaabcbcbbcbcbccaaaaa",
+"aaacbbbccbbccbbbaaaa",
+"aaabcccbbccbbccabaaa",
+"aaacbcbcbcbcbbbabbaa",
+"aaabcccbcbcbcbcbabaa",
+"aaaccbbccbcbccbbbaaa",
+"aaabbcbbccbcbbcaabaa",
+"aaacbcbcbbbbcbcabbaa",
+"aaaccbccbcccbcbbabaa",
+"aaabbcbbcbbcbbcaaaaa",
+"aaacbbbcbcbbccbbbaaa",
+"aaacbccbcbccbbcbabaa",
+"aaaabbaabbaabbaabaaa",
+"aaaaabbababababbabaa",
+"aaaaaaabbaababababaa",
+"aaaaaaaaaaaaaaaaaaaa",
+"aaaaaaaaaaaaaaaaaaaa"
+};

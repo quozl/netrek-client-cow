@@ -1,0 +1,36 @@
+/* XPM */
+static char * C0_xpm[] = {
+/* width height colors chars_per_color */
+"20 20 8 1",
+/* colors */
+" 	c None",
+".	c #9A9A9A9AAFAF",
+"X	c #A9A9A9A9C0C0",
+"o	c #C6C6C6C6E0E0",
+"O	c #8D8D8D8DA0A0",
+"+	c #00008080FFFF",
+"@	c #B0B000000000",
+"#	c #FFFF00000000",
+/* pixmap */
+"                    ",
+"                    ",
+"                    ",
+"          .         ",
+"          X         ",
+"         XoX        ",
+"         .o.        ",
+"      O   X   O     ",
+"      .   X   .     ",
+"      ..  X  ..     ",
+"      .Xo X oX.     ",
+"      OX+.X.+XO     ",
+"       X+@#@+X      ",
+"       .+   +.      ",
+"        +   +       ",
+"                    ",
+"                    ",
+"                    ",
+"                    ",
+"                    ",
+"                    ",
+};

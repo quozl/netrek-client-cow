@@ -1,0 +1,34 @@
+/* XPM */
+static char * C3_xpm[] = {
+/* widht height color chars_per_color */
+"20 20 7 1",
+/* colors */
+" 	c None",
+".	c #0000A0A00000",
+"X	c #0000C8C80000",
+"o	c #0000FFFF0000",
+"O	c #000078780000",
+"+	c #000078780000",
+"@	c #B0B000000000",
+/* pixels */
+"                    ",
+"         . .        ",
+"        .X X.       ",
+"        .o o.       ",
+"        Xo.oX       ",
+"        .ooo.       ",
+"        O.X.O       ",
+"         OXO        ",
+"         OXO        ",
+"     O  OOXOO  O    ",
+"     + O.XXX.O +    ",
+"     +..XXOXX..+    ",
+"     O..XoOoX..O    ",
+"     OOOXo+oXOOO    ",
+"     +  Xo+oX  +    ",
+"     O   @+@   O    ",
+"     O    O    O    ",
+"          O         ",
+"                    ",
+"                    ",
+};

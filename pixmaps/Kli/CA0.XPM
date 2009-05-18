@@ -1,0 +1,35 @@
+/* XPM */
+static char *ca0[] = {
+/* width height ncolors chars_per_pixel */
+"20 20 8 1",
+/* colors */
+"  c #000000",
+"g c #00ff00",
+"o c #949494",
+"O c #a5a5a5",
+"x c #b50000",
+"% c #b5b5b5",
+"@ c #c6c6c6",
+"X c #ff0000",
+/* pixels */
+"                    ",
+"                    ",
+"         @@         ",
+"        O@@O        ",
+"        o@@o        ",
+"        oOOo        ",
+"        gOOg        ",
+"   o     OO     o   ",
+"   %     gg     %   ",
+"   g     %%     g   ",
+"   g %   %%   % g   ",
+"   goO o gg o Oog   ",
+"   oogO%o@@o%Ogoo   ",
+"    oog%%gg%Ogoo    ",
+"    o oOg@@gOo o    ",
+"       o@XX@o       ",
+"        oxxo        ",
+"                    ",
+"                    ",
+"                    ",
+};
