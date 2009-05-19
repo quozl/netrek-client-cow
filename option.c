@@ -732,6 +732,31 @@ void    optionaction(W_Event * data)
 	*(op->op_option) = op->op_range->min_value;
       if (*(op->op_option) < op->op_range->min_value)
 	*(op->op_option) = op->op_range->max_value;
+      if (op->op_option == &client_ups)
+	{
+	  switch (data->key) {
+	  case W_LBUTTON:
+	    switch (*op->op_option) {
+	    case 9: *op->op_option = 5; break;
+	    case 24: *op->op_option = 10; break;
+	    case 49: *op->op_option = 25; break;
+	    }
+	    break;
+	  case W_MBUTTON:
+	    *op->op_option = 5;
+	    break;
+	  case W_RBUTTON:
+	    switch (*op->op_option) {
+	    case 6: *op->op_option = 10; break;
+	    case 11: *op->op_option = 25; break;
+	    case 26: *op->op_option = 50; break;
+	    }
+	    break;
+	  }
+	  if (client_ups != server_ups) {
+	    sendUpdatePacket(1000000 / client_ups);
+	  }
+	}
     }
 
 
@@ -853,10 +878,6 @@ void optiondone(void)
 	break;
     }
   *newkeys = '\0';
-
-  if (client_ups != server_ups) {
-    sendUpdatePacket(1000000 / client_ups);
-  }
 
   sendOptionsPacket(); /* update server as to the client's options */
 }
