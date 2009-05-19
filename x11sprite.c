@@ -585,8 +585,8 @@ void   *S_Torp(int torpno)
     {
       sprite = &torpImg[remap[players[this->t_owner].p_team]][1];
       this->t_fuse--;
-      numdetframes = NUMDETFRAMES * server_ups / 10;
-      frame = this->t_fuse * 10 / server_ups;
+      numdetframes = NUMDETFRAMES * server_ups / 5;
+      frame = this->t_fuse * 5 / server_ups;
       if (this->t_fuse <= 0)
 	{
 	  this->t_status = PTFREE;
