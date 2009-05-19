@@ -403,7 +403,7 @@ void   *S_Ship(int playerno)
     }
   else if (this->p_status == PEXPLODE)
     {
-      int     i = this->p_explode;
+      int     i = this->p_explode * 5 / server_ups;
 
       if (pixFlags & NO_EXP_PIX)
 	return ((void *) NULL);

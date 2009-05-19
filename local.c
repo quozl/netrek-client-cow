@@ -542,7 +542,7 @@ static void DrawShips(void) {
 				clearzone[2][clearcount] = clearsize;
 				clearzone[3][clearcount] = clearsize;
 				clearcount++;
-			} else
+			} else {
 
 			if (i < EX_FRAMES || (i < SBEXPVIEWS && j->p_ship.s_type == STARBASE)) {
 				if (j->p_ship.s_type == STARBASE) {
@@ -564,6 +564,7 @@ static void DrawShips(void) {
 				clearcount++;
 			}
 			j->p_explode++;
+			}
 		}
 
 		/* Now draw his phaser (if it exists) */
