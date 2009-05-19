@@ -166,10 +166,7 @@ void death(void)
 	      shipnos[players[me->p_whodead].p_no],
 	      teamstring[players[me->p_whodead].p_team]);
       deathFont = W_BoldFont;
-
-#ifdef HAVE_XPM
       W_GalacticBgd(GENO_PIX);
-#endif
 
       break;
     case KGHOST:

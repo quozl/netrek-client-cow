@@ -31,7 +31,7 @@ void camera_init(Display *arg_disp, Window arg_window) {
   depth = DefaultDepth(disp, XScreenNumberOfScreen(scr));
   cm = DefaultColormap(disp, XScreenNumberOfScreen(scr));
   rw = RootWindow(disp, XScreenNumberOfScreen(scr));
-  
+
   imlib_context_set_display(disp);
   imlib_context_set_visual(vis);
   imlib_context_set_colormap(cm);

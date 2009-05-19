@@ -341,7 +341,6 @@ struct option Visual_Menu[] =
   {-1, NULL, 0, 0, 0, 0, NULL, NULL}
 };
 
-#ifdef HAVE_XPM
 struct option Pixmap_Menu[] =
 {
   {0, "Pixmap Menu", &MenuPage, 0, 0, 0, NULL, &Menus_Range},
@@ -360,9 +359,6 @@ struct option Pixmap_Menu[] =
   {1, "done", &notdone, 0, 0, 0, NULL, NULL},
   {-1, NULL, 0, 0, 0, 0, NULL, NULL}
 };
-
-#endif
-
 
 #define NUMOPTIONS(menu) ((sizeof((menu))/sizeof((menu)[0]))-1)
 
@@ -504,12 +500,9 @@ static void optionrefresh(register struct option *op)
       /* Either a boolean or a window */
       if (op->op_option)
 
-#ifdef HAVE_XPM
 	if (op->op_size)			 /* Pixmap Bit Value */
 	  on = !(*op->op_option & op->op_size);
 	else
-#endif
-
 	  on = *op->op_option;			 /* use int for status */
       else if (op->op_targetwin)
 	on = W_IsMapped(*op->op_targetwin);	 /* use window for status */
@@ -744,7 +737,6 @@ void    optionaction(W_Event * data)
 
   /* Is the option a toggle? */
 
-#ifdef HAVE_XPM
   /* Bitwise Toggle  */
 
   else if ((op->op_option) && (op->op_size))
@@ -757,8 +749,6 @@ void    optionaction(W_Event * data)
 	    redrawall = 1;
 	}
     }
-#endif
-
   else if (op->op_option)
     {
       *op->op_option = !*op->op_option;
@@ -884,11 +874,7 @@ static int InitOptionMenus(void)
   AddOptMenu(Planet_Menu, 0);
   AddOptMenu(Visual_Menu, 0);
   AddOptMenu(Window_Menu, 0);
-
-#ifdef HAVE_XPM
   AddOptMenu(Pixmap_Menu, 0);
-#endif
-
 
   for (i = 0, CurrentMenu = FirstMenu; CurrentMenu != NULL;
        i++, CurrentMenu = CurrentMenu->Next)

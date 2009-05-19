@@ -1,15 +1,15 @@
 #include "config.h"
 
-#ifdef HAVE_XPM
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <sys/param.h>
 
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include <X11/Xlib.h>
-#include INC_XPM
+#include <Imlib2.h>
 
 #include "Wlib.h"
 #include "defs.h"
@@ -80,126 +80,119 @@ const char teamnames[NUMTEAM + 1][4] =
 {"Ind", "Fed", "Rom", "Kli", "Ori"};
 
 const char mplanetfiles[NUM_PL_IMGS][12] =
-{"UNKN.xpm",
- "ROCK.xpm",
- "AGRI.xpm",
- "army.xpm",
- "repair.xpm",
- "fuel.xpm",
- "Ind.xpm",
- "Fed.xpm",
- "Rom.xpm",
- "Kli.xpm",
- "Ori.xpm"
+{"UNKN.png",
+ "ROCK.png",
+ "AGRI.png",
+ "army.png",
+ "repair.png",
+ "fuel.png",
+ "Ind.png",
+ "Fed.png",
+ "Rom.png",
+ "Kli.png",
+ "Ori.png"
 };
 const char shipfiles[NUM_TYPES][8] =
-{"SC.xpm",
- "DD.xpm",
- "CA.xpm",
- "BB.xpm",
- "AS.xpm",
- "SB.xpm",
- "GA.xpm",
- "AT.xpm"
+{"SC.png",
+ "DD.png",
+ "CA.png",
+ "BB.png",
+ "AS.png",
+ "SB.png",
+ "GA.png",
+ "AT.png"
 };
 const char torpfiles[2][14] =
-{"torp.xpm", "torp_det.xpm"};
+{"torp.png", "torp_det.png"};
 const char plasmafiles[2][16] =
-{"plasma.xpm", "plasma_det.xpm"};
-const char cloakfile[10] = "cloak.xpm";
+{"plasma.png", "plasma_det.png"};
+const char cloakfile[10] = "cloak.png";
 const char explosionfiles[2][18] =
-{"explosion.xpm", "sbexplosion.xpm"};
+{"explosion.png", "sbexplosion.png"};
 const char bgfiles[NUM_BG_IMGS][16] =
-{"map_back.xpm",
- "local_back.xpm",
- "ghostbust.xpm",
- "genocide.xpm",
- "greet.xpm",
- "hockey.xpm"
+{"map_back.png",
+ "local_back.png",
+ "ghostbust.png",
+ "genocide.png",
+ "greet.png",
+ "hockey.png"
 };
 
 int     ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
 {
-  register int k;
-  XpmAttributes attr;
-  int     nviews = 0;
-  struct window *win = W_Void2Window(mylocal);
+  Imlib_Image im;
+  int width, height, nviews;
 
+  if (access(filename, R_OK) != 0) {
+    fprintf(stderr, "image %s is not readable\n", filename);
+    goto fail;
+  }
 
-  attr.visual = W_Visual;
-  attr.colormap = W_Colormap;
-  attr.exactColors = takeNearest;
-  attr.closeness = 40000;
-  attr.valuemask = XpmVisual | XpmColormap | XpmExactColors |
-      XpmReturnExtensions | XpmCloseness;
+  im = imlib_load_image(filename);
+  if (!im) {
+    fprintf(stderr, "image %s failed to load\n", filename);
+    goto fail;
+  }
 
-  if (XpmReadFileToPixmap(W_Display, win->window, filename, &sprite->image,
-			  &sprite->shape, &attr) != XpmSuccess)
-    {
-      if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "Unable to read file %s.\n", filename);
-      sprite->image = NoPixmapError;
-      sprite->nviews = 1;
-      return (1);
-    }
+  imlib_context_set_display(W_Display);
+  imlib_context_set_visual(W_Visual);
+  imlib_context_set_colormap(W_Colormap);
+  imlib_context_set_image(im);
+  imlib_context_set_drawable(W_Void2Window(mylocal)->window);
+  imlib_render_pixmaps_for_whole_image(&sprite->image, &sprite->shape);
 
-  for (k = 0; k < attr.nextensions; k++)
-    {
-      if (strcmpi(attr.extensions[0].name, "num_views") == 0)
-	nviews = atoi(attr.extensions[0].lines[0]);
-    }
-
-  if (nviews == 0)
-    {
-      int     guess;
-
-      guess = (int) ((attr.height) / (attr.width));
-      if (guess == (attr.height) / (attr.width))
-	{
-	  nviews = guess;
-	}
-      else
-	{
-	  if (!(pixMissing & NO_PIXMAPS))
-	    fprintf(stderr, "NUM_VIEWS not suppied in %s.  Unable to estimate ...\n",
-		    filename);
-	  sprite->image = NoPixmapError;
-	  sprite->nviews = 1;
-	  return (1);
-	}
-    }
+  width = imlib_image_get_width();
+  height = imlib_image_get_height();
+  nviews = height / width;
+  if (nviews * width != height) {
+    fprintf(stderr, "image %s height (%d) is not a multiple of width (%d)\n",
+            filename, height, width);
+    goto fail;
+  }
 
   sprite->parent = w;
   sprite->gc = XCreateGC(W_Display, sprite->image, 0, NULL);
   sprite->nviews = nviews;
-  sprite->width = attr.width;
-  sprite->height = (attr.height) / nviews;
+  sprite->width = width;
+  sprite->height = height / nviews;
+  fprintf(stderr, "image %s loaded, nv=%d w=%d h=%d (%d)\n", filename,
+          nviews, width, height, sprite->height);
+  return 0;
 
-  return (0);
+ fail:
+  sprite->image = NoPixmapError;
+  sprite->nviews = 1;
+  return 1;
 }
 
 int     ReadFileToTile(char *filename, Pixmap * pix)
 {
-  XpmAttributes attr;
-  struct window *win = W_Void2Window(mylocal);
+  Imlib_Image im;
 
-  attr.visual = W_Visual;
-  attr.colormap = W_Colormap;
-  attr.exactColors = takeNearest;
-  attr.closeness = 40000;
-  attr.valuemask = XpmVisual | XpmColormap | XpmExactColors |
-      XpmReturnExtensions | XpmCloseness;
+  if (access(filename, R_OK) != 0) {
+    fprintf(stderr, "image %s is not readable\n", filename);
+    goto fail;
+  }
 
-  if (XpmReadFileToPixmap(W_Display, win->window, filename, pix, NULL, &attr)
-      != XpmSuccess)
-    {
-      if (!(pixMissing & NO_PIXMAPS))
-	fprintf(stderr, "Unable to read file %s.\n", filename);
-      *pix = NoPixmapError;
-      return (1);
-    }
+  im = imlib_load_image(filename);
+  if (!im) {
+    fprintf(stderr, "image %s failed to load\n", filename);
+    goto fail;
+  }
 
-  return (0);
+  imlib_context_set_display(W_Display);
+  imlib_context_set_visual(W_Visual);
+  imlib_context_set_colormap(W_Colormap);
+  imlib_context_set_image(im);
+  imlib_context_set_drawable(W_Void2Window(mylocal)->window);
+  imlib_render_pixmaps_for_whole_image(pix, NULL);
+  fprintf(stderr, "tile %s loaded, w=%d h=%d\n", filename,
+          imlib_image_get_width(), imlib_image_get_height());
+  return 0;
+
+ fail:
+  *pix = NoPixmapError;
+  return 1;
 }
 
 void    GetPixmaps(Display * d, struct window *win)
@@ -390,8 +383,8 @@ void   *S_Ship(int playerno)
   sprite = &(shipImg[remap[this->p_team]][this->p_ship.s_type]);
   sprite->cloak = 0;
 
-  /* The following generalizes "rosette(x)" for an arbitrary number of views
-   * * in the xpm    */
+  /* The following generalizes "rosette(x)" for an arbitrary number of
+     views in the image */
 
   sprite->view = ((((this->p_dir) + 128 / (sprite->nviews))
 		   / (256 / (sprite->nviews))) % (sprite->nviews));
@@ -677,4 +670,3 @@ void    W_LocalBgd(int which)
 
   W_ClearWindow(w);
 }
-#endif /* HAVE_XPM */

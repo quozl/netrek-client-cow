@@ -198,7 +198,6 @@ extern int fastQuit;
 extern int babes;
 extern int showlocal, showgalactic;
 
-#ifdef HAVE_XPM
 #define NO_IND_PIX 0x0001
 #define NO_FED_PIX 0x0002
 #define NO_ROM_PIX 0x0004
@@ -213,8 +212,6 @@ extern int showlocal, showgalactic;
 #define NO_PIXMAPS 0x8000
 extern int pixMissing;
 extern int pixFlags;
-
-#endif
 extern char *shipnos;
 extern int sock;
 extern int xtrekPort;
@@ -530,11 +527,7 @@ extern int F_self_8flags2;
 extern int F_ship_cap;
 extern int F_sp_generic_32;
 extern char A_sp_generic_32;
-
-#ifdef HAVE_XPM
 extern int F_agri_pix;
-
-#endif
 
 #ifdef WARP_DEAD
 extern int F_dead_warp;

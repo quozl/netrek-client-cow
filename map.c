@@ -21,15 +21,12 @@
 /* debugging feature, show rectangular redraw regions on galactic */
 #undef DEBUG_SHOW_REGIONS
 
-#ifdef HAVE_XPM
 extern void *S_mPlanet(int);
 extern void *S_mArmy(int);
 extern void *S_mRepair(int);
 extern void *S_mFuel(int);
 extern void *S_mOwner(int);
 extern int W_DrawSprite(void *, int, int, int);
-
-#endif
 
 /*
  *  Local Constants:
@@ -287,11 +284,7 @@ static void DrawPlanets()
   register struct planet *l;
   register int dx, dy;
   char    ch;
-
-#ifdef HAVE_XPM
   void   *sprite;
-
-#endif
 
   for (l = planets + MAXPLANETS - 1; l >= planets; --l)
     {
@@ -367,7 +360,6 @@ static void DrawPlanets()
 	{
 #endif
 
-#ifdef HAVE_XPM
 	  sprite = S_mPlanet(l->pl_no);
 
 	  if (sprite == NULL)
@@ -385,7 +377,6 @@ static void DrawPlanets()
 	    }
 
 	  else
-#endif /* HAVE_XPM */
 
 	    W_OverlayBitmap(dx - (mplanet_width / 2), dy - (mplanet_height / 2),
 			    planetmBitmap(l), planetColor(l));
@@ -558,14 +549,12 @@ void
 	  return;
 	}
 
-#ifdef HAVE_XPM
 #ifdef HOCKEY_LINES
       if (hockey_s_lines)
         W_GalacticBgd(HOCKEY_PIX);
       else
 #endif
         W_GalacticBgd(MAP_PIX);
-#endif
 
       W_ClearWindow(mapw);
       clearlock = 0;

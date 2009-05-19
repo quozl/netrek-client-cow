@@ -1666,13 +1666,9 @@ static void Key38(void)
 
 static void Key39(void)
 {
-#ifdef HAVE_XPM
   W_GalacticBgd(MAP_PIX);
   W_LocalBgd(LOCAL_PIX);
   sendUdpReq(COMM_UPDATE);
-#else
-  emptyKey();
-#endif
 }
 
 static void Key40(void)
@@ -1947,9 +1943,7 @@ static void Key74(W_Event * data)
 
 static void Key75(void)
 {
-#ifdef HAVE_XPM
   W_GalacticBgd(GREET_PIX);
-#endif
 }
 
 static void Key76(void)

@@ -37,10 +37,8 @@ char    exptime[27];
 
 #endif
 
-#ifdef HAVE_XPM
 #define NO_PIXMAPS 0x8000
 extern int pixMissing;
-#endif
 
 extern int gather_stats;
 
@@ -333,11 +331,9 @@ int main2(int argc, char **argv)
 	      break;
 #endif
 
-#ifdef HAVE_XPM
 	    case 'b':
 	      pixMissing |= NO_PIXMAPS;
 	      break;
-#endif
 
 #ifdef TOOLS
 	    case 'L':
@@ -486,9 +482,7 @@ static void printUsage(char *prog)
   printf(" [-n]   use nearest colors in shared colormap\n");
 #endif
 
-#ifdef HAVE_XPM
   printf(" [-b]   do not attempt to load color pixmaps\n");
-#endif
 
 #ifdef TOOLS
   printf(" [-L]   upgrade to Latest version (requires running netscape)\n");

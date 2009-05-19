@@ -514,9 +514,7 @@ void W_Initialize(char *display)
    }
 
 
-#ifdef HAVE_XPM
   GetPixmaps(&GlobalMemDC, &myroot);
-#endif
 
    atexit(W_Cleanup);
    }
@@ -3494,7 +3492,6 @@ pastebuffer(void)
 */
 }
 
-#ifdef HAVE_XPM
 void W_Halo ( int x, int y, W_Color color)
 {
   // struct window *win = W_Void2Window(mapw);
@@ -3510,5 +3507,4 @@ void W_Halo ( int x, int y, W_Color color)
 #endif
   }
 }
-#endif  /* HAVE_XPM */
 

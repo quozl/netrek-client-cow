@@ -1,5 +1,5 @@
 /* x11window.c
- * 
+ *
  * Kevin P. Smith  6/11/89 Much modified by Jerry Frain and Joe Young
  *
  */
@@ -439,10 +439,7 @@ void
   myroot.type = WIN_GRAPH;
   GetFonts();
   GetColors();
-
-#ifdef HAVE_XPM
   GetPixmaps(W_Display, &myroot);
-#endif
 
   /* display scroll thumb */
   scrollbar = booleanDefault("ScrollBar", scrollbar);
@@ -3648,7 +3645,6 @@ void
 }
 #endif
 
-#ifdef HAVE_XPM
 void    W_Halo(int x, int y, W_Color color)
 {
   struct window *win = W_Void2Window(mapw);
@@ -3662,7 +3658,6 @@ void    W_Halo(int x, int y, W_Color color)
 	       mplanet_width, mplanet_height, 0, 23040);
     }
 }
-#endif /* HAVE_XPM */
 
 void W_CameraSnap(W_Window window)
 {

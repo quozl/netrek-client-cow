@@ -9,7 +9,6 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include "config.h"
-#ifdef HAVE_XPM
 #include <stdlib.h>
 #include <sys/param.h>
 
@@ -17,7 +16,6 @@
 #include <unistd.h>
 
 #define FOR_MSW 
-#include INC_XPM
 
 #include "Wlib.h"
 #include "defs.h"
@@ -713,5 +711,3 @@ void W_LocalBgd(int which)
 
   W_ClearWindow(w);
 }
-
-#endif  /* HAVE_XPM */

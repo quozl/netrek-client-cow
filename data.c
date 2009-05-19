@@ -121,12 +121,8 @@ int     continuetractor = 1;
 int     tcounter = 2;
 int     showlocal = 2;
 int     showgalactic = 2;
-
-#ifdef HAVE_XPM
 int     pixMissing = 0;
 int     pixFlags = 0;
-
-#endif
 char   *title = NULL;
 char   *shipnos = "0123456789abcdefghijklmnopqrstuvwxyz";
 
@@ -693,11 +689,7 @@ int     F_self_8flags2 = 0;
 int     F_ship_cap = 0;
 int     F_sp_generic_32 = 1;
 char    A_sp_generic_32 = 0;
-
-#ifdef HAVE_XPM
 int     F_agri_pix = 1;
-
-#endif
 
 #ifdef WARP_DEAD
 int     F_dead_warp = 0;

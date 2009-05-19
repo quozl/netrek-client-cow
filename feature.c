@@ -100,9 +100,7 @@ struct feature features[] =
   {"BEEPLITE", &_dummy, 'C', 1, &F_beeplite_flags, 0},
 #endif
 
-#ifdef HAVE_XPM
   {"AGRI_PIXMAP", &F_agri_pix, 'C', 1, 0, 0},
-#endif
 
 #ifdef RECORDGAME
   {"MANY_SELF", &F_many_self, 'S', 0, 0, 0},
@@ -179,17 +177,12 @@ void
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)
     reportFeatures();
 
-#ifdef HAVE_XPM
+  /* features unknown ... turn off AGRI pixmaps just in case */
   if (strcmpi(packet->name, "FEATURE_PACKETS") == 0)
     {
-      if (value == -1)				 /* Features Unknown ... turn 
-						  * 
-						  * * off */
-	F_agri_pix = 0;				 /* AGRI pixmaps just in case 
-						  * 
-						  */
+      if (value == -1)
+	F_agri_pix = 0;
     }
-#endif
 
   if ((strcmpi(packet->name, "RC_DISTRESS") == 0) && gen_distress)
     distmacro = dist_prefered;

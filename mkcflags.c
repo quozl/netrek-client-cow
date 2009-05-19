@@ -111,9 +111,7 @@ pigcallresp (pigcall, cdate, arch)
   strcat (pigcall, "r");
 #endif
 
-#ifdef HAVE_XPM
   strcat (pigcall, "P");
-#endif
 
 #ifdef STABLE
   strcat (pigcall, "-STABLE");
@@ -121,6 +119,3 @@ pigcallresp (pigcall, cdate, arch)
 
   return (pigcall);
 }
-
-
-

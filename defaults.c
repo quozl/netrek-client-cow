@@ -605,7 +605,6 @@ void resetdefaults(void)
   if (showgalactic > 4)
     showgalactic = 2;
 
-#ifdef HAVE_XPM
   /* Old values for back-compatability */
 
   if (!booleanDefault("colorgalactic", 1))
@@ -645,7 +644,6 @@ void resetdefaults(void)
 
   /* Now Sanity Check by turning off unavailable pixmaps */
   pixFlags |= pixMissing;
-#endif
 
   showLock = intDefault("showLock", showLock);
   if (showLock > 3)

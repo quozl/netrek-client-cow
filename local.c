@@ -50,14 +50,11 @@ unsigned int sound_flags = PFSHIELD;
 
 #endif
 
-#ifdef HAVE_XPM
 extern void *S_Plasma(int);
 extern void *S_Ship(int);
 extern void *S_Torp(int);
 extern int W_DrawSprite(void *, int, int, int);
 int clearsize;
-
-#endif
 
 
 /* Function Defininitions */
@@ -197,31 +194,7 @@ static void DrawShips(void) {
 	for (j=players + MAXPLAYER - 1; j >= players; --j) {
 		int cloak_phases = CLOAK_PHASES * server_ups / 10;
 
-#ifdef HAVE_XPM
 		void *sprite = S_Ship(j->p_no);
-
-#else
-		if ((j->p_status != PALIVE) && (j->p_status != PEXPLODE))
-			continue;
-
-		if (j->p_flags & PFOBSERV) {
-
-			/*
-			 * observer and NOT locked onto a player
-			 * (ie. locked onto planet or vacuum)
-			 */
-			if (!(j->p_flags & PFPLOCK))
-				continue;
-
-			/*
-			 * observer and NOT cloaked - don't display ship but do
-			 * tractors, phasers and torps are done for that ship
-			 * already
-			 */
-			if (!(j->p_flags & PFCLOAK))
-				continue;
-		}
-#endif /* HAVE_XPM */
 
 		/* jmn - observer support.. tried to diplay tractors but no works */
 
@@ -255,19 +228,13 @@ static void DrawShips(void) {
 		dx = j->p_x - me->p_x;
 		dy = j->p_y - me->p_y;
 
-#ifdef HAVE_XPM
 		if ((sprite == NULL) && (dx > view || dx < -view || dy > view || dy < -view))
-#else
-		if (dx > view || dx < -view || dy > view || dy < -view)
-#endif
 			continue;
 
 		dx = dx / SCALE + TWINSIDE / 2;
 		dy = dy / SCALE + TWINSIDE / 2;
 
-#ifdef HAVE_XPM
 		if ((sprite == NULL) || (pixFlags & NO_CLK_PIX))
-#endif
 		  if (j->p_flags & PFCLOAK && (j->p_cloakphase == (cloak_phases - 1))) {
 			if (myPlayer(j)
 #ifdef RECORDGAME
@@ -340,7 +307,6 @@ static void DrawShips(void) {
 			clearcount++;
 #endif
 
-#ifdef HAVE_XPM
 			if (sprite != NULL) {
 				clearsize = W_DrawSprite(sprite, dx, dy, TWINSIDE);
 #if defined (VARY_HULL)
@@ -357,7 +323,6 @@ static void DrawShips(void) {
 					clearcount++;
 				}
 			} else
-#endif /* HAVE_XPM */
 
 			  if (j->p_team == ROM && j->p_ship.s_type == CRUISER && ROMVLVS)
 				W_WriteBitmap(dx - (j->p_ship.s_width / 2),
@@ -373,9 +338,7 @@ static void DrawShips(void) {
 			playerColor(j));
 
 			if (j->p_cloakphase > 0) {
-#ifdef HAVE_XPM
 				if (sprite == NULL)
-#endif
 
 				W_WriteBitmap(dx - (cloak_width / 2),
 					      dy - (cloak_height / 2), cloakicon, playerColor(j));
@@ -572,7 +535,6 @@ static void DrawShips(void) {
 			}
 #endif
 
-#ifdef HAVE_XPM
 			if (sprite != NULL) {
 				clearsize = W_DrawSprite(sprite, dx, dy, TWINSIDE);
 				clearzone[0][clearcount] = dx - (clearsize / 2);
@@ -581,7 +543,6 @@ static void DrawShips(void) {
 				clearzone[3][clearcount] = clearsize;
 				clearcount++;
 			} else
-#endif
 
 			if (i < EX_FRAMES || (i < SBEXPVIEWS && j->p_ship.s_type == STARBASE)) {
 				if (j->p_ship.s_type == STARBASE) {
@@ -815,20 +776,14 @@ static void DrawTorps(void) {
 	register int dx, dy;
 	int numdetframes, frame;
 
-#ifdef HAVE_XPM
 	register int tno, tsub;
 	void   *sprite;
-#endif
 	struct player *j;
 
 	int torpCount;
 	const int view = SCALE * TWINSIDE / 2;
 
-#ifdef HAVE_XPM
 	for (t=torps, j=players, tno=0; j != players + MAXPLAYER; t += MAXTORP, ++j, tno += MAXTORP)
-#else
-	for (t = torps, j = players; j != players + MAXPLAYER; t += MAXTORP, ++j)
-#endif
 	{
 
 #ifdef SOUND
@@ -837,11 +792,7 @@ static void DrawTorps(void) {
 #endif
 		torpCount = j->p_ntorp;
 
-#ifdef HAVE_XPM
 		for (tsub=0, k=t; torpCount > 0; ++k, ++tsub)
-#else
-		for (k = t; torpCount > 0; ++k)
-#endif
 		{
 			/*
 			 * Work until all the torps for a given player have been examined.
@@ -885,7 +836,6 @@ static void DrawTorps(void) {
 
 			dx = dx / SCALE + TWINSIDE / 2;
 			dy = dy / SCALE + TWINSIDE / 2;
-#ifdef HAVE_XPM
 			if ((sprite = S_Torp(tno + tsub)) != NULL) {
 				clearsize = W_DrawSprite(sprite, dx, dy, TWINSIDE);
 				clearzone[0][clearcount] = dx - (clearsize / 2);
@@ -894,7 +844,6 @@ static void DrawTorps(void) {
 				clearzone[3][clearcount] = clearsize;
 				clearcount++;
 			} else
-#endif
 			if (k->t_status == TEXPLODE) {
 				k->t_fuse--;
 
@@ -970,10 +919,8 @@ void DrawPlasmaTorps(void) {
 	register int dx, dy;
 	int numdetframes, frame;
 
-#ifdef HAVE_XPM
 	register int ptno;
 	void *sprite;
-#endif
 	const int view = SCALE * TWINSIDE / 2;
 
 	/*
@@ -981,15 +928,9 @@ void DrawPlasmaTorps(void) {
 	 * look at the number of outstanding plasma torps for each player.
 	 */
 
-#ifdef HAVE_XPM
 	for (pt=plasmatorps+(MAXPLASMA * MAXPLAYER)-1, ptno=(MAXPLASMA * MAXPLAYER)-1;
 	     pt >= plasmatorps;
 	     --pt, --ptno)
-#else
-	for (pt=plasmatorps+(MAXPLASMA * MAXPLAYER)-1;
-	     pt >= plasmatorps;
-	     --pt)
-#endif
 	{
 		if (!pt->pt_status)
 			continue;
@@ -1015,7 +956,6 @@ void DrawPlasmaTorps(void) {
 		dx = dx / SCALE + TWINSIDE / 2;
 		dy = dy / SCALE + TWINSIDE / 2;
 
-#ifdef HAVE_XPM
 		if ((sprite = S_Plasma(ptno)) != NULL) {
 			clearsize = W_DrawSprite(sprite, dx, dy, TWINSIDE);
 			clearzone[0][clearcount] = dx - (clearsize / 2);
@@ -1024,7 +964,6 @@ void DrawPlasmaTorps(void) {
 			clearzone[3][clearcount] = clearsize;
 			clearcount++;
 		} else
-#endif
 		if (pt->pt_status == PTEXPLODE) {
 			pt->pt_fuse--;
 
