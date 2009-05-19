@@ -155,8 +155,10 @@ int     ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
   sprite->nviews = nviews;
   sprite->width = width;
   sprite->height = height / nviews;
+#ifdef DEBUG
   fprintf(stderr, "image %s loaded, nv=%d w=%d h=%d (%d)\n", filename,
           nviews, width, height, sprite->height);
+#endif
   return 0;
 
  fail:
@@ -186,8 +188,10 @@ int     ReadFileToTile(char *filename, Pixmap * pix)
   imlib_context_set_image(im);
   imlib_context_set_drawable(W_Void2Window(mylocal)->window);
   imlib_render_pixmaps_for_whole_image(pix, NULL);
+#ifdef DEBUG
   fprintf(stderr, "tile %s loaded, w=%d h=%d\n", filename,
           imlib_image_get_width(), imlib_image_get_height());
+#endif
   return 0;
 
  fail:
