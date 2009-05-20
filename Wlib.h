@@ -182,4 +182,8 @@ int findMouseInWin(int *x, int *y, W_Window w);
 int W_EventsQueued(void);
 int W_EventsQueuedCk(void);
 
+void W_SetBackground(W_Window w, int which);
+void W_DrawScreenShot(W_Window w, int x, int y);
+void W_DrawImage(W_Window w, int x, int y, char *name);
+
 #endif /* _h_Wlib */

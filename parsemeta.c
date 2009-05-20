@@ -77,7 +77,7 @@ static int chosen = -1;			/* Arrow key chosen server.     */
 static int metaHeight = 0;		/* The number of list lines.	*/
 static char *metaWindowName;		/* The window's name.           */
 static int statusLevel;
-static W_Window metaWin, metaHelpWin = NULL;
+static W_Window metaWin, metaList, metaHelpWin = NULL;
 
 /* button offsets from end of list */
 #define B_ADD 4
@@ -1034,7 +1034,7 @@ static int ReadFromCache()
   int     bufleft = BUF - 1;
   int     len;
   char    cacheFileName[PATH_MAX];
-  
+
   cacheName = getdefault("metaCache");
 
   if (!cacheName)
@@ -1152,7 +1152,7 @@ static void redraw(int i)
   /* can't say a thing if line is beyond server list */
   if (i >= num_servers) {
     /* but we can at least blank the line shown */
-    if (i < metaHeight-3) W_WriteText(metaWin, 0, i+1, W_White, "", 0, 0);
+    if (i < metaHeight-3) W_WriteText(metaList, 0, i+1, W_White, "", 0, 0);
     return;
   }
 
@@ -1265,7 +1265,7 @@ static void redraw(int i)
   if (sp->status == statusCantConnect) color = W_Red;
   if (sp->pid != -1) color = W_Cyan;
 
-  W_WriteText(metaWin, 0, i+1, color, buf, -1, 0);
+  W_WriteText(metaList, 0, i+1, color, buf, -1, 0);
   sp->refresh = 0;
 }
 
@@ -1284,7 +1284,7 @@ static void add_redraw()
   char buf[LINE + 1];
 
   snprintf(buf, LINE, "Add a server: %s_", add_buffer);
-  W_WriteText(metaWin, 0, metaHeight-B_ADD, W_Yellow, buf, -1, 0);
+  W_WriteText(metaList, 0, metaHeight-B_ADD, W_Yellow, buf, -1, 0);
 }
 
 static void add_commit()
@@ -1341,13 +1341,16 @@ void    metawindow()
   char *header;
 
   if (!metaWin) {
-    metaWin = W_MakeMenu("Netrek Server List", 0, 0,
-                         LINE, metaHeight, NULL, 2);
+    metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, 450, NULL, 2,
+                         foreColor);
+    W_SetBackground(metaWin, LOCAL_PIX);
+    metaList = W_MakeMenu("metalist", 50, 200, LINE, metaHeight, metaWin, 1);
     make_help();
   } else {
-    if (W_WindowHeight(metaWin) != metaHeight) {
-      W_ReinitMenu(metaWin, LINE, metaHeight);
-      W_ResizeMenu(metaWin, LINE, metaHeight);
+    if (W_WindowHeight(metaList) != metaHeight) {
+      W_ReinitMenu(metaList, LINE, metaHeight);
+      W_ResizeMenu(metaList, LINE, metaHeight);
+      // FIXME: handle metaList growing beyond metaWin
     }
   }
 
@@ -1356,7 +1359,7 @@ void    metawindow()
   } else {
     header = "Server                                           Status        Type";
   }
-  W_WriteText(metaWin, 0, 0, W_Cyan, header, -1, 0);
+  W_WriteText(metaList, 0, 0, W_Cyan, header, -1, 0);
 
   for (i = 0; i < metaHeight; i++) redraw(i);
 
@@ -1365,24 +1368,26 @@ void    metawindow()
 
   /* Add additional options */
   if (type == 1)
-    W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Yellow,
+    W_WriteText(metaList, 0, metaHeight-B_REFRESH, W_Yellow,
                 "Refresh                                           (r)",
                 -1, 0);
   add_redraw();
-  W_WriteText(metaWin, 0, metaHeight-B_HELP, W_Yellow,
+  W_WriteText(metaList, 0, metaHeight-B_HELP, W_Yellow,
 	        "Help & Tips                                       (h)",
 	      -1, 0);
-  W_WriteText(metaWin, 0, metaHeight-B_QUIT, W_Yellow,
+  W_WriteText(metaList, 0, metaHeight-B_QUIT, W_Yellow,
                 "Quit                                              (q)",
 	      -1, 0);
 
   /* Map window */
+  W_MapWindow(metaList);
   W_MapWindow(metaWin);
 }
 
 
 static void metadone(void)
 {
+  W_UnmapWindow(metaList);
   W_UnmapWindow(metaWin);
   if (type == 1) SaveMetasCache();
   free(serverlist);
@@ -1391,7 +1396,7 @@ static void metadone(void)
 
 static void refresh()
 {
-  W_WriteText(metaWin, 0, metaHeight-B_REFRESH, W_Red,
+  W_WriteText(metaList, 0, metaHeight-B_REFRESH, W_Red,
               "Refresh (in progress)", -1, 0);
   W_Flush();
   ReadMetasSend();
@@ -1588,7 +1593,7 @@ void sigchld(int ignored)
 
 void    metainput(void)
 /* Wait for actions in the meta-server window.
- * 
+ *
  * This is really the meta-server window's own little input() function. It is
  * needed so we don't have to use all the bull in the main input(). Plus to
  * use it I'd have to call mapAll() first and the client would read in the
@@ -1614,17 +1619,22 @@ void    metainput(void)
     W_NextEvent(&data);
     switch ((int) data.type) {
     case W_EV_KEY:
-      if (data.Window == metaWin)
+      if (data.Window == metaList || data.Window == metaWin)
         if (key(&data)) return;
       if (data.Window == metaHelpWin) hide_help();
       break;
     case W_EV_BUTTON:
-      if (data.Window == metaWin)
+      if (data.Window == metaList)
         if (button(&data)) return;
       if (data.Window == metaHelpWin) hide_help();
       break;
     case W_EV_EXPOSE:
       if (data.Window == metaHelpWin) expo_help();
+      if (data.Window == metaWin) {
+        W_DrawScreenShot(metaWin, 0, 0);
+        W_DrawImage(metaWin, 200, 9, "netrek-green-white-300px.png");
+      }
+
       break;
     case W_EV_CLOSED:
       if (data.Window == metaWin) {

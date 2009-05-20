@@ -118,7 +118,8 @@ const char bgfiles[NUM_BG_IMGS][16] =
  "hockey.png"
 };
 
-int     ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
+
+static int ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
 {
   Imlib_Image im;
   int width, height, nviews;
@@ -145,9 +146,7 @@ int     ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
   height = imlib_image_get_height();
   nviews = height / width;
   if (nviews * width != height) {
-    fprintf(stderr, "image %s height (%d) is not a multiple of width (%d)\n",
-            filename, height, width);
-    goto fail;
+    nviews = 1;
   }
 
   sprite->parent = w;
@@ -373,6 +372,22 @@ int     W_DrawSprite(void *in, int x, int y, int winside)
 	    dx, dy);
 
   return (sprite->width);
+}
+
+void W_DrawSpriteAbsolute(void *in, int x, int y)
+{
+  struct window *win;
+  struct S_Object *sprite = (struct S_Object *) in;
+
+  if (sprite == NULL)
+    return;
+
+  win = W_Void2Window(*(sprite->parent));
+
+  XSetClipMask(W_Display, sprite->gc, sprite->shape);
+  XSetClipOrigin(W_Display, sprite->gc, x, y);
+  XCopyArea(W_Display, sprite->image, win->window, sprite->gc,
+            0, 0, sprite->width, sprite->height, x, y);
 }
 
 void   *S_Ship(int playerno)
@@ -605,6 +620,7 @@ void   *S_Torp(int torpno)
     {
       sprite = &torpImg[remap[players[this->t_owner].p_team]][0];
       sprite->view = ++sprite->view % sprite->nviews;
+      // FIXME: torps rotate faster with higher client update rates
     }
 
   if ((sprite->image == NoPixmapError) || (pixFlags & NO_WEP_PIX))
@@ -673,4 +689,48 @@ void    W_LocalBgd(int which)
     XSetWindowBackgroundPixmap(W_Display, win->window, backPix[which]);
 
   W_ClearWindow(w);
+}
+
+void    W_SetBackground(W_Window w, int which)
+{
+  struct window *win = W_Void2Window(w);
+
+  if ((backPix[which] == NoPixmapError) || (pixFlags & NO_BG_PIX))
+    W_UnTileWindow(w);
+  else
+    XSetWindowBackgroundPixmap(W_Display, win->window, backPix[which]);
+
+  W_ClearWindow(w);
+}
+
+void    W_DrawScreenShot(W_Window w, int x, int y)
+{
+  char filename[256];
+  struct S_Object sprite;
+
+  memset(&sprite, 0, sizeof(struct S_Object));
+
+  sprintf(filename, "%s/ss/scrshot1.png", "pixmaps" /* FIXME */);
+
+  if (ReadFileToSprite(filename, &sprite, &w)) {
+    return;
+  }
+  // FIXME: gc and pixmap memory leaks
+  W_DrawSpriteAbsolute(&sprite, x, y);
+}
+
+void    W_DrawImage(W_Window w, int x, int y, char *name)
+{
+  char filename[256];
+  struct S_Object sprite;
+
+  memset(&sprite, 0, sizeof(struct S_Object));
+
+  sprintf(filename, "%s/%s", "pixmaps", name);
+
+  if (ReadFileToSprite(filename, &sprite, &w)) {
+    return;
+  }
+  // FIXME: gc and pixmap memory leaks
+  W_DrawSpriteAbsolute(&sprite, x, y);
 }
