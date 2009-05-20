@@ -1599,8 +1599,9 @@ void    metainput(void)
   (void) SIGNAL(SIGCHLD, sigchld);
   while (W_IsMapped(metaWin)) {
     if (type == 1) {
-      do {
+      while (1) {
         W_Flush();
+        if (W_EventsPending()) break;
         if (ReadMetasRecv(W_Socket()) || metareap_needed) {
           metareap();
           metaHeight = num_servers + N_OVERHEAD;
@@ -1608,7 +1609,7 @@ void    metainput(void)
           W_Flush();
         }
         refresh_cyclic();
-      } while (!W_EventsPending());
+      }
     }
     W_NextEvent(&data);
     switch ((int) data.type) {
