@@ -1245,7 +1245,15 @@ static int checkBold(char *line)
   return (1);
 }
 
-void showMotd(W_Window motdwin, int atline)
+static void show_motd_heading(W_Window w, char *text, int line, int colour)
+{
+  int length = strlen(text);
+  int center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
+  W_WriteText(w, center, line * W_Textheight, colour,
+	      text, length, W_RegularFont);
+}
+
+void showMotd(W_Window w, int atline)
 {
   int     i, length, top, center;
   struct list *data;
@@ -1255,32 +1263,19 @@ void showMotd(W_Window motdwin, int atline)
   sprintf(buf, "---  %s  ---", (char *) query_cowid());
   length = strlen(buf);
   center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, W_Textheight, W_Cyan,
-	      buf, length, W_BoldFont);
+  W_WriteText(w, center, W_Textheight, W_Cyan, buf, length, W_BoldFont);
 
-  sprintf(buf, cbugs);
-  length = strlen(buf);
-  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, 3 * W_Textheight, W_Cyan,
-	      buf, length, W_RegularFont);
+  show_motd_heading(w, cbugs, 3, W_Cyan);
 
-  sprintf(buf, "this is the team selection window");
-  length = strlen(buf);
-  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, 5 * W_Textheight, W_Grey,
-	      buf, length, W_RegularFont);
+  if (me == NULL) {
+    show_motd_heading(w, "while you are in the queue", 5, W_Grey);
+    show_motd_heading(w, "do some reading or play somewhere else", 6, W_Grey);
+  } else {
+    show_motd_heading(w, "this is the team selection window", 5, W_Grey);
+    show_motd_heading(w, "press enter to join the default team", 6, W_Grey);
+  }
 
-  sprintf(buf, "press enter to join the default team");
-  length = strlen(buf);
-  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, 6 * W_Textheight, W_Grey,
-	      buf, length, W_RegularFont);
-
-  sprintf(buf, "server message of the day follows below");
-  length = strlen(buf);
-  center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
-  W_WriteText(motdwin, center, 9 * W_Textheight, W_Grey,
-	      buf, length, W_RegularFont);
+  show_motd_heading(w, "server message of the day follows below", 9, W_Grey);
 
   top = 11;
 
@@ -1316,12 +1311,12 @@ void showMotd(W_Window motdwin, int atline)
 	break;
       if (data->bold)
 	{
-	  W_WriteText(motdwin, 20, i * W_Textheight, textColor, data->data,
+	  W_WriteText(w, 20, i * W_Textheight, textColor, data->data,
 		      strlen(data->data), W_BoldFont);
 	}
       else
 	{
-	  W_WriteText(motdwin, 20, i * W_Textheight, textColor, data->data,
+	  W_WriteText(w, 20, i * W_Textheight, textColor, data->data,
 		      strlen(data->data), W_RegularFont);
 	}
       data = data->next;
