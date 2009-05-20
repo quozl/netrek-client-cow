@@ -1024,6 +1024,8 @@ void DrawPlasmaTorps(void) {
 	return;
 }
 
+/* draws hockey lines, galaxy edges, tactical border alert colour, and
+   lock icon */
 static void DrawMisc(void) {
 	register struct player *j;
 	register int dx, dy;

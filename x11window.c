@@ -204,7 +204,7 @@ static XWMHints wm_hint =
 #endif
 
 static W_Event W_myevent;
-static int W_isEvent = 0;
+static int W_isEvent = 0; /* an event is being held here for the caller */
 
 struct fontInfo
   {
