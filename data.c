@@ -378,9 +378,9 @@ struct rank default_ranks[DEFAULT_NUMRANKS] =
   {8.0, 3.0, 0.0, "Commander", "Cder",},
   {15.0, 4.0, 0.0, "Captain", "Capt"},
   {20.0, 5.0, 0.0, "Flt. Capt.", "FltC"},
-  {25.0, 6.0, 0.0, "Commodore", "Cdor"},
-  {30.0, 7.0, 0.0, "Rear Adm.", "RAdm"},
-  {40.0, 8.0, 0.0, "Admiral", "Admr"}};
+  {25.0, 6.0, 1.0, "Commodore", "Cdor"},
+  {30.0, 7.0, 1.2, "Rear Adm.", "RAdm"},
+  {40.0, 8.0, 1.4, "Admiral", "Admr"}};
 struct rank *ranks = NULL;
 int nranks = 0;
 
