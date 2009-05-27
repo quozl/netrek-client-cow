@@ -439,7 +439,6 @@ void
   myroot.type = WIN_GRAPH;
   GetFonts();
   GetColors();
-  GetPixmaps(W_Display, &myroot);
 
   /* display scroll thumb */
   scrollbar = booleanDefault("ScrollBar", scrollbar);
@@ -450,6 +449,11 @@ void
   init_tts();
 #endif
   W_FullScreenInitialise();
+}
+
+void W_GetPixmaps(W_Window t, W_Window g)
+{
+  GetPixmaps(W_Display, &myroot, t, g);
 }
 
 /* Make sure the font will work, ie: that it fits in the 6x10 character cell

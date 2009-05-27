@@ -63,6 +63,7 @@ extern int W_FastClear;
 extern W_Font W_MyPlanetFont, W_FriendlyPlanetFont, W_EnemyPlanetFont;
 
 extern void W_Initialize (char *str);
+extern void W_GetPixmaps(W_Window t, W_Window g);
 extern void W_RenameWindow(W_Window window, char *str);
 extern W_Window W_MakeWindow (char *name, int x, int y, int width, int height, W_Window parent, int border, W_Color color);
 extern W_Icon W_StoreBitmap (int width, int height, char *data, W_Window window);
@@ -183,7 +184,12 @@ int W_EventsQueued(void);
 int W_EventsQueuedCk(void);
 
 void W_SetBackground(W_Window w, int which);
+
+void W_NextScreenShot(W_Window w, int x, int y);
 void W_DrawScreenShot(W_Window w, int x, int y);
-void W_DrawImage(W_Window w, int x, int y, char *name);
+
+void *W_ReadImage(W_Window w, char *name);
+void W_DrawImage(int x, int y, void *sprite_v);
+void W_DropImage(void *sprite_v);
 
 #endif /* _h_Wlib */

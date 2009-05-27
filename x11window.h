@@ -30,7 +30,6 @@ struct scrollingWindow
 /* x11window.c */
 int _myerror(Display *d, XErrorEvent *e);
 void pastebuffer(void);
-void W_Initialize(char *str);
 void checkFont(XFontStruct *fontinfo, char *fontname);
 void GetFonts(void);
 XFontStruct *find_font(char *oldf, char **fonts);

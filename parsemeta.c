@@ -78,6 +78,7 @@ static int metaHeight = 0;		/* The number of list lines.	*/
 static char *metaWindowName;		/* The window's name.           */
 static int statusLevel;
 static W_Window metaWin, metaList, metaHelpWin = NULL;
+void *logo;
 
 /* button offsets from end of list */
 #define B_ADD 4
@@ -1344,6 +1345,7 @@ void    metawindow()
     metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, 450, NULL, 2,
                          foreColor);
     W_SetBackground(metaWin, LOCAL_PIX);
+    logo = W_ReadImage(metaWin, "netrek-green-white-300px.png");
     metaList = W_MakeMenu("metalist", 50, 200, LINE, metaHeight, metaWin, 1);
     make_help();
   } else {
@@ -1388,6 +1390,7 @@ void    metawindow()
 static void metadone(void)
 {
   W_UnmapWindow(metaList);
+  W_DropImage(logo);
   W_UnmapWindow(metaWin);
   if (type == 1) SaveMetasCache();
   free(serverlist);
@@ -1398,6 +1401,7 @@ static void refresh()
 {
   W_WriteText(metaList, 0, metaHeight-B_REFRESH, W_Red,
               "Refresh (in progress)", -1, 0);
+  W_NextScreenShot(metaWin, 0, 0);
   W_Flush();
   ReadMetasSend();
 }
@@ -1420,8 +1424,10 @@ static void refresh_cyclic()
   }
 
   /* don't do until sufficient time has elapsed */
-  if ((time(NULL) - last) > interval)
+  if ((time(NULL) - last) > interval) {
+    W_NextScreenShot(metaWin, 0, 0);
     ReadMetasSend();
+  }
 }
 
 
@@ -1627,14 +1633,15 @@ void    metainput(void)
       if (data.Window == metaList)
         if (button(&data)) return;
       if (data.Window == metaHelpWin) hide_help();
+      if (data.Window == metaWin && data.y < 200)
+        W_NextScreenShot(metaWin, 0, 0);
       break;
     case W_EV_EXPOSE:
       if (data.Window == metaHelpWin) expo_help();
       if (data.Window == metaWin) {
         W_DrawScreenShot(metaWin, 0, 0);
-        W_DrawImage(metaWin, 200, 9, "netrek-green-white-300px.png");
+        W_DrawImage(200, 9, logo);
       }
-
       break;
     case W_EV_CLOSED:
       if (data.Window == metaWin) {

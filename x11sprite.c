@@ -1,11 +1,13 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <strings.h>
 #include <sys/param.h>
 
 #include <sys/stat.h>
+#include <fts.h>
 #include <unistd.h>
 
 #include <X11/Xlib.h>
@@ -21,12 +23,12 @@
 
 #include "x11sprite.h"
 
-#define W_Void2Window(win) ((win) ? ((struct window *) (win)) : (mylocal))
+#define W_Void2Window(win) (((struct window *) (win)))
 #define NoPixmapError 0
 
 struct S_Object
   {
-    W_Window *parent;
+    Drawable drawable;
     GC      gc;
     int     view, nviews, width, height, cloak;
     Pixmap  image;
@@ -73,8 +75,6 @@ extern Visual *W_Visual;
 extern int takeNearest;
 
 extern Display *W_Display;
-struct window *mylocal;
-static GC pixmap_gc;
 
 const char teamnames[NUMTEAM + 1][4] =
 {"Ind", "Fed", "Rom", "Kli", "Ori"};
@@ -119,7 +119,7 @@ const char bgfiles[NUM_BG_IMGS][16] =
 };
 
 
-static int ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * w)
+static int ReadFileToSprite(char *filename, struct S_Object *sprite, Drawable drawable)
 {
   Imlib_Image im;
   int width, height, nviews;
@@ -139,7 +139,7 @@ static int ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * 
   imlib_context_set_visual(W_Visual);
   imlib_context_set_colormap(W_Colormap);
   imlib_context_set_image(im);
-  imlib_context_set_drawable(W_Void2Window(mylocal)->window);
+  imlib_context_set_drawable(drawable);
   imlib_render_pixmaps_for_whole_image(&sprite->image, &sprite->shape);
 
   width = imlib_image_get_width();
@@ -149,15 +149,18 @@ static int ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * 
     nviews = 1;
   }
 
-  sprite->parent = w;
+  sprite->drawable = drawable;
   sprite->gc = XCreateGC(W_Display, sprite->image, 0, NULL);
+  sprite->view = 0;
   sprite->nviews = nviews;
   sprite->width = width;
   sprite->height = height / nviews;
+  sprite->cloak = 0;
 #ifdef DEBUG
   fprintf(stderr, "image %s loaded, nv=%d w=%d h=%d (%d)\n", filename,
           nviews, width, height, sprite->height);
 #endif
+  imlib_free_image_and_decache();
   return 0;
 
  fail:
@@ -166,7 +169,7 @@ static int ReadFileToSprite(char *filename, struct S_Object *sprite, W_Window * 
   return 1;
 }
 
-int     ReadFileToTile(char *filename, Pixmap * pix)
+int     ReadFileToTile(char *filename, Pixmap *pix, Drawable drawable)
 {
   Imlib_Image im;
 
@@ -185,12 +188,13 @@ int     ReadFileToTile(char *filename, Pixmap * pix)
   imlib_context_set_visual(W_Visual);
   imlib_context_set_colormap(W_Colormap);
   imlib_context_set_image(im);
-  imlib_context_set_drawable(W_Void2Window(mylocal)->window);
+  imlib_context_set_drawable(drawable);
   imlib_render_pixmaps_for_whole_image(pix, NULL);
 #ifdef DEBUG
   fprintf(stderr, "tile %s loaded, w=%d h=%d\n", filename,
           imlib_image_get_width(), imlib_image_get_height());
 #endif
+  imlib_free_image_and_decache();
   return 0;
 
  fail:
@@ -198,43 +202,45 @@ int     ReadFileToTile(char *filename, Pixmap * pix)
   return 1;
 }
 
-void    GetPixmaps(Display * d, struct window *win)
+static char pixmapDir[1024];
+
+void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
 {
   register int i, j;
-  char    buf[1024], pixmapDir[1024];
+  char    buf[1024];
   char   *pd;
   int     missing;
 
-  mylocal = win;
+  Drawable tactical = W_Void2Window(t)->window;
+  Drawable galactic = W_Void2Window(g)->window;
   W_Display = d;
 
   pd = getdefault("pixmapDir");
   if (pd != (char *) NULL)
-    strcpy(pixmapDir, pd);
+    strncpy(pixmapDir, pd, 1024);
   else
     strcpy(pixmapDir, "/usr/share/pixmaps/netrek-client-cow");
 
-  if ((strcmpi(pixmapDir, "None") == 0) || (pixMissing & NO_PIXMAPS))
-    {
-      pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
+  if ((strcmpi(pixmapDir, "None") == 0) || (pixMissing & NO_PIXMAPS)) {
+    pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
+      NO_KLI_PIX | NO_ORI_PIX | NO_WEP_PIX | NO_EXP_PIX |
+      NO_CLK_PIX | NO_MAP_PIX | NO_BG_PIX | NO_PIXMAPS;
+    fprintf(stderr, "pixmaps turned off\n");
+  } else {
+    struct stat buf;
+
+    if ((stat(pixmapDir, &buf)) || (!(S_ISDIR(buf.st_mode)))) {
+      /* if .xtrekrc is wrong, and package default wrong, try default dir */
+      if ((stat("pixmaps", &buf)) || (!(S_ISDIR(buf.st_mode)))) {
+	pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
 	  NO_KLI_PIX | NO_ORI_PIX | NO_WEP_PIX | NO_EXP_PIX |
 	  NO_CLK_PIX | NO_MAP_PIX | NO_BG_PIX | NO_PIXMAPS;
-      fprintf(stderr, "pixmaps turned off\n");
+	fprintf(stderr, "pixmaps not here\n");
+      } else {
+	strcpy(pixmapDir, "pixmaps");
+      }
     }
-  else
-    {
-      struct stat buf;
-
-      if ((stat(pixmapDir, &buf)) || (!(S_ISDIR(buf.st_mode))))
-	{
-	  pixMissing = NO_IND_PIX | NO_FED_PIX | NO_ROM_PIX |
-	      NO_KLI_PIX | NO_ORI_PIX | NO_WEP_PIX | NO_EXP_PIX |
-	      NO_CLK_PIX | NO_MAP_PIX | NO_BG_PIX | NO_PIXMAPS;
-	  fprintf(stderr, "pixmaps not here\n");
-	}
-    }
-
-  pixmap_gc = XCreateGC(W_Display, win->window, 0, NULL);
+  }
 
   for (i = 0; i < NUMTEAM + 1; i++)
     {
@@ -242,7 +248,7 @@ void    GetPixmaps(Display * d, struct window *win)
       for (j = 0; j < NUM_TYPES; j++)
 	{
 	  sprintf(buf, "%s/%s/%s", pixmapDir, teamnames[i], shipfiles[j]);
-	  missing += ReadFileToSprite(buf, &shipImg[i][j], &w);
+	  missing += ReadFileToSprite(buf, &shipImg[i][j], tactical);
 	}
       if (missing == NUM_TYPES)
 	{
@@ -258,10 +264,10 @@ void    GetPixmaps(Display * d, struct window *win)
       for (j = 0; j < 2; j++)
 	{
 	  sprintf(buf, "%s/%s/%s", pixmapDir, teamnames[i], torpfiles[j]);
-	  missing += ReadFileToSprite(buf, &torpImg[i][j], &w);
+	  missing += ReadFileToSprite(buf, &torpImg[i][j], tactical);
 
 	  sprintf(buf, "%s/%s/%s", pixmapDir, teamnames[i], plasmafiles[j]);
-	  missing += ReadFileToSprite(buf, &plasmaImg[i][j], &w);
+	  missing += ReadFileToSprite(buf, &plasmaImg[i][j], tactical);
 	}
     }
   if (missing == (NUMTEAM + 1) * 4)
@@ -275,7 +281,7 @@ void    GetPixmaps(Display * d, struct window *win)
   for (i = 0; i < 2; i++)
     {
       sprintf(buf, "%s/Misc/%s", pixmapDir, explosionfiles[i]);
-      missing += ReadFileToSprite(buf, &explosionImg[i], &w);
+      missing += ReadFileToSprite(buf, &explosionImg[i], tactical);
     }
   if (missing == 2)
     {
@@ -291,14 +297,14 @@ void    GetPixmaps(Display * d, struct window *win)
       if (i == PL_PIX_AGRI && missing == 0)
 	{
 	  /* If the AGRI pixmap is missing, use the ROCK pixmap */
-	  if (ReadFileToSprite(buf, &mplanetImg[i], &mapw) != 0)
+	  if (ReadFileToSprite(buf, &mplanetImg[i], galactic) != 0)
 	    {
 	      sprintf(buf, "%s/Planets/%s", pixmapDir, mplanetfiles[i - 1]);
-	      ReadFileToSprite(buf, &mplanetImg[i], &mapw);
+	      ReadFileToSprite(buf, &mplanetImg[i], galactic);
 	    }
 	}
       else
-	missing += ReadFileToSprite(buf, &mplanetImg[i], &mapw);
+	missing += ReadFileToSprite(buf, &mplanetImg[i], galactic);
     }
   if (missing)
     {
@@ -308,7 +314,7 @@ void    GetPixmaps(Display * d, struct window *win)
     }
 
   sprintf(buf, "%s/Misc/%s", pixmapDir, cloakfile);
-  if (ReadFileToSprite(buf, &cloakImg, &w))
+  if (ReadFileToSprite(buf, &cloakImg, tactical))
     {
       pixMissing |= NO_CLK_PIX;
       if (!(pixMissing & NO_PIXMAPS))
@@ -319,7 +325,7 @@ void    GetPixmaps(Display * d, struct window *win)
   for (i = 0; i < NUM_BG_IMGS; i++)
     {
       sprintf(buf, "%s/Misc/%s", pixmapDir, bgfiles[i]);
-      missing += ReadFileToTile(buf, &backPix[i]);
+      missing += ReadFileToTile(buf, &backPix[i], galactic);
     }
   if (missing == NUM_BG_IMGS)
     {
@@ -338,7 +344,6 @@ void    GetPixmaps(Display * d, struct window *win)
 int     W_DrawSprite(void *in, int x, int y, int winside)
 {
   const int view = SCALE * winside / 2;
-  struct window *win;
   struct S_Object *sprite = (struct S_Object *) in;
   int     dx, dy;
 
@@ -347,8 +352,6 @@ int     W_DrawSprite(void *in, int x, int y, int winside)
 
   if (x > view || x < -view || y > view || y < -view)
     return 0;
-
-  win = W_Void2Window(*(sprite->parent));
 
   dx = x - (sprite->width) / 2;
   dy = y - (sprite->height) / 2;
@@ -366,7 +369,7 @@ int     W_DrawSprite(void *in, int x, int y, int winside)
 		     dx, dy - sprite->view * (sprite->height));
     }
 
-  XCopyArea(W_Display, sprite->image, win->window, sprite->gc,
+  XCopyArea(W_Display, sprite->image, sprite->drawable, sprite->gc,
 	    0, (sprite->view) * (sprite->height),
 	    sprite->width, sprite->height,
 	    dx, dy);
@@ -376,18 +379,28 @@ int     W_DrawSprite(void *in, int x, int y, int winside)
 
 void W_DrawSpriteAbsolute(void *in, int x, int y)
 {
-  struct window *win;
   struct S_Object *sprite = (struct S_Object *) in;
 
   if (sprite == NULL)
     return;
 
-  win = W_Void2Window(*(sprite->parent));
+  XSetClipMask(W_Display, sprite->gc, sprite->shape);
+  XSetClipOrigin(W_Display, sprite->gc, x, y);
+  XCopyArea(W_Display, sprite->image, sprite->drawable, sprite->gc,
+            0, 0, sprite->width, sprite->height, x, y);
+}
+
+void W_ClearSpriteAbsolute(void *in, int x, int y)
+{
+  struct S_Object *sprite = (struct S_Object *) in;
+
+  if (sprite == NULL)
+    return;
 
   XSetClipMask(W_Display, sprite->gc, sprite->shape);
   XSetClipOrigin(W_Display, sprite->gc, x, y);
-  XCopyArea(W_Display, sprite->image, win->window, sprite->gc,
-            0, 0, sprite->width, sprite->height, x, y);
+  XClearArea(W_Display, sprite->drawable,
+             x, y, sprite->width, sprite->height, False);
 }
 
 void   *S_Ship(int playerno)
@@ -703,34 +716,95 @@ void    W_SetBackground(W_Window w, int which)
   W_ClearWindow(w);
 }
 
-void    W_DrawScreenShot(W_Window w, int x, int y)
+static struct S_Object *ss = NULL;
+static int ss_size = 0;
+static int ss_next = 0;
+static int ss_show = 0;
+
+static void ss_init(W_Window w)
 {
-  char filename[256];
-  struct S_Object sprite;
+  char *path, *argv[2];
+  FTS *fts;
+  FTSENT *ent;
+  Drawable drawable = W_Void2Window(w)->window;
 
-  memset(&sprite, 0, sizeof(struct S_Object));
+  if (ss != NULL) return;
 
-  sprintf(filename, "%s/ss/scrshot1.png", "pixmaps" /* FIXME */);
+  path = malloc(1024 + 4);
+  sprintf(path, "%s/ss", pixmapDir);
+  argv[0] = path;
+  argv[1] = NULL;
 
-  if (ReadFileToSprite(filename, &sprite, &w)) {
-    return;
+  ss_size = 50;
+  ss = (struct S_Object *) malloc(ss_size * sizeof(struct S_Object));
+  ss_next = 0;
+
+  fts = fts_open(argv, FTS_LOGICAL, NULL);
+  while ((ent = fts_read(fts))) {
+    if (ent->fts_info != FTS_F) continue;
+    memset(&ss[ss_next], 0, sizeof(struct S_Object));
+    if (ReadFileToSprite(ent->fts_path, &ss[ss_next], drawable)) continue;
+    ss_next++;
+    if (ss_next >= ss_size) {
+      ss_size += 10;
+      ss = realloc(ss, ss_size * sizeof(struct S_Object));
+    }
   }
-  // FIXME: gc and pixmap memory leaks
-  W_DrawSpriteAbsolute(&sprite, x, y);
+  fts_close(fts);
+  free(path);
 }
 
-void    W_DrawImage(W_Window w, int x, int y, char *name)
+void    W_NextScreenShot(W_Window w, int x, int y)
 {
-  char filename[256];
-  struct S_Object sprite;
+  ss_init(w);
+  W_ClearSpriteAbsolute(&ss[ss_show], x, y);
+  ss_show++;
+  if (ss_show >= ss_next) ss_show=0;
+  W_DrawSpriteAbsolute(&ss[ss_show], x, y);
+}
 
-  memset(&sprite, 0, sizeof(struct S_Object));
+void    W_DrawScreenShot(W_Window w, int x, int y)
+{
+  ss_init(w);
+  W_DrawSpriteAbsolute(&ss[ss_show], x, y);
+}
 
-  sprintf(filename, "%s/%s", "pixmaps", name);
+void    *W_ReadImage(W_Window w, char *name)
+{
+  Drawable drawable = W_Void2Window(w)->window;
+  struct S_Object *sprite = calloc(1, sizeof(struct S_Object));
+  char *path = malloc(1024 + 4);
 
-  if (ReadFileToSprite(filename, &sprite, &w)) {
-    return;
+  if (sprite == NULL) return NULL;
+  if (path == NULL) return NULL;
+
+  sprintf(path, "%s/%s", pixmapDir, name);
+
+  if (ReadFileToSprite(path, sprite, drawable)) {
+    free(path);
+    return NULL;
   }
-  // FIXME: gc and pixmap memory leaks
-  W_DrawSpriteAbsolute(&sprite, x, y);
+  free(path);
+  return (void *) sprite;
+}
+
+void    W_DrawImage(int x, int y, void *sprite_v)
+{
+  struct S_Object *sprite = (struct S_Object *) sprite_v;
+
+  if (sprite == NULL) return;
+
+  W_DrawSpriteAbsolute(sprite, x, y);
+}
+
+void    W_DropImage(void *sprite_v)
+{
+  struct S_Object *sprite = (struct S_Object *) sprite_v;
+
+  if (sprite == NULL) return;
+
+  XFreeGC(W_Display, sprite->gc);
+  XFreePixmap(W_Display, sprite->image);
+  XFreePixmap(W_Display, sprite->shape);
+  free(sprite);
 }

@@ -199,6 +199,7 @@ void newwin(char *hostmon, char *progname)
 
   mapw = W_MakeWindow("map", TWINSIDE+BORDER, 0, GWINSIDE, GWINSIDE, baseWin,
 		      BORDER, foreColor);
+  W_GetPixmaps(w, mapw);
 
   tstatw = W_MakeWindow("tstat", 0, TWINSIDE+BORDER, TWINSIDE, STATSIZE,
 			baseWin, BORDER, foreColor);
