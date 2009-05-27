@@ -832,12 +832,14 @@ static void PlistLine(struct player *j, int pos)
 	  break;
 
 	case 'C':				 /* Curt (short) Rank */
-	  format(buffPoint, ranks[j->p_stats.st_rank].cname, 4, 0);
+	  format(buffPoint, (j->p_stats.st_rank < nranks) ?
+		 ranks[j->p_stats.st_rank].cname : "", 4, 0);
 	  buffPoint += 4;
 	  break;
 
 	case 'R':				 /* Rank */
-	  format(buffPoint, ranks[j->p_stats.st_rank].name, 10, 0);
+	  format(buffPoint, (j->p_stats.st_rank < nranks) ?
+		 ranks[j->p_stats.st_rank].name : "", 10, 0);
 	  buffPoint += 10;
 	  break;
 

@@ -947,7 +947,11 @@ int     cowmain(char *server, int port, char *name)
 
       {
 	char    buf[80];
-	sprintf(buf, "Welcome aboard %s!", ranks[me->p_stats.st_rank].name);
+	if (me->p_stats.st_rank < nranks) {
+	  sprintf(buf, "Welcome aboard %s!", ranks[me->p_stats.st_rank].name);
+	} else {
+	  sprintf(buf, "Welcome aboard!");
+	}
 	warning(buf);
 	W_ClearArea(messagew, 5, 5, W_Textwidth * 80, W_Textheight);
       }

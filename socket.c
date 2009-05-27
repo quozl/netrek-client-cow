@@ -2513,11 +2513,6 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
       fprintf(stderr, "handlePlyrLogin: bad index %d\n", p_no);
       return;
     }
-  if (packet->rank >= nranks)
-    {
-      fprintf(stderr, "handlePlyrLogin: bad rank %d\n", packet->rank);
-      return;
-    }
   packet->name[sizeof(packet->name) - 1] = '\0';
   packet->monitor[sizeof(packet->monitor) - 1] = '\0';
   packet->login[sizeof(packet->login) - 1] = '\0';

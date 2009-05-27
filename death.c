@@ -95,8 +95,12 @@ void death(void)
       /* Use deathmessage as a buffer because it will be updated in a moment
        * * anyway */
 
-      sprintf(deathmessage, "Congratulations, you were promoted to %s",
-	      ranks[mystats->st_rank].name);
+      if (mystats->st_rank < nranks) {
+	sprintf(deathmessage, "Congratulations, you were promoted to %s",
+		ranks[mystats->st_rank].name);
+      } else {
+	sprintf(deathmessage, "Congratulations, you were promoted");
+      }
       if (warncount > 0)
 	W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
       W_WriteText(warnw, 5, 5, W_Green, deathmessage, strlen(deathmessage),
