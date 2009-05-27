@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <time.h>
 #include <sys/types.h>
@@ -163,6 +164,7 @@ extern void handle_s_Stats(struct stats_s_spacket *packet);
 extern void handleFeature(struct feature_cpacket *packet);
 
 #endif
+void handleRank (struct rank_spacket *packet);
 
 static void pickSocket(int old);
 static int connUdpConn(void);
@@ -335,8 +337,9 @@ struct packet_handler handlers[] =
 #endif
 
 #ifdef FEATURE_PACKETS
-  {sizeof(struct feature_cpacket), handleFeature},	/* CP_FEATURE; 60 */
+  {sizeof(struct feature_cpacket), handleFeature},	/* SP_FEATURE; 60 */
 #endif
+  {sizeof(struct rank_spacket), handleRank},	/* SP_RANK; 61 */
 
 };
 
@@ -2510,7 +2513,7 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
       fprintf(stderr, "handlePlyrLogin: bad index %d\n", p_no);
       return;
     }
-  if (packet->rank >= NUMRANKS)
+  if (packet->rank >= nranks)
     {
       fprintf(stderr, "handlePlyrLogin: bad rank %d\n", packet->rank);
       return;
@@ -2870,6 +2873,26 @@ handleGeneric32 (struct generic_32_spacket *packet)
   }
 }
 
+void
+handleRank (struct rank_spacket *packet)
+{
+  int i = packet->rankn;
+  int j = i + 1;
+
+  if (j > nranks) {
+    ranks = (struct rank *) realloc(ranks, j * sizeof(struct rank));
+    memset(&ranks[nranks], 0, (j - nranks) * sizeof(struct rank));
+    nranks = j;
+  }
+  W_ChangeBorder(rankw, gColor);
+  packet->name[15] = 0;
+  ranks[i].name = strdup(packet->name);
+  ranks[i].cname = strdup(packet->cname);
+  packet->cname[7] = 0;
+  ranks[i].hours = (float) (ntohl (packet->hours) / 100.0);
+  ranks[i].ratings = (float) (ntohl (packet->ratings) / 100.0);
+  ranks[i].offense = (float) (ntohl (packet->offense) / 100.0);
+}
 
 #ifdef RSA
 void    handleRSAKey(struct rsa_key_spacket *packet)
@@ -4152,7 +4175,18 @@ void print_packet(char *packet, int size)
 		   ntohl(((struct feature_cpacket *) packet)->value),
 		   ((struct feature_cpacket *) packet)->name );
 	 break;
-#endif       
+#endif
+       case SP_RANK         :
+	 fprintf(stderr, "\nS->C SP_RANK\t");
+	 if (log_packets > 1)
+	   fprintf(stderr, "  rankn=%d, name=\"%s\", hours=%d, ratings=%d, offense=%d, cname=\"%s\"",
+		   ((struct rank_spacket *) packet)->rankn,
+		   ((struct rank_spacket *) packet)->name,
+		   ntohl(((struct rank_spacket *) packet)->hours),
+		   ntohl(((struct rank_spacket *) packet)->ratings),
+		   ntohl(((struct rank_spacket *) packet)->offense),
+		   ((struct rank_spacket *) packet)->cname );
+	 break;
 #ifdef SHORT_PACKETS
        case SP_S_TORP       :                  /* variable length torp * *
 						* packet */

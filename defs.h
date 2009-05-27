@@ -40,7 +40,7 @@
 #define CLOAK_PHASES 12          /* number of drawing phases
                                  * in a cloak
                                  * engage/disengage */
-#define NUMRANKS 9
+#define DEFAULT_NUMRANKS 9
 
 /* These are configuration definitions */
 

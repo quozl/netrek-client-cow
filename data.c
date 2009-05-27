@@ -370,7 +370,7 @@ char    login[PSEUDOSIZE];
 struct ship shipvals[NUM_TYPES];
 
 /* 10 Aug 96 - Added curt (short) names -SAC */
-struct rank ranks[NUMRANKS] =
+struct rank default_ranks[DEFAULT_NUMRANKS] =
 {
   {0.0, 0.0, 0.0, "Ensign", "Esgn"},
   {2.0, 1.0, 0.0, "Lieutenant", "Lt "},
@@ -381,6 +381,8 @@ struct rank ranks[NUMRANKS] =
   {25.0, 6.0, 0.0, "Commodore", "Cdor"},
   {30.0, 7.0, 0.0, "Rear Adm.", "RAdm"},
   {40.0, 8.0, 0.0, "Admiral", "Admr"}};
+struct rank *ranks = NULL;
+int nranks = 0;
 
 W_Window messagew, w, mapw, statwin, baseWin = 0, infow, iconWin, tstatw,
         war, warnw, helpWin, teamWin[4], qwin, messwa, messwt, messwi,
@@ -706,3 +708,4 @@ int F_show_all_tractors = 1;
 int fastGuest = 0;
 int identityBlind = 0;
 int versionHide = 0;
+int F_sp_rank = 0;

@@ -109,6 +109,7 @@ struct feature features[] =
   {"LAME_BASE_REFIT", &_dummy, 'S', 0, 0, 0},
   {"UPS", &_dummy, 'S', 0, 0, 0},
   {"FPS", &_dummy, 'S', 0, 0, 0},
+  {"SP_RANK", &F_sp_rank, 'S', 1, 0, 0},
 
   {0, 0, 0, 0, 0, 0}
 };

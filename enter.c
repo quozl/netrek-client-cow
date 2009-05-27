@@ -7,6 +7,7 @@
 #include "copyright.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <pwd.h>
@@ -87,7 +88,15 @@ void openmem(void)
     {
       pl_update[i].plu_update = -1;
     }
+  if (ranks == NULL)
+    {
+      size_t sranks;
 
+      nranks = DEFAULT_NUMRANKS;
+      sranks = nranks * sizeof(struct rank);
+      ranks = malloc(sranks);
+      memcpy(ranks, &default_ranks, sranks);
+    }
   /* initialize pointers if ghost start */
   if (ghoststart)
     {

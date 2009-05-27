@@ -540,10 +540,10 @@ struct obtype
   };
 
 struct rank
-  {
-    float   hours, ratings, defense;
-    char   *name, *cname;
-  };
+{
+    float hours, ratings, offense;
+    char *name, *cname;
+};
 
 struct context
 {

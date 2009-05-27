@@ -325,7 +325,9 @@ extern char pseudo[PSEUDOSIZE];
 extern char defpasswd[PSEUDOSIZE];
 extern char login[PSEUDOSIZE];
 
-extern struct rank ranks[NUMRANKS];
+extern struct rank default_ranks[DEFAULT_NUMRANKS];
+extern struct rank *ranks;
+extern int nranks;
 
 extern W_Window messagew, w, mapw, statwin, baseWin, infow, iconWin, tstatw,
         war, warnw, helpWin, teamWin[4], qwin, messwa, messwt, messwi,
@@ -546,4 +548,5 @@ extern int F_show_all_tractors;
 extern int fastGuest;
 extern int identityBlind;
 extern int versionHide;
+extern int F_sp_rank;
 #endif /* _h_data */

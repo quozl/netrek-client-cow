@@ -254,6 +254,7 @@
 #define SP_FEATURE	60
 #endif
 
+#define SP_RANK         61
 
 #define SOCKVERSION 	4
 
@@ -893,6 +894,17 @@ struct feature_cpacket
   };
 
 #endif
+
+struct rank_spacket { /* SP_RANK py-struct pending #61 */
+    char        type;
+    char        pad[3];
+    int         rankn;          /* rank number */
+    char        name[NAME_LEN]; /* full rank name */
+    int         hours;          /* hundredths of hours required */
+    int         ratings;        /* hundredths of ratings required */
+    int         offense;        /* hundredths of offense required */
+    char        cname[8];       /* short 'curt' rank name */
+};
 
 #ifdef RSA
 struct rsa_key_spacket
