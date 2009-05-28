@@ -69,9 +69,13 @@ void    ranklist(void)
   int i;
   char buf[80];
   int col = F_sp_rank ? textColor : W_Grey;
+  static int size = 0;
 
-  /* W_ClearWindow(rankw); */
-  W_ResizeTextWindow(rankw, 65, nranks + 9);
+  if (size != nranks) {
+    W_ClearWindow(rankw);
+    W_ResizeTextWindow(rankw, 65, nranks + 9);
+    size = nranks;
+  }
   strcpy(buf, "  Rank       Hours  Offense  Ratings      DI");
   W_WriteText(rankw, 1, 1, col, buf, strlen(buf), W_BoldFont);
   for (i = 0; i < nranks; i++) {

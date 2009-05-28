@@ -2871,9 +2871,10 @@ handleGeneric32 (struct generic_32_spacket *packet)
 void
 handleRank (struct rank_spacket *packet)
 {
-  int i = packet->rankn;
-  int j = i + 1;
+  int i = packet->rnum;
+  int j = packet->rmax + 1;
 
+  if (i > j) return;
   if (j > nranks) {
     ranks = (struct rank *) realloc(ranks, j * sizeof(struct rank));
     memset(&ranks[nranks], 0, (j - nranks) * sizeof(struct rank));
@@ -4174,8 +4175,9 @@ void print_packet(char *packet, int size)
        case SP_RANK         :
 	 fprintf(stderr, "\nS->C SP_RANK\t");
 	 if (log_packets > 1)
-	   fprintf(stderr, "  rankn=%d, name=\"%s\", hours=%d, ratings=%d, offense=%d, cname=\"%s\"",
-		   ((struct rank_spacket *) packet)->rankn,
+	   fprintf(stderr, "  rnum=%d, rmax=%d, name=\"%s\", hours=%d, ratings=%d, offense=%d, cname=\"%s\"",
+		   ((struct rank_spacket *) packet)->rnum,
+		   ((struct rank_spacket *) packet)->rmax,
 		   ((struct rank_spacket *) packet)->name,
 		   ntohl(((struct rank_spacket *) packet)->hours),
 		   ntohl(((struct rank_spacket *) packet)->ratings),

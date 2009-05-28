@@ -897,8 +897,9 @@ struct feature_cpacket
 
 struct rank_spacket { /* SP_RANK py-struct pending #61 */
     char        type;
-    char        pad[3];
-    int         rankn;          /* rank number */
+    char        rnum;           /* rank number */
+    char        rmax;           /* rank number maximum */
+    char        pad;
     char        name[NAME_LEN]; /* full rank name */
     int         hours;          /* hundredths of hours required */
     int         ratings;        /* hundredths of ratings required */

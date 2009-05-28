@@ -96,10 +96,10 @@ void death(void)
        * * anyway */
 
       if (mystats->st_rank < nranks) {
-	sprintf(deathmessage, "Congratulations, you were promoted to %s",
-		ranks[mystats->st_rank].name);
+        sprintf(deathmessage, "Congratulations, you were promoted to %s",
+                ranks[mystats->st_rank].name);
       } else {
-	sprintf(deathmessage, "Congratulations, you were promoted");
+        sprintf(deathmessage, "Congratulations, you were promoted");
       }
       if (warncount > 0)
 	W_ClearArea(warnw, 5, 5, W_Textwidth * warncount, W_Textheight);
