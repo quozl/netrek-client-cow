@@ -2883,8 +2883,8 @@ handleRank (struct rank_spacket *packet)
   W_ChangeBorder(rankw, gColor);
   packet->name[15] = 0;
   ranks[i].name = strdup(packet->name);
-  ranks[i].cname = strdup(packet->cname);
   packet->cname[7] = 0;
+  ranks[i].cname = strdup(packet->cname);
   ranks[i].hours = (float) (ntohl (packet->hours) / 100.0);
   ranks[i].ratings = (float) (ntohl (packet->ratings) / 100.0);
   ranks[i].offense = (float) (ntohl (packet->offense) / 100.0);
