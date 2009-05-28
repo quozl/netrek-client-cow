@@ -88,15 +88,11 @@ void openmem(void)
     {
       pl_update[i].plu_update = -1;
     }
-  if (ranks == NULL)
-    {
-      size_t sranks;
-
-      nranks = DEFAULT_NUMRANKS;
-      sranks = nranks * sizeof(struct rank);
-      ranks = malloc(sranks);
-      memcpy(ranks, &default_ranks, sranks);
-    }
+  /* initialise dynamic rank table */
+  nranks = DEFAULT_NUMRANKS;
+  i = nranks * sizeof(struct rank);
+  ranks = malloc(i);
+  memcpy(ranks, &default_ranks, i);
   /* initialize pointers if ghost start */
   if (ghoststart)
     {
