@@ -2874,7 +2874,7 @@ handleRank (struct rank_spacket *packet)
   int i = packet->rnum;
   int j = packet->rmax + 1;
 
-  if (i > j) return;
+  if (i < 0 || j < 0 || i > j) return;
   if (j > nranks) {
     ranks = (struct rank *) realloc(ranks, j * sizeof(struct rank));
     memset(&ranks[nranks], 0, (j - nranks) * sizeof(struct rank));
