@@ -2878,8 +2878,8 @@ handleRank (struct rank_spacket *packet)
   if (j > nranks) {
     ranks = (struct rank *) realloc(ranks, j * sizeof(struct rank));
     memset(&ranks[nranks], 0, (j - nranks) * sizeof(struct rank));
-    nranks = j;
   }
+  nranks = j;
   W_ChangeBorder(rankw, gColor);
   packet->name[15] = 0;
   ranks[i].name = strdup(packet->name);
