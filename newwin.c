@@ -189,6 +189,7 @@ void newwin(char *hostmon, char *progname)
   newwin_last_progname = progname;
 
   W_Initialize(hostmon);
+  W_FullScreenInitialise();
 
   if (booleanDefault("FullScreen", 1)) {
     main_width = MAX(main_width, 1024);

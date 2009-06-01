@@ -709,3 +709,4 @@ int fastGuest = 0;
 int identityBlind = 0;
 int versionHide = 0;
 int F_sp_rank = 0;
+char *program = NULL;

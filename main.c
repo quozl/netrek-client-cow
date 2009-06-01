@@ -72,6 +72,8 @@ int main2(int argc, char **argv)
 #endif
   int     xtrekPort = -1;
 
+  program = argv[0];
+
   setlocale(LC_ALL, "");
   bindtextdomain("netrek-client-cow", "po/");
   textdomain("netrek-client-cow");
@@ -105,6 +107,30 @@ int main2(int argc, char **argv)
 
   while (*argv)
     {
+      if (!strcmp(*argv, "--fast-guest")) {
+	fastGuest++;
+	argv++; argc--;
+	continue;
+      }
+
+      if (!strcmp(*argv, "--server")) {
+	argv++; argc--;
+	if (*argv) {
+	  servertmp = *argv;
+	  argv++; argc--;
+	  continue;
+	}
+      }
+
+      if (!strcmp(*argv, "--port")) {
+	argv++; argc--;
+	if (*argv) {
+	  xtrekPort = atoi(*argv);
+	  argv++; argc--;
+	  continue;
+	}
+      }
+
       if (**argv == '-')
 	++ * argv;
       else

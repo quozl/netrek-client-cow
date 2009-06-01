@@ -448,7 +448,6 @@ void
 #ifdef BEEPLITE
   init_tts();
 #endif
-  W_FullScreenInitialise();
 }
 
 void W_GetPixmaps(W_Window t, W_Window g)

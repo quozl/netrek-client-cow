@@ -96,6 +96,8 @@ extern char *bugURL;
   extern int wm_argc;
 #endif
 
+extern int fastGuest;
+extern char *program;
 #endif /* _h_cow */
 
 

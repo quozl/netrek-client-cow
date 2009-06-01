@@ -549,4 +549,5 @@ extern int fastGuest;
 extern int identityBlind;
 extern int versionHide;
 extern int F_sp_rank;
+extern char *program;
 #endif /* _h_data */

@@ -1094,6 +1094,7 @@ static void choose(int way)
 static int chose(int which, unsigned char key)
 {
   struct servers *sp;
+  pid_t pid;
 
   if (which != chosen) {
     int was;
@@ -1116,15 +1117,30 @@ static int chose(int which, unsigned char key)
   sp->pid = -1;
   sp->exitstatus = EXIT_UNKNOWN;
   fprintf(stderr, "you chose server %s port %d\n", serverName, xtrekPort);
-  pid_t pid = newwin_fork();
 
-  if (pid == 0) {
-    /* we are the child */
-    char buf[80];
-    sprintf(buf, "Netrek  @  %s", serverName);
-    W_RenameWindow(baseWin, buf);
-    if (key == W_MBUTTON) fastGuest++;
-    return 1;
+  if ((pid = fork()) == 0) {
+    char *args[16];
+    int argc = 0;
+
+    setpgid(0, 0);
+    args[argc++] = program;
+    args[argc++] = "--server";
+    args[argc++] = serverName;
+    if (xtrekPort != DEFAULT_PORT) {
+      char port[32];
+      sprintf(port, "%d", xtrekPort);
+      args[argc++] = "--port";
+      args[argc++] = strdup(port);
+    }
+
+    if (key == W_MBUTTON)
+      args[argc++] = "--fast-guest";
+
+    args[argc++] = NULL;
+
+    execvp(program, args);
+    perror("execvp");
+    _exit(1);
   }
 
   /* we are the parent, did the fork fail? */

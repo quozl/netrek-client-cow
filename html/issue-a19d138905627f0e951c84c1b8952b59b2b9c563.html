@@ -65,8 +65,8 @@ for that session), then press quit on the metaserver window.</p>
     <tr>
       <td class="attrname">Status:</td>
       <td class="attrval">
-        unstarted
-        
+        closed: fixed
+        <img class="inline-status-image" src="green-check.png" alt="fixed" title="fixed"/>
       </td>
     </tr>
 
@@ -82,6 +82,21 @@ for that session), then press quit on the metaserver window.</p>
   <tbody>
   
     <tr class="even-row">
+      <td class="date">2009-06-01 12:50 GMT</td>
+      <td class="person">James Cameron &lt;quozl@...&gt;</td>
+      <td class="message">closed with disposition fixed</td>
+    </tr>
+    
+      <tr><td colspan="3" class="logcomment">
+      Architectural change, program now forks and execs instead of only forking.
+Symptom no longer reproducible.
+
+Symptom was caused by window on X display shared by two connections.
+      </td></tr>
+    
+    <tr><td></td></tr>
+  
+    <tr class="odd-row">
       <td class="date">2009-04-08 05:37 GMT</td>
       <td class="person">James Cameron &lt;quozl@...&gt;</td>
       <td class="message">created</td>

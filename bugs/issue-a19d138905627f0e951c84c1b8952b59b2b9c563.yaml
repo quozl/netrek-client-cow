@@ -9,8 +9,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-04-08 05:37:57.578310 Z
 references: []
 
@@ -20,4 +20,12 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2009-06-01 12:50:47.763781 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - |-
+    Architectural change, program now forks and execs instead of only forking.
+    Symptom no longer reproducible.
+    
+    Symptom was caused by window on X display shared by two connections.
 claimer: 
