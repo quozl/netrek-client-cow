@@ -40,42 +40,40 @@
 #define close(s) closesocket(s)
 #endif
 
-
 /* Constants */
 
 #define BUF     6144
 #define LINE    100             /* Width of a meta-server line           */
-#define MAXMETABYTES 2048	/* maximum metaserver UDP packet size    */
+#define MAXMETABYTES 2048       /* maximum metaserver UDP packet size    */
 static int msock = -1;          /* the socket to talk to the metaservers */
 static int sent = 0;            /* number of solicitations sent          */
 static int seen = 0;            /* number of replies seen                */
 static int verbose = 0;         /* whether to talk a lot about it all    */
-static int type;		/* type of connection requested          */
-static time_t last;		/* time of last refresh                  */
+static time_t last;             /* time of last refresh                  */
 
 /* Local Types */
 
 struct servers {
-  char    address[LINE];	/* host name or ip address of server	*/
+  char    address[LINE];        /* host name or ip address of server    */
   int     port;
-  int     age;			/* age in seconds as received		*/
-  time_t  when;			/* date time this record received	*/
-  int     refresh;		/* data needs redisplaying		*/
-  int     lifetime;		/* remaining cache life of entry        */
+  int     age;                  /* age in seconds as received           */
+  time_t  when;                 /* date time this record received       */
+  int     refresh;              /* data needs redisplaying              */
+  int     lifetime;             /* remaining cache life of entry        */
   int     players;
   int     status;
   char    typeflag;
   char    comment[LINE];
-  pid_t   pid;			/* our last known child playing here    */
-  int     exitstatus;		/* exit status of last known child here */
-  int     observer;		/* set if child is an observer          */
+  pid_t   pid;                  /* our last known child playing here    */
+  int     exitstatus;           /* exit status of last known child here */
+  int     observer;             /* set if child is an observer          */
 };
 
-struct servers *serverlist = NULL;	/* The record for each server.  */
-static int num_servers = 0;		/* The number of servers.       */
-static int chosen = -1;			/* Arrow key chosen server.     */
-static int metaHeight = 0;		/* The number of list lines.	*/
-static char *metaWindowName;		/* The window's name.           */
+struct servers *serverlist = NULL;      /* The record for each server.  */
+static int num_servers = 0;             /* The number of servers.       */
+static int chosen = -1;                 /* Arrow key chosen server.     */
+static int metaHeight = 0;              /* The number of list lines.    */
+static char *metaWindowName;            /* The window's name.           */
 static int statusLevel;
 static W_Window metaWin, metaList, metaHelpWin = NULL;
 void *logo;
@@ -94,10 +92,10 @@ void *logo;
 /* The status strings:  The order of the strings up until statusNull is
  * important because the meta-client will display all the strings up to a
  * particular point.
- * 
+ *
  * The strings after statusNull are internal status types and are formatted
  * separatly from the other strings.
- * 
+ *
  * The string corresponding to "statusNull" is assigned to thoes servers which
  * have "statusNobody" or earlier strings in old, cached, meta-server data. */
 
@@ -219,169 +217,13 @@ static void toggle_help()
   }
 }
 
-static int open_port(char *host, int port, int verbose)
-/* The connection to the metaserver is by Andy McFadden. This calls the
- * metaserver and parses the output into something useful */
-{
-  struct sockaddr_in addr;
-  struct hostent *hp;
-  int     sock;
-
-  /* Connect to the metaserver */
-  /* get numeric form */
-  if ((addr.sin_addr.s_addr = inet_addr(host)) == -1) {
-    if ((hp = gethostbyname(host)) == NULL) {
-      if (verbose) fprintf(stderr, "unknown host '%s'\n", host);
-      return (-1);
-    } else {
-      addr.sin_addr.s_addr = *(LONG *) hp->h_addr;
-    }
-  }
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
-  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    if (verbose) perror("socket");
-    return (-1);
-  }
-  if (connect(sock, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-    if (verbose) perror("connect");
-    close(sock);
-    return (-1);
-  }
-  return (sock);
-}
-
-
-static void parseInput(char *in, FILE * out)
-/* Read the information we need from the meta-server. */
-{
-  char    line[LINE + 1], *numstr, *point, **statStr;
-  struct servers *slist;
-  int     rtn, max_servers;
-  int     count;
-
-#ifdef DEBUG
-   printf("In parseInput\n");
-#endif   
-   
-  /* Create some space to hold the entries that will be read.  More space can
-   * be added later */
-
-  serverlist = (struct servers *) malloc(sizeof(struct servers) * 10);
-
-  max_servers = 10;
-  num_servers = 0;
-
-  /* Add the default server */
-
-  if (serverName) {
-    strcpy(serverlist[num_servers].address, serverName);
-    serverlist[num_servers].port = xtrekPort;
-    serverlist[num_servers].status = statusDefault;
-    serverlist[num_servers].players = 0;
-    serverlist[num_servers].typeflag = ' ';
-    num_servers++;
-  }
-
-  while (1) {
-    /* Read a line */
-    point = line;
-    count = LINE + 1;
-    
-    do {
-      if (!(--count)) {
-	fputs("Warning: Line from meta server was too long!!!\n", stderr);
-	++point;                           /* Pretend we read a '\n' */
-	break;
-      }
-      
-      rtn = *in++;
-      if (!rtn)                              /* use a zero to mark end of buffer */
-	return;
-      
-      *(point++) = rtn;
-    }
-    while (rtn != EOF && rtn != '\n');
-    
-    *(--point) = '\0';
-    
-    if (out != NULL) {                           /* Save a copy of the stuff
-                                                  * we read */
-      fputs(line, out);
-      putc('\n', out);
-    }
-
-      /* Find somewhere to put the information that is just about to be
-       * parsed */
-
-    if (num_servers >= max_servers) {
-      max_servers += 5;
-      size_t size = sizeof(struct servers) * max_servers;
-      serverlist = (struct servers *) realloc(serverlist, size);
-    }
-    
-    slist = serverlist + num_servers;
-
-    /* Is this a line we want? */
-
-    if (sscanf(line, "-h %s -p %d %d %*d",
-	       slist->address, &(slist->port),
-	       &(slist->age)) != 3) {
-      continue;
-    }
-    
-    /* Find the status of the server, eg "Not responding". */
-    
-    for (statStr = statusStrings + statusLevel
-           ; statStr >= statusStrings
-           ; --statStr) {
-      if ((numstr = strstr(line, *statStr)) != NULL) {
-	(slist->status) = statStr - statusStrings;
-	(slist->players) = 0;
-	sscanf(numstr, "%*[^0123456789] %d", &(slist->players));
-	break;
-      }
-    }
-    
-    if (statStr < statusStrings)               /* No status was allocated */
-      continue;
-    
-    
-    /* Read the flags */
-    
-    slist->typeflag = *(point - 1);
-    
-    strcpy(slist->comment, "");
-
-    slist->pid = -1;
-    slist->exitstatus = 0;
-    slist->observer = 0;
-
-    /* Don't list Paradise Servers  */
-    
-    if (slist->typeflag != 'P') {
-      
-#ifdef DEBUG 
-      printf("HOST:%-30s PORT:%-6d %12s %-5d %d %c\n",
-	     serverlist[num_servers].address,
-	     serverlist[num_servers].port,
-	     statusStrings[serverlist[num_servers].status],
-	     serverlist[num_servers].players,
-	     serverlist[num_servers].typeflag);
-#endif
-      
-      ++num_servers;
-    }
-  }
-}
-
 static int ReadMetasSend()
 {
-  char *metaservers;		/* our copy of the metaserver host names */
-  char *token;			/* current metaserver host name          */
-  struct sockaddr_in address;	/* the address of the metaservers	 */
-  static char *req;		/* the request packet for the metaserver */
-  static int reqlen;		/* the length of the request packet      */
+  char *metaservers;            /* our copy of the metaserver host names */
+  char *token;                  /* current metaserver host name          */
+  struct sockaddr_in address;   /* the address of the metaservers        */
+  static char *req;             /* the request packet for the metaserver */
+  static int reqlen;            /* the length of the request packet      */
 
   last = time(NULL);
 
@@ -399,7 +241,7 @@ static int ReadMetasSend()
   if (msock < 0) {
     msock = socket(AF_INET, SOCK_DGRAM, 0);
     if (msock < 0) { perror("ReadMetasSend: socket"); return 0; }
-    
+
     /* bind the socket to any address */
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_family      = AF_INET;
@@ -419,12 +261,12 @@ static int ReadMetasSend()
   address.sin_family = AF_INET;
   address.sin_port = htons(metaport);
   address.sin_addr.s_addr = inet_addr("224.0.0.1");
-  if (verbose) fprintf(stderr, 
-		       "requesting player list from nearby servers on %s\n",
-		       inet_ntoa(address.sin_addr));
-  
+  if (verbose) fprintf(stderr,
+                       "requesting player list from nearby servers on %s\n",
+                       inet_ntoa(address.sin_addr));
+
   if (sendto(msock, req, reqlen, 0, (struct sockaddr *)&address,
-	     sizeof(address)) < 0) {
+             sizeof(address)) < 0) {
     perror("ReadMetasSend: sendto");
   } else {
     sent++;
@@ -445,40 +287,40 @@ static int ReadMetasSend()
     /* attempt numeric translation first */
     if ((address.sin_addr.s_addr = inet_addr(token)) == -1) {
       struct hostent *hp;
-        
+
       /* then translation by name */
       if ((hp = gethostbyname(token)) == NULL) {
         /* if it didn't work, return failure and warning */
         fprintf(stderr,
-	  "cannot resolve host %s, check for DNS problems?\n",
-	  token);
+          "cannot resolve host %s, check for DNS problems?\n",
+          token);
       } else {
         int i;
 
         /* resolution worked, send a query to every metaserver listed */
         for(i=0;;i++) {
 
-	  /* check for end of list of addresses */
-	  if (hp->h_addr_list[i] == NULL) break;
-	  address.sin_addr.s_addr = *(long *) hp->h_addr_list[i];
-	  if (verbose) fprintf(stderr,
-		"requesting player list from metaserver %s at %s\n",
-		token, inet_ntoa(address.sin_addr));
-	  if (sendto(msock, req, reqlen, 0, (struct sockaddr *)&address,
-		     sizeof(address)) < 0) {
-	    perror("ReadMetasSend: sendto");
-	  } else {
-	    sent++;
-	  }
+          /* check for end of list of addresses */
+          if (hp->h_addr_list[i] == NULL) break;
+          address.sin_addr.s_addr = *(long *) hp->h_addr_list[i];
+          if (verbose) fprintf(stderr,
+                "requesting player list from metaserver %s at %s\n",
+                token, inet_ntoa(address.sin_addr));
+          if (sendto(msock, req, reqlen, 0, (struct sockaddr *)&address,
+                     sizeof(address)) < 0) {
+            perror("ReadMetasSend: sendto");
+          } else {
+            sent++;
+          }
         }
       }
     } else {
       /* call to inet_addr() worked, host name is in IP address form */
-      if (verbose) fprintf(stderr, 
-			   "requesting player list from metaserver %s\n",
-			   inet_ntoa(address.sin_addr));
+      if (verbose) fprintf(stderr,
+                           "requesting player list from metaserver %s\n",
+                           inet_ntoa(address.sin_addr));
       if (sendto(msock, req, reqlen, 0, (struct sockaddr *)&address,
-		 sizeof(address)) < 0) {
+                 sizeof(address)) < 0) {
         perror("ReadMetasSend: sendto");
       } else {
         sent++;
@@ -534,10 +376,10 @@ static void version_r(struct sockaddr_in *address) {
   if (servers < 0) return;
 
   if (verbose) fprintf(stderr,
-		       "metaserver at %s responded with %d server%s\n",
-		       inet_ntoa(address->sin_addr),
-		       servers,
-		       servers == 1 ? "" : "s" );
+                       "metaserver at %s responded with %d server%s\n",
+                       inet_ntoa(address->sin_addr),
+                       servers,
+                       servers == 1 ? "" : "s" );
 
   if (servers == 0) return;
 
@@ -546,17 +388,17 @@ static void version_r(struct sockaddr_in *address) {
     struct servers *sp = NULL;
     char *host, type;
     int port, status, age, players, queue, throwaway;
-      
+
     throwaway = 0;
 
-    host = strtok(NULL,",");		/* hostname */
+    host = strtok(NULL,",");            /* hostname */
     if (host == NULL) continue;
 
-    p = strtok(NULL,",");		/* port */
+    p = strtok(NULL,",");               /* port */
     if (p == NULL) continue;
     port = atoi(p);
 
-    p = strtok(NULL,",");		/* status */
+    p = strtok(NULL,",");               /* status */
     if (p == NULL) continue;
     status = atoi(p);
 
@@ -565,22 +407,22 @@ static void version_r(struct sockaddr_in *address) {
       throwaway++;
     /* the sp->why_dead workaround */
     if (status == 6)
-      if ((status - 3) <= statusLevel) 
-	throwaway--;
+      if ((status - 3) <= statusLevel)
+        throwaway--;
 
-    p = strtok(NULL,",");		/* age (of data in seconds) */
+    p = strtok(NULL,",");               /* age (of data in seconds) */
     if (p == NULL) continue;
     age = atoi(p);
 
-    p = strtok(NULL,",");		/* players */
+    p = strtok(NULL,",");               /* players */
     if (p == NULL) continue;
     players = atoi(p);
 
-    p = strtok(NULL,",");		/* queue size */
+    p = strtok(NULL,",");               /* queue size */
     if (p == NULL) continue;
     queue = atoi(p);
 
-    p = strtok(NULL,"\n");		/* server type */
+    p = strtok(NULL,"\n");              /* server type */
     if (p == NULL) continue;
     type = p[0];
 
@@ -596,15 +438,15 @@ static void version_r(struct sockaddr_in *address) {
     /* if it was found, check age */
     if (sp != NULL) {
       if ((now-age) < (sp->when-sp->age)) {
-	sp->age = now - (sp->when-sp->age);
-	sp->when = now;
-	sp->refresh = 1;
-	sp->lifetime = 20;
-	continue;
+        sp->age = now - (sp->when-sp->age);
+        sp->when = now;
+        sp->refresh = 1;
+        sp->lifetime = 20;
+        continue;
       } else {
-	sp->age = age;
-	sp->when = now;
-	sp->lifetime = 20;
+        sp->age = age;
+        sp->when = now;
+        sp->lifetime = 20;
       }
     } else {
       /* not found, store it at the end of the list */
@@ -646,9 +488,9 @@ static void version_r(struct sockaddr_in *address) {
       sp->status = statusTout;
       sp->players = 0;
       break;
-    case SS_NOCONN:			/* no connection */
-    case SS_WORKING:		/* metaserver should not return this */
-    case SS_INIT:			/* nor this */
+    case SS_NOCONN:                     /* no connection */
+    case SS_WORKING:            /* metaserver should not return this */
+    case SS_INIT:                       /* nor this */
     default:
       sp->status = statusNoConnect;
       sp->players = 0;
@@ -674,35 +516,35 @@ static void version_s(struct sockaddr_in *address)
 
   if (verbose) fprintf(stderr, "server at %s responded\n", host);
 
-  p = strtok(NULL,",");	/* server type */
+  p = strtok(NULL,","); /* server type */
   if (p == NULL) return;
   char type = p[0];
-  
+
   /* ignore paradise servers */
   if (type == 'P') return;
-  
-  p = strtok(NULL,",");		/* comment */
+
+  p = strtok(NULL,",");         /* comment */
   if (p == NULL) return;
   char *comment = strdup(p);
   if (strlen(comment) > LINE) comment[LINE] = '\0';
 
-  p = strtok(NULL,",");		/* number of ports */
+  p = strtok(NULL,",");         /* number of ports */
   if (p == NULL) return;
-  // int ports = atoi(p);		/* not currently used */
+  // int ports = atoi(p);               /* not currently used */
 
   // TODO: accept more than one port reply
-  
-  p = strtok(NULL,",");		/* port */
+
+  p = strtok(NULL,",");         /* port */
   if (p == NULL) return;
   int port = atoi(p);
-  
-  p = strtok(NULL,",");		/* players */
+
+  p = strtok(NULL,",");         /* players */
   if (p == NULL) return;
   int players = atoi(p);
 
-  p = strtok(NULL,",");		/* queue size */
+  p = strtok(NULL,",");         /* queue size */
   if (p == NULL) return;
-  // int queue = atoi(p);		/* not currently used */
+  // int queue = atoi(p);               /* not currently used */
 
   /* find in current server list? */
   struct servers *sp = server_find(host, port);
@@ -737,12 +579,12 @@ static void version_s(struct sockaddr_in *address)
 
 static int ReadMetasRecv(int x)
 {
-  struct sockaddr_in address;	/* the address of the metaservers	 */
-  socklen_t length;		/* length of the address		 */
-  int bytes;			/* number of bytes received from meta'   */
-  fd_set readfds;		/* the file descriptor set for select()	 */
-  struct timeval timeout;	/* timeout for select() call		 */
-  char packet[MAXMETABYTES];	/* buffer for packet returned by meta'	 */
+  struct sockaddr_in address;   /* the address of the metaservers        */
+  socklen_t length;             /* length of the address                 */
+  int bytes;                    /* number of bytes received from meta'   */
+  fd_set readfds;               /* the file descriptor set for select()  */
+  struct timeval timeout;       /* timeout for select() call             */
+  char packet[MAXMETABYTES];    /* buffer for packet returned by meta'   */
   char *p;
 
   /* now await and process replies */
@@ -818,7 +660,7 @@ static void SaveMetasCache()
         tmpFileName[len-1] = 'R';
       else
         tmpFileName[len-1] = 'T';
-      
+
       cache = fopen(tmpFileName, "w");
 
       if (cache == NULL)
@@ -851,9 +693,9 @@ static void SaveMetasCache()
 #else
       unlink(cacheName);
 #endif
-#endif    
+#endif
       if (rename(tmpFileName, cacheName) == -1)
-	perror("Could not rename new cache file");
+        perror("Could not rename new cache file");
     }
 
 }
@@ -876,28 +718,27 @@ static void LoadMetasCache()
   findfile(cacheName, cacheFileName);
 
   cache = fopen(cacheFileName, "r");
-  if (cache == NULL) 
-    { 
-      num_servers = 0; 
-      return; 
+  if (cache == NULL)
+    {
+      num_servers = 0;
+      return;
     }
- 
+
   /* ignore the cache if user changed statusLevel */
   fread(&i, sizeof(i), 1, cache);
   if (i != statusLevel)
     {
       num_servers = 0;
       fclose(cache);
-      return; 
+      return;
     }
- 
 
   /* read the server list into memory from the file */
   fread(&num_servers, sizeof(num_servers), 1, cache);
   serverlist = (struct servers *) malloc(sizeof(struct servers)*num_servers);
   fread(serverlist, sizeof(struct servers), num_servers, cache);
   fclose(cache);
-  
+
   /* hunt and kill old server lines from cache */
   for(i=0;i<num_servers;i++)
     {
@@ -911,199 +752,21 @@ static void LoadMetasCache()
 
       /* delete this entry by moving the ones above down */
       for(j=i;j<num_servers-1;j++)
-	{
-	  memcpy(&serverlist[j],&serverlist[j+1],sizeof(struct servers));
-	}
-      
+        {
+          memcpy(&serverlist[j],&serverlist[j+1],sizeof(struct servers));
+        }
+
       /* adjust the current entry pointer, limit, and resize the memory */
       i--;
       num_servers--;
-      serverlist = 
-	(struct servers *) realloc(serverlist, 
-				   sizeof(struct servers) * (num_servers));
+      serverlist =
+        (struct servers *) realloc(serverlist,
+                                   sizeof(struct servers) * (num_servers));
     }
 }
 
 
-static int ReadFromMeta()
-/* Read from the meta-server.  Return TRUE on success and FALSE on failure. */
-{
-  FILE   *out;
-  char   *cacheName;
-  char    cacheFileName[PATH_MAX];
-  char    tmpFileName[PATH_MAX];
-  char   *sockbuf, *buf;
-  int     bufleft = BUF - 1;
-  int     len;
-  int     sock;
-
-  if ((getdefault("metaserver")) != NULL)
-    metaserver = getdefault("metaserver");
-
-  metaport = intDefault("metaport", metaport);
-
-  if ((sock = open_port(metaserver, metaport, 1)) <= 0)
-    {
-      fprintf(stderr, "Cannot connect to MetaServer (%s , %d)\n",
-              metaserver, metaport);
-      return 0;
-    }
-
-  /* Allocate a buffer and read until full */
-  buf = sockbuf = (char *)malloc(BUF);
-  while (bufleft > 0 && (len = read(sock, buf, bufleft)) > 0)
-    {
-      bufleft-=len;
-      buf += len;
-#ifdef DEBUG    
-      printf("Read %d bytes from Metaserver\n", len);
-#endif
-    }
-  close (sock);
-  *buf = 0;                   /* End of buffer marker */
-
-  if (len<0)
-    {
-      perror ("read");
-      free(sockbuf);
-      return 0;
-    }
-
-  cacheName = getdefault("metaCache");
-  if (cacheName && !findfile(cacheName, cacheFileName))
-   strcpy(cacheFileName, cacheName);        /* overwrite existing file if possible */
-
-  if (cacheName)
-    {
-      len = strlen(cacheFileName);
-      strcpy(tmpFileName, cacheFileName);
-
-      /* Create a temporary file with roughly the same name */
-      
-      if ((cacheFileName[len - 1] == 'T') || (cacheFileName[len - 1] == 't'))
-        tmpFileName[len-1] = 'R';
-      else
-        tmpFileName[len-1] = 'T';
-      
-      out = fopen(tmpFileName, "w");
-
-      if (out == NULL)
-        {
-          fprintf(stderr,
-                   "Cannot write to the metaCache temporary file `%s'.\n",
-              tmpFileName);
-          fprintf(stderr, "Meta-server read will not be cached.\n");
-        }
-    }
-  else
-    {
-      out = NULL;
-    }
-
-  parseInput(sockbuf, out);
-
-  if (out != NULL)
-  {
-    fclose(out);
-
-#ifdef WIN32
-   /* Can't rename file to existing name under NT */
-#ifdef _MSC_VER
-   _unlink(cacheName);
-#else
-   unlink(cacheName);
-#endif
-#endif    
-    if (rename(tmpFileName, cacheName) == -1)
-      perror("Could not write to cache file");
-   }
-
-  free(sockbuf);
-  metaWindowName = "Netrek Server List (TCP)";
-
-  return 1;
-}
-
-
-static int ReadFromCache()
-/* Read from the cache.  Return TRUE on success and FALSE on failure. */
-{
-  FILE   *in;
-  char   *cacheName;
-  struct  servers *slist;
-  char   *sockbuf, *buf;
-  int     bufleft = BUF - 1;
-  int     len;
-  char    cacheFileName[PATH_MAX];
-
-  cacheName = getdefault("metaCache");
-
-  if (!cacheName)
-    {
-      fprintf(stderr,
-              "You must define the .xtrekrc variable `metaCache' in\n");
-      fprintf(stderr,
-              "order to use the `show known servers' option.\n");
-      return 0;
-    }
-  else
-     if (!findfile(cacheName, cacheFileName) || !(in = fopen(cacheFileName, "r")) )
-       {
-         fprintf(stderr,
-                 "The metaCache file `%s' is empty or not accessable.\n",
-                 cacheName);
-         return 0;
-       }
-
-
-  /* Allocate a buffer and read until full. Why do we
-     go through this silly stuff? Because sockets are
-     not file handles on all verions of Windows */
-  buf = sockbuf = (char *)malloc(BUF);
-
-  while (bufleft >0 && ((len = fread(buf, 1, bufleft, in)) > 0))
-    {
-    bufleft-=len;
-    buf += len;
-#ifdef DEBUG    
-    printf("Read %d bytes from Metaserver cache file\n", len);
-#endif
-    }
-  *buf = 0;                   /* End of buffer marker */
-  fclose (in);
-
-  if (len<0)
-    {
-    perror ("fread");
-    free(sockbuf);
-    return 0;
-    }
-
-  /* Show all servers known to have been reachable */
-
-  if (statusLevel <= statusNobody)
-    statusLevel = statusNobody;
-
-  parseInput(sockbuf, NULL);
-
-
-  /* Don't promise games from old data */
-  for (slist = serverlist + num_servers - 1
-       ; slist >= serverlist
-       ; --slist)
-    {
-      if (slist->status <= statusNobody)
-        slist->status = statusNull;
-    }
-
-  free(sockbuf);
-  metaWindowName = "Known Servers (Cache)";
-
-  return 1;
-}
-
-
-void    parsemeta(int metaType)
+void    parsemeta()
 /* Read and Parse the metaserver information, either from the metaservers
  * by UDP (1), from a single metaserver by TCP (3), or from the cache (2).
  */
@@ -1115,32 +778,9 @@ void    parsemeta(int metaType)
   else if (statusLevel >= statusNull)
     statusLevel = statusNull - 1;
 
-  type = metaType;
-  switch (type)
-    {
-      case 1:
-        ReadMetasSend();
-        LoadMetasCache();
-        metaHeight = 4 + N_OVERHEAD;
-        return;
-        break;
-      case 2:
-	if (ReadFromCache() || ReadFromMeta()) 
-	  {
-	    metaHeight = num_servers + N_OVERHEAD;
-	    return;
-	  }
-	terminate(0);
-	break;
-      case 3:
-	if (ReadFromMeta() || ReadFromCache()) 
-          {
-            metaHeight = num_servers + N_OVERHEAD;
-            return;
-          }
-	terminate(0);
-	break;
-    }
+  ReadMetasSend();
+  LoadMetasCache();
+  metaHeight = 4 + N_OVERHEAD;
 }
 
 
@@ -1202,33 +842,32 @@ static void redraw(int i)
           strcat(buf, "Unknown ");
           break;
         }
-      
-      if (type == 1)
-	{
-	  int age = sp->age;
-	  char *units;
 
-	  if (age > 86400)
-	    {
-	      age = age / 86400;
-	      units = "d";
-	    }
-	  else if (age > 3600)
-	    {
-	      age = age / 3600;
-	      units = "h";
-	    }
-	  else if (age > 90)
-	    {
-	      age = age / 60;
-	      units = "m";
-	    }
-	  else
-	    {
+        {
+          int age = sp->age;
+          char *units;
+
+          if (age > 86400)
+            {
+              age = age / 86400;
+              units = "d";
+            }
+          else if (age > 3600)
+            {
+              age = age / 3600;
+              units = "h";
+            }
+          else if (age > 90)
+            {
+              age = age / 60;
+              units = "m";
+            }
+          else
+            {
               units = "s";
-	    }
-	  sprintf(buf + strlen(buf), " %4d%s", age, units);
-	}
+            }
+          sprintf(buf + strlen(buf), " %4d%s", age, units);
+        }
     }
 
   strcat(buf, "    ");
@@ -1356,11 +995,7 @@ void    metawindow()
     }
   }
 
-  if (type == 1) {
-    header = "Server                                           Status        Type       Age";
-  } else {
-    header = "Server                                           Status        Type";
-  }
+  header = "Server                                           Status        Type       Age";
   W_WriteText(metaList, 0, 0, W_Cyan, header, -1, 0);
 
   for (i = 0; i < metaHeight; i++) redraw(i);
@@ -1369,17 +1004,16 @@ void    metawindow()
   W_RenameWindow(metaWin, metaWindowName);
 
   /* Add additional options */
-  if (type == 1)
-    W_WriteText(metaList, 0, metaHeight-B_REFRESH, W_Yellow,
-                "Refresh                                           (r)",
-                -1, 0);
+  W_WriteText(metaList, 0, metaHeight-B_REFRESH, W_Yellow,
+              "Refresh                                           (r)",
+              -1, 0);
   add_redraw();
   W_WriteText(metaList, 0, metaHeight-B_HELP, W_Yellow,
-	        "Help & Tips                                       (h)",
-	      -1, 0);
+                "Help & Tips                                       (h)",
+              -1, 0);
   W_WriteText(metaList, 0, metaHeight-B_QUIT, W_Yellow,
                 "Quit                                              (q)",
-	      -1, 0);
+              -1, 0);
 
   /* Map window */
   W_MapWindow(metaList);
@@ -1392,7 +1026,7 @@ static void metadone(void)
   W_UnmapWindow(metaList);
   W_DropImage(logo);
   W_UnmapWindow(metaWin);
-  if (type == 1) SaveMetasCache();
+  SaveMetasCache();
   free(serverlist);
 }
 
@@ -1513,7 +1147,7 @@ static int button(W_Event *data)
   if ((data->y > 0) && (data->y <= num_servers)) { /* click on server */
     return chose(data->y - 1, data->key);
   }
-  if (data->y == (metaHeight-B_REFRESH) && type == 1) { /* refresh */
+  if (data->y == (metaHeight-B_REFRESH)) { /* refresh */
     refresh();
   } else if (data->y == metaHeight-B_HELP) { /* help */
     toggle_help();
@@ -1609,18 +1243,16 @@ void    metainput(void)
 
   (void) SIGNAL(SIGCHLD, sigchld);
   while (W_IsMapped(metaWin)) {
-    if (type == 1) {
-      while (1) {
+    while (1) {
+      W_Flush();
+      if (W_EventsPending()) break;
+      if (ReadMetasRecv(W_Socket()) || metareap_needed) {
+        metareap();
+        metaHeight = num_servers + N_OVERHEAD;
+        metawindow();
         W_Flush();
-        if (W_EventsPending()) break;
-        if (ReadMetasRecv(W_Socket()) || metareap_needed) {
-          metareap();
-          metaHeight = num_servers + N_OVERHEAD;
-          metawindow();
-          W_Flush();
-        }
-        refresh_cyclic();
       }
+      refresh_cyclic();
     }
     W_NextEvent(&data);
     switch ((int) data.type) {

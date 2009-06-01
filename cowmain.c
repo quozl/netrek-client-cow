@@ -552,9 +552,6 @@ int     checking = 0;				 /* whether -c specified on
 
 #ifdef META
 int     usemeta = 0;
-int     metaType;             /* which meta to use, UDP, cache, or TCP */
-                              /* can be set in xtrekrc with metaType: */
-                              /* 1 == UDP, 2 == cache, TCP, 3 = TCP, cache */
 #define DEFAULT_METATYPE 1
 
 #endif
@@ -711,12 +708,8 @@ int     cowmain(char *server, int port, char *name)
 #ifdef META
   if (usemeta)
     {
-      metaType = intDefault("metaType", DEFAULT_METATYPE);
-      /* use default metatype for illegal values */
-      if ((metaType < 1) || (metaType > 3))
-          metaType = DEFAULT_METATYPE;
       newwinmeta(display_host, name);
-      parsemeta(metaType);
+      parsemeta();
       metawindow();
       metainput(); /* calls terminate() on quit, may fork(2) */
     }
