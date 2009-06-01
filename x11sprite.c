@@ -202,18 +202,13 @@ int     ReadFileToTile(char *filename, Pixmap *pix, Drawable drawable)
   return 1;
 }
 
-static char pixmapDir[1024];
+static char pixmapDir[1024] = { '\0' };
 
-void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
+static void GetPixmapDir()
 {
-  register int i, j;
-  char    buf[1024];
   char   *pd;
-  int     missing;
 
-  Drawable tactical = W_Void2Window(t)->window;
-  Drawable galactic = W_Void2Window(g)->window;
-  W_Display = d;
+  if (pixmapDir[0] != '\0') return;
 
   pd = getdefault("pixmapDir");
   if (pd != (char *) NULL)
@@ -241,6 +236,19 @@ void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
       }
     }
   }
+}
+
+void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
+{
+  register int i, j;
+  char    buf[1024];
+  int     missing;
+
+  Drawable tactical = W_Void2Window(t)->window;
+  Drawable galactic = W_Void2Window(g)->window;
+  W_Display = d;
+
+  GetPixmapDir();
 
   for (i = 0; i < NUMTEAM + 1; i++)
     {
@@ -716,6 +724,31 @@ void    W_SetBackground(W_Window w, int which)
   W_ClearWindow(w);
 }
 
+void *W_SetBackgroundImage(W_Window w, char *name)
+{
+  Drawable drawable = W_Void2Window(w)->window;
+  struct S_Object *sprite = calloc(1, sizeof(struct S_Object));
+  char *path;
+
+  if (sprite == NULL) return NULL;
+
+  GetPixmapDir();
+  path = malloc(strlen(pixmapDir) + strlen(name) + 2);
+  if (path == NULL) return NULL;
+
+  sprintf(path, "%s/%s", pixmapDir, name);
+
+  if (ReadFileToSprite(path, sprite, drawable)) {
+    free(path);
+    return NULL;
+  }
+  free(path);
+
+  XSetWindowBackgroundPixmap(W_Display, drawable, sprite->image);
+  W_ClearWindow(w);
+  return (void *) sprite;
+}
+
 static struct S_Object *ss = NULL;
 static int ss_size = 0;
 static int ss_next = 0;
@@ -730,7 +763,9 @@ static void ss_init(W_Window w)
 
   if (ss != NULL) return;
 
-  path = malloc(1024 + 4);
+  GetPixmapDir();
+
+  path = malloc(strlen(pixmapDir) + 4);
   sprintf(path, "%s/ss", pixmapDir);
   argv[0] = path;
   argv[1] = NULL;
@@ -773,9 +808,12 @@ void    *W_ReadImage(W_Window w, char *name)
 {
   Drawable drawable = W_Void2Window(w)->window;
   struct S_Object *sprite = calloc(1, sizeof(struct S_Object));
-  char *path = malloc(1024 + 4);
+  char *path;
 
   if (sprite == NULL) return NULL;
+
+  GetPixmapDir();
+  path = malloc(strlen(pixmapDir) + strlen(name) + 2);
   if (path == NULL) return NULL;
 
   sprintf(path, "%s/%s", pixmapDir, name);

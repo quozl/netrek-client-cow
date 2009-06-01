@@ -1344,7 +1344,7 @@ void    metawindow()
   if (!metaWin) {
     metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, 450, NULL, 2,
                          foreColor);
-    W_SetBackground(metaWin, LOCAL_PIX);
+    W_SetBackgroundImage(metaWin, "Misc/map_back.png");
     logo = W_ReadImage(metaWin, "netrek-green-white-300px.png");
     metaList = W_MakeMenu("metalist", 50, 200, LINE, metaHeight, metaWin, 1);
     make_help();

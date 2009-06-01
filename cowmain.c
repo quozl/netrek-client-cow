@@ -708,8 +708,6 @@ int     cowmain(char *server, int port, char *name)
 	}
     }
 
-  newwin(display_host, name);
-
 #ifdef META
   if (usemeta)
     {
@@ -717,12 +715,14 @@ int     cowmain(char *server, int port, char *name)
       /* use default metatype for illegal values */
       if ((metaType < 1) || (metaType > 3))
           metaType = DEFAULT_METATYPE;
+      newwinmeta(display_host, name);
       parsemeta(metaType);
       metawindow();
       metainput(); /* calls terminate() on quit, may fork(2) */
     }
 #endif
 
+  newwin(display_host, name);
   resetdefaults();
 
 #if defined(SOUND) && (defined(HAVE_SDL) || defined(sgi))

@@ -171,6 +171,15 @@ pid_t newwin_fork()
   return pid;
 }
 
+void newwinmeta(char *hostmon, char *progname)
+{
+  newwin_last_hostmon = hostmon;
+  newwin_last_progname = progname;
+
+  W_Initialize(hostmon);
+  getResources(progname);
+}
+
 void newwin(char *hostmon, char *progname)
 {
   int main_width = TWINSIDE + GWINSIDE + BORDER;

@@ -184,6 +184,7 @@ int W_EventsQueued(void);
 int W_EventsQueuedCk(void);
 
 void W_SetBackground(W_Window w, int which);
+void *W_SetBackgroundImage(W_Window w, char *name);
 
 void W_NextScreenShot(W_Window w, int x, int y);
 void W_DrawScreenShot(W_Window w, int x, int y);
