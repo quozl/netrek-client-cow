@@ -4,6 +4,7 @@
  * Kevin P. Smith 1/29/89
  */
 #include "copyright2.h"
+#include "ltd_stats.h"
 
 #define STATUS_TOKEN    "\t@@@"			 /* ATM */
 
@@ -177,6 +178,14 @@
 #define SP_S_KILLS      58			 /* # of kills player have */
 #define SP_S_STATS      59			 /* see SP_STATS */
 
+#ifdef FEATURE_PACKETS
+#define CP_FEATURE	60
+#define SP_FEATURE	60
+#endif
+
+#define SP_RANK         61
+#define SP_LTD          62      /* LTD stats for character */
+
 /* variable length packets */
 #define VPLAYER_SIZE    4
 #define SHORTVERSION    11			 /* other number blocks, like
@@ -248,13 +257,6 @@
 #define CP_S_RESERVED       46
 #define CP_S_DUMMY      47
 #endif
-
-#ifdef FEATURE_PACKETS
-#define CP_FEATURE	60
-#define SP_FEATURE	60
-#endif
-
-#define SP_RANK         61
 
 #define SOCKVERSION 	4
 
@@ -905,6 +907,14 @@ struct rank_spacket { /* SP_RANK py-struct pending #61 */
     int         ratings;        /* hundredths of ratings required */
     int         offense;        /* hundredths of offense required */
     char        cname[8];       /* short 'curt' rank name */
+};
+
+struct ltd_spacket { /* SP_LTD py-struct pending #62 */
+    char        type;
+    char        version;
+    char        endian;
+    char        pad;
+    struct ltd_stats ltd;
 };
 
 #ifdef RSA
