@@ -30,6 +30,7 @@
 #include "struct.h"
 #include "data.h"
 #include "packets.h"
+#include "ltd_stats.h"
 #include "wtext.h"
 #include "playerlist.h"
 
@@ -2897,20 +2898,100 @@ static void dump_prefix(const char *abbr, const char *name) {
 }
 
 #define dump_stat(STAT) { \
-    fprintf(stderr, " %8u\n", (unsigned int) ltd->STAT); \
+    fprintf(stderr, " %8u\n", (unsigned int) ltd.STAT); \
 }
 
 #define dump_max(STAT) { \
-    fprintf(stderr, " %8u\n", (unsigned int) ltd->STAT); \
+    fprintf(stderr, " %8u\n", (unsigned int) ltd.STAT); \
 }
 
 void
 handleLtd (struct ltd_spacket *packet)
 {
   if (packet->version != LTD_VERSION) return;
-  if (packet->endian != 'l') return;
 
-  struct ltd_stats *ltd = &packet->ltd;
+  struct ltd_stats ltd;
+
+  ltd.kills.total                     = ntohl(packet->kt);
+  ltd.kills.max                       = (double)(ntohl(packet->kmax)) / 100.0;
+  ltd.kills.first                     = ntohl(packet->k1);
+  ltd.kills.first_potential           = ntohl(packet->k1p);
+  ltd.kills.first_converted           = ntohl(packet->k1c);
+  ltd.kills.second                    = ntohl(packet->k2);
+  ltd.kills.second_potential          = ntohl(packet->k2p);
+  ltd.kills.second_converted          = ntohl(packet->k2c);
+  ltd.kills.phasered                  = ntohl(packet->kbp);
+  ltd.kills.torped                    = ntohl(packet->kbt);
+  ltd.kills.plasmaed                  = ntohl(packet->kbs);
+  ltd.deaths.total                    = ntohl(packet->dt);
+  ltd.deaths.potential                = ntohl(packet->dpc);
+  ltd.deaths.converted                = ntohl(packet->dcc);
+  ltd.deaths.dooshed                  = ntohl(packet->ddc);
+  ltd.deaths.phasered                 = ntohl(packet->dbp);
+  ltd.deaths.torped                   = ntohl(packet->dbt);
+  ltd.deaths.plasmaed                 = ntohl(packet->dbs);
+  ltd.deaths.acc                      = ntohl(packet->acc);
+  ltd.planets.taken                   = ntohl(packet->ptt);
+  ltd.planets.destroyed               = ntohl(packet->pdt);
+  ltd.bomb.planets                    = ntohl(packet->bpt);
+  ltd.bomb.planets_8                  = ntohl(packet->bp8);
+  ltd.bomb.planets_core               = ntohl(packet->bpc);
+  ltd.bomb.armies                     = ntohl(packet->bat);
+  ltd.bomb.armies_8                   = ntohl(packet->ba8);
+  ltd.bomb.armies_core                = ntohl(packet->bac);
+  ltd.ogged.armies                    = ntohl(packet->oat);
+  ltd.ogged.dooshed                   = ntohl(packet->odc);
+  ltd.ogged.converted                 = ntohl(packet->occ);
+  ltd.ogged.potential                 = ntohl(packet->opc);
+  ltd.ogged.bigger_ship               = ntohl(packet->ogc);
+  ltd.ogged.same_ship                 = ntohl(packet->oec);
+  ltd.ogged.smaller_ship              = ntohl(packet->olc);
+  ltd.ogged.sb_armies                 = ntohl(packet->osba);
+  ltd.ogged.friendly                  = ntohl(packet->ofc);
+  ltd.ogged.friendly_armies           = ntohl(packet->ofa);
+  ltd.armies.total                    = ntohl(packet->at);
+  ltd.armies.attack                   = ntohl(packet->aa);
+  ltd.armies.reinforce                = ntohl(packet->ar);
+  ltd.armies.ferries                  = ntohl(packet->af);
+  ltd.armies.killed                   = ntohl(packet->ak);
+  ltd.carries.total                   = ntohl(packet->ct);
+  ltd.carries.partial                 = ntohl(packet->cp);
+  ltd.carries.completed               = ntohl(packet->cc);
+  ltd.carries.attack                  = ntohl(packet->ca);
+  ltd.carries.reinforce               = ntohl(packet->cr);
+  ltd.carries.ferries                 = ntohl(packet->cf);
+  ltd.ticks.total                     = ntohl(packet->tt);
+  ltd.ticks.yellow                    = ntohl(packet->tyel);
+  ltd.ticks.red                       = ntohl(packet->tred);
+  ltd.ticks.zone[0]                   = ntohl(packet->tz0);
+  ltd.ticks.zone[1]                   = ntohl(packet->tz1);
+  ltd.ticks.zone[2]                   = ntohl(packet->tz2);
+  ltd.ticks.zone[3]                   = ntohl(packet->tz3);
+  ltd.ticks.zone[4]                   = ntohl(packet->tz4);
+  ltd.ticks.zone[5]                   = ntohl(packet->tz5);
+  ltd.ticks.zone[6]                   = ntohl(packet->tz6);
+  ltd.ticks.zone[7]                   = ntohl(packet->tz7);
+  ltd.ticks.potential                 = ntohl(packet->tpc);
+  ltd.ticks.carrier                   = ntohl(packet->tcc);
+  ltd.ticks.repair                    = ntohl(packet->tr);
+  ltd.damage_repaired                 = ntohl(packet->dr);
+  ltd.weapons.phaser.fired            = ntohl(packet->wpf);
+  ltd.weapons.phaser.hit              = ntohl(packet->wph);
+  ltd.weapons.phaser.damage.inflicted = ntohl(packet->wpdi);
+  ltd.weapons.phaser.damage.taken     = ntohl(packet->wpdt);
+  ltd.weapons.torps.fired             = ntohl(packet->wtf);
+  ltd.weapons.torps.hit               = ntohl(packet->wth);
+  ltd.weapons.torps.detted            = ntohl(packet->wtd);
+  ltd.weapons.torps.selfdetted        = ntohl(packet->wts);
+  ltd.weapons.torps.wall              = ntohl(packet->wtw);
+  ltd.weapons.torps.damage.inflicted  = ntohl(packet->wtdi);
+  ltd.weapons.torps.damage.taken      = ntohl(packet->wtdt);
+  ltd.weapons.plasma.fired            = ntohl(packet->wsf);
+  ltd.weapons.plasma.hit              = ntohl(packet->wsh);
+  ltd.weapons.plasma.phasered         = ntohl(packet->wsp);
+  ltd.weapons.plasma.wall             = ntohl(packet->wsw);
+  ltd.weapons.plasma.damage.inflicted = ntohl(packet->wsdi);
+  ltd.weapons.plasma.damage.taken     = ntohl(packet->wsdt);
 
   fprintf(stderr, "SP_LTD test output begins\n");
   dump_prefix("kt",   "kills total");			dump_stat(kills.total);
@@ -4292,26 +4373,172 @@ void print_packet(char *packet, int size)
 	 break;
        case SP_LTD          :
          fprintf(stderr, "\nS->C SP_LTD\t");
-         if (log_packets < 100) {
-           fprintf(stderr, "  version='%c', endian='%c', pad='%c',\n",
-                   ((struct ltd_spacket *) packet)->version,
-                   ((struct ltd_spacket *) packet)->endian,
-                   ((struct ltd_spacket *) packet)->pad
+         if (log_packets > 2) {
+           struct ltd_spacket *lp = (struct ltd_spacket *) packet;
+           fprintf(stderr,
+                   "  version='%c', "
+                   "kt=%d, "
+                   "kmax=%d/100, "
+                   "k1=%d, "
+                   "k1p=%d, "
+                   "k1c=%d, "
+                   "k2=%d, "
+                   "k2p=%d, "
+                   "k2c=%d, "
+                   "kbp=%d, "
+                   "kbt=%d, "
+                   "kbs=%d, "
+                   "dt=%d, "
+                   "dpc=%d, "
+                   "dcc=%d, "
+                   "ddc=%d, "
+                   "dbp=%d, "
+                   "dbt=%d, "
+                   "dbs=%d, "
+                   "acc=%d, "
+                   "ptt=%d, "
+                   "pdt=%d, "
+                   "bpt=%d, "
+                   "bp8=%d, "
+                   "bpc=%d, "
+                   "bat=%d, "
+                   "ba8=%d, "
+                   "bac=%d, "
+                   "oat=%d, "
+                   "odc=%d, "
+                   "occ=%d, "
+                   "opc=%d, "
+                   "ogc=%d, "
+                   "oec=%d, "
+                   "olc=%d, "
+                   "osba=%d, "
+                   "ofc=%d, "
+                   "ofa=%d, "
+                   "at=%d, "
+                   "aa=%d, "
+                   "ar=%d, "
+                   "af=%d, "
+                   "ak=%d, "
+                   "ct=%d, "
+                   "cp=%d, "
+                   "cc=%d, "
+                   "ca=%d, "
+                   "cr=%d, "
+                   "cf=%d, "
+                   "tt=%d, "
+                   "tyel=%d, "
+                   "tred=%d, "
+                   "tz0=%d, "
+                   "tz1=%d, "
+                   "tz2=%d, "
+                   "tz3=%d, "
+                   "tz4=%d, "
+                   "tz5=%d, "
+                   "tz6=%d, "
+                   "tz7=%d, "
+                   "tpc=%d, "
+                   "tcc=%d, "
+                   "tr=%d, "
+                   "dr=%d, "
+                   "wpf=%d, "
+                   "wph=%d, "
+                   "wpdi=%d, "
+                   "wpdt=%d, "
+                   "wtf=%d, "
+                   "wth=%d, "
+                   "wtd=%d, "
+                   "wts=%d, "
+                   "wtw=%d, "
+                   "wtdi=%d, "
+                   "wtdt=%d, "
+                   "wsf=%d, "
+                   "wsh=%d, "
+                   "wsp=%d, "
+                   "wsw=%d, "
+                   "wsdi=%d, "
+                   "wsdt=%d, \n",
+                   lp->version,
+                   ntohl(lp->kt),
+                   ntohl(lp->kmax),
+                   ntohl(lp->k1),
+                   ntohl(lp->k1p),
+                   ntohl(lp->k1c),
+                   ntohl(lp->k2),
+                   ntohl(lp->k2p),
+                   ntohl(lp->k2c),
+                   ntohl(lp->kbp),
+                   ntohl(lp->kbt),
+                   ntohl(lp->kbs),
+                   ntohl(lp->dt),
+                   ntohl(lp->dpc),
+                   ntohl(lp->dcc),
+                   ntohl(lp->ddc),
+                   ntohl(lp->dbp),
+                   ntohl(lp->dbt),
+                   ntohl(lp->dbs),
+                   ntohl(lp->acc),
+                   ntohl(lp->ptt),
+                   ntohl(lp->pdt),
+                   ntohl(lp->bpt),
+                   ntohl(lp->bp8),
+                   ntohl(lp->bpc),
+                   ntohl(lp->bat),
+                   ntohl(lp->ba8),
+                   ntohl(lp->bac),
+                   ntohl(lp->oat),
+                   ntohl(lp->odc),
+                   ntohl(lp->occ),
+                   ntohl(lp->opc),
+                   ntohl(lp->ogc),
+                   ntohl(lp->oec),
+                   ntohl(lp->olc),
+                   ntohl(lp->osba),
+                   ntohl(lp->ofc),
+                   ntohl(lp->ofa),
+                   ntohl(lp->at),
+                   ntohl(lp->aa),
+                   ntohl(lp->ar),
+                   ntohl(lp->af),
+                   ntohl(lp->ak),
+                   ntohl(lp->ct),
+                   ntohl(lp->cp),
+                   ntohl(lp->cc),
+                   ntohl(lp->ca),
+                   ntohl(lp->cr),
+                   ntohl(lp->cf),
+                   ntohl(lp->tt),
+                   ntohl(lp->tyel),
+                   ntohl(lp->tred),
+                   ntohl(lp->tz0),
+                   ntohl(lp->tz1),
+                   ntohl(lp->tz2),
+                   ntohl(lp->tz3),
+                   ntohl(lp->tz4),
+                   ntohl(lp->tz5),
+                   ntohl(lp->tz6),
+                   ntohl(lp->tz7),
+                   ntohl(lp->tpc),
+                   ntohl(lp->tcc),
+                   ntohl(lp->tr),
+                   ntohl(lp->dr),
+                   ntohl(lp->wpf),
+                   ntohl(lp->wph),
+                   ntohl(lp->wpdi),
+                   ntohl(lp->wpdt),
+                   ntohl(lp->wtf),
+                   ntohl(lp->wth),
+                   ntohl(lp->wtd),
+                   ntohl(lp->wts),
+                   ntohl(lp->wtw),
+                   ntohl(lp->wtdi),
+                   ntohl(lp->wtdt),
+                   ntohl(lp->wsf),
+                   ntohl(lp->wsh),
+                   ntohl(lp->wsp),
+                   ntohl(lp->wsw),
+                   ntohl(lp->wsdi),
+                   ntohl(lp->wsdt)
                    );
-           switch (((struct ltd_spacket *) packet)->version) {
-           case LTD_VERSION:
-             {
-               struct ltd_stats *ltd = &(((struct ltd_spacket *)packet)->ltd);
-               unsigned char *ptr = (unsigned char *) ltd;
-               int i;
-               for (i=0;i<sizeof(struct ltd_stats);i++) {
-		 if (i%20 == 0)
-		   fprintf(stderr, "\n");
-                 fprintf(stderr, " %02x ", ptr[i]);
-               }
-             }
-             fprintf(stderr, "\n");
-           }
          }
          break;
 #ifdef SHORT_PACKETS

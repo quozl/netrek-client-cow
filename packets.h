@@ -4,7 +4,6 @@
  * Kevin P. Smith 1/29/89
  */
 #include "copyright2.h"
-#include "ltd_stats.h"
 
 #define STATUS_TOKEN    "\t@@@"			 /* ATM */
 
@@ -909,13 +908,93 @@ struct rank_spacket { /* SP_RANK py-struct pending #61 */
     char        cname[8];       /* short 'curt' rank name */
 };
 
+#define LTD_VERSION 'a' /* version for SP_LTD packet */
+
 struct ltd_spacket { /* SP_LTD py-struct pending #62 */
     char        type;
     char        version;
-    char        endian;
-    char        pad;
-    struct ltd_stats ltd;
-};
+    char        pad[2];
+    unsigned int kt;    /* kills total, kills.total */
+    unsigned int kmax;  /* kills max, kills.max */
+    unsigned int k1;    /* kills first, kills.first */
+    unsigned int k1p;   /* kills first potential, kills.first_potential */
+    unsigned int k1c;   /* kills first converted, kills.first_converted */
+    unsigned int k2;    /* kills second, kills.second */
+    unsigned int k2p;   /* kills second potential, kills.second_potential */
+    unsigned int k2c;   /* kills second converted, kills.second_converted */
+    unsigned int kbp;   /* kills by phaser, kills.phasered */
+    unsigned int kbt;   /* kills by torp, kills.torped */
+    unsigned int kbs;   /* kills by smack, kills.plasmaed */
+    unsigned int dt;    /* deaths total, deaths.total */
+    unsigned int dpc;   /* deaths as potential carrier, deaths.potential */
+    unsigned int dcc;   /* deaths as converted carrier, deaths.converted */
+    unsigned int ddc;   /* deaths as dooshed carrier, deaths.dooshed */
+    unsigned int dbp;   /* deaths by phaser, deaths.phasered */
+    unsigned int dbt;   /* deaths by torp, deaths.torped */
+    unsigned int dbs;   /* deaths by smack, deaths.plasmaed */
+    unsigned int acc;   /* actual carriers created, deaths.acc */
+    unsigned int ptt;   /* planets taken total, planets.taken */
+    unsigned int pdt;   /* planets destroyed total, planets.destroyed */
+    unsigned int bpt;   /* bombed planets total, bomb.planets */
+    unsigned int bp8;   /* bombed planets <=8, bomb.planets_8 */
+    unsigned int bpc;   /* bombed planets core, bomb.planets_core */
+    unsigned int bat;   /* bombed armies total, bomb.armies */
+    unsigned int ba8;   /* bombed_armies <= 8, bomb.armies_8 */
+    unsigned int bac;   /* bombed armies core, bomb.armies_core */
+    unsigned int oat;   /* ogged armies total, ogged.armies */
+    unsigned int odc;   /* ogged dooshed carrier, ogged.dooshed */
+    unsigned int occ;   /* ogged converted carrier, ogged.converted */
+    unsigned int opc;   /* ogged potential carrier, ogged.potential */
+    unsigned int ogc;   /* ogged bigger carrier, ogged.bigger_ship */
+    unsigned int oec;   /* ogged same carrier, ogged.same_ship */
+    unsigned int olc;   /* ogger smaller carrier, ogged.smaller_ship */
+    unsigned int osba;  /* ogged sb armies, ogged.sb_armies */
+    unsigned int ofc;   /* ogged friendly carrier, ogged.friendly */
+    unsigned int ofa;   /* ogged friendly armies, ogged.friendly_armies */
+    unsigned int at;    /* armies carried total, armies.total */
+    unsigned int aa;    /* armies used to attack, armies.attack */
+    unsigned int ar;    /* armies used to reinforce, armies.reinforce */
+    unsigned int af;    /* armies ferried, armies.ferries */
+    unsigned int ak;    /* armies killed, armies.killed */
+    unsigned int ct;    /* carries total, carries.total */
+    unsigned int cp;    /* carries partial, carries.partial */
+    unsigned int cc;    /* carries completed, carries.completed */
+    unsigned int ca;    /* carries to attack, carries.attack */
+    unsigned int cr;    /* carries to reinforce, carries.reinforce */
+    unsigned int cf;    /* carries to ferry, carries.ferries */
+    unsigned int tt;    /* ticks total, ticks.total */
+    unsigned int tyel;  /* ticks in yellow, ticks.yellow */
+    unsigned int tred;  /* ticks in red, ticks.red */
+    unsigned int tz0;   /* ticks in zone 0, ticks.zone[0] */
+    unsigned int tz1;   /* ticks in zone 1, ticks.zone[1] */
+    unsigned int tz2;   /* ticks in zone 2, ticks.zone[2] */
+    unsigned int tz3;   /* ticks in zone 3, ticks.zone[3] */
+    unsigned int tz4;   /* ticks in zone 4, ticks.zone[4] */
+    unsigned int tz5;   /* ticks in zone 5, ticks.zone[5] */
+    unsigned int tz6;   /* ticks in zone 6, ticks.zone[6] */
+    unsigned int tz7;   /* ticks in zone 7, ticks.zone[7] */
+    unsigned int tpc;   /* ticks as potential carrier, ticks.potential */
+    unsigned int tcc;   /* ticks as carrier++, ticks.carrier */
+    unsigned int tr;    /* ticks in repair, ticks.repair */
+    unsigned int dr;    /* damage repaired, damage_repaired */
+    unsigned int wpf;   /* weap phaser fired, weapons.phaser.fired */
+    unsigned int wph;   /* weap phaser hit, weapons.phaser.hit */
+    unsigned int wpdi;  /* weap phaser damage inflicted, weapons.phaser.damage.inflicted */
+    unsigned int wpdt;  /* weap phaser damage taken, weapons.phaser.damage.taken */
+    unsigned int wtf;   /* weap torp fired, weapons.torps.fired */
+    unsigned int wth;   /* weap torp hit, weapons.torps.hit */
+    unsigned int wtd;   /* weap torp detted, weapons.torps.detted */
+    unsigned int wts;   /* weap torp self detted, weapons.torps.selfdetted */
+    unsigned int wtw;   /* weap torp hit wall, weapons.torps.wall */
+    unsigned int wtdi;  /* weap torp damage inflicted, weapons.torps.damage.inflicted */
+    unsigned int wtdt;  /* weap torp damage taken, weapons.torps.damage.taken */
+    unsigned int wsf;   /* weap smack fired, weapons.plasma.fired */
+    unsigned int wsh;   /* weap smack hit, weapons.plasma.hit */
+    unsigned int wsp;   /* weap smack phasered, weapons.plasma.phasered */
+    unsigned int wsw;   /* weap smack hit wall, weapons.plasma.wall */
+    unsigned int wsdi;  /* weap smack damage inflicted, weapons.plasma.damage.inflicted */
+    unsigned int wsdt;  /* weap smack damage taken, weapons.plasma.damage.taken */
+} __attribute__ ((packed));
 
 #ifdef RSA
 struct rsa_key_spacket

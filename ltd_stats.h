@@ -20,8 +20,6 @@
 
 #include "defs.h"	/* We need defines from this file */
 
-#define LTD_VERSION 'a' /* version for SP_LTD packet */
-
 typedef enum {
 
   LTD_TZONE_0		= 0,	/* Zone 0 = backfield */
