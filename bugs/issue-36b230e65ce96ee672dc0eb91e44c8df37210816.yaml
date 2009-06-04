@@ -1,0 +1,39 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: "incompatible with sturgeon mode server, LP #377482"
+desc: |-
+  netrek-client-cow 3.2.10
+  
+  On a sturgeon mode server, when trying to select a category for a
+  upgrade, pressing the number key for the category applies the upgrade in
+  the category that is the same as the number key for the category it is
+  in.
+  
+  This is probably a feature of the Windows client that has not been
+  backported.  The changes that created sturgeon mode in the current
+  server source were made without corresponding changes to the COW client.
+  
+  Task is probably to determine how the Windows client handles the key
+  sequence and then figure out how to have COW do the same thing.  A
+  sturgeon developer is recommended.
+  
+  Problem does not reproduce with the closed source Paradise 2000 client.
+  
+  This bug is from LaunchPad bug #377482, which to be closed as logged
+  upstream and unrelated to packaging.
+  https://bugs.launchpad.net/netrek-client-cow/+bug/377482
+type: :feature
+component: netrek-client-cow
+release: 
+reporter: Collin Pruitt <hellow@windstream.net>
+status: :unstarted
+disposition: 
+creation_time: 2009-06-04 00:19:32.045958 Z
+references: []
+
+id: 36b230e65ce96ee672dc0eb91e44c8df37210816
+log_events: 
+- - 2009-06-04 00:19:47.139005 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - Transcribed by James Cameron <quozl@us.netrek.org>
+claimer: 
