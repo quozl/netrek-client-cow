@@ -2996,6 +2996,8 @@ handleLtd (struct ltd_spacket *packet)
   ltd.weapons.plasma.damage.inflicted = ntohl(packet->wsdi);
   ltd.weapons.plasma.damage.taken     = ntohl(packet->wsdt);
 
+  return;
+
   fprintf(stderr, "SP_LTD test output begins\n");
   dump_prefix("kt",   "kills total");			dump_stat(kills.total);
   dump_prefix("kmax", "kills max");			dump_max(kills.max);
@@ -3133,9 +3135,6 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
   rsa_black_box(response.resp, packet->data, response.public, response.global);
 
   sendServerPacket((struct player_spacket *) &response);
-  /* #ifdef DEBUG */
-  printf("RSA verification requested.\n");
-  /* #endif */
 }
 #endif
 
