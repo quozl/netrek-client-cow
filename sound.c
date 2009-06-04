@@ -45,31 +45,31 @@
 
 #if defined(HAVE_SDL) || defined(sgi)
 enum {
-	INTRO_WAV,
-	FIRE_TORP_WAV,
-	PHASER_WAV,
-	FIRE_PLASMA_WAV,
-	EXPLOSION_WAV,
-	SBEXPLOSION_WAV,
-	CLOAK_WAV,
-	UNCLOAK_WAV,
-	SHIELD_DOWN_WAV,
-	SHIELD_UP_WAV,
-	TORP_HIT_WAV,
-	REDALERT_WAV,
-	BUZZER_WAV,
-	ENTER_SHIP_WAV,
-	SELF_DESTRUCT_WAV,
-	PLASMA_HIT_WAV,
-	MESSAGE_WAV,
-	ENGINE_WAV,
-	THERMAL_WAV,
-	FIRE_TORP_OTHER_WAV,
-	PHASER_OTHER_WAV,
-	FIRE_PLASMA_OTHER_WAV,
-	EXPLOSION_OTHER_WAV,
-	SBEXPLOSION_OTHER_WAV,
-	NUM_WAVES
+  INTRO_WAV,			/*  0 */
+  FIRE_TORP_WAV,		/*  1 */
+  PHASER_WAV,			/*  2 */
+  FIRE_PLASMA_WAV,		/*  3 */
+  EXPLOSION_WAV,		/*  4 */
+  SBEXPLOSION_WAV,		/*  5 */
+  CLOAK_WAV,			/*  6 */
+  UNCLOAK_WAV,			/*  7 */
+  SHIELD_DOWN_WAV,		/*  8 */
+  SHIELD_UP_WAV,		/*  9 */
+  TORP_HIT_WAV,			/* 10 */
+  REDALERT_WAV,			/* 11 */
+  BUZZER_WAV,			/* 12 */
+  ENTER_SHIP_WAV,		/* 13 */
+  SELF_DESTRUCT_WAV,		/* 14 */
+  PLASMA_HIT_WAV,		/* 15 */
+  MESSAGE_WAV,			/* 16 */
+  ENGINE_WAV,			/* 17 */
+  THERMAL_WAV,			/* 18 */
+  FIRE_TORP_OTHER_WAV,		/* 19 */
+  PHASER_OTHER_WAV,		/* 20 */
+  FIRE_PLASMA_OTHER_WAV,	/* 21 */
+  EXPLOSION_OTHER_WAV,		/* 22 */
+  SBEXPLOSION_OTHER_WAV,	/* 23 */
+  NUM_WAVES			/* 24 */
 };
 #endif
 
@@ -167,7 +167,6 @@ static int isDirectory(char* dir) {	/* check wheter `dir' is a directory */
 	struct stat buf;
 
 	if (stat(dir, &buf) < 0) {
-		(void) fprintf(stderr, "stat of directory `%s' failed: %s\n", dir, strerror(errno));
 		return 0;
 	}
 	return S_ISDIR(buf.st_mode);
@@ -894,6 +893,7 @@ static int loadSounds(void) {
 	sounds[CLOAK_WAV] = Mix_LoadWAV(DATAFILE("nt_cloaked.wav"));
 	sounds[ENTER_SHIP_WAV] = Mix_LoadWAV(DATAFILE("nt_enter_ship.wav"));
 	sounds[EXPLOSION_WAV] = Mix_LoadWAV(DATAFILE("nt_explosion.wav"));
+	sounds[SBEXPLOSION_WAV] = Mix_LoadWAV(DATAFILE("nt_sbexplosion.wav"));
 	sounds[EXPLOSION_OTHER_WAV] = Mix_LoadWAV(DATAFILE("nt_explosion_other.wav"));
 	sounds[FIRE_PLASMA_WAV] = Mix_LoadWAV(DATAFILE("nt_fire_plasma.wav"));
 	sounds[FIRE_TORP_WAV] = Mix_LoadWAV(DATAFILE("nt_fire_torp.wav"));
@@ -910,13 +910,14 @@ static int loadSounds(void) {
 	sounds[UNCLOAK_WAV] = Mix_LoadWAV(DATAFILE("nt_uncloak.wav"));
 	sounds[REDALERT_WAV] = Mix_LoadWAV(DATAFILE("nt_warning.wav"));
 
+#ifdef SOUND_WARN_MISSING
 	for (i=0; i < NUM_WAVES; i++) {
 		if (!sounds[i]) {
-			(void) fprintf(stderr, "Mix_LoadWAV sound[%d] could not be loaded."
+			(void) fprintf(stderr, "Mix_LoadWAV sound[%d] could not be loaded.\n"
 						"Check soundDir in your .netrekrc: %s\n", i, Mix_GetError());
-			return -1;
 		}
 	}
+#endif
 	return 1;
 }
 
@@ -972,10 +973,19 @@ void Init_Sound(void) {
 			if ((sd=getenv("SOUNDDIR")) != NULL)
 				sounddir = strdup(sd);
 			else
+#if defined(sgi)
 				sounddir = "/usr/local/games/netrek-sgi/sounds";
+#else
+				sounddir = "/usr/share/sounds/netrek-client-cow";
+#endif
 		}
 		if (!isDirectory(sounddir)) {
-			(void) fprintf(stderr, "%s is not a directory, sound will not work\n", sounddir);
+			sounddir = "sounds";
+				if (!isDirectory(sounddir)) {
+					(void) fprintf(stderr, "sound directory missing\n", sounddir);
+					return;
+			}
+		}
 	}
 #if defined(sgi)
 	err = sfxInit(sounddir, 3);			/* initialize up to three audio ports */
@@ -1038,45 +1048,44 @@ void Init_Sound(void) {
 	printf("Init_Sound using SDL\n");
 #endif
 
-    /* Initialize the SDL library */
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-      fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-    }
-    atexit(SDL_Quit);
+	/* Initialize the SDL library */
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+	  fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+	}
+	atexit(SDL_Quit);
 
-    /* Open the audio device at 8000 Hz 8 bit Microsoft PCM */
-    if (Mix_OpenAudio(8000, AUDIO_U8, 1, 512) < 0) {
-      fprintf(stderr,"Mix_OpenAudio: %s\n", Mix_GetError());
-      sound_init = 0;
-    } 
+	/* Open the audio device at 8000 Hz 8 bit Microsoft PCM */
+	if (Mix_OpenAudio(8000, AUDIO_U8, 1, 512) < 0) {
+	  fprintf(stderr,"Mix_OpenAudio: %s\n", Mix_GetError());
+	  sound_init = 0;
+	} 
 
-    /* If we successfully loaded the wav files, so shut-off sound_init and play
-     * the introduction
-     */
-    if (loadSounds()) {
-      if (Mix_PlayChannel(-1, sounds[INTRO_WAV], 0) < 0) {
-	fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
-      }
-    }
+	/* If we successfully loaded the wav files, so shut-off
+	   sound_init and play the introduction */
+	if (loadSounds()) {
+	  if (sounds[INTRO_WAV])
+	    if (Mix_PlayChannel(-1, sounds[INTRO_WAV], 0) < 0) {
+	      fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
+	    }
+	}
 #else
-    if (InitSound() == -1) {
-      sound_toggle = 0;
-      sound_init = 0;
-    } else {
-      sound_init = 1;
-      sound_toggle = 1;
-    }
+	if (InitSound() == -1) {
+	  sound_toggle = 0;
+	  sound_init = 0;
+	} else {
+	  sound_init = 1;
+	  sound_toggle = 1;
+	}
 
-    strcpy(sound_prefix, sounddir);
-    strcat(sound_prefix, "/");
+	strcpy(sound_prefix, sounddir);
+	strcat(sound_prefix, "/");
 
-    if (sound_toggle) {
-    strcpy(buf, sounddir);
-    strcat(buf, "/nt_intro");
-    StartSound(buf);
-    }
+	if (sound_toggle) {
+	  strcpy(buf, sounddir);
+	  strcat(buf, "/nt_intro");
+	  StartSound(buf);
+	}
 #endif
-  }
 }
 
 #if defined(HAVE_SDL) || defined(sgi)
@@ -1158,9 +1167,10 @@ void Play_Sound(int type) {
 	sfxPlay(sounds[waveform]);
 
 #else
-	if (Mix_PlayChannel(-1, sounds[waveform], 0) < 0) {
-		(void) fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
-	}
+	if (sounds[waveform])
+	  if (Mix_PlayChannel(-1, sounds[waveform], 0) < 0) {
+	    (void) fprintf(stderr, "Mix_PlayChannel: %s\n", Mix_GetError());
+	  }
 #endif
 
 #else
