@@ -39,7 +39,7 @@ newkey: mkkey
 	./mkkey $(KEYFILE) "Client Of Win" $(DESC) $(MAKER) \
 	 $(COMMENT) "inl,standard2"
 
-mkkey: system.mk 
+mkkey: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) mkkey
 
 clean:
@@ -132,6 +132,10 @@ install: netrek-client-cow
 	install netrek-client-cow $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	install $(KEYFILE) $(DESTDIR)$(LIBDIR)
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/netrek-client-cow
+	cp -pr pixmaps/* $(DESTDIR)/usr/share/pixmaps/netrek-client-cow/
+	mkdir -p $(DESTDIR)/usr/share/applications
+	install netrek-client-cow.desktop $(DESTDIR)/usr/share/applications/
 
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt
