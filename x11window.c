@@ -941,8 +941,6 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 #endif
 
   gcheck_result = checkGeometry(name, &x, &y, &width, &height);
-  /* printf("%s.geometry: %d %d %d %d %d\n", name, x, y, width, height, *
-   * gcheck_result); */
   checkParent(name, &parent);
   wparent = W_Void2Window(parent)->window;
   attrs.border_pixel = colortable[color].pixelValue;
@@ -955,10 +953,6 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 #ifdef MOTION_MOUSE
   attrs.event_mask |= ButtonMotionMask;
 #endif
-  //  if (!strcmp(name, "netrek")) {
-  //    attrs.event_mask |= StructureNotifyMask;
-  //  }
-
 
   if (strcmp(name, "netrek_icon") == 0)		 /* icon should not select *
 						  * for input */
@@ -968,8 +962,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   newwin = newWindow(
 	      XCreateWindow(W_Display, wparent, x, y, width, height, border,
 			    CopyFromParent, InputOutput, CopyFromParent,
-			    CWBackPixel | CWEventMask |
-			    CWBorderPixel,
+			    CWBackPixel | CWEventMask | CWBorderPixel,
 			    &attrs),
 		      WIN_GRAPH);
 
@@ -3399,17 +3392,17 @@ void
 
 
 {
-  Window  win = W_Void2Window(window)->window;
+  struct window *w = W_Void2Window(window);
   XSizeHints *sz_hints;
 
   sz_hints = XAllocSizeHints();
-  sz_hints->min_width = (unsigned int) neww;
-  sz_hints->max_width = (unsigned int) neww;
-  sz_hints->min_height = (unsigned int) newh;
-  sz_hints->max_height = (unsigned int) newh;
+  sz_hints->min_width = neww;
+  sz_hints->max_width = neww;
+  sz_hints->min_height = newh;
+  sz_hints->max_height = newh;
   sz_hints->flags = PMinSize | PMaxSize;
-  XSetWMNormalHints(W_Display, win, sz_hints);
-  XResizeWindow(W_Display, win, (unsigned int) neww, (unsigned int) newh);
+  XSetWMNormalHints(W_Display, w->window, sz_hints);
+  XResizeWindow(W_Display, w->window, neww, newh);
 }
 
 void
@@ -3769,7 +3762,6 @@ static void view_port_warp(W_Window window)
   Window child;
   XTranslateCoordinates(W_Display, win->window, W_Root, 0, 0, &tx, &ty, &child);
   XF86VidModeSetViewPort(W_Display, W_Screen, tx, ty);
-  XMoveResizeWindow(W_Display, win->window, 0, 0, 1024, 768);
   XMapRaised(W_Display, win->window);
   XRaiseWindow(W_Display, win->window);
 }
@@ -3789,6 +3781,7 @@ static void pointer_grab_on(W_Window window)
                  win->window, None, CurrentTime);
   XGrabKeyboard(W_Display, win->window, True, GrabModeAsync,
                 GrabModeAsync, CurrentTime);
+  XFlush(W_Display);
 }
 
 static void pointer_grab_off(W_Window window)
@@ -3802,7 +3795,7 @@ static void kde_fullscreen_on(W_Window window) {
   Atom WM_HINTS;
   WM_HINTS = XInternAtom(W_Display, "_NET_WM_STATE", True);
   if (WM_HINTS != None) {
-    Atom p[1]; 
+    Atom p[1];
     p[0] = XInternAtom(W_Display, "_NET_WM_STATE_FULLSCREEN", True);
     XChangeProperty(W_Display, win->window, WM_HINTS, XA_ATOM, 32,
                     PropModeReplace, (unsigned char *)p, 1);
@@ -3822,13 +3815,15 @@ static void kde_fullscreen_off(W_Window window) {
 
 void W_FullScreenOn(W_Window window)
 {
+  struct window *win = W_Void2Window(window);
 #ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenOn\n");
 #endif
+  XResizeWindow(W_Display, win->window, 1024, 768);
+  pointer_grab_on(window);
   video_mode_on();
   view_port_warp(window);
-  pointer_grab_on(window);
   kde_fullscreen_on(window);
 #endif
 }
@@ -3853,7 +3848,6 @@ void W_FullScreenInitialise() {
   full_screen_enabled = 0;
   full_screen_default = 0;
   if (booleanDefault("FullScreen", 0)) {
-    // FIXME: when this is on in .xtrekrc normal resolution may not be restored
     full_screen_default++;
     if (video_mode_initialise())
       full_screen_enabled++;

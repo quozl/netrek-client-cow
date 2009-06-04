@@ -182,8 +182,13 @@ void newwinmeta(char *hostmon, char *progname)
 
 void newwin(char *hostmon, char *progname)
 {
-  int main_width = TWINSIDE + GWINSIDE + BORDER;
-  int main_height = GWINSIDE + 2 * BORDER + PLISTSIZE;
+  int need_width = TWINSIDE + GWINSIDE + BORDER * 3;
+  int need_height = GWINSIDE + 4 * BORDER + PLISTSIZE;
+  int main_width = MAX(need_width, 1024);
+  int main_height = MAX(need_height, 768);
+  int ow = (main_width - need_width) / 2; /* offset width */
+
+  if (ow < 0) ow = 0;
 
   newwin_last_hostmon = hostmon;
   newwin_last_progname = progname;
@@ -191,27 +196,22 @@ void newwin(char *hostmon, char *progname)
   W_Initialize(hostmon);
   W_FullScreenInitialise();
 
-  if (booleanDefault("FullScreen", 1)) {
-    main_width = MAX(main_width, 1024);
-    main_height = MAX(main_height, 768);
-  }
-
-  baseWin = W_MakeWindow("netrek", 0, YOFF, main_width,
-		   main_height, NULL, BORDER, gColor);
+  baseWin = W_MakeWindow("netrek", 0, YOFF, main_width, main_height, NULL,
+                         BORDER, gColor);
 
   iconWin = W_MakeWindow("netrek_icon", 0, 0, icon_width, icon_height, NULL,
-			 BORDER, gColor);
+                         BORDER, gColor);
   W_SetWindowExposeHandler(iconWin, drawIcon);
 
   W_SetIconWindow(baseWin, iconWin);
-  w = W_MakeWindow("local", 0, 0, TWINSIDE, TWINSIDE, baseWin,
+  w = W_MakeWindow("local", ow, 0, TWINSIDE, TWINSIDE, baseWin,
 		   BORDER, foreColor);
 
-  mapw = W_MakeWindow("map", TWINSIDE+BORDER, 0, GWINSIDE, GWINSIDE, baseWin,
-		      BORDER, foreColor);
+  mapw = W_MakeWindow("map", TWINSIDE+BORDER+ow, 0,
+		      GWINSIDE, GWINSIDE, baseWin, BORDER, foreColor);
   W_GetPixmaps(w, mapw);
 
-  tstatw = W_MakeWindow("tstat", 0, TWINSIDE+BORDER, TWINSIDE, STATSIZE,
+  tstatw = W_MakeWindow("tstat", ow, TWINSIDE+BORDER, TWINSIDE, STATSIZE,
 			baseWin, BORDER, foreColor);
 
 #ifdef nodef					 /* 01/18/95 No messages for
@@ -221,11 +221,11 @@ void newwin(char *hostmon, char *progname)
 
   W_SetWindowExposeHandler(tstatw, redrawTstats);
 
-  warnw = W_MakeWindow("warn", TWINSIDE+BORDER, GWINSIDE+BORDER, GWINSIDE, MESSAGESIZE,
+  warnw = W_MakeWindow("warn", ow+TWINSIDE+BORDER, GWINSIDE+BORDER, GWINSIDE, MESSAGESIZE,
 		       baseWin, BORDER, foreColor);
   W_SetWindowKeyDownHandler(warnw, handleMessageWindowKeyDown);
 
-  messagew = W_MakeWindow("message", TWINSIDE+BORDER, GWINSIDE+BORDER+MESSAGESIZE,
+  messagew = W_MakeWindow("message", ow+TWINSIDE+BORDER, GWINSIDE+BORDER+MESSAGESIZE,
 			  GWINSIDE, MESSAGESIZE, baseWin, BORDER, foreColor);
   W_SetWindowKeyDownHandler(messagew, handleMessageWindowKeyDown);
   W_SetWindowButtonHandler(messagew, handleMessageWindowButton);
@@ -241,7 +241,7 @@ void newwin(char *hostmon, char *progname)
 			     YOFF + GWINSIDE + 2 * BORDER + 2 * MESSAGESIZE,
 			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
 #else
-  playerw = W_MakeTextWindow("player", 0,
+  playerw = W_MakeTextWindow("player", ow,
 			     YOFF + TWINSIDE + BORDER + STATSIZE + BORDER,
 			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
 #endif
@@ -255,39 +255,39 @@ void newwin(char *hostmon, char *progname)
 #ifdef SMALL_SCREEN
   /* note that wk and phaswerwin are drawn under wi, and wa under wt-- there
    * * just isn't ROOM for them all */
-  messwt = W_MakeScrollingWindow("review_team", 0,
+  messwt = W_MakeScrollingWindow("review_team", ow,
 				 YOFF + TWINSIDE + BORDER + STATSIZE,
 				 80, 1, baseWin, 1);
-  messwi = W_MakeScrollingWindow("review_your", 0,
+  messwi = W_MakeScrollingWindow("review_your", ow,
 				 YOFF + TWINSIDE + MESSAGESIZE + STATSIZE,
 				 80, 1, baseWin, 1);
-  messwa = W_MakeScrollingWindow("review_all", 0,
+  messwa = W_MakeScrollingWindow("review_all", ow,
 			       YOFF + TWINSIDE + 2 * MESSAGESIZE + STATSIZE,
 				 80, 1, baseWin, 1);
-  messwk = W_MakeScrollingWindow("review_kill", 0,
+  messwk = W_MakeScrollingWindow("review_kill", ow,
 			       YOFF + TWINSIDE + 3 * MESSAGESIZE + STATSIZE,
 				 35, 1, baseWin, 1);
-  phaserwin = W_MakeScrollingWindow("review_phaser", 25 + 35 * W_Textwidth,
+  phaserwin = W_MakeScrollingWindow("review_phaser", ow + 25 + 35 * W_Textwidth,
 			       YOFF + TWINSIDE + 3 * MESSAGESIZE + STATSIZE,
 				    40, 1, baseWin, 1);
-  reviewWin = W_MakeScrollingWindow("review", 0,
+  reviewWin = W_MakeScrollingWindow("review", ow,
 	       YOFF + TWINSIDE + BORDER + STATSIZE, 80, 2, baseWin, BORDER);
 #else
-  messwa = W_MakeScrollingWindow("review_all", TWINSIDE + BORDER,
+  messwa = W_MakeScrollingWindow("review_all", ow + TWINSIDE + BORDER,
    YOFF + GWINSIDE + 3 * BORDER + 2 * MESSAGESIZE, 80, 10, baseWin, BORDER);
-  messwt = W_MakeScrollingWindow("review_team", TWINSIDE + BORDER,
+  messwt = W_MakeScrollingWindow("review_team", ow + TWINSIDE + BORDER,
      YOFF + GWINSIDE + 4 * BORDER + 2 * MESSAGESIZE + 10 * W_Textheight + 8,
 				 80, 5, baseWin, BORDER);
-  messwi = W_MakeScrollingWindow("review_your", TWINSIDE + BORDER,
+  messwi = W_MakeScrollingWindow("review_your", ow + TWINSIDE + BORDER,
     YOFF + GWINSIDE + 5 * BORDER + 2 * MESSAGESIZE + 15 * W_Textheight + 16,
 				 80, 4, baseWin, BORDER);
-  messwk = W_MakeScrollingWindow("review_kill", TWINSIDE + BORDER,
+  messwk = W_MakeScrollingWindow("review_kill", ow + TWINSIDE + BORDER,
     YOFF + GWINSIDE + 6 * BORDER + 2 * MESSAGESIZE + 19 * W_Textheight + 24,
 				 80, 6, baseWin, BORDER);
-  phaserwin = W_MakeScrollingWindow("review_phaser", TWINSIDE + BORDER,
+  phaserwin = W_MakeScrollingWindow("review_phaser", ow + TWINSIDE + BORDER,
     YOFF + GWINSIDE + 3 * BORDER + 2 * MESSAGESIZE + 15 * W_Textheight + 16,
 				    80, 4, baseWin, BORDER);
-  reviewWin = W_MakeScrollingWindow("review", TWINSIDE + BORDER + 1,
+  reviewWin = W_MakeScrollingWindow("review", ow + TWINSIDE + BORDER + 1,
 	      YOFF + GWINSIDE + BORDER + STATSIZE, 81, 21, baseWin, BORDER-1);
 #endif
 
@@ -396,7 +396,7 @@ void newwin(char *hostmon, char *progname)
 #define WARWIDTH 20
 #define WARBORDER 2
 
-  war = W_MakeMenu("war", TWINSIDE + 10, -BORDER + 10, WARWIDTH, 6, baseWin,
+  war = W_MakeMenu("war", ow + TWINSIDE + 10, -BORDER + 10, WARWIDTH, 6, baseWin,
 		   WARBORDER);
   W_SetWindowButtonHandler(war, waraction);
 
@@ -936,7 +936,6 @@ void entrywindow(int *team, int *s_type)
       }
       
 #ifndef HAVE_WIN32
-      W_FullScreen(baseWin);
       tv.tv_sec = 1; /* rate at which quit clock is updated */
 #else
       tv.tv_sec = 0;

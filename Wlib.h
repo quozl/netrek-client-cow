@@ -98,6 +98,7 @@ extern void W_DefineCursor (W_Window window, int width, int height, char *bits, 
 extern int W_IsMapped (W_Window window);
 void W_ReinitMenu(W_Window window, int neww, int newh);
 void W_ResizeMenu(W_Window window, int neww, int newh);
+void W_ResizeWindow(W_Window window, int neww, int newh);
 extern void W_Beep (void);
 extern void W_DestroyWindow (W_Window window);
 extern int W_WindowWidth (W_Window window);
