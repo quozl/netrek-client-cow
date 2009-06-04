@@ -216,9 +216,6 @@
 #define INVISIBLE(j)        (((j)->p_flags & PFCLOAK) && \
         ((j)->p_cloakphase == (CLOAK_PHASES-1)))
 
-#define ANNOUNCESOCKET      if (me!=NULL)fprintf(stderr, "server: allocated slot %d\n",me->p_no); else
-
-
 #if !defined(_IBMR2)
 /* typedef enum { FALSE = 0, TRUE }
  * 

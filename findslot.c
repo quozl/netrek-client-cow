@@ -118,7 +118,6 @@ int findslot(void)
     readFromServer(NULL);
     if (me != NULL) {
       /* We are in! */
-      ANNOUNCESOCKET;
       return me->p_no;
     }
   }
@@ -240,7 +239,6 @@ int findslot(void)
       if (mapMotd) {
         W_DestroyWindow(w_motd);
       }
-      ANNOUNCESOCKET;
       W_Beep();
       W_Beep();
       return me->p_no;

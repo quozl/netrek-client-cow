@@ -161,13 +161,11 @@ void
 
   if (strcmpi(packet->name, "FPS") == 0 && value != -1) {
     server_fps = client_ups = server_ups = value;
-    fprintf(stderr, "server feature: frames per second: %d\n", value);
     return;
   }
 
   if (strcmpi(packet->name, "UPS") == 0 && value != -1) {
     client_ups = server_ups = value;
-    fprintf(stderr, "server feature: updates per second: %d\n", value);
     return;
   }
 

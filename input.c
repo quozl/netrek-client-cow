@@ -1145,7 +1145,6 @@ void buttonaction(W_Event * data)
     }
 #endif
 
-
   if (data->Window != w && data->Window != mapw
       && data->Window != infow)
     return;

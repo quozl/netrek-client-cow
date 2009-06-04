@@ -1046,7 +1046,6 @@ RETSIGTYPE
 reset_game(int _dummy)
 {
   died_from_signal = 1;
-  ANNOUNCESOCKET;
   longjmp(env, 0);
 }
 #endif
