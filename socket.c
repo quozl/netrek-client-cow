@@ -1249,23 +1249,26 @@ static int doRead(int asock)
     {
       /* this goto label for a bug w/ short packets */
     computesize:
-      if (*bufptr < 1 || 
-          *bufptr > NUM_PACKETS || 
-          handlers[(unsigned char) *bufptr].size == 0)
-	{
-	  fprintf(stderr, "Unknown packet type: %d\n", *bufptr);
+      if (*bufptr < 1 ||
+          *bufptr > NUM_PACKETS ||
+          handlers[(unsigned char) *bufptr].size == 0) {
+        int i;
 
-#ifndef CORRUPTED_PACKETS
-	  printf("count: %d, bufptr at %d,  Content:\n", count,
-		 bufptr - buf);
-	  for (i = 0; i < count; i++)
-	    {
-	      printf("0x%x, ", (unsigned int) buf[i]);
-	    }
-#endif
+        fprintf(stderr, "netrek protocol stream alignment failure, "
+                "next byte %d (0x%02x)\n", *bufptr, *bufptr);
 
-	  return 0;
-	}
+        fprintf(stderr, "protocol buffer dump, bytes %d, [bufptr] at %d :\n",
+                count, bufptr - buf);
+        for (i = 0; i < count; i++) {
+          if (i == (bufptr - buf)) {
+            fprintf(stderr, "[%02x]", (unsigned int) buf[i] & 0xff);
+          } else {
+            fprintf(stderr, " %02x ", (unsigned int) buf[i] & 0xff);
+          }
+        }
+        fprintf(stderr, "\n");
+        return 0;
+      }
       size = handlers[(unsigned char) *bufptr].size;
 
 #ifdef SHORT_PACKETS
