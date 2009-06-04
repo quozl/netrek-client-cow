@@ -36,4 +36,10 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - Transcribed by James Cameron <quozl@us.netrek.org>
+- - 2009-06-04 01:24:33.233131 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - |-
+    http://netrek.beeseenterprises.com/#3 describes a workaround, to turn off
+    enforced UDP.
 claimer: 
