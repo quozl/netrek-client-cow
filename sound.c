@@ -1058,7 +1058,9 @@ void Init_Sound(void) {
 	if (Mix_OpenAudio(8000, AUDIO_U8, 1, 512) < 0) {
 	  fprintf(stderr,"Mix_OpenAudio: %s\n", Mix_GetError());
 	  sound_init = 0;
-	} 
+	}
+
+        Mix_AllocateChannels(16);
 
 	/* If we successfully loaded the wav files, so shut-off
 	   sound_init and play the introduction */
