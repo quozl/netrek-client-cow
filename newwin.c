@@ -1392,6 +1392,8 @@ void newMotdLine(char *line)
   if (strcmp(line, MOTDCLEARLINE) == 0)
     {
       ClearMotd();
+      motddata = NULL;
+      temp = &motddata;
       return;
     }
 
