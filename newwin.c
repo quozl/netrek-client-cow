@@ -104,11 +104,8 @@ struct list
   struct list *next;
   char   *data;
 };
-static struct list *motddata = NULL;		 /* pointer to first bit of * 
-
-						  * 
-						  * 
-						  * * motddata */
+/* pointer to first bit of motddata */
+static struct list *motddata = NULL;
 static int first = 1;
 
 /* Event Handlers. */
@@ -1374,32 +1371,29 @@ static void showValues(struct list *data)
 void newMotdLine(char *line)
 {
   static struct list **temp = &motddata;
-  static int statmode = 0;			 /* ATM */
+  static int statmode = 0;
 
   if (!statmode && !strcmp(line, STATUS_TOKEN))
     statmode = 1;
   if (!statmode)
-    MaxMotdLine++;				 /* ATM - don't show on left */
+    MaxMotdLine++;
+
   (*temp) = (struct list *) malloc(sizeof(struct list));
+  if ((*temp) == NULL) {
+    printf("Warning:  Couldn't malloc space for a new motd line!");
+    return;
+  }
 
-  if ((*temp) == NULL)
-    {						 /* malloc error checking --
-						  * * * 10/30/92 EM */
-      printf("Warning:  Couldn't malloc space for a new motd line!");
-      return;
-    }
-  /* Motd clearing code */
-  if (strcmp(line, MOTDCLEARLINE) == 0)
-    {
-      ClearMotd();
-      motddata = NULL;
-      temp = &motddata;
-      return;
-    }
+  if (strcmp(line, MOTDCLEARLINE) == 0) {
+    ClearMotd();
+    motddata = NULL;
+    temp = &motddata;
+    return;
+  }
 
+  (*temp)->bold = 0;
   (*temp)->next = NULL;
-  (*temp)->data = malloc(strlen(line) + 1);
-  strcpy((*temp)->data, line);
+  (*temp)->data = strdup(line);
   temp = &((*temp)->next);
 }
 
@@ -1408,19 +1402,16 @@ static void ClearMotd(void)
 {
   struct list *temp, *temp2;
 
-  temp = motddata;				 /* start of motd information 
-						  * 
-						  */
-  while (temp != NULL)
-    {
-      temp2 = temp;
-      temp = temp->next;
-      free(temp2->data);
-      free(temp2);
-    }
+  temp = motddata; /* start of motd information */
+  while (temp != NULL) {
+    temp2 = temp;
+    temp = temp->next;
+    free(temp2->data);
+    free(temp2);
+  }
 
-  first = 1;					 /* so that it'll check bold
-						  * * * next time around */
+  /* check bold next time around */
+  first = 1;
 }
 
 /* ARGSUSED */
