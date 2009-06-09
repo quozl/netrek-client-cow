@@ -98,14 +98,16 @@ static char press_bits[] =
 {
   0x0f, 0x11, 0x0f, 0x01, 0x01};
 
-struct list
+/* forward linked list of received motd lines */
+struct motd_line
 {
-  char    bold;
-  struct list *next;
-  char   *data;
+  struct motd_line *next;
+  char *data;
+  char bold;
 };
-/* pointer to first bit of motddata */
-static struct list *motddata = NULL;
+/* pointer to first item in list */
+static struct motd_line *motd_lines = NULL;
+
 static int first = 1;
 
 /* Event Handlers. */
@@ -121,7 +123,7 @@ extern void pastebuffer(void);
 
 /* internal function declarations */
 static void savebitmaps(void);
-static void showValues(struct list *data);
+static void showValues(struct motd_line *data);
 static void ClearMotd(void);
 static void getResources(char *prog);
 static void getTiles(void);
@@ -1263,7 +1265,7 @@ static void show_motd_heading(W_Window w, char *text, int line, int colour)
 void showMotd(W_Window w, int atline)
 {
   int     i, length, top, center;
-  struct list *data;
+  struct motd_line *data;
   int     count;
   char    buf[128];
 
@@ -1282,14 +1284,14 @@ void showMotd(W_Window w, int atline)
     show_motd_heading(w, "press enter to join the default team", 6, W_Grey);
   }
 
-  show_motd_heading(w, "server message of the day follows below", 9, W_Grey);
+  show_motd_heading(w, "server message follows below", 9, W_Grey);
 
   top = 11;
 
   if (first)
     {
       first = 0;
-      data = motddata;
+      data = motd_lines;
       while (data != NULL)
 	{
 	  data->bold = checkBold(data->data);
@@ -1297,13 +1299,13 @@ void showMotd(W_Window w, int atline)
 	}
     }
 
-  data = motddata;
+  data = motd_lines;
   for (i = 0; i < atline; i++)
     {
       if (data == NULL)
 	{
 	  atline = 0;
-	  data = motddata;
+	  data = motd_lines;
 	  break;
 	}
       data = data->next;
@@ -1336,7 +1338,7 @@ void showMotd(W_Window w, int atline)
 }
 
 /* ATM: show the current values of the .sysdef parameters. */
-static void showValues(struct list *data)
+static void showValues(struct motd_line *data)
 {
   int     i;
   static char *msg = "OPTIONS SET WHEN YOU STARTED WERE:";
@@ -1370,48 +1372,58 @@ static void showValues(struct list *data)
 
 void newMotdLine(char *line)
 {
-  static struct list **temp = &motddata;
+  static struct motd_line *old = NULL; /* previous item allocated */
   static int statmode = 0;
+  struct motd_line *new;
 
-  if (!statmode && !strcmp(line, STATUS_TOKEN))
+  if (strcmp(line, MOTDCLEARLINE) == 0) {
+    W_ClearWindow(w);
+    ClearMotd();
+    statmode = 0;
+    MaxMotdLine = 0;
+    return;
+  }
+
+  if (!strcmp(line, STATUS_TOKEN))
     statmode = 1;
+
+  new = (struct motd_line *) malloc(sizeof(struct motd_line));
+  if (new == NULL)
+    return;
+
   if (!statmode)
     MaxMotdLine++;
 
-  (*temp) = (struct list *) malloc(sizeof(struct list));
-  if ((*temp) == NULL) {
-    printf("Warning:  Couldn't malloc space for a new motd line!");
-    return;
+  fprintf(stderr, "%s\n", line);
+  /* add new line to tail of list */
+  new->next = NULL;
+  new->bold = 0;
+  new->data = strdup(line);
+  if (motd_lines == NULL) {
+    motd_lines = new;
+  } else {
+    old->next = new;
   }
-
-  if (strcmp(line, MOTDCLEARLINE) == 0) {
-    ClearMotd();
-    motddata = NULL;
-    temp = &motddata;
-    return;
-  }
-
-  (*temp)->bold = 0;
-  (*temp)->next = NULL;
-  (*temp)->data = strdup(line);
-  temp = &((*temp)->next);
+  old = new;
+  showMotd(w, 0);
 }
 
-/* Free the current motdData */
+/* Free the current motd_lines */
 static void ClearMotd(void)
 {
-  struct list *temp, *temp2;
+  struct motd_line *next, *this;
 
-  temp = motddata; /* start of motd information */
-  while (temp != NULL) {
-    temp2 = temp;
-    temp = temp->next;
-    free(temp2->data);
-    free(temp2);
+  next = motd_lines; /* start of motd information */
+  while (next != NULL) {
+    this = next;
+    next = next->next;
+    free(this->data);
+    free(this);
   }
 
   /* check bold next time around */
   first = 1;
+  motd_lines = NULL;
 }
 
 /* ARGSUSED */
