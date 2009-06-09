@@ -2107,6 +2107,7 @@ void sendTractorReq(char state, char pnum)
 {
   struct tractor_cpacket tractorReq;
 
+  memset(&tractorReq, 0, sizeof(struct tractor_cpacket));
   tractorReq.type = CP_TRACTOR;
   tractorReq.state = state;
   tractorReq.pnum = pnum;
@@ -2122,6 +2123,7 @@ void sendRepressReq(char state, char pnum)
 {
   struct repress_cpacket repressReq;
 
+  memset(&repressReq, 0, sizeof(struct repress_cpacket));
   repressReq.type = CP_REPRESS;
   repressReq.state = state;
   repressReq.pnum = pnum;
@@ -2137,6 +2139,7 @@ void sendDetMineReq(short int torp)
 {
   struct det_mytorp_cpacket detReq;
 
+  memset(&detReq, 0, sizeof(struct det_mytorp_cpacket));
   detReq.type = CP_DET_MYTORP;
   detReq.tnum = htons(torp);
   sendServerPacket((struct player_spacket *) &detReq);
@@ -3176,6 +3179,7 @@ void sendUdpReq(int req)
 {
   struct udp_req_cpacket packet;
 
+  memset(&packet, 0, sizeof(struct udp_req_cpacket));
   packet.type = CP_UDP_REQ;
   packet.request = req;
 
@@ -3289,6 +3293,7 @@ void    handleUdpReply(struct udp_reply_spacket *packet)
   UDPDIAG(("Received UDP reply %d\n", packet->reply));
   commSwitchTimeout = 0;
 
+  memset(&response, 0, sizeof(struct udp_req_cpacket));
   response.type = CP_UDP_REQ;
 
   switch (packet->reply)
