@@ -29,7 +29,6 @@ extern char cowid[];
 static int version_sent = 0;
 
 static int instr(char *string1, char *string2);
-static void CheckFeatures(char *m);
 
 void dmessage(char *message, unsigned char flags, unsigned char from, unsigned char to)
 {
@@ -109,12 +108,6 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	      fprintf(stdout, "NOTE: The server here does not properly set message flags\n");
 	      fprintf(stdout, "You should probably pester the server god to update....\n");
 	    }
-	}
-      if (flags == (MCONFIG + MINDIV + MVALID))
-	{
-	  if (from == 255)
-	    CheckFeatures(message);
-	  return;
 	}
       if ((flags == team) || (flags == take) || (flags == destroy))
 	{
@@ -273,92 +266,6 @@ static int instr(char *string1, char *string2)
     }
   return (0);
 }
-
-static void CheckFeatures(char *m)
-{
-  char    buf[BUFSIZ];
-  char   *pek = &m[10];
-
-  if (strlen(m) < 11)
-    return;
-
-  while ((*pek == ' ') && (*pek != '\0'))
-    pek++;
-
-  STRNCPY(buf, "COW: ", 6);
-
-  if (!strcmp(pek, "NO_NEWMACRO"))
-    {
-      UseNewMacro = 0;
-      strcat(buf, pek);
-    }
-
-  if (!strcmp(pek, "NO_SMARTMACRO"))
-    {
-      UseSmartMacro = 0;
-      strcat(buf, pek);
-    }
-
-  if (!strcmp(pek, "WHY_DEAD"))
-    {
-      why_dead = 1;
-      strcat(buf, pek);
-    }
-
-  if (!strcmp(pek, "RC_DISTRESS"))
-    {
-      gen_distress = 1;
-      distmacro = dist_prefered;
-      strcat(buf, pek);
-    }
-
-#ifdef MOTION_MOUSE
-  if (!strcmp(pek, "NO_CONTINUOUS_MOUSE"))
-    {
-      motion_mouse_enablable = 0;
-      strcat(buf, pek);
-    }
-#endif
-
-#ifdef MULTILINE_MACROS
-  if (!strcmp(pek, "MULTIMACROS"))
-    {
-      multiline_enabled = 1;
-      strcat(buf, pek);
-    }
-#endif
-
-  if (!strcmp(pek, "SBHOURS"))
-    {
-      SBhours = 1;
-      strcat(buf, pek);
-    }
-
-  /* Client spezific notes sent by the server */
-  if (!strncmp(pek, "INFO", 4))
-    {
-      strcat(buf, pek);
-    }
-
-  if (strlen(buf) == 5)
-    {
-      strcat(buf, "UNKNOWN FEATURE: ");
-      strcat(buf, pek);
-    }
-
-  buf[79] = '\0';
-
-  /* printf("%s\n", buf); */
-
-  W_WriteText(reviewWin, 0, 0, W_White, buf, strlen(buf), 0);
-
-#ifdef TOOLS
-  W_WriteText(toolsWin, 0, 0, textColor, buf, strlen(buf), W_RegularFont);
-#else
-  W_WriteText(messwi, 0, 0, W_White, buf, strlen(buf), 0);
-#endif
-}
-
 
 void sendVersion(void)
 {
