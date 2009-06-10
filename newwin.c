@@ -103,12 +103,10 @@ struct motd_line
 {
   struct motd_line *next;
   char *data;
-  char bold;
+  int bold;
 };
 /* pointer to first item in list */
 static struct motd_line *motd_lines = NULL;
-
-static int first = 1;
 
 /* Event Handlers. */
 extern void drawIcon(void), redrawTstats(void), planetlist(void);
@@ -1288,17 +1286,6 @@ void showMotd(W_Window w, int atline)
 
   top = 11;
 
-  if (first)
-    {
-      first = 0;
-      data = motd_lines;
-      while (data != NULL)
-	{
-	  data->bold = checkBold(data->data);
-	  data = data->next;
-	}
-    }
-
   data = motd_lines;
   for (i = 0; i < atline; i++)
     {
@@ -1397,8 +1384,8 @@ void newMotdLine(char *line)
   fprintf(stderr, "%s\n", line);
   /* add new line to tail of list */
   new->next = NULL;
-  new->bold = 0;
   new->data = strdup(line);
+  new->bold = checkBold(line);
   if (motd_lines == NULL) {
     motd_lines = new;
   } else {
@@ -1421,8 +1408,6 @@ static void ClearMotd(void)
     free(this);
   }
 
-  /* check bold next time around */
-  first = 1;
   motd_lines = NULL;
 }
 
