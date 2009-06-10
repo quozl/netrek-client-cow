@@ -57,14 +57,35 @@
 
 extern char cbugs[];
 
-static int line = 0;
-int     MaxMotdLine = 0;
+/* line number of motd to display at top of window */
+static int motd_offset = 0;
+
+/* number of motd lines received since clear */
+int motd_last = 0;
+
+/* number of times we have received a motd clear */
+int motd_clears = 0;
+
+/* whether a refresh of the motd should be done on the next SP_MASK */
+int motd_refresh_needed = 0;
 
 /* if a motd line from the server is this, the client will junk all motd *
  * data it currently has.  New data may be received */
-#define MOTDCLEARLINE  "\033\030CLEAR_MOTD\000"
+#define MOTDCLEARLINE   "\033\030CLEAR_MOTD\000"
 
-#define SIZEOF(a)       (sizeof (a) / sizeof (*(a)))
+/* number of lines of motd to display in window at a time */
+#define MOTD_PAGE_SIZE  28
+
+/* forward linked list of received motd lines */
+struct motd_line
+{
+  struct motd_line *next;
+  char *data;
+  int bold;
+};
+
+/* pointer to first item in list */
+static struct motd_line *motd_lines = NULL;
 
 #define BOXSIDE         (TWINSIDE / 5)
 #define TILESIDE        16
@@ -97,16 +118,6 @@ static char tract_bits[] =
 static char press_bits[] =
 {
   0x0f, 0x11, 0x0f, 0x01, 0x01};
-
-/* forward linked list of received motd lines */
-struct motd_line
-{
-  struct motd_line *next;
-  char *data;
-  int bold;
-};
-/* pointer to first item in list */
-static struct motd_line *motd_lines = NULL;
 
 /* Event Handlers. */
 extern void drawIcon(void), redrawTstats(void), planetlist(void);
@@ -168,6 +179,7 @@ pid_t newwin_fork()
   return pid;
 }
 
+/*! @brief Minimal windowing interface initialisation for non-play. */
 void newwinmeta(char *hostmon, char *progname)
 {
   newwin_last_hostmon = hostmon;
@@ -177,6 +189,7 @@ void newwinmeta(char *hostmon, char *progname)
   getResources(progname);
 }
 
+/*! @brief Windowing interface initialisation for play. */
 void newwin(char *hostmon, char *progname)
 {
   int need_width = TWINSIDE + GWINSIDE + BORDER * 3;
@@ -857,9 +870,9 @@ void entrywindow(int *team, int *s_type)
   int     chosen_ship = -1;
   int     request_sent = 0;
   time_t  request_time;
-  time_t  quittime = 60;
+  time_t  quittime = 120;
   time_t  lasttime = -1;
-  time_t  spareTime = 1000;
+  time_t  elapsed;
   static int previous_team = -1;
   static int previous_ship = -1;
 
@@ -889,7 +902,7 @@ void entrywindow(int *team, int *s_type)
   *team = -1;
   startTime = time(NULL);
   if (me->p_whydead != KWINNER && me->p_whydead != KGENOCIDE)
-    showMotd(w, line);
+    showMotd(w, motd_offset);
 
   run_clock(startTime);
   updatedeath();
@@ -910,7 +923,6 @@ void entrywindow(int *team, int *s_type)
   pickOk = -1;
   while (1) {
     while (!W_EventsPending()) {
-      time_t  elapsed;
       fd_set  rfds;
       struct timeval tv;
       int retval;
@@ -931,7 +943,7 @@ void entrywindow(int *team, int *s_type)
         request_sent++;
         request_time = time(NULL);
       }
-      
+
 #ifndef HAVE_WIN32
       tv.tv_sec = 1; /* rate at which quit clock is updated */
 #else
@@ -1014,13 +1026,6 @@ void entrywindow(int *team, int *s_type)
       lastOkayMask = okayMask;
     } /* while graphics events are not pending */
 
-    if (time(NULL) - startTime <= spareTime) {
-      spareTime -= time(NULL) - startTime;
-      startTime = time(NULL);
-    } else {
-      startTime += spareTime;
-      spareTime = 0;
-    }
     W_NextEvent(&event);
     switch ((int) event.type) {
     case W_EV_KEY:
@@ -1101,40 +1106,40 @@ void entrywindow(int *team, int *s_type)
           }
           break;
         case 'f':                        /* Scroll motd forward */
-          line = line + 28;
-          if (line > MaxMotdLine) {
-            line = line - 28;
+          motd_offset = motd_offset + MOTD_PAGE_SIZE;
+          if (motd_offset > motd_last) {
+            motd_offset = motd_offset - MOTD_PAGE_SIZE;
             break;
           }
           W_ClearWindow(w);
-          showMotd(w, line);
+          showMotd(w, motd_offset);
           break;
         case 'b':                        /* Scroll motd backward */
-          if (line == 0)
+          if (motd_offset == 0)
             break;
-          line = line - 28;
-          if (line < 0)
-            line = 0;
+          motd_offset = motd_offset - MOTD_PAGE_SIZE;
+          if (motd_offset < 0)
+            motd_offset = 0;
           W_ClearWindow(w);
-          showMotd(w, line);
+          showMotd(w, motd_offset);
           break;
         case 'F':                        /* Scroll motd forward */
-          line = line + 4;
-          if (line > MaxMotdLine) {
-            line = line - 4;
+          motd_offset = motd_offset + 4;
+          if (motd_offset > motd_last) {
+            motd_offset = motd_offset - 4;
             break;
           }
           W_ClearWindow(w);
-          showMotd(w, line);
+          showMotd(w, motd_offset);
           break;
         case 'B':                        /* Scroll motd backward */
-          if (line == 0)
+          if (motd_offset == 0)
             break;
-          line = line - 4;
-          if (line < 0)
-            line = 0;
+          motd_offset = motd_offset - 4;
+          if (motd_offset < 0)
+            motd_offset = 0;
           W_ClearWindow(w);
-          showMotd(w, line);
+          showMotd(w, motd_offset);
           break;
         }
       }
@@ -1163,13 +1168,17 @@ void entrywindow(int *team, int *s_type)
       if (event.Window == qwin) {
         run_clock(lasttime);
         redrawQuit();
+        showTimeLeft(elapsed, quittime);
       } else if (event.Window == tstatw) {
         redrawTstats();
       } else if (event.Window == iconWin) {
         drawIcon();
       } else if (event.Window == w) {
         run_clock(lasttime);
-        showMotd(w, line);
+        showMotd(w, motd_offset);
+      } else if (event.Window == mapw) {
+        redrawall = 1;
+        map();
       } else if (event.Window == helpWin) {
         fillhelp();
 #ifdef NBT
@@ -1215,41 +1224,42 @@ int deadTeam(int owner) /* unused */
   return (1);
 }
 
+/*! @brief Check if a line should be highlighted on motd
+    @details The line is checked at a particular known position for
+    the player character name.  Intended for use in highlighting your
+    score in a list of scores.
+    @returns zero for no, one for yes.
+*/
 static int checkBold(char *line)
-/* Determine if that line should be highlighted on sign-on screen */
-/* Which is done when it is the players own score being displayed */
-
 {
   char   *s, *t;
   int     i;
   int     end = 0;
 
+  if (me == NULL)
+    return 0;
+
   if (strlen(line) < 60)
-    return (0);
+    return 0;
+
   s = line + 4;
   t = me->p_name;
 
-  if (me == NULL)
-    return (0);
-
-  for (i = 0; i < 16; i++)
-    {
-      if (!end)
-	{
-	  if (*t == '\0')
-	    end = 1;
-	  else if (*t != *s)
-	    return (0);
-	}
-      if (end)
-	{
-	  if (*s != ' ')
-	    return (0);
-	}
-      s++;
-      t++;
+  for (i = 0;i < 16;i++) {
+    if (!end) {
+      if (*t == '\0')
+        end = 1;
+      else if (*t != *s)
+        return 0;
     }
-  return (1);
+    if (end) {
+      if (*s != ' ')
+        return 0;
+    }
+    s++;
+    t++;
+  }
+  return 1;
 }
 
 static void show_motd_heading(W_Window w, char *text, int line, int colour)
@@ -1260,6 +1270,8 @@ static void show_motd_heading(W_Window w, char *text, int line, int colour)
 	      text, length, W_RegularFont);
 }
 
+/*! @brief Redraw the message of the day (MOTD)
+*/
 void showMotd(W_Window w, int atline)
 {
   int     i, length, top, center;
@@ -1304,8 +1316,7 @@ void showMotd(W_Window w, int atline)
 	}
       data = data->next;
     }
-  count = 28;					 /* Magical # of lines to * * 
-						  * display */
+  count = MOTD_PAGE_SIZE;
   for (i = top; i < 50; i++)
     {
       if (data == NULL)
@@ -1328,14 +1339,15 @@ void showMotd(W_Window w, int atline)
 	break;
     }
 
-  showValues(data);
+  if (!motd_clears) showValues(data);
 }
 
-/* ATM: show the current values of the .sysdef parameters. */
+/*! @brief Show the current values of the .sysdef parameters.
+*/
 static void showValues(struct motd_line *data)
 {
   int     i;
-  static char *msg = "OPTIONS SET WHEN YOU STARTED WERE:";
+  static char *msg = "Server options set:";
 
   /* try to find the start of the info */
   while (1)
@@ -1350,20 +1362,24 @@ static void showValues(struct motd_line *data)
 
   W_WriteText(mapw, 20, 14 * W_Textheight, textColor, msg,
 	      strlen(msg), W_RegularFont);
-  for (i = 16; i < 50; i += 2)
+  for (i = 16; i < 50; i++)
     {
+      int y = i * W_Textheight * 15 / 10;
+
       if (data == NULL)
 	break;
       if (data->data[0] == '+')			 /* quick boldface hack */
-	W_WriteText(mapw, 20, i * W_Textheight, textColor, data->data + 1,
+	W_WriteText(mapw, 20, y, textColor, data->data + 1,
 		    strlen(data->data) - 1, W_BoldFont);
       else
-	W_WriteText(mapw, 20, i * W_Textheight, textColor, data->data,
+	W_WriteText(mapw, 20, y, textColor, data->data,
 		    strlen(data->data), W_RegularFont);
       data = data->next;
     }
 }
 
+/*! @brief Store a newly received SP_MOTD text line for display.
+*/
 void newMotdLine(char *line)
 {
   static struct motd_line *old = NULL; /* previous item allocated */
@@ -1374,7 +1390,6 @@ void newMotdLine(char *line)
     W_ClearWindow(w);
     ClearMotd();
     statmode = 0;
-    MaxMotdLine = 0;
     return;
   }
 
@@ -1386,9 +1401,8 @@ void newMotdLine(char *line)
     return;
 
   if (!statmode)
-    MaxMotdLine++;
+    motd_last++;
 
-  fprintf(stderr, "%s\n", line);
   /* add new line to tail of list */
   new->next = NULL;
   new->bold = -1;
@@ -1399,10 +1413,25 @@ void newMotdLine(char *line)
     old->next = new;
   }
   old = new;
-  showMotd(w, 0);
+  motd_refresh_needed++;
 }
 
-/* Free the current motd_lines */
+/*! @brief Refresh the displayed MOTD
+    @details If a refresh is known to be needed, it is done.  Called
+    on receipt of an SP_MASK following a server's stream of SP_MOTD,
+    as SP_MASK is not sent until SP_MOTD is completed and ready to be
+    displayed.
+*/
+void motd_refresh()
+{
+  if (motd_refresh_needed) {
+    showMotd(w, motd_offset);
+    motd_refresh_needed = 0;
+  }
+}
+
+/*! @brief Refresh the displayed MOTD
+*/
 static void ClearMotd(void)
 {
   struct motd_line *next, *this;
@@ -1416,6 +1445,9 @@ static void ClearMotd(void)
   }
 
   motd_lines = NULL;
+  motd_offset = 0;
+  motd_last = 0;
+  motd_clears++;
 }
 
 /* ARGSUSED */

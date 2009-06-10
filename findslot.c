@@ -100,7 +100,7 @@ int findslot(void)
   W_Window w, b_quit, b_count, b_motd;
 
   W_Window w_motd;
-  extern int MaxMotdLine;
+  extern int motd_last;
   int     WaitMotdLine = 0;
   int     mapMotd = booleanDefault("showMotd", 0);
   W_Event event;
@@ -173,7 +173,7 @@ int findslot(void)
               WaitMotdLine = MAX(WaitMotdLine, 0);
             } else {
               WaitMotdLine += 28;
-              if (WaitMotdLine > MaxMotdLine)
+              if (WaitMotdLine > motd_last)
                 WaitMotdLine = 0;
             }
             W_ClearWindow(w_motd);

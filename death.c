@@ -56,7 +56,6 @@ void death(void)
 #endif
 
   W_ClearWindow(w);
-  W_ClearWindow(mapw);
   W_ClearWindow(iconWin);
 
   sound_flags = PFSHIELD;

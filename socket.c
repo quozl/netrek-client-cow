@@ -2392,6 +2392,7 @@ void sendMessage(char *mes, int group, int indiv)
 
 void    handleMask(struct mask_spacket *packet)
 {
+  motd_refresh();
   tournMask = packet->mask;
 }
 
