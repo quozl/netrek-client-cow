@@ -1287,6 +1287,13 @@ void showMotd(W_Window w, int atline)
   top = 11;
 
   data = motd_lines;
+  while (data != NULL) {
+    if (data->bold == -1)
+      data->bold = checkBold(data->data);
+    data = data->next;
+  }
+
+  data = motd_lines;
   for (i = 0; i < atline; i++)
     {
       if (data == NULL)
@@ -1384,8 +1391,8 @@ void newMotdLine(char *line)
   fprintf(stderr, "%s\n", line);
   /* add new line to tail of list */
   new->next = NULL;
+  new->bold = -1;
   new->data = strdup(line);
-  new->bold = checkBold(line);
   if (motd_lines == NULL) {
     motd_lines = new;
   } else {
