@@ -550,5 +550,6 @@ extern int identityBlind;
 extern int versionHide;
 extern int F_sp_rank;
 extern int F_sp_ltd;
+extern int F_tips;
 extern char *program;
 #endif /* _h_data */

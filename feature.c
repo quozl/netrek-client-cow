@@ -111,6 +111,7 @@ struct feature features[] =
   {"FPS", &_dummy, 'S', 0, 0, 0},
   {"SP_RANK", &F_sp_rank, 'S', 1, 0, 0},
   {"SP_LTD", &F_sp_ltd, 'S', 1, 0, 0},
+  {"TIPS", &F_tips, 'S', 1, 0, 0},
 
   {0, 0, 0, 0, 0, 0}
 };
