@@ -109,6 +109,10 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	      fprintf(stdout, "You should probably pester the server god to update....\n");
 	    }
 	}
+      if (flags == (MCONFIG + MINDIV + MVALID))
+	{
+	  return;
+	}
       if ((flags == team) || (flags == take) || (flags == destroy))
 	{
 	  W_WriteText(messwt, 0, 0, color, message, len, shipFont(me));
