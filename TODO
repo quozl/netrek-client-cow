@@ -4,17 +4,48 @@ in Gnome menus.  Placement in KDE menus.  Package description.
 Documentation.  Initial startup appearance.  Compatibility with all
 window managers.
 
-package pixmaps by default
-	fix W_LocalBgd so it works
+sound, distance and position
+	see /usr/share/doc/libsdl-mixer1.2-dev/examples/playwave.c.gz
+
+sound, tonality
+
+sound, recognition
+        torp fire request, tick,
+	torp hit, noise bang ding,
+	torp det, noise bang,
+	torp self det, pfft,
+        phaser fire request, tock,
+	phaser hit, whistle ding,
+	phaser plasma, whistle bang ding,
+	phaser miss, whistle,
+	tractor, low whistle rising,
+	pressor, low whistle falling,
+	shield up,
+	shield down,
+	explosion, as usual,
+	beam up, high whistle rising,
+	beam down, high whistle falling,
+	repair, hammer, chainsaw, drill,
+	warp, filtered noise, spike at cabin resonance,
+	transwarp,
+	bomb begin,
+	bomb progress,
+	bomb end,
+	hurt, ding, crumple,
+	etmp, noise whistle, contracting metal,
+	wtmp, noise whistle, contracting metal,
+	help me, sos
+	carrying, pan pan
+
+teamspeak integration
+	determine ports needed on orion
+
+advise player if there is t-mode on another server
+
+tactical planet pixmaps from tedturner or other clients
 
 www.ggzgamingzone.org/
 	bug id 9b966bd6ed186fa7d55efa6062582065a390b7b7
-
-unnecessary error if no sound files
-
-	% ./netrek-client-cow -r /dev/null
-	Mix_PlayChannel: Tried to play a NULL chunk
-	related bug id 9296e15277906b71eaf1fe232f4dbea2aff0ae61
 
 ship colours, eight per team.
 
@@ -24,7 +55,7 @@ ship colours, eight per team.
 
 http://mpt.net.nz/archive/2008/08/01/free-software-usability
 
-RCD translations.
+RCD i18n translations.
 
 safe-idle
 
@@ -34,19 +65,10 @@ safe-idle
 metaserver window,
 
 	align columns flexibly.
-	fix orphan metaserver window,
-		reproducer: start in metaserver mode, connect a
-		client, close the metaserver window.
-		potential solution; kill all children too.
 	integrated newbie server
 	integrated league server
 	update information age every few seconds
 	new version warning
-	detail status
-		use for queue position status.
-		"resolving, connecting, connected, login, outfit, playing",
-		needs a communication path from child to parent.
-		related bug id 05f15891c7925eb1e619b5f586b3332fb41ac8a1
 	time to play notifier
 		an audio sample
 		if player has not played in past minute
@@ -98,22 +120,6 @@ build static binary
 
 --
 
-$ DISPLAY=nestor:0 ./netrek -M -r /dev/null
-Reading defaults file /dev/null
-Attempting to observe on port 2593...
-Attempting to connect to continuum.us.netrek.org on port 2593...
-Calling continuum.us.netrek.org on port 2593.
-Got connection.
-***  socket 8882, player 17  ***
-X Error of failed request:  XF86VidModeClientNotLocal
-  Major opcode of failed request:  134 (XFree86-VidModeExtension)
-  Minor opcode of failed request:  10 (XF86VidModeSwitchToMode)
-  Serial number of failed request:  12933
-  Current serial number in output stream:  12934
-
-
---
-
 !!! PLCLEAR is set too often.  Does not need to be set for every draw,
 	just for BEEPLITE and moves
 
@@ -141,13 +147,6 @@ Create an rc editor that will allow:
 	- choosing fonts
 	- macro editing
 	- etc...
-
------------------------------------------------------------------
-
-Clean up the source!
-Move systems ifdefs to a config file!
-
-  Mostly done by Kurt Siegl COW 1.0, but still not complete.
 
 -----------------------------------------------------------------
 
@@ -196,20 +195,6 @@ jeffw writes:
 
 Not possible, needs adding.
 
-
------------------------------------------------------------------
-
-From: jmn@crown.berkeley.edu (J. Mark Noworolski)
-
-- See if we can steal any of hadley's or other peoples code to make BRM
-run faster.
- 
-- Streamline the code to speed it up.
- 
-- Reduce the size of the binary (I dunno how).
-
-[note from jn:  if removing silly features that few people use
- is necessary in order to achieve the above, do it]
 
 -----------------------------------------------------------------
 
