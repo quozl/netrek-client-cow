@@ -9,8 +9,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-03-23 04:36:50.053662 Z
 references: []
 
@@ -32,3 +32,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - unassigned from release 3.2.10
   - Reproduced in 3.2.10
+- - 2009-06-16 09:00:49.942064 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - reworked sound directory discovery
+claimer: 

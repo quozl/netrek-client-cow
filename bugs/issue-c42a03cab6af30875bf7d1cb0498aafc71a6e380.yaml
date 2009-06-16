@@ -31,8 +31,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-04-08 06:14:24.036406 Z
 references: []
 
@@ -46,4 +46,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - commented
   - Cannot reproduce on Ubuntu Jaunty. -- Quozl.
+- - 2009-06-16 09:01:15.235559 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - new process model should have fixed this, and it is not reproducible
 claimer: 

@@ -31,8 +31,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :wontfix
 creation_time: 2009-03-23 04:41:36.050381 Z
 references: []
 
@@ -50,4 +50,12 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - commented
   - Does not reproduce on Ubuntu Jaunty in a VM with pulseaudio stopped.
+- - 2009-06-16 08:52:17.875663 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition wontfix
+  - |-
+    fixed the unnecessary error
+    Mix_PlayChannel: Tried to play a NULL chunk
+    but no intention to fix the client to work from a virtual private server that
+    has no sound support.
 claimer: 

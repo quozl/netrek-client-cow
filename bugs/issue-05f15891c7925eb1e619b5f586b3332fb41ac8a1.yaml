@@ -7,8 +7,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-03-01 02:03:23.404913 Z
 references: []
 
@@ -18,3 +18,10 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2009-06-16 08:54:09.994722 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - |-
+    fixed by the change to fork launch,
+    metaserver window correctly updates if the subprocess is killed.
+claimer: 

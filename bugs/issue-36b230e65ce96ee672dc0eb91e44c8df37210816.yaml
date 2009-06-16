@@ -25,8 +25,8 @@ type: :feature
 component: netrek-client-cow
 release: 
 reporter: Collin Pruitt <hellow@windstream.net>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :wontfix
 creation_time: 2009-06-04 00:19:32.045958 Z
 references: []
 
@@ -42,4 +42,10 @@ log_events:
   - |-
     http://netrek.beeseenterprises.com/#3 describes a workaround, to turn off
     enforced UDP.
+- - 2009-06-16 09:02:31.626819 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition wontfix
+  - |-
+    client is not supported on sturgeon.
+    actual cause is due to sturgeon design conflict with short packets.
 claimer: 
