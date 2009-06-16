@@ -1,3 +1,29 @@
+Tue Jun 16 20:05:28 2009  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.3.0: released
+
+	- initial window: add logo and action images, add tips to the help
+	button, fix refresh delay bug, fix bug leaving window behind on
+	quit, decrease startup time by deferring imagery loading, send
+	version to metaserver, report multicast empty servers as empty
+
+	- wait queue window: suppress message of the day, use modern
+	language, coloured buttons,
+
+	- team window: allow new server side training tips to replace
+	message of the day after initial death,
+
+	- flight: adopt pixmaps graphics previously distributed in another
+	package, full screen now centres game in a 1024x768 window, more
+	sounds in parallel, display ranks based on server ranking system,
+	update rate changes are immediate, report stall of data stream
+	rather than just hanging if network is lost,
+
+	- miscellaneous: include desktop icon, remove sound warnings,
+	accept a system wide default file, remove obsolete metaserver TCP
+	method, remove old style features support, add latent support for
+	LTD statistics display.
+
 	- fix ogg beeplite to identify oggee not caller [Pruitt]
 
 Wed Mar 18 18:57:36 2009  James Cameron  <quozl@us.netrek.org>

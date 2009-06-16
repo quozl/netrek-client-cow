@@ -792,6 +792,7 @@ static void ss_init(W_Window w)
 void    W_NextScreenShot(W_Window w, int x, int y)
 {
   ss_init(w);
+  if (ss_next == 0) return;
   W_ClearSpriteAbsolute(&ss[ss_show], x, y);
   ss_show++;
   if (ss_show >= ss_next) ss_show=0;
@@ -801,6 +802,7 @@ void    W_NextScreenShot(W_Window w, int x, int y)
 void    W_DrawScreenShot(W_Window w, int x, int y)
 {
   ss_init(w);
+  if (ss_next == 0) return;
   W_DrawSpriteAbsolute(&ss[ss_show], x, y);
 }
 
