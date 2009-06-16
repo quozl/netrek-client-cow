@@ -331,7 +331,7 @@ static int ReadMetasSend()
     token = strtok(NULL,",");
   } /* while (token != NULL) */
 
-  metaWindowName = "Netrek Server List (UDP)";
+  metaWindowName = "Netrek Server List";
   return sent;
 }
 
@@ -780,7 +780,7 @@ void    parsemeta()
 
   ReadMetasSend();
   LoadMetasCache();
-  metaHeight = 4 + N_OVERHEAD;
+  metaHeight = 2 + N_OVERHEAD;
 }
 
 
@@ -977,25 +977,29 @@ static int add_key(W_Event *data)
 void    metawindow()
 /* Show the meta server menu window */
 {
-  int     i;
+  int i, height;
   char *header;
+  static int lastHeight = 0;
 
   if (!metaWin) {
-    metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, 450, NULL, 2,
-                         foreColor);
+    height = 250 + metaHeight * (W_Textheight + 8) + 4 * (metaHeight - 1);
+    metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, height, NULL, 2,
+                           foreColor);
     W_SetBackgroundImage(metaWin, "Misc/map_back.png");
     logo = W_ReadImage(metaWin, "netrek-green-white-300px.png");
     metaList = W_MakeMenu("metalist", 50, 200, LINE, metaHeight, metaWin, 1);
+    lastHeight = metaHeight;
     make_help();
   } else {
-    if (W_WindowHeight(metaList) != metaHeight) {
+    if (metaHeight > lastHeight) {
       W_ReinitMenu(metaList, LINE, metaHeight);
       W_ResizeMenu(metaList, LINE, metaHeight);
-      // FIXME: handle metaList growing beyond metaWin
+      lastHeight = metaHeight;
     }
+    // FIXME: handle metaList growing beyond metaWin
   }
 
-  header = "Server                                           Status        Type       Age";
+  header = "Server                                           Status        Type      Age";
   W_WriteText(metaList, 0, 0, W_Cyan, header, -1, 0);
 
   for (i = 0; i < metaHeight; i++) redraw(i);
