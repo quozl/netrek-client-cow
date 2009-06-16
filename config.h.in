@@ -140,7 +140,7 @@
 #define  XTRA_MESSAGE_UI
 
 /* SYSTEM_DEFAULTFILE		- Points to a system wide .xtrekrc file */
-#define SYSTEM_DEFAULTFILE "/etc/netrekrc"
+#define SYSTEM_DEFAULTFILE "/etc/netrek-client-cow/netrekrc"
 
 /* WINDOWMAKER			- WindowMaker Docking support */
 #ifdef linux

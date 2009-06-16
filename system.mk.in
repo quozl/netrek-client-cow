@@ -219,13 +219,6 @@ xtrekrc:
 	> xtrekrc
 	@sort -u xtrekrc.tmp1\
 	>> xtrekrc
-	@echo '# Windows (specify mapped, geometry and parent)' \
-	>> xtrekrc
-	@grep 'W_Make' $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC) \
-	| grep '\=' | grep '\"' \
-	| sed -e '{s/^[^\"]*\"/#	/;s/\".*//;}' \
-	| sort -u \
-	>> xtrekrc
 	-$(RM) xtrekrc.tmp*
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
