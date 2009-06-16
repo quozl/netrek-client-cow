@@ -36,8 +36,7 @@ convert: mkkey $(KEYFILE) $(KEYSH)
 	$(DESC) $(MAKER) $(COMMENT)
 
 newkey: mkkey
-	./mkkey $(KEYFILE) "Client Of Win" $(DESC) $(MAKER) \
-	 $(COMMENT) "inl,standard2"
+	until ./mkkey $(KEYFILE) "Client Of Win" $(DESC) $(MAKER) $(COMMENT) "inl,standard2"; do sleep 1; done
 
 mkkey: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) mkkey
