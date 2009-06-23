@@ -660,8 +660,8 @@ void   *S_Plasma(int plasmatorpno)
     {
       sprite = &plasmaImg[remap[players[this->pt_owner].p_team]][1];
       this->pt_fuse--;
-      numdetframes = NUMDETFRAMES * server_ups / 10;
-      frame = this->pt_fuse * 10 / server_ups;
+      numdetframes = NUMDETFRAMES * server_ups / 5;
+      frame = this->pt_fuse * 5 / server_ups;
       if (this->pt_fuse <= 0)
 	{
 	  this->pt_status = PTFREE;

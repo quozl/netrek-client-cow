@@ -848,8 +848,8 @@ static void DrawTorps(void) {
 			if (k->t_status == TEXPLODE) {
 				k->t_fuse--;
 
-				numdetframes = NUMDETFRAMES * server_ups / 10;
-				frame = k->t_fuse * 10 / server_ups;
+				numdetframes = NUMDETFRAMES * server_ups / 5;
+				frame = k->t_fuse * 5 / server_ups;
 
 				if (frame > NUMDETFRAMES - 1)
 					frame = NUMDETFRAMES - 1;
@@ -968,8 +968,8 @@ void DrawPlasmaTorps(void) {
 		if (pt->pt_status == PTEXPLODE) {
 			pt->pt_fuse--;
 
-			numdetframes = NUMDETFRAMES * server_ups / 10;
-			frame = pt->pt_fuse * 10 / server_ups;
+			numdetframes = NUMDETFRAMES * server_ups / 5;
+			frame = pt->pt_fuse * 5 / server_ups;
 
 			if (frame > NUMDETFRAMES-1)
 				frame = NUMDETFRAMES-1;
