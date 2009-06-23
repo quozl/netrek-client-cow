@@ -517,7 +517,7 @@ static void DrawShips(void) {
 		      }
 
 		} else if (j->p_status == PEXPLODE) {
-			int i = j->p_explode * 10 / server_ups;
+			int i = j->p_explode * 5 / server_ups;
 #ifdef SOUND
 			if (j->p_explode == 1) {
 				if (j == me) {
