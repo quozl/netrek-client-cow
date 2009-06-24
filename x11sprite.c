@@ -476,7 +476,7 @@ void   *S_Ship(int playerno)
       else
 	{
 	  sprite->cloak = this->p_cloakphase;
-	  cloakImg.view = cloakImg.nviews - this->p_cloakphase - 1;
+	  cloakImg.view = MAX(0, cloakImg.nviews - (this->p_cloakphase * (cloakImg.nviews - 1) / (CLOAK_PHASES - 2)) - 2);
 	}
     }
 

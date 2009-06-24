@@ -192,14 +192,10 @@ static void DrawShips(void) {
 	idbuf[1] = '\0';
 
 	for (j=players + MAXPLAYER - 1; j >= players; --j) {
-		int cloak_phases = CLOAK_PHASES * server_ups / 10;
-
-		void *sprite = S_Ship(j->p_no);
-
 		/* jmn - observer support.. tried to diplay tractors but no works */
 
 		if (j->p_flags & PFCLOAK) {
-			if (j->p_cloakphase < (cloak_phases-1)) {
+			if (j->p_cloakphase < (CLOAK_PHASES - 1)) {
 #ifdef SOUND
 				if (myPlayer(j) && (j->p_cloakphase == 0)) {
 					Play_Sound(CLOAK_SOUND);
@@ -211,7 +207,7 @@ static void DrawShips(void) {
 			if (j->p_cloakphase) {
 #ifdef SOUND
 				if (myPlayer(j)) {
-					if (j->p_cloakphase == cloak_phases - 1) {
+					if (j->p_cloakphase == CLOAK_PHASES - 1) {
 						Play_Sound(UNCLOAK_SOUND);
 					}
 # if !defined(sgi)
@@ -224,6 +220,7 @@ static void DrawShips(void) {
 				j->p_cloakphase--;
 			}
 		}
+		void *sprite = S_Ship(j->p_no);
 
 		dx = j->p_x - me->p_x;
 		dy = j->p_y - me->p_y;
@@ -235,7 +232,7 @@ static void DrawShips(void) {
 		dy = dy / SCALE + TWINSIDE / 2;
 
 		if ((sprite == NULL) || (pixFlags & NO_CLK_PIX))
-		  if (j->p_flags & PFCLOAK && (j->p_cloakphase == (cloak_phases - 1))) {
+		  if (j->p_flags & PFCLOAK && (j->p_cloakphase == (CLOAK_PHASES - 1))) {
 			if (myPlayer(j)
 #ifdef RECORDGAME
 					|| playback
@@ -715,7 +712,7 @@ static void DrawShips(void) {
 				tractee = &players[j->p_tractor];
 
 				if (tractee->p_status != PALIVE ||
-				    ((tractee->p_flags & PFCLOAK) && (tractee->p_cloakphase == (cloak_phases-1))))
+				    ((tractee->p_flags & PFCLOAK) && (tractee->p_cloakphase == (CLOAK_PHASES - 1))))
 					continue;
 
 				if (tcounter >= 2) {				/* continue tractor stuff */

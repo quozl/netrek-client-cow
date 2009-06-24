@@ -37,9 +37,14 @@
 						  * 
 						  * * windows */
 #define PSEUDOSIZE 16
-#define CLOAK_PHASES 12          /* number of drawing phases
-                                 * in a cloak
-                                 * engage/disengage */
+/*! @brief number of drawing phases in a cloak engage and disengage
+    @details refer to udcloak() in server source, once p_cloakphases
+    reaches one less than this value, position is randomised and
+    updated slowly by server.  This value was 7 for COW 2.02 with a
+    server configured for five updates per second.  Server changed to
+    ten updates per second and broke the calculations.  Now matches
+    server value adjusted for updates per second. */
+#define CLOAK_PHASES (12 * server_ups / 10)
 #define DEFAULT_NUMRANKS 9
 
 /* These are configuration definitions */
