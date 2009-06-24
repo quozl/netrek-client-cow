@@ -351,7 +351,7 @@ static void DrawShips(void) {
 
 #ifdef BEEPLITE
 			if ((UseLite && emph_player_seq_n[j->p_no] > 0) && (liteflag & LITE_PLAYERS_LOCAL)) {
-				int seq_n = (emph_player_seq_n[j->p_no] * 10 / server_ups) % emph_player_seql_frames;
+				int seq_n = (emph_player_seq_n[j->p_no] * 5 / server_ups) % emph_player_seql_frames;
 
 				W_WriteBitmap(dx - (emph_player_seql_width / 2),
 					      dy - (emph_player_seql_height / 2),
