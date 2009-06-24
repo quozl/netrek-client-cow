@@ -362,7 +362,7 @@ void    handleVTorp(unsigned char *sbuf)
   for (shift = 0, i = 0; i < 8;
        i++, thetorp++, bitset >>= 1)
     {
-      thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
+      thetorp->t_updateFuse = MAX(2, TORP_UPDATE_FUSE * server_ups / 5);
 
       if (bitset & 01)
 	{
@@ -1051,7 +1051,7 @@ void    handleVTorpInfo(unsigned char *sbuf)
   for (shift = 0, i = 0; i < 8;
        thetorp++, *bitset >>= 1, *infobitset >>= 1, i++)
     {
-      thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
+      thetorp->t_updateFuse = MAX(2, TORP_UPDATE_FUSE * server_ups / 5);
 
       if (*bitset & 01)
 	{

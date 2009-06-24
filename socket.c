@@ -1438,7 +1438,7 @@ void    handleTorp(struct torp_spacket *packet)
   thetorp->t_x = ntohl(packet->x);
   thetorp->t_y = ntohl(packet->y);
   thetorp->t_dir = packet->dir;
-  thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
+  thetorp->t_updateFuse = MAX(2, TORP_UPDATE_FUSE * server_ups / 5);
 
 
 #ifdef ROTATERACE
@@ -1475,7 +1475,7 @@ void    handleTorpInfo(struct torp_info_spacket *packet)
 
   weaponUpdate = 1;
   thetorp = &torps[ntohs(packet->tnum)];
-  thetorp->t_updateFuse = TORP_UPDATE_FUSE * server_ups / 10;
+  thetorp->t_updateFuse = MAX(2, TORP_UPDATE_FUSE * server_ups / 5);
 
   if (packet->status == TEXPLODE && thetorp->t_status == TFREE)
     {
@@ -2159,7 +2159,7 @@ void    handlePlasmaInfo(struct plasma_info_spacket *packet)
 
   weaponUpdate = 1;
   thetorp = &plasmatorps[ntohs(packet->pnum)];
-  thetorp->pt_updateFuse = PLASMA_UPDATE_FUSE * server_ups / 10;
+  thetorp->pt_updateFuse = MAX(2, PLASMA_UPDATE_FUSE * server_ups / 5);
   if (packet->status == PTEXPLODE && thetorp->pt_status == PTFREE)
     {
       /* FAT: redundant explosion; don't update p_nplasmatorp */
@@ -2210,7 +2210,7 @@ void    handlePlasma(struct plasma_spacket *packet)
   thetorp = &plasmatorps[ntohs(packet->pnum)];
   thetorp->pt_x = ntohl(packet->x);
   thetorp->pt_y = ntohl(packet->y);
-  thetorp->pt_updateFuse = PLASMA_UPDATE_FUSE * server_ups / 10;
+  thetorp->pt_updateFuse = MAX(2, PLASMA_UPDATE_FUSE * server_ups / 5);
 
 #ifdef ROTATERACE
   if (rotate)
