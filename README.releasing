@@ -27,7 +27,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-? netrek-client-cow-3.2.11.tar.gz
+0ff5366d35a8bce1d4139aa29bead7cc  netrek-client-cow-3.3.0.tar.gz
 
 # test build the .tar.gz
 cd /tmp
