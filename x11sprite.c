@@ -443,15 +443,18 @@ void   *S_Ship(int playerno)
     }
   else if (this->p_status == PEXPLODE)
     {
-      int     i = this->p_explode * 5 / server_ups;
+      int     i;
 
       if (pixFlags & NO_EXP_PIX)
-	return ((void *) NULL);
+        return ((void *) NULL);
 
-      if (this->p_ship.s_type == STARBASE)
-	sprite = &explosionImg[1];
-      else
-	sprite = &explosionImg[0];
+      if (this->p_ship.s_type == STARBASE) {
+        i = this->p_explode * 5 / server_ups;
+        sprite = &explosionImg[1];
+      } else {
+        i = this->p_explode * 10 / server_ups;
+        sprite = &explosionImg[0];
+      }
 
       if (i >= sprite->nviews)
 	return ((void *) NULL);
