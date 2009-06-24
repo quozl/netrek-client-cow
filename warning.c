@@ -44,7 +44,7 @@ void warning(char *text)
     W_WriteText(warnw, 5, 5, textColor, text, warncount, W_RegularFont);
 
   /* set the line to be cleared */
-  warntimer = udcounter + WARNTIME * server_ups / 10;
+  warntimer = udcounter + WARNTIME * server_ups / 5;
 
   if (logmess || doPhaser)
     {

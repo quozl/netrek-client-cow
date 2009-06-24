@@ -640,12 +640,6 @@ void input()
   int     flush = 0;
 
   while (1) {
-    /* manage expiry of info window */
-    if (keepInfo > 0 && opened_info != -2) { /* 6/1/93 LAB */
-      opened_info--;
-      if (opened_info < 0 && infomapped) destroyInfo();
-    }
-
     FD_ZERO(&readfds);
 #ifndef HAVE_WIN32
     FD_SET(xsock, &readfds);
@@ -695,6 +689,13 @@ void input()
 	if (isServerDead()) {
 	  warning("Lost connection to server!");
 	}
+
+        /* manage expiry of info window every server update */
+        if (keepInfo > 0 && opened_info != -2) { /* 6/1/93 LAB */
+          opened_info--;
+          if (opened_info < 0 && infomapped) destroyInfo();
+        }
+
       }
     }
 
@@ -1225,7 +1226,7 @@ void buttonaction(W_Event * data)
       if (!infomapped)
 	{
 	  inform(data->Window, data->x, data->y, 'i');
-	  opened_info = keepInfo * server_ups / 10;
+	  opened_info = keepInfo * server_ups / 5;
 	}
       else
 	{
@@ -1926,7 +1927,7 @@ static void Key73(W_Event * data)
   if (!infomapped)
     {
       inform(data->Window, data->x, data->y, key);
-      opened_info = keepInfo * server_ups / 10;
+      opened_info = keepInfo * server_ups / 5;
     }
   else
     {
@@ -2223,7 +2224,7 @@ static void Key105(W_Event * data)
   if (!infomapped)
     {
       inform(data->Window, data->x, data->y, key);
-      opened_info = keepInfo;			 /* 5/31/93 LAB */
+      opened_info = keepInfo * server_ups / 5;
     }
   else
     {
