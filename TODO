@@ -86,11 +86,33 @@ login window,
 		e.g. while user is reading docs on galactic?
 	galactic intro text, theme of game, how to play
 
-team selection window,
-
 flight windows,
 
 	turn keys, Key187, Key189 from xp
+
+discoverability, keys, lack of
+
+	replace player list area with new players' control panel
+
+	commands
+
+	flying: 0 stop, 3 dodge, 6 cruise, 9 top, right-click, ; lock, o orbit
+	talking: shift-E distress, shift-F urgency i am carrying armies, mA
+	defense: s shields, shift-T tractor, y pressor, d detonate enemy torps, c cloak, shift-R repair,
+	attack: left-click fire torp, middle-click phaser, 
+	planets: ; lock, o orbit, ctrl-t announce, b bomb, z pick, x drop 
+
+	advisory
+
+	game goal: take planets until no enemy (team name) planets remain
+	tasks, bomb: identify enemy planet / fly / lock / bomb / raise shields / fly
+	tasks, protect: identify enemy bomber / fly / fight / die
+	tasks, control: identify front / fly / fight / die
+	tasks, ogg: identify enemy carrier / fly / cloak / decloak / tractor / fight / die
+	tasks, escort: identify carrier / fly / fight / die
+	tasks, carry: get a kill / fly back / pick / fly / lock / bomb / drop / die
+
+
 
 mouse-over hints for windows.
 
