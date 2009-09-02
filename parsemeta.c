@@ -100,7 +100,7 @@ void *logo;
  * have "statusNobody" or earlier strings in old, cached, meta-server data. */
 
 char   *statusStrings[] =
-{"OPEN:", "Wait queue:", "Nobody", "Timed out", "No connection",
+{"", "Wait queue:", "-", "Timed out", "No connection",
  "Active", "CANNOT CONNECT", "DEFAULT SERVER"};
 
 enum statusTypes {
@@ -799,76 +799,70 @@ static void redraw(int i)
 
   sp = serverlist + i;
 
-  snprintf(buf, 56, "%-40s %14s ",
-          strlen(sp->comment) > 0 ? sp->comment : sp->address,
-          statusStrings[sp->status]);
+  snprintf(buf, LINE, "%-40s          ",
+           strlen(sp->comment) > 0 ? sp->comment : sp->address);
+  buf[80] = '\0';
 
-  if (sp->status <= statusNull)
-    {
-      if (sp->status == statusOpen || sp->status == statusWait)
-        {
-          /* Don't print the number of players if nobody is playing */
-          sprintf(buf + strlen(buf), "%-5d  ", sp->players);
-        }
-      else
-        {
-          strcat(buf, "       ");
-        }
+  switch(sp->status) {
+  case statusOpen:
+    snprintf(buf + strlen(buf), sp->players,      "################");
+    snprintf(buf + strlen(buf), 17 - sp->players, "                ");
+    strcat(buf, "    ");
+    break;
+  case statusWait:
+    snprintf(buf + strlen(buf), 16, "################ Q%2d", sp->players);
+    break;
+  default:
+    snprintf(buf + strlen(buf), 16, "%-16s", statusStrings[sp->status]);
+    strcat(buf, "    ");
+    break;
+  }
 
-      switch (sp->typeflag)
-        {
-        case 'P':
-          strcat(buf, "Paradise");
-          break;
-        case 'B':
-          strcat(buf, "Bronco  ");
-          break;
-        case 'C':
-          strcat(buf, "Chaos   ");
-          break;
-        case 'I':
-          strcat(buf, "INL     ");
-          break;
-        case 'S':
-          strcat(buf, "Sturgeon");
-          break;
-        case 'H':
-          strcat(buf, "Hockey  ");
-          break;
-        case 'F':
-          strcat(buf, "Dogfight");
-          break;
-        default:
-          strcat(buf, "Unknown ");
-          break;
-        }
-
-        {
-          int age = sp->age;
-          char *units;
-
-          if (age > 86400)
-            {
-              age = age / 86400;
-              units = "d";
-            }
-          else if (age > 3600)
-            {
-              age = age / 3600;
-              units = "h";
-            }
-          else if (age > 90)
-            {
-              age = age / 60;
-              units = "m";
-            }
-          else
-            {
-              units = "s";
-            }
-          sprintf(buf + strlen(buf), " %4d%s", age, units);
-        }
+  switch (sp->typeflag) {
+    case 'P':
+      strcat(buf, "Paradise");
+      break;
+    case 'B':
+      strcat(buf, "Bronco  ");
+      break;
+    case 'C':
+      strcat(buf, "Chaos   ");
+      break;
+    case 'I':
+      strcat(buf, "INL     ");
+      break;
+    case 'S':
+      strcat(buf, "Sturgeon");
+      break;
+    case 'H':
+      strcat(buf, "Hockey  ");
+      break;
+    case 'F':
+      strcat(buf, "Dogfight");
+      break;
+    default:
+      strcat(buf, "Unknown ");
+      break;
     }
+
+  {
+    int age = sp->age;
+    char *units;
+
+    if (age > 86400) {
+      age = age / 86400;
+      units = "d";
+    } else if (age > 3600) {
+      age = age / 3600;
+      units = "h";
+    } else if (age > 90) {
+      age = age / 60;
+      units = "m";
+    } else {
+      units = "s";
+    }
+    sprintf(buf + strlen(buf), " %4d%s", age, units);
+  }
 
   strcat(buf, "    ");
   if (sp->pid != -1) {
@@ -999,7 +993,7 @@ void    metawindow()
     // FIXME: handle metaList growing beyond metaWin
   }
 
-  header = "Server                                           Status        Type      Age";
+  header = "Server                                            Players            Type       Age";
   W_WriteText(metaList, 0, 0, W_Cyan, header, -1, 0);
 
   for (i = 0; i < metaHeight; i++) redraw(i);
