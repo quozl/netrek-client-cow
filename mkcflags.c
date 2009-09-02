@@ -113,9 +113,5 @@ pigcallresp (pigcall, cdate, arch)
 
   strcat (pigcall, "P");
 
-#ifdef STABLE
-  strcat (pigcall, "-STABLE");
-#endif
-
   return (pigcall);
 }

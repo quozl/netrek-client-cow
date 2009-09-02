@@ -197,12 +197,6 @@ void
 						  * 
 						  * * of the features! */
 
-#ifdef STABLE
-	  /* Stable release is absolutely non borgish */
-	  F_beeplite_flags =
-	      LITE_SOUNDS |
-	      LITE_TTS;
-#else
 	  F_beeplite_flags = LITE_PLAYERS_MAP |
 	      LITE_PLAYERS_LOCAL |
 	      LITE_SELF |
@@ -210,7 +204,6 @@ void
 	      LITE_SOUNDS |
 	      LITE_COLOR |
 	      LITE_TTS;
-#endif
 
 	  break;
 	case 1:
