@@ -13,11 +13,6 @@ PACKAGE=netrek-client-cow
 VERSION=$(shell ./name)
 DVERSION=$(shell head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\))
 
-DESTDIR=
-prefix=/usr/local
-LIBDIR=${prefix}/share/games/${PACKAGE}
-BINDIR=${prefix}/games
-
 all: netrek-client-cow
 
 netrek-client-cow: system.mk netrekI
@@ -104,7 +99,7 @@ install.sh:
 
 XTREKRC: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) xtrekrc
-	mv xtrekrc XTREKRC	
+	mv xtrekrc XTREKRC
 
 configure: configure.in
 	rm -f configure
@@ -126,15 +121,8 @@ to_unix: system.mk
 to_dos: system.mk
 	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
 
-install: netrek-client-cow
-	mkdir -p $(DESTDIR)$(BINDIR)
-	install netrek-client-cow $(DESTDIR)$(BINDIR)
-	mkdir -p $(DESTDIR)$(LIBDIR)
-	install $(KEYFILE) $(DESTDIR)$(LIBDIR)
-	mkdir -p $(DESTDIR)/usr/share/pixmaps/netrek-client-cow
-	cp -pr pixmaps/* $(DESTDIR)/usr/share/pixmaps/netrek-client-cow/
-	mkdir -p $(DESTDIR)/usr/share/applications
-	install netrek-client-cow.desktop $(DESTDIR)/usr/share/applications/
+install: system.mk
+	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) install
 
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt

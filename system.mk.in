@@ -3,6 +3,17 @@
 # Change them if we are wrong.
 ############################################################################
 
+PACKAGE=netrek-client-cow
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+datarootdir=@datarootdir@
+
+DESTDIR=
+BINDIR=${prefix}/games
+DOCDIR=${datarootdir}/doc/${PACKAGE}
+PIXMAPDIR=${datarootdir}/pixmaps/${PACKAGE}
+APPDIR=${datarootdir}/applications
+
 SHELL	= /bin/sh
 CC      = @CC@
 LN	= @LN_S@
@@ -13,11 +24,6 @@ INDENT     = indent -i2 -bap -bacc -bad -nbc -bl -nip -di8\
 		-npsl -nce -cli0.5 -ci4 -npcs -fca -ncdb -sc -cd50 -c50
 TOUCH	   = touch
 RM	   = rm -f 
-
-# Directory to find multiprecision library and includes. 
-# if you  don't have libmp.a you are probably hosed .. but it's easy to 
-# get gmp from the GNU people. 
-#
 
 RSA_FLAGS       = @NORSA@ -DRSA
 RSASRC          = @NORSA@ rsa_box.c rsa_box_0.c rsa_box_1.c rsa_box_2.c \
@@ -189,6 +195,16 @@ to_dos: $(RSRC) $(INCLUDES) $(MAINSRC) $(X11SRC) $(WIN32SRC)
 	mv $${f} $${f}.bak ; win32/cr < $${f}.bak >$${f} ;\
 	done
 
+install: netrek-client-cow
+	mkdir -p $(DESTDIR)$(BINDIR)
+	install netrek-client-cow $(DESTDIR)$(BINDIR)
+	mkdir -p $(DESTDIR)$(DOCDIR)
+	cp $(KEYFILE) $(DESTDIR)$(DOCDIR)
+	mkdir -p $(DESTDIR)$(PIXMAPDIR)
+	cp -pr pixmaps/* $(DESTDIR)$(PIXMAPDIR)/
+	mkdir -p $(DESTDIR)$(APPDIR)
+	install netrek-client-cow.desktop $(DESTDIR)$(APPDIR)/
+
 null:
 	@echo "/* This file is intentionally empty */" >null
 
@@ -222,4 +238,3 @@ xtrekrc:
 	-$(RM) xtrekrc.tmp*
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
