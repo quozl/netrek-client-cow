@@ -1666,8 +1666,6 @@ static void Key38(void)
 
 static void Key39(void)
 {
-  W_GalacticBgd(MAP_PIX);
-  W_LocalBgd(LOCAL_PIX);
   sendUdpReq(COMM_UPDATE);
 }
 
@@ -1943,7 +1941,8 @@ static void Key74(W_Event * data)
 
 static void Key75(void)
 {
-  W_GalacticBgd(GREET_PIX);
+  /* testing feature, disabled ... display picture of a human on galactic */
+  /* W_GalacticBgd(GREET_PIX); */
 }
 
 static void Key76(void)
