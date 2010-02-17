@@ -192,12 +192,18 @@ void newwinmeta(char *hostmon, char *progname)
 /*! @brief Windowing interface initialisation for play. */
 void newwin(char *hostmon, char *progname)
 {
-  int need_width = TWINSIDE + GWINSIDE + BORDER * 3;
-  int need_height = GWINSIDE + 4 * BORDER + PLISTSIZE;
-  int main_width = MAX(need_width, 1024);
-  int main_height = MAX(need_height, 768);
-  int ow = (main_width - need_width) / 2; /* offset width */
+  int need_width, need_height, main_width, main_height;
+  int ow; /* offset width */
 
+  need_width = TWINSIDE + GWINSIDE + BORDER * 3;
+  need_height = GWINSIDE + 4 * BORDER + PLISTSIZE;
+  if (small_screen) { /* user wants sizes smaller than we need */
+    need_width = MIN(need_width, 800);
+    need_height = MIN(need_height, 600);
+  }
+  main_width = MAX(need_width, small_screen ? 800 : 1024);
+  main_height = MAX(need_height, small_screen ? 600 : 768);
+  ow = (main_width - need_width) / 2;
   if (ow < 0) ow = 0;
 
   newwin_last_hostmon = hostmon;
@@ -246,15 +252,15 @@ void newwin(char *hostmon, char *progname)
   rankw = W_MakeTextWindow("rank", 48, 300, 65, nranks + 9, w, 2);
   W_SetWindowExposeHandler(rankw, ranklist);
 
-#ifdef SMALL_SCREEN
-  playerw = W_MakeTextWindow("player", TWINSIDE,
-			     YOFF + GWINSIDE + 2 * BORDER + 2 * MESSAGESIZE,
-			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
-#else
-  playerw = W_MakeTextWindow("player", ow,
-			     YOFF + TWINSIDE + BORDER + STATSIZE + BORDER,
-			     PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
-#endif
+  if (small_screen) {
+    playerw = W_MakeTextWindow("player", ow+TWINSIDE+4,
+			       YOFF + GWINSIDE + 2 * BORDER + 2 * MESSAGESIZE,
+			       PlistMaxWidth(), 20, baseWin, 2);
+  } else {
+    playerw = W_MakeTextWindow("player", ow,
+			       YOFF + TWINSIDE + BORDER + STATSIZE + BORDER,
+			       PlistMaxWidth(), MAXPLAYER + 3, baseWin, 2);
+  }
 
   W_SetWindowExposeHandler(playerw, RedrawPlayerList);
 
@@ -262,7 +268,7 @@ void newwin(char *hostmon, char *progname)
 			     160, 20, NULL, BORDER);
   W_SetWindowExposeHandler(helpWin, fillhelp);
 
-#ifdef SMALL_SCREEN
+  if (small_screen) {
   /* note that wk and phaswerwin are drawn under wi, and wa under wt-- there
    * * just isn't ROOM for them all */
   messwt = W_MakeScrollingWindow("review_team", ow,
@@ -281,8 +287,8 @@ void newwin(char *hostmon, char *progname)
 			       YOFF + TWINSIDE + 3 * MESSAGESIZE + STATSIZE,
 				    40, 1, baseWin, 1);
   reviewWin = W_MakeScrollingWindow("review", ow,
-	       YOFF + TWINSIDE + BORDER + STATSIZE, 80, 2, baseWin, BORDER);
-#else
+	       YOFF + TWINSIDE + BORDER + STATSIZE + 3, 80, 5, baseWin, BORDER);
+  } else {
   messwa = W_MakeScrollingWindow("review_all", ow + TWINSIDE + BORDER,
    YOFF + GWINSIDE + 3 * BORDER + 2 * MESSAGESIZE, 80, 10, baseWin, BORDER);
   messwt = W_MakeScrollingWindow("review_team", ow + TWINSIDE + BORDER,
@@ -299,7 +305,7 @@ void newwin(char *hostmon, char *progname)
 				    80, 4, baseWin, BORDER);
   reviewWin = W_MakeScrollingWindow("review", ow + TWINSIDE + BORDER + 1,
 	      YOFF + GWINSIDE + BORDER + STATSIZE, 81, 21, baseWin, BORDER-1);
-#endif
+  }
 
   W_SetWindowKeyDownHandler(messwa, handleMessageWindowKeyDown);
   W_SetWindowKeyDownHandler(messwt, handleMessageWindowKeyDown);

@@ -107,8 +107,20 @@ int main2(int argc, char **argv)
 
   while (*argv)
     {
+      if (!strcmp(*argv, "--help")) {
+	printUsage(name);
+	exit(0);
+      }
+
       if (!strcmp(*argv, "--fast-guest")) {
 	fastGuest++;
+	argv++; argc--;
+	continue;
+      }
+
+      if (!strcmp(*argv, "--small-screen")) {
+	extern int small_screen;
+	small_screen++;
 	argv++; argc--;
 	continue;
       }
@@ -465,8 +477,10 @@ static void printUsage(char *prog)
   printf("%s\n", cowid);
   printf("Usage: %s [options] [display-name]\n", prog);
   printf("Options:\n");
-  printf(" [-h servername]     Specify a server\n");
-  printf(" [-p port number]     Specify a port to connect to\n");
+  printf(" [--server n]        Connect to a server immediately\n");
+  printf(" [--port n]          Port to connect to\n");
+  printf(" [--fast-guest]      Bypass login and play as guest\n");
+  printf(" [--small-screen]    Shrink windows to fit on an 800x600 screen\n");
   printf(" [-r defaultsfile]   Specify defaults file\n");
   printf(" [-s socketnum]      Specify listen socket port for manual start\n");
   printf(" [-G playernum]      Reconnect after ghostbust.  Use with -s\n");

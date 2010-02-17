@@ -709,3 +709,4 @@ int F_sp_rank = 0;
 int F_sp_ltd = 0;
 int F_tips = 1;
 char *program = NULL;
+int small_screen = 0;

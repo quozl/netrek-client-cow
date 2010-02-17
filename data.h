@@ -552,4 +552,5 @@ extern int F_sp_rank;
 extern int F_sp_ltd;
 extern int F_tips;
 extern char *program;
+extern int small_screen;
 #endif /* _h_data */

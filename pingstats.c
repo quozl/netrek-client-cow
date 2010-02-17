@@ -10,8 +10,6 @@
 
 #include "pingstats.h"
 
-#define	MIN(a,b)	(((a) < (b)) ? (a) : (b))
-
 #define	BX_OFF()	((textWidth + 1) * W_Textwidth + S_IBORDER)
 #define	BY_OFF(line)	((line) * (W_Textheight + S_IBORDER) + S_IBORDER)
 #define	TX_OFF(len)	((textWidth - len) * W_Textwidth + S_IBORDER)

@@ -51,7 +51,7 @@ void showdocs(int atline)
   sprintf(buf, "---  %s  ---", (char *) query_cowid());
   length = strlen(buf);
 
-  /* using GWINSIDE instead of TWINSIDE because with SMALL_SCREEN defined it
+  /* using GWINSIDE instead of TWINSIDE because with small_screen set it
    * makes more sense to use the smaller width in the interest of saving
    * screen real estate */
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;

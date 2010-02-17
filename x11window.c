@@ -45,19 +45,12 @@ extern void terminate(int error);
 /* changes too good to risk leaving out, by Richard Caley (rjc@cstr.ed.ac.uk) */
 /* Was #ifdef RJC, but now they're just part of the code                    */
 
-#ifdef SMALL_SCREEN
-#define NORMAL_FONT     "5x7"
-#define BOLD_FONT       "5x7"
-#define ITALIC_FONT     "5x7"
-#define IND_FONT        "5x7"
-#else
-#define NORMAL_FONT     "6x10"
-#define BOLD_FONT       "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
-#define ITALIC_FONT     "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
-#define IND_FONT        "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
-#endif
-
-#define BIG_FONT        "-*-lucidatypewriter-*-*-*-*-40-*-*-*-*-*-*-*"
+#define FONT_SMALL "5x7"
+#define FONT_NORMAL "6x10"
+#define FONT_BOLD "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
+#define FONT_ITALIC "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
+#define FONT_INDEPENDENT "-*-clean-bold-r-normal--10-100-75-75-c-60-*"
+#define FONT_BIG         "-*-lucidatypewriter-*-*-*-*-40-*-*-*-*-*-*-*"
 int     forceMono = 0;
 
 
@@ -75,28 +68,28 @@ extern void init_tts(void);
 
 static char *_nfonts[] =
 {
-  NORMAL_FONT,
+  FONT_NORMAL,
   "-*-clean-medium-r-normal--10-100-75-75-c-60-*",
   "fixed",
   NULL,
 };
 static char *_bfonts[] =
 {
-  BOLD_FONT,
+  FONT_BOLD,
   "-*-clean-bold-r-normal--10-100-75-75-c-60-*",
   "fixed",
   NULL,
 };
 static char *_ifonts[] =
 {
-  ITALIC_FONT,
+  FONT_ITALIC,
   "-*-clean-bold-r-normal--10-100-75-75-c-60-*",
   "fixed",
   NULL,
 };
 static char *_bgfonts[] =
 {
-  BIG_FONT,
+  FONT_BIG,
   "fixed",
   "fixed",
   NULL,
@@ -459,19 +452,16 @@ void W_GetPixmaps(W_Window t, W_Window g)
  * that we expect. */
 void checkFont(XFontStruct * fontinfo, char *fontname)
 {
-
-#ifndef SMALL_SCREEN
+  if (small_screen) return;
   if (fontinfo->max_bounds.width != 6 ||
       fontinfo->min_bounds.width != 6 ||
       fontinfo->descent + fontinfo->ascent != 10 ||
       fontinfo->min_bounds.lbearing < 0 ||
       fontinfo->max_bounds.rbearing > 6 ||
       fontinfo->max_bounds.ascent > 8 ||
-      fontinfo->max_bounds.descent > 2)
-    {
-      fprintf(stderr, "Warning: font '%s'\ndoes not conform to 6x10 character cell rules.\n", fontname);
-    }
-#endif
+      fontinfo->max_bounds.descent > 2) {
+    fprintf(stderr, "Warning: font '%s'\ndoes not conform to 6x10 character cell rules.\n", fontname);
+  }
 }
 
 void GetFonts(void)
@@ -485,7 +475,7 @@ void GetFonts(void)
 
   fontname = getdefault("font");
   if (fontname == NULL)
-    fontname = NORMAL_FONT;
+    fontname = small_screen ? FONT_SMALL : FONT_NORMAL;
   fontinfo = XLoadQueryFont(W_Display, fontname);
   if (fontinfo == NULL)
     {
@@ -504,7 +494,7 @@ void GetFonts(void)
 
   fontname = getdefault("boldfont");
   if (fontname == NULL)
-    fontname = BOLD_FONT;
+    fontname = small_screen ? FONT_SMALL : FONT_BOLD;
   fontinfo = XLoadQueryFont(W_Display, fontname);
   if (fontinfo == NULL)
     {
@@ -528,7 +518,7 @@ void GetFonts(void)
 
   fontname = getdefault("italicfont");
   if (fontname == NULL)
-    fontname = ITALIC_FONT;
+    fontname = small_screen ? FONT_SMALL : FONT_ITALIC;
   fontinfo = XLoadQueryFont(W_Display, fontname);
   if (fontinfo == NULL)
     {
@@ -552,7 +542,7 @@ void GetFonts(void)
 
   fontname = getdefault("bigfont");
   if (fontname == NULL)
-    fontname = BIG_FONT;
+    fontname = small_screen ? FONT_SMALL : FONT_BIG;
   fontinfo = XLoadQueryFont(W_Display, fontname);
   if (fontinfo == NULL)
     {
@@ -998,13 +988,11 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
       sz_hints->max_height = height;
       sz_hints->flags = PMinSize | PMaxSize;
 
-#ifndef SMALL_SCREEN
-/* remove this check for SMALL_SCREEN;
- * otherwise root window may not be aligned with upper-left corner of screen */
-      if (gcheck_result & G_SET_X || gcheck_result & G_SET_Y)
-#endif
-
-	sz_hints->flags |= WMXYHintMode_default();
+      if (!small_screen)
+	/* avoid this check for small_screen; otherwise root window
+	may not be aligned with upper-left corner of screen */
+	if (gcheck_result & G_SET_X || gcheck_result & G_SET_Y)
+      sz_hints->flags |= WMXYHintMode_default();
     }
   else
     {
@@ -3739,7 +3727,8 @@ static void video_mode_on()
   /* if there is a mode line for 1024x768 then use it */
   for (line=0; line < video_mode_list_size; line++) {
     XF86VidModeModeInfo *mode = video_mode_list[line];
-    if (mode->hdisplay == 1024 && mode->vdisplay == 768) {
+    if (mode->hdisplay == (small_screen ? 800 : 1024) && 
+	mode->vdisplay == (small_screen ? 600 : 768)) {
       int x;
       x = XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
 #if DEBUG > 0
@@ -3820,7 +3809,9 @@ void W_FullScreenOn(W_Window window)
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenOn\n");
 #endif
-  XResizeWindow(W_Display, win->window, 1024, 768);
+  XResizeWindow(W_Display, win->window,
+                small_screen ? 800 : 1024,
+                small_screen ? 600 : 768);
   pointer_grab_on(window);
   video_mode_on();
   view_port_warp(window);

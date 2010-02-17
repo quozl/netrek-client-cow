@@ -24,14 +24,8 @@
 #define PKEY 128
 
 
-#ifdef SMALL_SCREEN
-#define GWINSIDE 400
-#define TWINSIDE 500
-#else
-#define GWINSIDE 500
-#define TWINSIDE 500				 /* Size of strategic and * * 
-						  * tactical windows */
-#endif
+#define GWINSIDE (small_screen ? 400 : 500) /* size of strategic window */
+#define TWINSIDE 500 /* size of tactical window */
 
 #define BORDER 3				 /* border width for option * 
 						  * 
@@ -153,6 +147,10 @@
 
 #ifndef MAX
 #define MAX(a,b)		((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a,b)		((a) < (b) ? (a) : (b))
 #endif
 
 #define myPlasmaTorp(t)		(me->p_no == (t)->pt_owner)
