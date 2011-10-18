@@ -552,7 +552,7 @@ void gen_key(fp, name, key, len)
     fprintf(fp, "    }\n");
 }
 
-static char* rsa_box_defs = "\
+#define rsa_box_defs "\
 #define X(m, r, g) \\\n\
     mpz_mul(r, m, r);\\\n\
     mpz_mod(r, r, g)\n\
@@ -565,9 +565,9 @@ static char* rsa_box_defs = "\
         tmp = m[i]; m[i] = m[j]; m[j] = tmp; \\\n\
         tmp = r[i]; r[i] = r[j]; r[j] = tmp; \\\n\
     } while(0)\n\
-";
+"
 
-static char* sequence_header = "\
+#define sequence_header "\
 {\n\
     MP_INT r[%d], m[%d], m_swap_tmp;\n\
     for (i = 0; i < %d; i++) {\n\
@@ -575,29 +575,29 @@ static char* sequence_header = "\
     }\n\
     mpz_set(&m[%d], &m_msg);\n\
 #define g &m_global\n\
-";
+"
 
-static char* sequence_trailer = "\
+#define sequence_trailer "\
 \n\
     mpz_set(&m_result, &r[%d]);\n\
     for (i = 0; i < %d; i++) {\n\
         mpz_clear(&r[i]); mpz_clear(&m[i]);\n\
     }\n\
 }\n\
-";
+"
 
-static char* per_box_header = "\
+#define per_box_header "\
 #include \"config.h\"\n\
 #include <gmp.h>\n\
 void rsa_partial_box_%d(m, r, g)\n\
 MP_INT* m, * r;\n\
 MP_INT* g;\n\
 {\n\
-";
+"
 
-static char* per_box_trailer = "\
+#define per_box_trailer "\
 }\n\
-";
+"
 
 /*
  * Write out an obfuscated rsa computation.  This code is a little
@@ -1050,7 +1050,10 @@ int main(argc, argv)
 	}
 	buffer = (char*) malloc(statbuf.st_size);
 	assert(buffer != NULL);
-	fread(buffer, 1, statbuf.st_size, fp);
+	if (fread(buffer, 1, statbuf.st_size, fp) != statbuf.st_size) {
+	    perror("fread");
+	    exit(1);
+	}
 	fclose(fp);
 	get_array(buffer, "key_global", raw_global, SIZE);
 	get_array(buffer, "key_public", raw_public, SIZE);
@@ -1072,7 +1075,10 @@ int main(argc, argv)
 	}
 	buffer = (char*) malloc(statbuf.st_size);
 	assert(buffer != NULL);
-	fread(buffer, 1, statbuf.st_size, fp);
+	if (fread(buffer, 1, statbuf.st_size, fp) != statbuf.st_size) {
+	    perror("fread");
+	    exit(1);
+	}
 	fclose(fp);
 	key_name = allocbuf();
 	client_type = allocbuf();
