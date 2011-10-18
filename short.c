@@ -1458,7 +1458,7 @@ void    handleSWarning(struct warning_s_spacket *packet)
       arg4 = (unsigned char) packet->argument2;
       break;
     case BEAM_U_TEXT:
-      sprintf(buf, "Transfering ground units.  (%d/%d) Starbase %s has %d armies left",
+      sprintf(buf, "Transferring ground units.  (%d/%d) Starbase %s has %d armies left",
               (unsigned char) arg3, (unsigned char) arg4,
               players[(unsigned char) packet->argument].p_name,
               (unsigned char) packet->argument2);

@@ -716,7 +716,7 @@ def_messages[] =
   }
   ,
   {
-    "showIND", BOOL_DEF, "Show independant planets w/X",
+    "showIND", BOOL_DEF, "Show independent planets w/X",
 	&showIND,
     {
       {

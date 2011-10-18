@@ -47,7 +47,7 @@
      This document describes the COW client, its capabilities, and the client's
 features.  COW started as the successor of the BRM client after release 3. 
 BRM started as a merger of the Berkeley client with Rick's Moo 
-client.  Since then, all three clients have developed fairly independant of one
+client.  Since then, all three clients have developed fairly independent of one
 other.  Familiarity with netrek is presumed throughout this document.  Please
 consult the newbie manual for information on the game itself.
 
@@ -98,7 +98,7 @@ those that are common to all clients.
 
      This section will describe COW features that are selected from the command
 line when the client is invoked.  Selecting "-u" for usage or any invalid 
-option will provide a brief summary of this section ( -help will work too ).
+option will provide a brief summary of this section (-help will work too).
 
 
    3.1.1  SERVER SELECTION
@@ -117,7 +117,7 @@ address.  An example of a port_number would be 1111, 2222, or 2592.
 
      The "-r defaultsfile" option will allow the user to select a defaults file
 other than .xtrekrc.  The defaults file contains all of the user selectable
-defaults ( please see Section 4.0 for more information on .xtrekrc ).  Using 
+defaults (please see Section 4.0 for more information on .xtrekrc).  Using 
 this option, two users can run netrek from the same userid / account and still
 have unique defaults files.
 
@@ -149,7 +149,7 @@ t
 
    3.1.7  AUTOLOGIN OPTION
 
-     The "-A passowrd" allows the client to automatically enter the specified 
+     The "-A password" allows the client to automatically enter the specified 
 character password without having to prompt the user.  This option is normally 
 used with the "-C character_name" option, which automatically enters the 
 character name.  The "-C" option must be followed by a character name string.
@@ -226,7 +226,7 @@ software.
 
      -P	log packets: generally don't want to use this
 
-     -t	(sting of chars) title- the name of the window the client makes
+     -t	(string of chars) title - the name of the window the client makes
 
      -D	debug mode
 
@@ -397,7 +397,7 @@ you'll wonder how you lived without them.
 Since this is a first pass, I'm looking for more input on what
 would make them better.  Here are some of my comments:
 
-1)  Lines are hard coded into the software.  They should be 
+1)  Lines are hardcoded into the software.  They should be 
 based upon planet location, so the hockey gods can move the
 planets around.
 
@@ -412,20 +412,20 @@ If you have any comments, mail them to kantner@hot.caltech.edu
 *** Shell escape tool
 You may execute any Unix shell comand within the client. Read your mail 
 now within the client. To do so, just send a message to the destination 
-"!" and you get a shell prompt. Enter the comand and it's output will 
+"!" and you get a shell prompt. Enter the comand and its output will 
 be displayed in the tools window. Works also with macros to "!".
 You may disable it in the .xtrekrc for security reasons with shellTools: off
 CAUTION: The client will be blocked for the time the comand is executed.
 Also some programs suspend the client if it is started in the background.
 
 *** Fast quit
-Hitting 'q' will quit the client out without ever going back to the
+Hitting 'q' will quit the client without ever going back to the
 team selection window, the normal 'Q' still goes back to the team
 selection window.
 
 *** Reread defaults file
 You can reread your netrek default file by hitting '&', it is also
-possible to enter a new default file name at anytime by sending
+possible to enter a new default file name at any time by sending
 a message to 'M' which contains the file name.
 
 *** Galactic rotation
@@ -461,7 +461,7 @@ requesting info on the client.  (So called because it was used by the Pig
 borg, AFAIK.)  For instance:
 	COW 3.00pl0, linux, 03/03/98, RMCSE365AmTsr
 The letters in the fourth field indicate which #ifdefs were specified
-at compile time.  Possiblities are:
+at compile time.  Possibilities are:
 R: RSA supported
 M: Macros
 D: Debugging information
@@ -478,11 +478,11 @@ r: RCD support
 *** Improved help window:  
 	Basically, this was done to show what keys were
     actually mapped to what functions.  Every key function has a line in 
-    the help window. Her'es a sample line:
+    the help window. Here's a sample line:
 
     s gb  Toggle shields
     ||\\_ The 'b' key has been mapped to toggle shields
-    || \_ The 'g' key has also been mapped toggle to  the shields
+    || \_ The 'g' key has also been mapped to toggle shields
     |\____This space is always there, as a separator.
     \_____This is the default key for this function, and the hook that you
 	  use when defining things to this function. I.e. to set the 'g' 
@@ -502,7 +502,7 @@ r: RCD support
 The documentation window is used to view documentation while actually 
 playing.  In order to do this you must either have the COW.DOC file in 
 the directory you are running the client from or you must set the 
-documentation resource value with the full path to the file with the
+documentation resource value to the full path to the file with the
 documentation.  Control-y brings this window up.  Also available via
 shift-O option menu under "info."
 
@@ -517,7 +517,7 @@ documentation:	/home/kensho/powell/misc/netrek/brm3002/myCOW.DOC
 The xtrekrc file window is used to view your current xtrekrc file online.
 It is currently very stupid in that if you used the command line
 option '-r' to specify your xtrekrc file, this viewer will not find
-it (it currently hard wired for $HOME/.xtrekrc:(  Control-X (that 
+it (it's currently hardwired for $HOME/.xtrekrc:(  Control-X (that 
 is control-shift-x) will bring up this window, or shift-O under "info."
 
 The 'f', 'b' keys scroll forward and back by 28 lines, like the motd 
@@ -536,7 +536,7 @@ this file may be called home, and it may be in whatever directory
 the client is executed from.
 
 A file called "SAMPLE.xtrekrc" should have been included with this
-client.  Below is an attempt to explain the many,many options you
+client.  Below is an attempt to explain the many, many options you
 can include in a .xtrekrc file.  Some of this was borrowed from
 various other documentation such as MOO documentation.
 
@@ -641,10 +641,10 @@ cloakChars:	(string of one or two chars) what to use for cloakers on
 
 enemyPhasers:	(integer 0-10) enemy phasers thickness at starting point.
 
-phaserShrink:	(integer 0-16) Don't draw the first "phaserShrink"/16 th of
+phaserShrink:	(integer 0-16) Don't draw the first "phaserShrink"/16th of
 		your phaser.  This makes it easier to see incomming torps.
 
-theirPhaserShrink: (integer 0-16) "phaserShrink" for other player's ships.
+theirPhaserShrink: (integer 0-16) "phaserShrink" for other players' ships.
 
 shrinkPhaserOnMiss: (on/off) Use "phaserShrink" and "theirPhaserShrink" even
 		if a phaser misses.
@@ -652,7 +652,7 @@ shrinkPhaserOnMiss: (on/off) Use "phaserShrink" and "theirPhaserShrink" even
 highlightFriendlyPhasers: (on/off) phaser hits by your team are solid white
                           (instead of the default "rainbow" a la COW-lite.
 
-showtractorpressor:  (on/off) toggle showing tractor/pressor  beams
+showtractorpressor:  (on/off) toggle showing tractor/pressor beams
 
 continueTractors: (on/off) off = turns off the visible t/p after 2 updates.
 
@@ -661,8 +661,8 @@ showstats:	(on/off) show stats window
 
    4.4   Messaging options
 
-newDistress:	(on/off) right justified distress call or not, default value
-		is to right justify (on)
+newDistress:	(on/off) right-justified distress call or not, default value
+		is to right-justify (on)
 
 reportkills:    (on/off) display kill messages or ignore these
 
@@ -745,7 +745,7 @@ keepInfo:	(integer) number of updates to keep info windows on the
 		screen before automatically removing them
 
 extraAlertBorder:  Draws border in internal netrek windows, as well
-        as external ones (which get ignored in X11 with window-managers )
+        as external ones (which get ignored in X11 with window-managers)
 
 forcemono:     if on, the client windows are set to be monochrome
 
@@ -814,7 +814,7 @@ buttonmap:  	map the mouse buttons to something else.
 shiftedMouse:   (on/off) 
 	The shift and control keys can be used to modify the default function
 	assigned to a button.  The shift key acts as a switch which brings an
-	alternate mapping to the mouse buttons.  In a simliar way control and
+	alternate mapping to the mouse buttons.  In a similar way control and
 	shift + control act to switch mappings again.
 	Breakdown of values:
 		Normal buttons 1, 2, 3, 
