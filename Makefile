@@ -2,7 +2,7 @@
 #  No editables below this point.                                      #
 ########################################################################
 
-include key.mk
+-include key.mk
 
 KEYGOD = clientkeys@clientkeys.netrek.org
 MAIL   = mail
@@ -42,7 +42,8 @@ clean:
 reallyclean: clean
 	rm -f netrek-client-cow randomize mkkey rsa_box*.c name mkcflags \
 	config.h system.mk config.status config.log config.cache key.mail \
-	null netrek.shared lib*
+	null netrek.shared lib* cflags.c key.cow.linux* key.mk \
+	po/Makefile po/Makefile.in
 
 distclean: clean reallyclean
 
