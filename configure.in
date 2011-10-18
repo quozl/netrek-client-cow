@@ -210,7 +210,7 @@ AC_SUBST(MPINC)
 # Checking for GMP 2
 SAVEINCS="$INCS"
 INCS="$INCS $XINCLUDES"
-AC_EGREP_CPP("gmp=.*[02-9]", [
+AC_EGREP_CPP("gmp=.*[[02-9]]", [
   #include <gmp.h>
   gmp=__GNU_MP__
   ],AC_DEFINE(HAVE_GMP2_H))
