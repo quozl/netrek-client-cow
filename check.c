@@ -87,7 +87,11 @@ void check(void)
 
   while ((cc = read(sock, buf, BUF_SIZE)) > 0)
     {
-      fwrite(buf, cc, 1, stdout);
+      if (fwrite(buf, cc, 1, stdout) != 1) {
+	perror("fwrite");
+	close(sock);
+	terminate(0);
+      }
     }
   if (cc < 0)
     {

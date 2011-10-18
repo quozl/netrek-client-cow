@@ -680,9 +680,19 @@ static void SaveMetasCache()
   if (cache != NULL)
     {
 
-      fwrite(&statusLevel, sizeof(statusLevel), 1, cache);
-      fwrite(&num_servers, sizeof(num_servers), 1, cache);
-      fwrite(serverlist, sizeof(struct servers), num_servers, cache);
+      if (fwrite(&statusLevel, sizeof(statusLevel), 1, cache) != 1 ||
+          fwrite(&num_servers, sizeof(num_servers), 1, cache) != 1 ||
+          fwrite(serverlist, sizeof(struct servers), num_servers, cache) != num_servers) {
+	int xerrno = errno;
+	fclose(cache);
+#ifdef _MSC_VER
+  	_unlink(tmpFileName);
+#else
+    	unlink(tmpFileName);
+#endif
+	errno = xerrno;
+	perror("Could not write to the new cache file");
+      }
 
       fclose(cache);
 
@@ -725,8 +735,8 @@ static void LoadMetasCache()
     }
 
   /* ignore the cache if user changed statusLevel */
-  fread(&i, sizeof(i), 1, cache);
-  if (i != statusLevel)
+  if (fread(&i, sizeof(i), 1, cache) != 1 ||
+      i != statusLevel)
     {
       num_servers = 0;
       fclose(cache);
@@ -734,9 +744,19 @@ static void LoadMetasCache()
     }
 
   /* read the server list into memory from the file */
-  fread(&num_servers, sizeof(num_servers), 1, cache);
+  if (fread(&num_servers, sizeof(num_servers), 1, cache) != 1) {
+    num_servers = 0;
+    fclose(cache);
+    return;
+  }
   serverlist = (struct servers *) malloc(sizeof(struct servers)*num_servers);
-  fread(serverlist, sizeof(struct servers), num_servers, cache);
+  if (fread(serverlist, sizeof(struct servers), num_servers, cache) != num_servers) {
+    free(serverlist);
+    serverlist = NULL;
+    num_servers = 0;
+    fclose(cache);
+    return;
+  }
   fclose(cache);
 
   /* hunt and kill old server lines from cache */

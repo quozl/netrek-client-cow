@@ -458,7 +458,7 @@ char *getaddr2(int flags, int recip)
       (void) sprintf(&addrmesg[5], "ALL");
       break;
     case MTEAM:
-      (void) sprintf(&addrmesg[5], teamshort[recip]);
+      (void) sprintf(&addrmesg[5], "%s", teamshort[recip]);
       break;
     case MINDIV:
       if (maskrecip)

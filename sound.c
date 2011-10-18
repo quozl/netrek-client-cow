@@ -982,7 +982,7 @@ void Init_Sound(void) {
 		if (!isDirectory(sounddir)) {
 			sounddir = "sounds";
 				if (!isDirectory(sounddir)) {
-					(void) fprintf(stderr, "sound directory missing\n", sounddir);
+					(void) fprintf(stderr, "sound directory %s missing\n", sounddir);
 					return;
 			}
 		}

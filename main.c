@@ -408,8 +408,9 @@ int main2(int argc, char **argv)
       if (getdefault("wwwlink") != NULL)
 	wwwlink = getdefault("wwwlink");
 
-      sprintf(webcall, wwwlink, url);
-      system(webcall);
+      snprintf(webcall, sizeof(webcall), wwwlink, url);
+      if (system(webcall) == -1)
+	printf("Running %s for URL %s failed\n", wwwlink, url);
       url[0] = '\0';
       exit(0);
     }

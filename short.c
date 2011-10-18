@@ -934,7 +934,7 @@ void    handleSMessage(struct mesg_s_spacket *packet)
       sprintf(addrbuf + 5, "ALL");
       break;
     case MTEAM:
-      sprintf(addrbuf + 5, teamshort[me->p_team]);
+      sprintf(addrbuf + 5, "%s", teamshort[me->p_team]);
       break;
     case MINDIV:
       /* I know that it's me -> xxx but i copied it straight ... */
