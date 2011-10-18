@@ -1,3 +1,25 @@
+Tue Oct 18 21:28:57 2011  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.3.1: released
+
+	- fix cloaking animation,
+
+	- double explosion imagery rate, restore beeplite feature to
+	original design, amd restore original timeout for into window
+	... these had failed with the move of servers to 10 updates per
+	second about ten years ago,
+
+	- show number of players on metaserver window in slightly
+	graphical fashion,
+
+	- remove background changing keys, as they did not work, fixes
+	LP #437975,
+
+	- add --small-screen option for use on displays of 800x600 pixels,
+
+	- merge several patches from Debian project, including
+	typographical fixes and build hardening,
+
 Tue Jun 16 20:05:28 2009  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.3.0: released

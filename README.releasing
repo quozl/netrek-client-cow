@@ -17,12 +17,12 @@ darcs record
 darcs tag ${VERSION}
 
 # make dist
-cd /tmp
-darcs get ~/src/darcs/netrek-client-cow
-cd netrek-client-cow
-sh autogen.sh
-./configure
-make dist
+cd /tmp && \
+darcs get ~/src/netrek-client-cow && \
+cd netrek-client-cow && \
+sh autogen.sh && \
+./configure && \
+make dist && \
 mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
