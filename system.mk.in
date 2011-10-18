@@ -118,16 +118,18 @@ IMLIB2_LIBS     = $(shell imlib2-config --libs)
 
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(MPINC) $(INCS)
-CFLAGS = $(OPT) $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
-LFLAGS = -g $(EXTRALINKFLAGS)
+CFLAGS ?= $(OPT)
+CFLAGS += $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
+LDFLAGS ?= -g
+LDFLAGS += $(EXTRALINKFLAGS)
 LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
 
 netrek-client-cow: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
-	$(CC) $(LFLAGS) -o netrek-client-cow $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
+	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
 	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES)
 
 netrek.shared: done.libcow $(MAINOBJ) $(COWAPI)
-	$(CC) $(LFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared
+	$(CC) $(LDFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared
 
 done.libcow: $(PMAKE) $(ROBJ) $(RSAOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) 
 	$(CC) $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
@@ -148,26 +150,26 @@ $(SECKEYFILE):
 	$(MAKE) newkey
 
 mkkey: mkkey.c $(RANDOMOBJ) defs.h
-	$(CC) $(CFLAGS) $(MPINC) $(MPLIB) -o mkkey mkkey.c $(RANDOMOBJ) $(LIBRARIES)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(MPINC) $(MPLIB) -o mkkey mkkey.c $(RANDOMOBJ) $(LIBRARIES)
 
 randomize: randomize.c $(RANDOMOBJ) defs.h
-	$(CC) $(OPT) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
 
 sound.o: sound.c
-	$(CC) $(SDL_CFLAGS) -c sound.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SDL_CFLAGS) -c sound.c
 
 random.o: random.c
-	$(CC) -c -O random.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c random.c
 
 strdup.o: strdup.c
-	$(CC) -c -O strdup.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c strdup.c
 
 cflags.c: mkcflags
-	./mkcflags "$(CC) $(CFLAGS)" "$(ARCH)"  > cflags.c
+	./mkcflags "$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)" "$(ARCH)"  > cflags.c
 	echo char cwho[]=$(CWHO)\; >> cflags.c
 
 mkcflags: mkcflags.c system.mk null patchlevel.h version.h
-	$(CC) $(CFLAGS) -o mkcflags mkcflags.c $(LIBRARIES)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o mkcflags mkcflags.c $(LIBRARIES)
 
 tags: $(RSRC) $(RSASRC)
 	ctags $(RSRC) $(RSASRC) $(INCLUDES)
