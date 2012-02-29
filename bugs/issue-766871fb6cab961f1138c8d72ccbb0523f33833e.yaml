@@ -21,3 +21,10 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - Subject of e-mail conversation with Barry deFreese on 18th March.
+- - 2012-02-29 01:21:32.702814 Z
+  - James Cameron <quozl@us.netrek.org>
+  - commented
+  - |-
+    reproduced by Johnny Solbu <johnny@solbu.net> during a packaging attempt
+    on Mandriva and Mageia.  fixed by adding gmp-devel as buildrequires in spec.
+claimer: 
