@@ -43,16 +43,14 @@ name:			guest
 #password:		oggtpau
 
 ###############################################################################
-# this sets the default server and port (and verification scheme)
+# this sets the default server and port
 
 server:			se.netrek.org
 port:			2592
-useRSA:			on
 
 # you can also make nicknames like:
 server.bronco:		bronco.ece.cmu.edu
 port.bronco:		2592
-useRSA.bronco.ece.cmu.edu:	on
 
 server.hockey:		hockey.netrek.org
 port.hockey:		2592

@@ -10,8 +10,8 @@ type: :bugfix
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :reorg
 creation_time: 2009-03-18 23:09:45.967970 Z
 references: []
 
@@ -27,4 +27,8 @@ log_events:
   - |-
     reproduced by Johnny Solbu <johnny@solbu.net> during a packaging attempt
     on Mandriva and Mageia.  fixed by adding gmp-devel as buildrequires in spec.
+- - 2012-03-01 01:11:43.461269 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition reorg
+  - rsa removed, should fix this
 claimer: 

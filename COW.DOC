@@ -123,9 +123,7 @@ have unique defaults files.
 
    3.1.4  VERIFICATION OPTIONS
 
-     The "-o" option instructs the client to use the old reserved.c verification
-to identify itself to the server.  Upgraded RSA servers will require that the
-client use RSA verification.  This is selected using the "-R" option.
+     [deleted]
    
    3.1.5  RECORD GAME OPTION
 
@@ -204,10 +202,6 @@ software.
 	periods.  You must reconnect before this timeout expires or
 	your slot will be given to someone else, you won't be able
 	to reconnect.  On most servers it is around 6 minutes long.
-	
-	Note to experts:  The server will reverify clients using whatever
-	available means it has, including RSA or reserved.c when a ghostbust
-	occurs and therefore whenever this feature is used.
 
    3.1.11 ESOTERIC OPTIONS
 
@@ -462,7 +456,6 @@ borg, AFAIK.)  For instance:
 	COW 3.00pl0, linux, 03/03/98, RMCSE365AmTsr
 The letters in the fourth field indicate which #ifdefs were specified
 at compile time.  Possibilities are:
-R: RSA supported
 M: Macros
 D: Debugging information
 C: Corrupted packet handling
@@ -614,9 +607,6 @@ port.rio:	4566
 		default port that gets called for the server abbreviation.
 
 showmotd:	(on/off) display motd if in wait queue
-
-useRSA:		(on/off) default setting for whether the client should use RSA
-		verification.
 
 autoquit:	(integer) length of time to wait on team selection screen
 		before Auto-quit exits for you.
@@ -1700,37 +1690,13 @@ responds.  The default for this option is:
 COW has the best and easiest to use installation procedure a client
 ever had.
 
-1 *** If you are compiling COW and do not intend to release the client
-  *** for public distribution with an RSA blessing, simply type:
-
 make
 
 In case you will need some additional flags for your compiler or linker,
 edit the "sample_key.def" file and change the corresponding parameters
 at the bottom.
 
-2 *** If you are compiling COW with the intention of releasing a client
-  *** for public distribution with an RSA blessing, read below.
-
-First, please contact cow@netrek.org so we know about
-the existance of the client and where other people might obtain it.
-
-Make sure that you have MP or GMP available on your system.
-If you do not have the GMP installation, you need to obtain it.
-It should be available from gatekeeper.dec.com.
-
-To install it do the following:
-
-1) Take the sample_key.def file as a basis to generate an own RSA key
-   definition file.
-2) Edit the Makefile and set KEYDEF to the name of the new generated file.
-3) make
-	If you don't have already a key a new key will be generated.
-4) make distkey
-	Sends a mail to the RSA key keeper to get your key installed 
-	at the servers.
-5) you are done!  watch that GPA hit the floor!!
-
+You are done!  watch that GPA hit the floor!!
 
 cow@netrek.org always likes to receive bug reports for
 the client and if you have any suggestion for how to improve the

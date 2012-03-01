@@ -5,8 +5,8 @@ type: :task
 component: netrek-client-cow
 release: 
 reporter: James Cameron <quozl@us.netrek.org>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2012-02-29 23:30:31.958904 Z
 references: []
 
@@ -16,4 +16,8 @@ log_events:
   - James Cameron <quozl@us.netrek.org>
   - created
   - ""
+- - 2012-03-01 01:11:57.853285 Z
+  - James Cameron <quozl@us.netrek.org>
+  - closed with disposition fixed
+  - done
 claimer: 

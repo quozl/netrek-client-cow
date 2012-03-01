@@ -2,13 +2,6 @@
 #  No editables below this point.                                      #
 ########################################################################
 
--include key.mk
-
-KEYGOD = clientkeys@clientkeys.netrek.org
-MAIL   = mail
-
-include $(KEYDEF)
-
 PACKAGE=netrek-client-cow
 VERSION=$(shell ./name)
 DVERSION=$(shell head -1 debian/changelog|cut -f2 -d\(|cut -f1 -d\))
@@ -18,37 +11,27 @@ all: netrek-client-cow
 netrek-client-cow: system.mk netrekI
 
 netrekI::
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) netrek-client-cow
+	$(MAKE) -f system.mk netrek-client-cow
 
 netrek.shared: name system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) S=SHARED netrek.shared
+	$(MAKE) -f system.mk S=SHARED netrek.shared
 
 profile:
-	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" KEYDEF=$(KEYDEF) netrek-client-cow
-
-convert: mkkey $(KEYFILE) $(KEYSH)
-	./mkkey -h $(KEYSH) $(KEYFILE) "Client Of Win" \
-	$(DESC) $(MAKER) $(COMMENT)
-
-newkey: mkkey
-	until ./mkkey $(KEYFILE) "Client Of Win" $(DESC) $(MAKER) $(COMMENT) "inl,standard2"; do sleep 1; done
-
-mkkey: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) mkkey
+	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" netrek-client-cow
 
 clean:
 	rm -f *.o $(OBJ) $(SHAREDTARGET)
 
 reallyclean: clean
-	rm -f netrek-client-cow randomize mkkey rsa_box*.c name mkcflags \
-	config.h system.mk config.status config.log config.cache key.mail \
-	null netrek.shared lib* cflags.c key.cow.linux* key.mk \
+	rm -f netrek-client-cow name mkcflags \
+	config.h system.mk config.status config.log config.cache \
+	null netrek.shared lib* cflags.c \
 	po/Makefile po/Makefile.in
 
 distclean: clean reallyclean
 
 tags: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) tags
+	$(MAKE) -f system.mk tags
 
 names: name
 	@echo "PACKAGE=$(PACKAGE)"
@@ -76,30 +59,21 @@ distbin: name netrek-client-cow
 	-rm -f $(PACKAGE)-$(VERSION).$(ARCH).gz
 	gzip -9 $(PACKAGE)-$(VERSION).$(ARCH)
 
-distkey: netrek-client-cow $(KEYFILE)
-	echo "This is an automatic generated mail." >key.mail
-	echo "Please add the following $(ARCH) COW key to the metaserver:" >>key.mail
-	echo "" >>key.mail
-	cat $(KEYFILE) >>key.mail
-	echo "" >>key.mail
-	./netrek-client-cow -v >>key.mail
-	cat key.mail | $(MAIL) $(KEYGOD)
-
 name: name.c version.h patchlevel.h
 	$(CC) $(CFLAGS) -o name name.c
 
 depend: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) depend
+	$(MAKE) -f system.mk depend
 
-system.mk: Makefile system.mk.in config.h.in configure install.sh $(KEYDEF)
+system.mk: Makefile system.mk.in config.h.in configure install.sh
 	./configure $(CONFFLAGS)
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) depend
+	$(MAKE) -f system.mk depend
 
 install.sh:
 	touch install.sh
 
 XTREKRC: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) xtrekrc
+	$(MAKE) -f system.mk xtrekrc
 	mv xtrekrc XTREKRC
 
 configure: configure.in
@@ -108,22 +82,22 @@ configure: configure.in
 	chmod +x configure
 
 unproto: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) unproto
+	$(MAKE) -f system.mk unproto
 
 proto: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) proto
+	$(MAKE) -f system.mk proto
 
 indent: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) indent
+	$(MAKE) -f system.mk indent
 
 to_unix: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_unix
+	$(MAKE) -f system.mk to_unix
 
 to_dos: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) to_dos
+	$(MAKE) -f system.mk to_dos
 
 install: system.mk
-	$(MAKE) -f system.mk KEYDEF=$(KEYDEF) install
+	$(MAKE) -f system.mk install
 
 package:
 	fakeroot dpkg-buildpackage -Igtk -Ipygtk -Ipyqt

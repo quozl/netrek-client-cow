@@ -17,6 +17,7 @@ APPDIR=${datarootdir}/applications
 SHELL	= /bin/sh
 CC      = @CC@
 LN	= @LN_S@
+CWHO = \"`whoami`@`hostname -f`\"
 
 PROTOIZE   = protoize
 UNPROTOIZE = unprotoize
@@ -54,10 +55,6 @@ RANDOMOBJ       = @LIBOBJS@
 ###############################################################################
 #  No editables below this point.
 ###############################################################################
-
-
-include $(KEYDEF)
-
 
 ROBJ 		= check.o colors.o data.o death.o defaults.o dmessage.o\
                   enter.o findslot.o getname.o getship.o helpwin.o inform.o\
