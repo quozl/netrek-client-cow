@@ -1,0 +1,19 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: remove client authentication
+desc: causing build problems, not needed
+type: :task
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2012-02-29 23:30:31.958904 Z
+references: []
+
+id: f0762f9b5722dd96085386a2cab1853ec0fc1e22
+log_events: 
+- - 2012-02-29 23:30:32.470809 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - ""
+claimer: 

@@ -1,0 +1,21 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: not obvious how to enter game
+desc: |-
+  For a beginner, it is not obvious that one has to click on one of the
+  four corners in order to start.
+type: :feature
+component: netrek-client-cow
+release: 
+reporter: James Cameron <quozl@us.netrek.org>
+status: :unstarted
+disposition: 
+creation_time: 2012-02-29 03:59:35.718868 Z
+references: []
+
+id: cf021a8368b4823b4d5e9b4a57056101f6d14763
+log_events: 
+- - 2012-02-29 03:59:42.914760 Z
+  - James Cameron <quozl@us.netrek.org>
+  - created
+  - Solbu, IRC
+claimer: 
