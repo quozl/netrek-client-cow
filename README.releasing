@@ -27,7 +27,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-0ff5366d35a8bce1d4139aa29bead7cc  netrek-client-cow-3.3.0.tar.gz
+b4f686e37b694050e701e4b36f605008  netrek-client-cow-3.3.1.tar.gz
 
 # test build the .tar.gz
 cd /tmp
@@ -40,8 +40,7 @@ make
 # release
 cd /tmp
 cp netrek-client-cow-${VERSION}.tar.gz ~/public_html/external/mine/netrek/
-cd ~/public_html/external/
-. to-au
+upw
 http://quozl.linux.org.au/netrek/
 
 # orion upload
