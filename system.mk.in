@@ -25,16 +25,6 @@ INDENT     = indent -i2 -bap -bacc -bad -nbc -bl -nip -di8\
 TOUCH	   = touch
 RM	   = rm -f 
 
-RSA_FLAGS       = @NORSA@ -DRSA
-RSASRC          = @NORSA@ rsa_box.c rsa_box_0.c rsa_box_1.c rsa_box_2.c \
-		rsa_box_3.c rsa_box_4.c rsa_box_5.c rsa_box_6.c \
-		rsa_box_7.c rsa_box_8.c rsa_box_9.c rsa_box_10.c
-RSAOBJ          = @NORSA@ rsa_box.o rsa_box_0.o rsa_box_1.o rsa_box_2.o \
-                rsa_box_3.o rsa_box_4.o rsa_box_5.o rsa_box_6.o \
-		rsa_box_7.o rsa_box_8.o rsa_box_9.o rsa_box_10.o
-MPINC           = @MPINC@
-LMP             = @MPLIB@
-
 # Other libraries neeeded. (All systems need -lX11 -lm)
 
 LIBS            = @LIBS@ 
@@ -117,43 +107,26 @@ XXF86VM_LIBS    = -lXxf86vm
 IMLIB2_LIBS     = $(shell imlib2-config --libs)
 
 SHARED 	= $(SL_CFLAGS)
-INCDIRS = $(MPINC) $(INCS)
+INCDIRS = $(INCS)
 CFLAGS ?= $(OPT)
-CFLAGS += $(EXTRACFLAGS) $(RSA_FLAGS) $(INCDIRS)
+CFLAGS += $(EXTRACFLAGS) $(INCDIRS)
 LDFLAGS ?= -g
 LDFLAGS += $(EXTRALINKFLAGS)
-LIBRARIES = $(LMP) $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
+LIBRARIES = $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
 
-netrek-client-cow: $(RSAOBJ) $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
-	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
+netrek-client-cow: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
+	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(INPUTOBJ) \
 	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES)
 
 netrek.shared: done.libcow $(MAINOBJ) $(COWAPI)
 	$(CC) $(LDFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared
 
-done.libcow: $(PMAKE) $(ROBJ) $(RSAOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) 
-	$(CC) $(ROBJ) $(RSAOBJ) $(INPUTOBJ) \
+done.libcow: $(PMAKE) $(ROBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) 
+	$(CC) $(ROBJ) $(INPUTOBJ) \
 	$(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(SL_LDFLAGS) $(SL_LIBFLAGS) -o $(COWLIB)
 	$(RM) $(SL_LIB)
 	$(LN) $(COWLIB) $(SL_LIB)
 	$(TOUCH) done.libcow
-
-#rsa_box.c: mkkey $(SECKEYFILE)
-$(RSASRC): mkkey $(SECKEYFILE)
-	-$(RM) $(RSASRC)
-	./mkkey -c -k $(SECKEYFILE)
-	$(TOUCH) $(RSASRC)
-	@echo "int sock = -1;" >>rsa_box_1.c
-
-$(SECKEYFILE):
-	@echo generating a new client key
-	$(MAKE) newkey
-
-mkkey: mkkey.c $(RANDOMOBJ) defs.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(MPINC) $(MPLIB) -o mkkey mkkey.c $(RANDOMOBJ) $(LIBRARIES)
-
-randomize: randomize.c $(RANDOMOBJ) defs.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o randomize randomize.c $(RANDOMOBJ) $(LIBRARIES)
 
 sound.o: sound.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(SDL_CFLAGS) -c sound.c
@@ -171,20 +144,20 @@ cflags.c: mkcflags
 mkcflags: mkcflags.c system.mk null patchlevel.h version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o mkcflags mkcflags.c $(LIBRARIES)
 
-tags: $(RSRC) $(RSASRC)
-	ctags $(RSRC) $(RSASRC) $(INCLUDES)
+tags: $(RSRC)
+	ctags $(RSRC) $(INCLUDES)
 
-depend: cflags.c null $(RSASRC)
-	-makedepend -f system.mk $(RSA_FLAGS) $(RSRC) $(RSASRC) $(MAINSRC) \
+depend: cflags.c null
+	-makedepend -f system.mk $(RSRC) $(MAINSRC) \
 	$(X11SRC) name.c $(INCDIRS)
 
-proto: cflags.c null $(RSASRC)
+proto: cflags.c null
 	$(PROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC)
 
-unproto: cflags.c null $(RSASRC)
+unproto: cflags.c null
 	$(UNPROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC)
 
-indent: cflags.c null $(RSASRC)
+indent: cflags.c null
 	$(INDENT) $(RSRC) $(MAINSRC) $(INCLUDES) $(X11SRC) $(WIN32SRC)
 
 to_unix: $(RSRC) $(INCLUDES) $(MAINSRC) $(X11SRC)
