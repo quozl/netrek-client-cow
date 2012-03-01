@@ -178,7 +178,7 @@ install: netrek-client-cow
 	mkdir -p $(DESTDIR)$(PIXMAPDIR)
 	cp -pr pixmaps/* $(DESTDIR)$(PIXMAPDIR)/
 	mkdir -p $(DESTDIR)$(APPDIR)
-	install netrek-client-cow.desktop $(DESTDIR)$(APPDIR)/
+	cp netrek-client-cow.desktop $(DESTDIR)$(APPDIR)/
 
 null:
 	@echo "/* This file is intentionally empty */" >null
