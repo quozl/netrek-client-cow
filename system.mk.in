@@ -10,7 +10,6 @@ datarootdir=@datarootdir@
 
 DESTDIR=
 BINDIR=${prefix}/games
-DOCDIR=${datarootdir}/doc/${PACKAGE}
 PIXMAPDIR=${datarootdir}/pixmaps/${PACKAGE}
 APPDIR=${datarootdir}/applications
 
@@ -170,8 +169,6 @@ to_dos: $(RSRC) $(INCLUDES) $(MAINSRC) $(X11SRC) $(WIN32SRC)
 install: netrek-client-cow
 	mkdir -p $(DESTDIR)$(BINDIR)
 	install netrek-client-cow $(DESTDIR)$(BINDIR)
-	mkdir -p $(DESTDIR)$(DOCDIR)
-	cp $(KEYFILE) $(DESTDIR)$(DOCDIR)
 	mkdir -p $(DESTDIR)$(PIXMAPDIR)
 	cp -pr pixmaps/* $(DESTDIR)$(PIXMAPDIR)/
 	mkdir -p $(DESTDIR)$(APPDIR)
