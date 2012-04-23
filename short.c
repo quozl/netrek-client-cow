@@ -1734,7 +1734,7 @@ void    handleSWarning(struct warning_s_spacket *packet)
     case DGHOSTKILL:
       {
 	struct mesg_spacket msg;
-	ushort  damage;
+	unsigned short damage;
 
 	damage = (unsigned char) karg3;
 	damage |= (unsigned char) (karg4 & 0xff) << 8;
