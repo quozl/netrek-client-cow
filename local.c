@@ -1292,7 +1292,7 @@ static void DrawMisc(void) {
 }
 
 
-inline void local(void)
+extern void local(void)
 /*
  * Draw out the 'tactical' map
  */
@@ -1310,7 +1310,7 @@ inline void local(void)
 }
 
 
-inline void clearLocal(void)
+extern void clearLocal(void)
 /*
  * Clear the local map (intelligently rather than just simply wiping
  * the map).
