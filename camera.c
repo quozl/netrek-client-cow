@@ -22,13 +22,11 @@ static int initialised = 0;
 
 void camera_init(Display *arg_disp, Window arg_window) {
   if (initialised) return;
-  int depth;
   disp = arg_disp;
   tw = arg_window;
 
   scr = ScreenOfDisplay(disp, DefaultScreen(disp));
   vis = DefaultVisual(disp, XScreenNumberOfScreen(scr));
-  depth = DefaultDepth(disp, XScreenNumberOfScreen(scr));
   cm = DefaultColormap(disp, XScreenNumberOfScreen(scr));
   rw = RootWindow(disp, XScreenNumberOfScreen(scr));
 

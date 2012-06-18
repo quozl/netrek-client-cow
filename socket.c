@@ -2242,11 +2242,10 @@ void    handleFlags(struct flags_spacket *packet)
     }
 #endif
 
-  if (players[(unsigned char) packet->pnum].p_flags != ntohl(packet->flags)
+  if (pl->p_flags != ntohl(packet->flags)
 
 #ifdef INCLUDE_VISTRACT
-      || players[(unsigned char) packet->pnum].p_tractor !=
-      ((short) packet->tractor & (~0x40))
+      || pl->p_tractor != ((short) packet->tractor & (~0x40))
 #endif
 
       )
@@ -2257,16 +2256,16 @@ void    handleFlags(struct flags_spacket *packet)
   else
     return;
 
-  players[(unsigned char) packet->pnum].p_flags = ntohl(packet->flags);
+  pl->p_flags = ntohl(packet->flags);
 
 #ifdef INCLUDE_VISTRACT
   if (packet->tractor & 0x40) {
-    players[(unsigned char) packet->pnum].p_tractor =
+    pl->p_tractor =
       (short) packet->tractor & (~0x40); /* ATM visible tractors */
   } else
 #endif /* INCLUDE_VISTRACT */
 
-    players[(unsigned char) packet->pnum].p_tractor = -1;
+    pl->p_tractor = -1;
 }
 
 void    handleKills(struct kills_spacket *packet)

@@ -3667,11 +3667,7 @@ int video_mode_dotclock, video_mode_list_size;
 static void video_mode_off()
 {
   if (video_mode_current != video_mode_original) {
-    int x;
-    x = XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_original);
-#if DEBUG > 0
-    fprintf(stderr, "video_mode_off: XF86VidModeSwitchToMode: %d\n", x);
-#endif
+    XF86VidModeSwitchToMode(W_Display, W_Screen, video_mode_original);
     video_mode_current = video_mode_original;
   }
 }
@@ -3727,13 +3723,9 @@ static void video_mode_on()
   /* if there is a mode line for 1024x768 then use it */
   for (line=0; line < video_mode_list_size; line++) {
     XF86VidModeModeInfo *mode = video_mode_list[line];
-    if (mode->hdisplay == (small_screen ? 800 : 1024) && 
+    if (mode->hdisplay == (small_screen ? 800 : 1024) &&
 	mode->vdisplay == (small_screen ? 600 : 768)) {
-      int x;
-      x = XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
-#if DEBUG > 0
-      fprintf(stderr, "video_mode_on: XF86VidModeSwitchToMode: %d\n", x);
-#endif
+      XF86VidModeSwitchToMode(W_Display, W_Screen, mode);
       /*! @bug: if this is done on a non-local display, the X error
       XF86VidModeClientNotLocal occurs. */
       video_mode_current = mode;

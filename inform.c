@@ -39,7 +39,6 @@ void inform(W_Window ww, int x, int y, char key)
   register struct player *j;
   register struct planet *k;
   int     mx, my;
-  double  dist;
   struct obtype *gettarget(W_Window ww, int x, int y, int targtype), *target;
   int     windowWidth, windowHeight;
   float   KillsPerHour, LossesPerHour;		 /* SB info window changed to
@@ -215,8 +214,6 @@ void inform(W_Window ww, int x, int y, char key)
 			   2, foreColor);
       W_MapWindow(infow);
       k = &planets[target->o_num];
-      dist = hypot((double) (me->p_x - k->pl_x),
-		   (double) (me->p_y - k->pl_y));
       if ((k->pl_info & me->p_team)
 
 #ifdef RECORDGAME

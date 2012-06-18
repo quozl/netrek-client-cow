@@ -888,7 +888,9 @@ static char *DATAFILE(const char* wav) {
  * Load the .wave files into the sounds array
  */
 static int loadSounds(void) {
+#ifdef SOUND_WARN_MISSING
 	int i;
+#endif
 
 	sounds[CLOAK_WAV] = Mix_LoadWAV(DATAFILE("nt_cloaked.wav"));
 	sounds[ENTER_SHIP_WAV] = Mix_LoadWAV(DATAFILE("nt_enter_ship.wav"));
@@ -955,6 +957,7 @@ void Init_Sound(void) {
 
 #if defined(sgi)
 	int err;
+#elif defined(HAVE_SDL)
 #else
 	char buf[PATH_MAX];
 #endif
@@ -1242,7 +1245,9 @@ void Engine_Sound(int speed, int maxspeed) {
 #define SOUND_INIT    MESSAGE_SOUND + 2
 #define SOUND_DONE    MESSAGE_SOUND + 3
 
+#if !defined(HAVE_SDL)
 static void soundrefresh(int i);
+#endif
 
 int sound_window_height(void) {
 #if defined(HAVE_SDL)

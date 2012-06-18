@@ -645,7 +645,7 @@ void   *S_Torp(int torpno)
   else
     {
       sprite = &torpImg[remap[players[this->t_owner].p_team]][0];
-      sprite->view = ++sprite->view % sprite->nviews;
+      sprite->view = (sprite->view + 1) % sprite->nviews;
       // FIXME: torps rotate faster with higher client update rates
     }
 
@@ -684,7 +684,7 @@ void   *S_Plasma(int plasmatorpno)
   else
     {
       sprite = &plasmaImg[remap[players[this->pt_owner].p_team]][0];
-      sprite->view = ++sprite->view % sprite->nviews;
+      sprite->view = (sprite->view + 1) % sprite->nviews;
     }
 
   if ((sprite->image == NoPixmapError) || (pixFlags & NO_WEP_PIX))
