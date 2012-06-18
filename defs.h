@@ -91,9 +91,6 @@
                                  * tractor beam */
 
 
-/* RSA stuff */
-#define RSA_VERSION "RSA v2.0 CLIENT"   /* string must begin with
-                                         * characters "RSA" */
 #define KEY_SIZE 32
 #define RESERVED_SIZE 16
 #define NAME_LEN 16

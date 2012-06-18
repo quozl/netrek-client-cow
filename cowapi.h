@@ -73,17 +73,6 @@ extern int takeNearest;
  extern unsigned LONG  netaddr;
 #endif
 
-#ifdef RSA
-extern int RSA_Client;
-extern char key_name[];
-extern char client_type[];
-extern char client_arch[];
-extern char client_creator[];
-extern char client_comments[];
-extern char client_key_date[];
-
-#endif
-
 #ifdef TOOLS
 extern char *wwwlink;
 extern char *upgradeURL;
