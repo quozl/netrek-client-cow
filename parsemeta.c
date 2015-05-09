@@ -20,6 +20,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "Wlib.h"
 #include "defs.h"
