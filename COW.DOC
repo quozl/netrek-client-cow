@@ -404,12 +404,12 @@ you cannot change the colors.
 If you have any comments, mail them to kantner@hot.caltech.edu
 
 *** Shell escape tool
-You may execute any Unix shell comand within the client. Read your mail 
-now within the client. To do so, just send a message to the destination 
-"!" and you get a shell prompt. Enter the comand and its output will 
+You may execute any Unix shell command within the client. Read your mail
+now within the client. To do so, just send a message to the destination
+"!" and you get a shell prompt. Enter the command and its output will
 be displayed in the tools window. Works also with macros to "!".
 You may disable it in the .xtrekrc for security reasons with shellTools: off
-CAUTION: The client will be blocked for the time the comand is executed.
+CAUTION: The client will be blocked for the time the command is executed.
 Also some programs suspend the client if it is started in the background.
 
 *** Fast quit
