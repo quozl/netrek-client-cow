@@ -916,7 +916,7 @@ void    handleSMessage(struct mesg_s_spacket *packet)
   char    addrbuf[9];
 
   if (debug)
-    printf("Length of Message is: %d  total Size %d \n", strlen(&packet->mesg), (int) packet->length);
+    printf("Length of Message is: %zd  total Size %d \n", strlen(&packet->mesg), (int) packet->length);
   if (packet->m_from >= MAXPLAYER)
     packet->m_from = 255;
 

@@ -128,7 +128,7 @@ void    smessage(char ichar)
       if (keys[0] != '\0')
 	{
 	  if ((pm = INDEX((char *) keys, ichar)))
-	    ichar = macroKeys[((int) pm) - ((int) keys)].dest;
+	    ichar = macroKeys[pm - (char *) keys].dest;
 	}
 #endif
 

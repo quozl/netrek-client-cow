@@ -76,10 +76,8 @@ XTREKRC: system.mk
 	$(MAKE) -f system.mk xtrekrc
 	mv xtrekrc XTREKRC
 
-configure: configure.in
-	rm -f configure
-	$(AUTOCONF) configure.in > configure
-	chmod +x configure
+configure: configure.ac
+	$(AUTOCONF)
 
 unproto: system.mk
 	$(MAKE) -f system.mk unproto

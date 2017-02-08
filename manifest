@@ -160,7 +160,7 @@ TODO
 netrekrc.example
 autogen.sh
 config.h.in
-configure.in
+configure.ac
 system.mk.in
 configure
 config.sub
@@ -179,8 +179,6 @@ cow.png
 cow.desktop
 cow.spec
 lurk.py
-gettext.h
-po
 INSTALL.SGI
 beeplite.h
 censor.h

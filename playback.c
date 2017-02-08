@@ -148,11 +148,11 @@ int
       outmessage[i] = '\0';
     }
 
-  SRANDOM(time(0));
+  SRANDOM(time(NULL));
 
   initDefaults(deffile);
 
-  SRANDOM(getpid() * time((LONG *) 0));
+  SRANDOM(getpid() * time(NULL));
 
   newwin(display_host, name);
 

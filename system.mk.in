@@ -23,11 +23,11 @@ UNPROTOIZE = unprotoize
 INDENT     = indent -i2 -bap -bacc -bad -nbc -bl -nip -di8\
 		-npsl -nce -cli0.5 -ci4 -npcs -fca -ncdb -sc -cd50 -c50
 TOUCH	   = touch
-RM	   = rm -f 
+RM	   = rm -f
 
 # Other libraries neeeded. (All systems need -lX11 -lm)
 
-LIBS            = @LIBS@ 
+LIBS            = @LIBS@
 INCS		= @INCS@
 
 # Flags for optimizing
@@ -38,7 +38,7 @@ OPT             = -g -Wall
 # Flags for shared libraries
 
 SL_CFLAGS	= -fPIC
-SL_LDFLAGS	= -shared $(LIBRARIES) -lc 
+SL_LDFLAGS	= -shared $(LIBRARIES) -lc
 SL_LIB          = libcow.so.`./name 1`
 SL_LIBFLAGS	= -Wl,-soname,$(SL_LIB)
 
@@ -55,34 +55,34 @@ RANDOMOBJ       = @LIBOBJS@
 #  No editables below this point.
 ###############################################################################
 
-ROBJ 		= check.o colors.o data.o death.o defaults.o dmessage.o\
-                  enter.o findslot.o getname.o getship.o helpwin.o inform.o\
-                  interface.o newwin.o option.o planetlist.o macrowin.o\
-	          map.o playerlist.o ranklist.o reserved.o sintab.o\
-	          smessage.o socket.o playback.o stats.o util.o war.o warning.o\
-	          udpopt.o ping.o pingstats.o rotate.o lagmeter.o parsemeta.o\
-	          netstat.o netstatopt.o spopt.o dashboard.o dashboard3.o \
-	          short.o distress.o senddist.o defwin.o tools.o sound.o\
-		  docwin.o cflags.o beeplite.o feature.o\
-		  string_util.o local.o censor.o cowmain.o camera.o myf.o
+ROBJ 		= check.o colors.o data.o death.o defaults.o dmessage.o \
+                  enter.o findslot.o getname.o getship.o helpwin.o inform.o \
+                  interface.o newwin.o option.o planetlist.o macrowin.o \
+	          map.o playerlist.o ranklist.o reserved.o sintab.o \
+	          smessage.o socket.o playback.o stats.o util.o war.o \
+	          warning.o udpopt.o ping.o pingstats.o rotate.o lagmeter.o \
+                  parsemeta.o netstat.o netstatopt.o spopt.o dashboard.o \
+                  dashboard3.o short.o distress.o senddist.o defwin.o tools.o \
+                  sound.o docwin.o cflags.o beeplite.o feature.o string_util.o \
+                  local.o censor.o cowmain.o camera.o myf.o
 
-RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c\
-	          enter.c findslot.c getname.c getship.c helpwin.c inform.c\
-	          input.c interface.c newwin.c option.c planetlist.c\
-                  macrowin.c map.c playerlist.c ranklist.c redraw.c\
-                  smessage.c parsemeta.c socket.c playback.c stats.c util.c war.c\
-                  warning.c udpopt.c sintab.c ping.c pingstats.c rotate.c\
-                  lagmeter.c netstat.c netstatopt.c spopt.c dashboard.c dashboard3.c \
-		  short.c distress.c senddist.c defwin.c tools.c sound.c\
-		  docwin.c cflags.c beeplite.c feature.c reserved.c\
-		  string_util.c local.c censor.c cowmain.c camera.c myf.c
+RSRC 		= check.c colors.c data.c death.c defaults.c dmessage.c \
+                  enter.c findslot.c getname.c getship.c helpwin.c inform.c \
+	          input.c interface.c newwin.c option.c planetlist.c \
+                  macrowin.c map.c playerlist.c ranklist.c redraw.c \
+                  smessage.c parsemeta.c socket.c playback.c stats.c util.c \
+                  war.c warning.c udpopt.c sintab.c ping.c pingstats.c \
+                  rotate.c lagmeter.c netstat.c netstatopt.c spopt.c \
+                  dashboard.c dashboard3.c short.c distress.c senddist.c \
+                  defwin.c tools.c sound.c docwin.c cflags.c beeplite.c \
+                  feature.c reserved.c string_util.c local.c censor.c \
+                  cowmain.c camera.c myf.c
 
+INCLUDES 	= struct.h packets.h defs.h copyright.h bitmaps.h data.h \
+	          oldbitmaps.h tngbitmaps.h hullbitmaps.h rabbitbitmaps.h \
+		  sound.h audio.h litebitmaps.h
 
-INCLUDES 	= struct.h packets.h defs.h copyright.h bitmaps.h data.h\
-	          oldbitmaps.h tngbitmaps.h hullbitmaps.h rabbitbitmaps.h\
-		  sound.h audio.h litebitmaps.h 
-
-INPUTOBJ 	= input.o redraw.o 
+INPUTOBJ 	= input.o redraw.o
 MAINOBJ 	= main.o
 MAINSRC 	= main.c
 
@@ -92,32 +92,28 @@ X11SRC		= @NOX11@ x11window.c x11sprite.c audio.c
 WIN32OBJ	= @NOWIN32@ gnu_win32.o winsprite.o winsndlib.o
 WIN32SRC	= @NOWIN32@ gnu_win32.c winsprite.c winsndlib.c
 
-SDL_CFLAGS 	= @SDL_CFLAGS@
 SDL_CONFIG 	= @SDL_CONFIG@
+SDL_CFLAGS 	= @SDL_CFLAGS@
 SDL_LIBS 	= @SDL_LIBS@
 SDL_MIXER_LIBS	= @SDL_MIXER_LIBS@
 
 # full screen support
 XXF86VM_LIBS    = -lXxf86vm
-# camera snapshot support
-IMLIB2_LIBS     = $(shell imlib2-config --libs)
 
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(INCS)
 CFLAGS ?= $(OPT)
-CFLAGS += $(EXTRACFLAGS) $(INCDIRS)
+CFLAGS += $(INCDIRS)
 LDFLAGS ?= -g
-LDFLAGS += $(EXTRALINKFLAGS)
-LIBRARIES = $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS) $(IMLIB2_LIBS)
+LIBRARIES = $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS)
 
-netrek-client-cow: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ)  $(RANDOMOBJ) cflags.c
-	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(INPUTOBJ) \
-	$(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES)
+netrek-client-cow: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) cflags.c
+	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(INPUTOBJ) $(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES)
 
 netrek.shared: done.libcow $(MAINOBJ) $(COWAPI)
 	$(CC) $(LDFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared
 
-done.libcow: $(PMAKE) $(ROBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) 
+done.libcow: $(PMAKE) $(ROBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ)
 	$(CC) $(ROBJ) $(INPUTOBJ) \
 	$(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(SL_LDFLAGS) $(SL_LIBFLAGS) -o $(COWLIB)
 	$(RM) $(SL_LIB)

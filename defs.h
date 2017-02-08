@@ -2,8 +2,6 @@
 #define _h_defs
 
 #include "copyright.h"
-#include "gettext.h"
-#define _(string) gettext (string)
 
 /* #$!@$#% length of address field of messages */
 #define ADDRLEN 10

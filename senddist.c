@@ -153,7 +153,7 @@ int pmacro(int mnum, char who, W_Event * data)
   if (keys[0] != '\0')
     {
       if ((pm = INDEX((char *) keys, who)))
-	who = macroKeys[((int) pm) - ((int) keys)].dest;
+        who = macroKeys[pm - (char *) keys].dest;
     }
 #endif
 

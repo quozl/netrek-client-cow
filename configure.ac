@@ -198,9 +198,7 @@ if test x$no_sdl != xyes; then
   fi
 fi
 
-AM_GNU_GETTEXT([external])
-
 #--------------------------------------------------------------------
 #       Emit output
 #--------------------------------------------------------------------
-AC_OUTPUT(system.mk po/Makefile.in)
+AC_OUTPUT(system.mk)

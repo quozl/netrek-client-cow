@@ -782,6 +782,7 @@ tryagain:
     {
       perror("unable to get peername");
       serverName = "nowhere";
+      printf("Connection from server\n");
     }
   else
     {
@@ -791,14 +792,15 @@ tryagain:
 	{
 	  serverName = (char *) malloc(strlen(hp->h_name) + 1);
 	  strcpy(serverName, hp->h_name);
+	  printf("Connection from server %s (%s)\n", serverName, inet_ntoa(addr.sin_addr));
 	}
       else
 	{
 	  serverName = (char *) malloc(strlen(inet_ntoa(addr.sin_addr)) + 1);
 	  strcpy(serverName, inet_ntoa(addr.sin_addr));
+	  printf("Connection from server %s\n", serverName);
 	}
     }
-  printf("Connection from server %s (0x%lx)\n", serverName, serveraddr);
 
 }
 
@@ -1258,7 +1260,7 @@ static int doRead(int asock)
                 "next byte %d (0x%02x)\n", *bufptr, *bufptr);
 
         fprintf(stderr, "protocol buffer dump, bytes %d, [bufptr] at %d :\n",
-                count, bufptr - buf);
+                count, (int) (bufptr - buf));
         for (i = 0; i < count; i++) {
           if (i == (bufptr - buf)) {
             fprintf(stderr, "[%02x]", (unsigned int) buf[i] & 0xff);
@@ -3495,7 +3497,7 @@ static int openUdpConn(void)
 	    }
 	}
       serveraddr = addr.sin_addr.s_addr;
-      UDPDIAG(("Found serveraddr == 0x%lx\n", serveraddr));
+      UDPDIAG(("Found serveraddr == %s\n", inet_ntoa(addr.sin_addr)));
     }
   return 0;
 }
@@ -3509,7 +3511,8 @@ int connUdpConn()
   addr.sin_family = AF_INET;
   addr.sin_port = htons(udpServerPort);
 
-  UDPDIAG(("Connecting to host 0x%lx on port %d\n", serveraddr, udpServerPort));
+  UDPDIAG(("Connecting to host %s on port %d\n",
+	   inet_ntoa(addr.sin_addr), udpServerPort));
   if (connect(udpSock, (struct sockaddr *) &addr, sizeof(addr)) < 0)
     {
       perror("netrek: unable to connect UDP socket");
@@ -3581,8 +3584,7 @@ static int recvUdpConn(void)
     {
       /* safe? */
       serveraddr = from.sin_addr.s_addr;
-      UDPDIAG(("Warning: from 0x%x, but server is 0x%lx\n",
-	       from.sin_addr.s_addr, serveraddr));
+      UDPDIAG(("Warning: from different IP\n"));
     }
   if (from.sin_family != AF_INET)
     {
@@ -3706,8 +3708,8 @@ void    handleSequence(struct sequence_spacket *packet)
 	      recent_count += (newseq - sequence) - 1;
 	      if (udpWin)
 		udprefresh(UDP_DROPPED);
-	      UDPDIAG(("sequence=%ld, newseq=%ld, we lost some\n",
-		       sequence, newseq));
+	      UDPDIAG(("sequence=%d, newseq=%d, we lost some\n",
+		       (int) sequence, (int) newseq));
 	    }
 	  sequence = newseq;
 	  /* S_P2 */
@@ -3721,12 +3723,12 @@ void    handleSequence(struct sequence_spacket *packet)
 	  /* reject */
 	  if (packet->type == SP_SC_SEQUENCE)
 	    {
-	      V_UDPDIAG(("(ignoring repeat %ld)\n", newseq));
+	      V_UDPDIAG(("(ignoring repeat %d)\n", (int) newseq));
 	    }
 	  else
 	    {
-	      UDPDIAG(("sequence=%ld, newseq=%ld, ignoring transmission\n",
-		       sequence, newseq));
+	      UDPDIAG(("sequence=%d, newseq=%d, ignoring transmission\n",
+		       (int) sequence, (int) newseq));
 	    }
 	  /* the remaining packets will be dropped and we shouldn't count the
 	   * * * SP_SEQUENCE packet either */
