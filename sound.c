@@ -1065,6 +1065,11 @@ void Init_Sound(void) {
 
         Mix_AllocateChannels(16);
 
+	if (getdefault("soundvol") != NULL) {
+	  int vol = atoi(getdefault("soundvol"));
+	  Mix_Volume(-1, vol);
+	}
+
 	/* If we successfully loaded the wav files, so shut-off
 	   sound_init and play the introduction */
 	if (loadSounds()) {
