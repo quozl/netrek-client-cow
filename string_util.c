@@ -53,6 +53,14 @@ char   *ftoa(float fval, char *result, int pad, int iprec, int dprec)
   int     i, ival;
   float   val = fval;
 
+  if (fval < 0) {
+    for (i = 0; i <= iprec + dprec + 1; i++) {
+       result[i] = '?';
+    }
+    result[iprec + dprec + 1] = '\0';
+    return result;
+  }
+
   if ((iprec + dprec) != 0)
     result[iprec + dprec + 1] = '\0';
 

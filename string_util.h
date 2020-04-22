@@ -20,6 +20,7 @@ char *itoapad (int val, char *result, int pad, int prec);
    (if pad is false).
    
    WARNING: val must be <= 100000000 (size < 9).
+   Does not work for negative numbers.
 */
 
 
