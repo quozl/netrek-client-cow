@@ -997,7 +997,7 @@ void    metawindow()
   static int lastHeight = 0;
 
   if (!metaWin) {
-    height = 250 + metaHeight * (W_Textheight + 8) + 4 * (metaHeight - 1);
+    height = 350 + metaHeight * (W_Textheight + 8) + 4 * (metaHeight - 1);
     metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, height, NULL, 2,
                            foreColor);
     W_SetBackgroundImage(metaWin, "Misc/map_back.png");
