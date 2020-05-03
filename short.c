@@ -1980,7 +1980,7 @@ unsigned char *sbuf;
   struct phaser_s_spacket *packet = (struct phaser_s_spacket *) &sbuf[0];
 
   /* not nice but.. */
-  register int pnum, status, target, x, y, dir;
+  register int pnum, status, target = 0, x = 0, y = 0, dir = 0;
 
   status = packet->status & 0x0f;
   pnum = packet->pnum & 0x3f;
