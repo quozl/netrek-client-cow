@@ -102,8 +102,9 @@ void repair_off(void)
 
 void repeat_message(void)
 {
-  if (++lastm == MAXMESSAGE);
-  lastm = 0;
+  if (++lastm == MAXMESSAGE) {
+    lastm = 0;
+  }
 }
 
 void cloak(void)
