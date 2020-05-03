@@ -2850,7 +2850,7 @@ handleGeneric32_b (struct generic_32_spacket_b *packet)
 	  idling = 0;
         }
       } else {
-        if (!context->gameup & GU_UNSAFE) {
+        if (!(context->gameup & GU_UNSAFE)) {
           if (!idling) {
 	    if (rate < 0) {
 	      warning("Safe idle start.");
