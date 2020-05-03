@@ -415,7 +415,7 @@ void getname(char *defname, char *defpasswd)
       break;
     }
 
-    events(0);
+    events();
     
     if (automatic) {
       timeout.tv_sec = 0;
@@ -498,7 +498,7 @@ void getname(char *defname, char *defpasswd)
     }
 
     if (FD_ISSET(W_Socket(), &readfds))
-      while (W_EventsQueuedCk()) events(0);
+      while (W_EventsQueuedCk()) events();
 
     if (time(0) != lasttime) {
       lasttime++;
