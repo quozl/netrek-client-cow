@@ -4,21 +4,23 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.3.1
+export VERSION=3.3.2
 
 # update version.h patchlevel.h cow.spec
+git add version.h patchlevel.h cow.spec
 
 # update ChangeLog with a release date
+git add ChangeLog
 
 # commit
-darcs record
+git commit -m $VERSION
 
 # tag release
-darcs tag ${VERSION}
+git tag ${VERSION}
 
 # make dist
 cd /tmp && \
-darcs get ~/src/netrek-client-cow && \
+git clone ~/src/netrek-client-cow && \
 cd netrek-client-cow && \
 sh autogen.sh && \
 ./configure && \
@@ -27,7 +29,7 @@ mv netrek-client-cow-${VERSION}.tar.gz ..
 
 cd /tmp
 md5sum netrek-client-cow-${VERSION}.tar.gz
-b4f686e37b694050e701e4b36f605008  netrek-client-cow-3.3.1.tar.gz
+c63b2095af96602044f9b7ae1b038912  netrek-client-cow-3.3.2.tar.gz
 
 # test build the .tar.gz
 cd /tmp
@@ -41,12 +43,13 @@ make
 cd /tmp
 cp netrek-client-cow-${VERSION}.tar.gz ~/public_html/external/mine/netrek/
 upw
-http://quozl.linux.org.au/netrek/
+url http://quozl.linux.org.au/netrek/
 
 # orion upload
 rsync -avP netrek-client-cow-${VERSION}.tar.gz \
-    quozl@orion.netrek.org:/var/www/files.netrek.org/COW/
+    quozl@orion.netrek.org:/data/orion/var/www/files.netrek.org/COW/
+url https://www.netrek.org/files/COW/
 
 # sf.net upload
 rsync -avP netrek-client-cow-${VERSION}.tar.gz quozl@frs.sf.net:uploads/
-http://sourceforge.net/projects/netrek
+url http://sourceforge.net/projects/netrek
