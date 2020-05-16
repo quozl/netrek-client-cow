@@ -1,3 +1,19 @@
+Sat May 16 21:30:39 2020  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.3.2: released
+
+	- remove RSA; no longer served a purpose,
+
+	- fix compilation errors,
+
+	- remove translation support; no translations were contributed,
+
+	- resize metaserver window,
+
+	- add volume control,
+
+	- fix safe-idling indicator.
+
 Tue Oct 18 21:28:57 2011  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.3.1: released
