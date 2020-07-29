@@ -849,6 +849,9 @@ static void redraw(int i)
     case 'C':
       strcat(buf, "Chaos   ");
       break;
+    case 'E':
+      strcat(buf, "Empire  ");
+      break;
     case 'I':
       strcat(buf, "INL     ");
       break;
