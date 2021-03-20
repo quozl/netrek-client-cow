@@ -43,10 +43,10 @@ name:			guest
 #password:		oggtpau
 
 ###############################################################################
-# this sets the default server and port
+# this sets the default server and port and bypasses metaserver window
 
-server:			se.netrek.org
-port:			2592
+#server:			se.netrek.org
+#port:			2592
 
 # you can also make nicknames like:
 server.bronco:		bronco.ece.cmu.edu

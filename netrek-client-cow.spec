@@ -35,7 +35,7 @@ people who have been playing for nearly as long as the game has existed.
 rm -rf %{buildroot}
 
 %files
-%doc CHANGES README.* TODO *.DOC COPYING XTREKRC.example
+%doc CHANGES README.* TODO *.DOC COPYING
 %doc cow.html index.orig.html newbie.html cow.css stars.gif netrekrc.example
 %{_gamesbindir}/%{name}
 %{_datadir}/pixmaps/%{name}/*
