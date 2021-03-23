@@ -40,6 +40,10 @@ static int
 
   if (!line)
     return 0;
+
+  if (*line == ' ')
+    line++;
+
   if (strlen(line) <= MAXMACRO)
     {
       STRNCPY(maclines[num], line, sizeof(maclines[0]));
@@ -78,7 +82,7 @@ static void
   char    key[3];
 
   lineno = 0;
-  for (i = 1, row = 5; distmacro[i].macro != '\0'; i++)
+  for (i = 1, row = 6; distmacro[i].macro; i++)
     {
       if (fill)
 	{
@@ -86,7 +90,7 @@ static void
 	    sprintf(key, "%c", distmacro[i].c);
 	  else
 	    sprintf(key, "^%c", distmacro[i].c - 96);
-	  sprintf(maclines[0], "%-8s %s",
+	  sprintf(maclines[0], "%-7s %s",
 		  key,
 		  distmacro[i].name);
 	  W_WriteText(macroWin, 2, row++, W_Yellow, maclines[0],
@@ -98,7 +102,7 @@ static void
 	{
 	  for (c = 0; c < num; c++)
 	    {
-	      W_WriteText(macroWin, 8, row++, textColor, maclines[c],
+	      W_WriteText(macroWin, 10, row++, textColor, maclines[c],
 			  strlen(maclines[c]), W_RegularFont);
 	    }
 	}
@@ -224,7 +228,7 @@ static void    switchmacros(void)
     {
       lineno = 0;
       filldist(0);
-      num = lineno + 5;
+      num = lineno + 6;
     }
 
   W_ResizeTextWindow(macroWin, 80, num);
@@ -245,7 +249,7 @@ void showMacroWin(void)
 	{
 	  lineno = 0;
 	  filldist(0);
-	  num = lineno + 5;
+	  num = lineno + 6;
 	}
 
       /* we'll use GWINSIDE since it is (probably) less than or equal to *
