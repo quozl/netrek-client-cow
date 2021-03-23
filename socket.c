@@ -2679,6 +2679,7 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
 void sendUpdatePacket(LONG speed)
 {
   struct updates_cpacket packet;
+  bzero(&packet, sizeof(packet));
 
   packet.type = CP_UPDATES;
   timerDelay = speed;
