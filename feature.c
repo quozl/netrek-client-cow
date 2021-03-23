@@ -161,12 +161,20 @@ void
     }
 
   if (strcmpi(packet->name, "FPS") == 0 && value != -1) {
-    server_fps = client_ups = server_ups = value;
+    server_fps = value;
+    if (client_ups > server_fps) {
+      fprintf(stderr, "server FPS of %d limits your updatespersec\n", value);
+      client_ups = server_fps;
+    }
     return;
   }
 
   if (strcmpi(packet->name, "UPS") == 0 && value != -1) {
-    client_ups = server_ups = value;
+    server_ups = value;
+    if (client_ups > server_ups) {
+      fprintf(stderr, "server UPS of %d limits your updatespersec\n", value);
+      client_ups = server_ups;
+    }
     return;
   }
 

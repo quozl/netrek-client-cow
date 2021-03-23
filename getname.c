@@ -397,18 +397,21 @@ void getname(char *defname, char *defpasswd)
     switch (state) {
     case ST_TX_GUEST: /* asking server for access by guest */
       loginAccept = -1;
+      sendUpdatePacket(1000000 / client_ups);
       sendLoginReq(n_buf, ppwd, login, 0);
       state = ST_RX_GUEST;
       redraw();
       break;
     case ST_TX_NAME: /* asking server for access by name */
       loginAccept = -1;
+      sendUpdatePacket(1000000 / client_ups);
       sendLoginReq(n_buf, ppwd, login, 1);
       state = ST_RX_NAME;
       redraw();
       break;
     case ST_TX_LOGIN: /* asking server for access by name and password */
       loginAccept = -1;
+      sendUpdatePacket(1000000 / client_ups);
       sendLoginReq(n_buf, p_buf_a, login, 0);
       state = ST_RX_LOGIN;
       redraw();
