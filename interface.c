@@ -135,7 +135,7 @@ void cloak_off(void)
     }
 }
 
-unsigned long mstime(void)
+unsigned long ustime(void)
 {
 
 #ifndef WIN32
@@ -149,8 +149,8 @@ unsigned long mstime(void)
       return 0;
     }
   gettimeofday(&tv, NULL);
-  return (tv.tv_sec - tv_base.tv_sec) * 1000L +
-      (tv.tv_usec - tv_base.tv_usec) / 1000L;
+  return (tv.tv_sec - tv_base.tv_sec) * 1000000L +
+      (tv.tv_usec - tv_base.tv_usec);
 #else
   static unsigned long base;
 
@@ -159,7 +159,7 @@ unsigned long mstime(void)
       base = GetTickCount();
       return (0);
     }
-  return (GetTickCount() - base);
+  return (GetTickCount() - base) * 1000;
 #endif /* WIN32 */
 }
 

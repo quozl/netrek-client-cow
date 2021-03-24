@@ -2158,9 +2158,9 @@ static void Key100(void)
   else
     sendDetonateReq();
 #else
-  /* want to limit these to one per update */
-  curtime = mstime();
-  if (curtime >= lastdet + 100)			 /* Allow one per 100 ms */
+  /* want to limit these to one per server frame */
+  curtime = ustime();
+  if (curtime >= lastdet + (1000000 / server_fps))
     {
       sendDetonateReq();
       lastdet = curtime;

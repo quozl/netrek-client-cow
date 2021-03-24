@@ -13,6 +13,6 @@ void repeat_message(void);
 void cloak(void);
 void cloak_on(void);
 void cloak_off(void);
-unsigned long mstime(void);
+unsigned long ustime(void);
 unsigned long msetime(void);
 void run_clock(time_t curtime);

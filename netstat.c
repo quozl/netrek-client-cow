@@ -64,7 +64,7 @@ void ns_record_update(int count)
   if (!me)
     return;
 
-  now = mstime();
+  now = ustime() / 1000L;
 
   if (lasttime < (et + et / 4) && now - lastread < et / 2)
     {
