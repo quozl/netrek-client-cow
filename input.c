@@ -1941,8 +1941,7 @@ static void Key74(W_Event * data)
 
 static void Key75(void)
 {
-  /* testing feature, disabled ... display picture of a human on galactic */
-  /* W_GalacticBgd(GREET_PIX); */
+  emptyKey();
 }
 
 static void Key76(void)

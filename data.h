@@ -10,9 +10,8 @@
 #define LOCAL_PIX 1
 #define GHOST_PIX 2
 #define GENO_PIX  3
-#define GREET_PIX 4
 #ifdef HOCKEY_LINES
-#define HOCKEY_PIX 5
+#define HOCKEY_PIX 4
 #endif
 
 #define EX_FRAMES               5
@@ -183,7 +182,6 @@ extern int newDashboard, old_db;
 extern int niftyNewMessages;
 extern int detCircle;
 extern int fastQuit;
-extern int babes;
 extern int showlocal, showgalactic;
 
 #define NO_IND_PIX 0x0001

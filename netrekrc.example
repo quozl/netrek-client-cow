@@ -99,9 +99,6 @@ ROMVLVS:		off
 # as well as some fed bitmaps 
 useTNGBitmaps:		off
 
-# the babes when you bust (kinda sexist but oh well)
-babes: 			on
-
 # Good players dont waste space with planet names on the local map
 #showplanetnames:	off
 

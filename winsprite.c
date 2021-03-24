@@ -58,7 +58,7 @@ struct S_Object
   HBITMAP shape;
 };
 
-#define NUM_BG_IMGS 6
+#define NUM_BG_IMGS 5
 #define NUM_PL_IMGS 11
 
 #define PL_PIX_UKN 0
@@ -128,7 +128,6 @@ const char bgfiles[NUM_BG_IMGS][16] = { "map_back.xpm",
                                       "local_back.xpm",
                                       "ghostbust.xpm",
                                       "genocide.xpm",
-                                      "greet.xpm",
                                       "hockey.xpm"
                                     }; 
 
