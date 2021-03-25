@@ -1480,7 +1480,7 @@ void    handleSWarning(struct warning_s_spacket *packet)
       warning(buf);
       break;
     case SBDOCKDENIED_TEXT:
-      sprintf(buf, "Starbase %s: Permission to dock denied, all ports currently occupied.",
+      sprintf(buf, "Starbase %s: Permission to dock denied, all bays occupied.",
               players[(unsigned char) packet->argument].p_name);
       warning(buf);
       break;
