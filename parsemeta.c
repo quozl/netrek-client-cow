@@ -824,18 +824,22 @@ static void redraw(int i)
            strlen(sp->comment) > 0 ? sp->comment : sp->address);
   buf[80] = '\0';
 
+  char *str = buf + strlen(buf);
+  size_t size = LINE - strlen(buf);
+
   switch(sp->status) {
   case statusOpen:
-    snprintf(buf + strlen(buf), sp->players,      "################");
-    snprintf(buf + strlen(buf), 17 - sp->players, "                ");
-    strcat(buf, "    ");
+    snprintf(str, sp->players + 1, "################");
+    str += sp->players;
+    size -= sp->players;
+    snprintf(str, 16 - sp->players + 1, "                ");
+    strncat(buf, "    ", LINE);
     break;
   case statusWait:
-    snprintf(buf + strlen(buf), 16, "################ Q%2d", sp->players);
+    snprintf(str, size, "################ Q%2d", sp->players);
     break;
   default:
-    snprintf(buf + strlen(buf), 16, "%-16s", statusStrings[sp->status]);
-    strcat(buf, "    ");
+    snprintf(str, size, "%-16s    ", statusStrings[sp->status]);
     break;
   }
 
@@ -939,9 +943,9 @@ static void add_init()
 
 static void add_redraw()
 {
-  char buf[LINE + 1];
+  char buf[LINE + LINE + 1];
 
-  snprintf(buf, LINE, "Add a server: %s_", add_buffer);
+  snprintf(buf, LINE + LINE, "Add a server: %s_", add_buffer);
   W_WriteText(metaList, 0, metaHeight-B_ADD, W_Yellow, buf, -1, 0);
 }
 
