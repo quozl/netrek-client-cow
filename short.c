@@ -489,12 +489,12 @@ void    handleSelfShip(struct youss_spacket *packet)
 
 	  new_flags |= ((packet->pad1 & PFSHIELD) |
 			(packet->pad1 & PFREPAIR) |
-			((packet->pad1 & (PFCLOAK << 2)) >> 2) |
-			((packet->pad1 & (PFGREEN << 7)) >> 7) |
-			((packet->pad1 & (PFYELLOW << 7)) >> 7) |
-			((packet->pad1 & (PFRED << 7)) >> 7) |
-			((packet->pad1 & (PFTRACT << 15)) >> 15) |
-			((packet->pad1 & (PFPRESS << 15)) >> 15));
+			((packet->pad1 & (PFCLOAK >> 2)) << 2) |
+			((packet->pad1 & (PFGREEN >> 7)) << 7) |
+			((packet->pad1 & (PFYELLOW >> 7)) << 7) |
+			((packet->pad1 & (PFRED >> 7)) << 7) |
+			((packet->pad1 & (PFTRACT >> 15)) << 15) |
+			((packet->pad1 & (PFPRESS >> 15)) << 15));
 
 	  me->p_flags = new_flags;
 	}
