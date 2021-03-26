@@ -1651,7 +1651,8 @@ static void Key38(void)
 
   if (strlen(defaultsFile) > 0)
     {
-      sprintf(mbuf, "Re-reading  %s", defaultsFile);
+      strcpy(mbuf, "Re-reading ");
+      strncat(mbuf, defaultsFile, sizeof(mbuf) - strlen(mbuf) - 1);
 
       warning(mbuf);
       initDefaults(defaultsFile);
