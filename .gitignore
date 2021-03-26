@@ -1,0 +1,12 @@
+aclocal.m4
+autom4te.cache
+configure
+install-sh
+ltmain.sh
+config.guess
+config.sub
+system.mk
+cflags.c
+*.o
+mkcflags
+netrek-client-cow
