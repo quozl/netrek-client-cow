@@ -240,7 +240,7 @@ static void GetPixmapDir()
 void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
 {
   register int i, j;
-  char    buf[1024];
+  char    buf[2048];
   int     missing;
 
   Drawable tactical = W_Void2Window(t)->window;
