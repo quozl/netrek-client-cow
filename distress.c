@@ -33,18 +33,22 @@ static int skipmacro (char *buf, int index);
  * and over again. */
 char   *pappend;
 
-#define APPEND(ptr,str)     \
-   pappend = str;           \
-   while(*pappend)          \
-       *ptr++ = *pappend++;
+#define APPEND(ptr, str)    \
+  {                         \
+    pappend = str;          \
+    while (*pappend)        \
+      *ptr++ = *pappend++;  \
+  }
 
-#define APPEND_CAP(ptr,cap,str) \
-   pappend = str;               \
-   while(*pappend)              \
-   {                            \
-       *ptr++ = (cap ? toupper(*pappend) : *pappend); \
-       pappend++;               \
-   }
+#define APPEND_CAP(ptr, cap, str)               \
+  {                                             \
+    pappend = str;                                    \
+    while (*pappend)                                  \
+      {                                                 \
+        *ptr++ = (cap ? toupper(*pappend) : *pappend);  \
+        pappend++;                                      \
+      }                                                 \
+  }
 
 /* This is a hacked version from the K&R book.  Basically it puts <n> into
  * <s> in reverse and then reverses the string... MH.  10-18-93 */
