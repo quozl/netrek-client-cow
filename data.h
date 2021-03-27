@@ -91,7 +91,6 @@ extern int messMouseDelta;			 /* To keep track of mouse
 #endif
 extern int lastcount;
 extern int mdisplayed;
-extern int lastm;
 extern int delay;
 extern int rdelay;
 extern int namemode;

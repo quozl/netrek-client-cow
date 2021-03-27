@@ -774,8 +774,6 @@ int     cowmain(char *server, int port, char *name)
 
   findslot();
 
-  lastm = mctl->mc_current;
-
   mapAll();
 
 #ifndef RWATCH

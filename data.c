@@ -91,7 +91,6 @@ int     tryUdp1 = 1;
 struct plupdate pl_update[MAXPLANETS];
 char    buttonmap[W_BUTTON_RANGE] =
 {'\0', '\0', '\0', '\0', '\0', '\0'};
-int     lastm = 0;
 int     delay = 0;				 /* delay for decaring war */
 int     rdelay = 0;				 /* delay for refitting */
 int     namemode = 1;

@@ -230,8 +230,6 @@ int
 
   displayme = packetsme;
 
-  lastm = mctl->mc_current;
-
   mapAll();
 
   /* Instructions from getname() */

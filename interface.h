@@ -9,7 +9,6 @@ void beam_up(void);
 void beam_down(void);
 void repair(void);
 void repair_off(void);
-void repeat_message(void);
 void cloak(void);
 void cloak_on(void);
 void cloak_off(void);
