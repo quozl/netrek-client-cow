@@ -638,6 +638,7 @@ void input()
   struct timeval timeout;
   int     retval;
   int     flush = 0;
+  int     stall = 100;
 
   while (1) {
     FD_ZERO(&readfds);
@@ -655,20 +656,30 @@ void input()
       flush++;
     }
 
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 100000;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
     retval = SELECT(max_fd, &readfds, 0, 0, &timeout);
     if (retval == 0) {
-      warning("Stall in data stream from server!");
-      redrawall = 1;
-      redraw();
-      flush++;
+#ifndef HAVE_WIN32
+      /* With Xlib/XCB, X events might not cause the X socket to be readable */
+      if (W_EventsQueuedCk()) {
+        while (W_EventsQueuedCk())
+	  process_event();
+        flush++;
+      }
+#endif
+      stall--;
+      if (stall < 0) {
+	warning("Stall in data stream from server!");
+	redrawall = 1;
+	redraw();
+	flush++;
+	stall = 100;
+      }
     } else if (retval > 0) {
 #ifndef THREADED
 #ifndef HAVE_WIN32
-      /* keyboard, mouse, and expose events from the X server
-	 cause the X socket to be readable, so we must direct Xlib
-	 to read them (W_EventsQueuedCk), then we process them. */
+      /* X events may cause the X socket to be readable */
       if (FD_ISSET(xsock, &readfds)) {
 	while (W_EventsQueuedCk())
 	  process_event();
@@ -684,6 +695,7 @@ void input()
       /* read from server */
       if (FD_ISSET(sock, &readfds) ||
 	  (udpSock >= 0 && FD_ISSET(udpSock, &readfds))) {
+	stall = 100;
 	intrupt(&readfds);
 	flush++;
 	if (isServerDead()) {

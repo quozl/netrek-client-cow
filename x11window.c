@@ -3452,7 +3452,7 @@ int
 int
         W_EventsQueuedCk(void)
 {
-  return XEventsQueued(W_Display, QueuedAfterReading);
+  return QLength(W_Display);
 }
 
 int W_ReadEvents(void)
