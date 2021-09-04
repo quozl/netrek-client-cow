@@ -10,3 +10,7 @@ cflags.c
 *.o
 mkcflags
 netrek-client-cow
+config.h
+config.log
+config.status
+null
