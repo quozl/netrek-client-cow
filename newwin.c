@@ -54,8 +54,7 @@
 #include "warning.h"
 
 #include "newwin.h"
-
-extern char cbugs[];
+#include "version.h"
 
 /* line number of motd to display at top of window */
 static int motd_offset = 0;
@@ -1285,12 +1284,12 @@ void showMotd(W_Window w, int atline)
   int     count;
   char    buf[128];
 
-  sprintf(buf, "---  %s  ---", (char *) query_cowid());
+  sprintf(buf, "---  %s  ---", version);
   length = strlen(buf);
   center = TWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(w, center, W_Textheight, W_Cyan, buf, length, W_BoldFont);
 
-  show_motd_heading(w, cbugs, 3, W_Cyan);
+  show_motd_heading(w, "feedback to: quozl@us.netrek.org", 3, W_Cyan);
 
   if (me == NULL) {
     show_motd_heading(w, "while you are in the queue", 5, W_Grey);

@@ -43,10 +43,6 @@ extern int     usemeta;
 
 /* Global COW Variables which may be set and/or used outside */
 
-/* Version Information */
-extern char cflags[], arch[], cdate[], cbugs[], cowid[], cwho[];
-extern struct timeval tv_ctime;
-
 #ifndef PSEUDOSIZE
 #define PSEUDOSIZE 16
 #endif

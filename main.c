@@ -4,20 +4,16 @@
 #include "copyright.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include INC_STRINGS
 #include <time.h>
 #include INC_SYS_TIME
 #include <locale.h>
 
-#ifdef TOOLS
-#include <stdlib.h>
-#include "version.h"
-#include "patchlevel.h"
-#endif
-
 #include "cowapi.h"
 #include "defs.h"
 #include "defaults.h"
+#include "version.h"
 
 #ifdef GATEWAY
 extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
@@ -30,11 +26,6 @@ void read_servers();
 extern int logmess;
 
 char   *servertmp = NULL;
-
-#ifdef EXPIRE
-char    exptime[27];
-
-#endif
 
 #define NO_PIXMAPS 0x8000
 extern int pixMissing;
@@ -54,16 +45,6 @@ int main2(int argc, char **argv)
   int     inplayback = 0;
 
   char   *name, *ptr;
-
-#ifdef TOOLS
-  char    url[1024];
-
-#endif
-
-#ifdef EXPIRE
-  time_t  expday, daycomp, today;
-
-#endif
 
 #ifdef GATEWAY
   int     hset = 0;
@@ -87,17 +68,6 @@ int main2(int argc, char **argv)
 
 #ifdef GATEWAY
   netaddr = 0;
-#endif
-
-#ifdef EXPIRE
-  daycomp = tv_ctime.tv_sec;
-  expday = daycomp + EXPIRE * 24 * 3600;
-  today = time(NULL);
-  STRNCPY(exptime, ctime(&expday), sizeof(exptime));
-#endif
-
-#ifdef TOOLS
-  url[0] = '\0';
 #endif
 
   pseudo[0] = defpasswd[0] = '\0';
@@ -332,26 +302,6 @@ int main2(int argc, char **argv)
 	    case 'D':
 	      debug++;
 	      break;
-	    case 'v':
-	      printf("%s\n", cowid);
-	      printf("Compile options used: %s\n", cflags);
-	      printf("Compiled on %s by %s\n", cdate, cwho);
-	      printf("%s\n", cbugs);
-
-#ifdef RSA
-	      printf("RSA key installed: %s --- Created by: %s\n", key_name, client_creator);
-	      printf("     Client type: %s\n", client_type);
-	      printf("     Client arch: %s\n", client_arch);
-	      printf("     Key permutation date: %s\n", client_key_date);
-	      printf("     Comments: %s\n", client_comments);
-#endif
-
-#ifdef EXPIRE
-	      printf("THIS CLIENT WILL EXPIRE ON %s\n", exptime);
-#endif
-
-	      exit(0);
-	      break;
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
 	    case 'i':
@@ -370,19 +320,6 @@ int main2(int argc, char **argv)
 	      pixMissing |= NO_PIXMAPS;
 	      break;
 
-#ifdef TOOLS
-	    case 'L':
-	      sprintf(url, upgradeURL, arch);
-	      break;
-
-	    case 'V':
-	      sprintf(url, releaseURL, mvers, PATCHLEVEL);
-	      break;
-
-	    case 'B':
-	      sprintf(url, bugURL, mvers, PATCHLEVEL, arch);
-	      break;
-#endif
 	    case 'S': /* analyse a cambot recording for visualisation */
 	      gather_stats++;
 	      break;
@@ -395,52 +332,6 @@ int main2(int argc, char **argv)
 	  ptr++;
 	}
     }
-
-#ifdef TOOLS
-  if (*url)
-    {
-      char    webcall[1024];
-
-      initDefaults(deffile);
-      if (getdefault("wwwlink") != NULL)
-	wwwlink = getdefault("wwwlink");
-
-      snprintf(webcall, sizeof(webcall), wwwlink, url);
-      if (system(webcall) == -1)
-	printf("Running %s for URL %s failed\n", wwwlink, url);
-      url[0] = '\0';
-      exit(0);
-    }
-#endif
-
-#ifdef EXPIRE
-  daycomp = tv_ctime.tv_sec;
-  expday = daycomp + EXPIRE * 24 * 3600;
-  today = time(NULL);
-  STRNCPY(exptime, ctime(&expday), sizeof(exptime));
-
-  if ((expday - today) < 0.2 * (expday - daycomp) || (expday - today) / (24 * 3600) < 5)
-    {
-      printf("!!!!!!!!!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!!!!!!!!!\n");
-      printf("This client will expire on %s\n", exptime);
-      printf("Please obtain a newer version from your favourite ftp site.\n");
-      printf("At the moment of writing http://cow.netrek.org/ is the COW home.\n");
-
-#ifdef TOOLS
-      printf("Or try the -L option to get a new version.\n");
-#endif
-    }
-  if (today > expday)
-    {
-      printf("Sorry. This client has expired. It can no longer be used.\n");
-
-#ifdef TOOLS
-      printf("Try the -L option to get a new version.\n");
-#endif
-
-      exit(0);
-    }
-#endif
 
   if (usage || err)
     {
@@ -472,7 +363,7 @@ int main2(int argc, char **argv)
 
 static void printUsage(char *prog)
 {
-  printf("%s\n", cowid);
+  printf("%s\n", version);
   printf("Usage: %s [options] [display-name]\n", prog);
   printf("Options:\n");
   printf(" [--server n]        Connect to a server immediately\n");
@@ -521,16 +412,4 @@ static void printUsage(char *prog)
 #endif
 
   printf(" [-b]   do not attempt to load color pixmaps\n");
-
-#ifdef TOOLS
-  printf(" [-L]   upgrade to Latest version (requires running netscape)\n");
-  printf(" [-V]   Version info and release notes (requires running netscape)\n");
-  printf(" [-B]   submit a Bug report (requires running netscape)\n");
-#endif
-
-  printf(" [-v]   display client version info\n");
-
-#ifdef EXPIRE
-  printf("THIS CLIENT WILL EXPIRE ON %s\n", exptime);
-#endif
 }

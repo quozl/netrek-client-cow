@@ -52,8 +52,6 @@
 
 int     takeNearest = 0;
 
-extern char cflags[], arch[], cdate[], cbugs[], cowid[], cwho[];
-
 jmp_buf env;
 int     isFirstEntry;
 
@@ -528,12 +526,6 @@ RETSIGTYPE handle_exception(int);
 extern int log_packets;
 
 #endif
-
-char   *
-        query_cowid(void)
-{
-  return cowid;
-}
 
 /* Variables passing Optional Arguments to cowmain */
 

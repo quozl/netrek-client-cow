@@ -68,7 +68,6 @@ map.c
 map.h
 myf.c
 myf.h
-mkcflags.c
 mkfilent.mak
 mkkey.c
 key.mk.in

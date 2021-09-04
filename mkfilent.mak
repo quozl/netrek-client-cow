@@ -150,7 +150,7 @@ ROBJ            = check.obj colors.obj data.obj death.obj defaults.obj dmessage.
                   udpopt.obj ping.obj pingstats.obj rotate.obj lagmeter.obj parsemeta.obj\
                   netstat.obj netstatopt.obj spopt.obj dashboard.obj dashboard3.obj\
                   short.obj distress.obj senddist.obj defwin.obj tools.obj sound.obj\
-                  docwin.obj cflags.obj beeplite.obj feature.obj\
+                  docwin.obj beeplite.obj feature.obj\
                   string_util.obj local.obj censor.obj cowmain.obj 
 
 RSRC            = check.c colors.c data.c death.c defaults.c dmessage.c\
@@ -161,7 +161,7 @@ RSRC            = check.c colors.c data.c death.c defaults.c dmessage.c\
                   warning.c udpopt.c sintab.c ping.c pingstats.c rotate.c\
                   lagmeter.c netstat.c netstatopt.c spopt.c dashboard.c dashboard3.c\
                   short.c distress.c senddist.c defwin.c tools.c sound.c\
-                  docwin.c cflags.c beeplite.c feature.c reserved.c\
+                  docwin.c beeplite.c feature.c reserved.c\
                   string_util.c local.c censor.c cowmain.c
 
 INPUTOBJ        = input.obj redraw.obj 
@@ -181,14 +181,6 @@ INCLUDES        = struct.h packets.h defs.h copyright.h bitmaps.h data.h\
                   sound.h audio.h litebitmaps.h
 
 all: netrek.exe
-
-cflags.c: mkcflags.exe config.h mkfilent.mak
-		mkcflags "$(cc) $(cflags)" "$(ARCH)"  > cflags.c
-		echo char cwho[]="$(CWHO)"; >> cflags.c
-
-mkcflags.exe: mkcflags.c patchlevel.h version.h config.h mkfilent.mak
-		$(compileandlink) $(cflags) $(DEFS) $(INCS) mkcflags.c 
-
 
 OBJS = $(ROBJ) $(MAINOBJ) $(RSAOBJ) $(INPUTOBJ) $(WIN32_OBJS) 
 $(RANDOMOBJ)

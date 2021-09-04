@@ -5,7 +5,7 @@
 ! Force the modules containing symbols that duplicate DEC C run time library
 ! entry points to be resolved first, avoiding use of the RTL.
 !
-cluster=main,,,main,newwin,stats,pingstats,getname,cflags,data,sintab
+cluster=main,,,main,newwin,stats,pingstats,getname,data,sintab
 !
 ! Find all other modules here
 !

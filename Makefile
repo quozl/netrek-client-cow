@@ -23,9 +23,9 @@ clean:
 	rm -f *.o $(OBJ) $(SHAREDTARGET)
 
 reallyclean: clean
-	rm -f netrek-client-cow name mkcflags \
+	rm -f netrek-client-cow name \
 	config.h system.mk config.status config.log config.cache \
-	null netrek.shared lib* cflags.c \
+	null netrek.shared lib* \
 	po/Makefile po/Makefile.in
 
 distclean: clean reallyclean

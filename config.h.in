@@ -65,11 +65,6 @@
 /*	CORRUPTED_PACKETS 	- prevents some seg faults but verbose output	*/
 #define CORRUPTED_PACKETS
 
-/*	EXPIRE=#      		- number of days this version will work for	*/
-#if 0 /* ndef STABLE  expire function removed */
-#define EXPIRE 365
-#endif
-
 /*	ARMY_SLIDER   		- some sort of funky status window thing	*/
 #define ARMY_SLIDER
 

@@ -12,8 +12,7 @@
 #include "cowmain.h"
 #include "defaults.h"
 #include "docwin.h"
-
-extern char cbugs[];
+#include "version.h"
 
 #define NORMAL          0
 #define BOLD            1
@@ -48,7 +47,7 @@ void showdocs(int atline)
   if (!W_IsMapped(docwin))
     W_MapWindow(docwin);
 
-  snprintf(buf, sizeof(buf), "---  %s  ---", (char *) query_cowid());
+  snprintf(buf, sizeof(buf), "---  %s  ---", version);
   length = strlen(buf);
 
   /* using GWINSIDE instead of TWINSIDE because with small_screen set it
@@ -57,7 +56,7 @@ void showdocs(int atline)
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(docwin, center, W_Textheight, textColor,
 	      buf, length, W_BoldFont);
-  snprintf(buf, sizeof(buf), "%s", cbugs);
+  snprintf(buf, sizeof(buf), "feedback to: quozl@us.netrek.org");
   length = strlen(buf);
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(docwin, center, 3 * W_Textheight, textColor,
@@ -215,12 +214,12 @@ void showxtrekrc(int atline)
   if (!W_IsMapped(xtrekrcwin))
     W_MapWindow(xtrekrcwin);
 
-  snprintf(buf, sizeof(buf), "---  %s  ---", (char *) query_cowid());
+  snprintf(buf, sizeof(buf), "---  %s  ---", version);
   length = strlen(buf);
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(xtrekrcwin, center, W_Textheight, textColor,
 	      buf, length, W_BoldFont);
-  snprintf(buf, sizeof(buf), "%s", cbugs);
+  snprintf(buf, sizeof(buf), "feedback to: quozl@us.netrek.org");
   length = strlen(buf);
   center = GWINSIDE / 2 - (length * W_Textwidth) / 2;
   W_WriteText(xtrekrcwin, center, 3 * W_Textheight, textColor,

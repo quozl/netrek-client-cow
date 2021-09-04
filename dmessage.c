@@ -25,7 +25,6 @@
 
 #include "dmessage.h"
 
-extern char cowid[];
 static int version_sent = 0;
 
 static int instr(char *string1, char *string2);
@@ -120,7 +119,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	      !strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
 	      printf("dmessage:flags==team PIG call from=%d\n", from);
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	}
 
@@ -138,7 +137,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
 	      printf("dmessage:MINDIV PIG call from=%d\n", from);
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	}
       else
@@ -149,7 +148,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	  W_WriteText(messwa, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	}
       W_WriteText(reviewWin, 0, 0, color, message, len, 0);
@@ -192,7 +191,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	  W_WriteText(messwt, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	  if (logmess)
 	    {
@@ -214,7 +213,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	    W_WriteText(messwi, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	  if (logmess)
 	    {
@@ -235,7 +234,7 @@ void dmessage(char *message, unsigned char flags, unsigned char from, unsigned c
 	  W_WriteText(messwa, 0, 0, color, message, len, 0);
 	  if (!strncmp(message + 10, "     ", 5) && (message[15] == 0))
 	    {
-	      if (!versionHide) pmessage(cowid, from, MINDIV);
+	      if (!versionHide) pmessage(version, from, MINDIV);
 	    }
 	  if (logmess)
 	    {
