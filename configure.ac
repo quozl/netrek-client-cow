@@ -157,7 +157,6 @@ LIBS="$LIBS $XLIBSW"
 AC_CHECK_LIB(Xbsd, main, [LIBS="$LIBS -lXbsd"])
 AC_CHECK_LIB(socket, main, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(inet, main, [LIBS="$LIBS -linet"])
-AC_CHECK_LIB(nsl, main, [LIBS="$LIBS -lnsl"])
 AC_CHECK_LIB(seq, main, [LIBS="$LIBS -lseq"])
 AC_CHECK_LIB(sun, main, [LIBS="$LIBS -lsun"])
 
