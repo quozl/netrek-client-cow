@@ -332,6 +332,7 @@ static int ReadMetasSend()
     /* look for next host name in list */
     token = strtok(NULL,",");
   } /* while (token != NULL) */
+  free(metaservers);
 
   metaWindowName = "Netrek Server List";
   return sent;
