@@ -3001,6 +3001,8 @@ void
 #endif
 
   win = W_Void2Window(window);
+  free(win->name);
+  free(win->data);
   deleteWindow(win);
   XDestroyWindow(W_Display, win->window);
   free((char *) win);
@@ -3423,6 +3425,22 @@ W_ReinitMenu(W_Window window, int neww, int newh)
       items[i].color = W_White;
    }
    win->data = (char *) items;
+}
+
+void
+W_DestroyMenu(W_Window window)
+{
+   struct window	*win = W_Void2Window(window);
+   struct menuItem	*items;
+   int			i;
+
+   items = (struct menuItem *) win->data;
+   for(i=0; i< win->height; i++){
+      free((char *) items[i].string);
+   }
+   free ((char *)items);
+   win->data = NULL;
+   W_DestroyWindow(window);
 }
 
 /* this procedure should only be used if the menu is initially defined

@@ -1052,12 +1052,14 @@ void    metawindow()
 
 static void metadone(void)
 {
+  SaveMetasCache();
   W_UnmapWindow(metaList);
+  W_DestroyMenu(metaList);
   W_DropImage(logo);
   W_UnmapWindow(metaWin);
-  SaveMetasCache();
-  free(serverlist);
+  W_DestroyWindow(metaWin);
   W_DropImage(metawindow_background);
+  free(serverlist);
   terminate(0);
 }
 
