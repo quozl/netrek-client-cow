@@ -1058,6 +1058,7 @@ static void metadone(void)
   SaveMetasCache();
   free(serverlist);
   W_DropImage(metawindow_background);
+  terminate(0);
 }
 
 
@@ -1199,7 +1200,6 @@ static int button(W_Event *data)
     toggle_help();
   } else if (data->y == metaHeight-B_QUIT) { /* quit */
     metadone();
-    terminate(0);
   }
   return 0;
 }
@@ -1210,7 +1210,6 @@ static int key(W_Event *data)
   if (data->y == (metaHeight-B_ADD)) return add_key(data);
   if (data->key == 113 || data->key == 196) { /* q or ^d */
     metadone();
-    terminate(0);
   } else if (data->key == 114 || data->key == 210) { /* r or ^r */
     refresh();
   } else if (data->key == W_Key_Up) {
