@@ -1010,6 +1010,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
     }
   XStoreName(W_Display, newwin->window, window_title);
   XSetWMNormalHints(W_Display, newwin->window, sz_hints);
+  XFree(sz_hints);
   class_hint.res_name = name;
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
@@ -1996,6 +1997,7 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
     sz_hints->flags |= WMXYHintMode_default();
   XStoreName(W_Display, newwin->window, name);
   XSetWMNormalHints(W_Display, newwin->window, sz_hints);
+  XFree(sz_hints);
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
   newwin->name = strdup(name);
@@ -2128,7 +2130,7 @@ int     border;
     sz_hints->flags |= WMXYHintMode_default();
   XStoreName(W_Display, newwin->window, name);
   XSetWMNormalHints(W_Display, newwin->window, sz_hints);
-  XFree((void *) sz_hints);
+  XFree(sz_hints);
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
   newwin->name = strdup(name);
@@ -3398,6 +3400,7 @@ void
   sz_hints->max_height = newh;
   sz_hints->flags = PMinSize | PMaxSize;
   XSetWMNormalHints(W_Display, w->window, sz_hints);
+  XFree(sz_hints);
   XResizeWindow(W_Display, w->window, neww, newh);
 }
 
