@@ -96,6 +96,10 @@ After this, you will see your ship in the centre, with any other ships and plane
 
 ## Frequently Asked Questions
 
+### Local server
+
+See [netrek-server](https://github.com/quozl/netrek-server) for how to set up a local server.  Once started, the server will be shown in the server list.
+
 ### Lag when many ships nearby
 
 Graphics load can exceed capacity.  The game does not detect this.
