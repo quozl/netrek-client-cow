@@ -516,7 +516,7 @@ static void savebitmaps(void)
       ROMVLVS_bitmap[i] =
 	  W_StoreBitmap(rom_cruiser_width, rom_cruiser_height,
 			ROMVLVS_bits[i], w);
-      noinfoplanet = W_StoreBitmap(planet_width, planet_height, noinfo_bits, w);
+
       fed_bitmaps[SCOUT][i] =
 	  W_StoreBitmap(fed_scout_width, fed_scout_height,
 			fed_scout_bits[i], w);
@@ -643,6 +643,7 @@ static void savebitmaps(void)
 			ind_cruiser_bits[i], w);
     }
 
+  noinfoplanet = W_StoreBitmap(planet_width, planet_height, noinfo_bits, w);
   clockpic = W_StoreBitmap(clock_width, clock_height, clock_bits, qwin);
 
 #ifdef BEEPLITE
