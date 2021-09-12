@@ -834,6 +834,7 @@ int     cowmain(char *server, int port, char *name)
   if (i >= RETURNBASE) {
     W_FullScreenOff(baseWin);
     W_Flush();
+    W_DestroyWindow(baseWin);
     return i - RETURNBASE;			 /* Terminate with retcode */
   }
 
@@ -921,7 +922,7 @@ int     cowmain(char *server, int port, char *name)
 	  if (log_packets)
 	    Dump_Packet_Log_Info();
 #endif
-
+	  W_Deinitialize();
 	  return 0;
 
 
@@ -1010,6 +1011,7 @@ int     cowmain(char *server, int port, char *name)
 #endif
 
       /* Get input until the player quits or dies */
+      /* on death(), we longjmp to setjmp above */
       input();
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
