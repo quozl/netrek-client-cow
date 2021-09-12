@@ -58,7 +58,9 @@ void death(void)
   W_ClearWindow(w);
   W_ClearWindow(iconWin);
 
+#ifdef SOUND
   sound_flags = PFSHIELD;
+#endif
 
   if (oldalert != PFGREEN)
     {
