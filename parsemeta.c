@@ -77,7 +77,8 @@ static int metaHeight = 0;              /* The number of list lines.    */
 static char *metaWindowName;            /* The window's name.           */
 static int statusLevel;
 static W_Window metaWin, metaList, metaHelpWin = NULL;
-void *logo;
+static void *metawindow_background;
+static void *logo;
 
 /* button offsets from end of list */
 #define B_ADD 4
@@ -996,6 +997,7 @@ static int add_key(W_Event *data)
   return 0;
 }
 
+
 void    metawindow()
 /* Show the meta server menu window */
 {
@@ -1007,7 +1009,7 @@ void    metawindow()
     height = 350 + metaHeight * (W_Textheight + 8) + 4 * (metaHeight - 1);
     metaWin = W_MakeWindow("Netrek Server List", 0, 0, 716, height, NULL, 2,
                            foreColor);
-    W_SetBackgroundImage(metaWin, "Misc/map_back.png");
+    metawindow_background = W_SetBackgroundImage(metaWin, "Misc/map_back.png");
     logo = W_ReadImage(metaWin, "netrek-green-white-300px.png");
     metaList = W_MakeMenu("metalist", 50, 200, LINE, metaHeight, metaWin, 1);
     lastHeight = metaHeight;
@@ -1054,6 +1056,7 @@ static void metadone(void)
   W_UnmapWindow(metaWin);
   SaveMetasCache();
   free(serverlist);
+  W_DropImage(metawindow_background);
 }
 
 
