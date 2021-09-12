@@ -3915,7 +3915,6 @@ void W_FullScreen(W_Window window) {
 
 void W_Deinitialize()
 {
-  fprintf(stderr, "XCloseDisplay\n");
   for (int i = 0; i<FONTS; i++) {
     XFontStruct *xfs = fonts[i].xfs;
     if (xfs) XFreeFont(W_Display, xfs);
@@ -3924,5 +3923,4 @@ void W_Deinitialize()
   XFreeFont(W_Display, _tts_fontinfo);
 #endif
   XCloseDisplay(W_Display);
-  fprintf(stderr, "XCloseDisplay done\n");
 }
