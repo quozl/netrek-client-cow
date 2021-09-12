@@ -193,5 +193,6 @@ void W_DrawScreenShot(W_Window w, int x, int y);
 void *W_ReadImage(W_Window w, char *name);
 void W_DrawImage(int x, int y, void *sprite_v);
 void W_DropImage(void *sprite_v);
+extern void W_Deinitialize();
 
 #endif /* _h_Wlib */

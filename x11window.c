@@ -202,6 +202,7 @@ static int W_isEvent = 0; /* an event is being held here for the caller */
 struct fontInfo
   {
     int     baseline;
+    XFontStruct *xfs;
   };
 
 struct colors
@@ -490,6 +491,7 @@ void GetFonts(void)
   regular = fontinfo->fid;
   W_Textwidth = fontinfo->max_bounds.width;
   W_Textheight = fontinfo->max_bounds.descent + fontinfo->max_bounds.ascent;
+  fonts[1].xfs = fontinfo;
   fonts[1].baseline = fontinfo->max_bounds.ascent;
 
   fontname = getdefault("boldfont");
@@ -503,12 +505,14 @@ void GetFonts(void)
   if (fontinfo == NULL)
     {
       bold = regular;
+      fonts[2].xfs = NULL;
       fonts[2].baseline = fonts[1].baseline;
     }
   else
     {
       checkFont(fontinfo, fontname);
       bold = fontinfo->fid;
+      fonts[2].xfs = fontinfo;
       fonts[2].baseline = fontinfo->max_bounds.ascent;
       if (fontinfo->max_bounds.width > W_Textwidth)
 	W_Textwidth = fontinfo->max_bounds.width;
@@ -527,12 +531,14 @@ void GetFonts(void)
   if (fontinfo == NULL)
     {
       italic = regular;
+      fonts[3].xfs = NULL;
       fonts[3].baseline = fonts[1].baseline;
     }
   else
     {
       checkFont(fontinfo, fontname);
       italic = fontinfo->fid;
+      fonts[3].xfs = fontinfo;
       fonts[3].baseline = fontinfo->max_bounds.ascent;
       if (fontinfo->max_bounds.width > W_Textwidth)
 	W_Textwidth = fontinfo->max_bounds.width;
@@ -551,6 +557,7 @@ void GetFonts(void)
   if (fontinfo == NULL)
     {
       big = regular;
+      fonts[0].xfs = NULL;
       fonts[0].baseline = fonts[1].baseline;
       W_BigTextwidth = W_Textwidth;
       W_BigTextheight = W_Textheight;
@@ -558,6 +565,7 @@ void GetFonts(void)
   else
     {
       big = fontinfo->fid;
+      fonts[0].xfs = fontinfo;
       fonts[0].baseline = fontinfo->max_bounds.ascent;
       W_BigTextwidth = fontinfo->max_bounds.width;
       W_BigTextheight = fontinfo->max_bounds.descent + fontinfo->max_bounds.ascent;
@@ -3880,4 +3888,18 @@ void W_FullScreen(W_Window window) {
     pointer_grab_on(window);
   }
 #endif
+}
+
+void W_Deinitialize()
+{
+  fprintf(stderr, "XCloseDisplay\n");
+  for (int i = 0; i<FONTS; i++) {
+    XFontStruct *xfs = fonts[i].xfs;
+    if (xfs) XFreeFont(W_Display, xfs);
+  }
+#ifdef BEEPLITE
+  XFreeFont(W_Display, _tts_fontinfo);
+#endif
+  XCloseDisplay(W_Display);
+  fprintf(stderr, "XCloseDisplay done\n");
 }

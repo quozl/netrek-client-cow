@@ -1047,5 +1047,6 @@ void    terminate(int error)
     fclose(recordFile);
 #endif
 
+  W_Deinitialize();
   longjmp(env, RETURNBASE + error);
 }
