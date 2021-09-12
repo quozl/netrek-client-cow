@@ -1015,6 +1015,7 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
   newwin->name = strdup(name);
+  newwin->data = NULL;
   newwin->width = width;
   newwin->height = height;
   if (wparent != W_Root)
@@ -2001,6 +2002,7 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   XSetClassHint(W_Display, newwin->window, &class_hint);
   XSetWMHints(W_Display, newwin->window, &wm_hint);
   newwin->name = strdup(name);
+  newwin->data = NULL;
   newwin->width = width;
   newwin->height = height;
   if (wparent != W_Root)
