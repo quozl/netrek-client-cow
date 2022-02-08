@@ -1,8 +1,9 @@
 dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Netrek installation
 dnl	to configure the system for the local environment.
-AC_INIT(name.c)
-AC_CANONICAL_SYSTEM
+AC_INIT
+AC_CONFIG_SRCDIR([name.c])
+AC_CANONICAL_TARGET
 AC_CONFIG_HEADER(config.h)
 
 AC_PROG_INSTALL
@@ -11,7 +12,7 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_LN_S
 
-AC_AIX
+AC_USE_SYSTEM_EXTENSIONS
 
 AC_C_INLINE
 
@@ -26,11 +27,9 @@ AC_C_INLINE
 #--------------------------------------------------------------------
 
 AC_MSG_CHECKING(if fd_set requires sys/select.h)
-AC_TRY_COMPILE( [#include <sys/types.h>], [fd_set readMask, writeMask;],
-  AC_MSG_RESULT(no) ,
-  AC_EGREP_HEADER(fd_set, sys/select.h,
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>]], [[fd_set readMask, writeMask;]])],[AC_MSG_RESULT(no) ],[AC_EGREP_HEADER(fd_set, sys/select.h,
       AC_DEFINE(NEED_SYS_SELECT_H) AC_MSG_RESULT(yes),
-      AC_DEFINE(NO_FD_SET) AC_MSG_RESULT(fd_set missing)))
+      AC_DEFINE(NO_FD_SET) AC_MSG_RESULT(fd_set missing))])
 
 #--------------------------------------------------------------------
 #	Check for various typedefs and provide substitutes if
@@ -46,7 +45,7 @@ AC_CHECK_HEADERS(sys/wait.h netinet/in.h netinet/tcp.h sys/filio.h)
 AC_TYPE_PID_T
 AC_TYPE_UID_T
 AC_TYPE_SIZE_T
-AC_FUNC_VFORK
+AC_FUNC_FORK
 AC_STRUCT_TM
 
 AC_MSG_CHECKING(for itimer in time.h)
@@ -80,7 +79,7 @@ if test -z "$NOX11" ; then
 if test -z "$x_libraries" ; then
 echo checking for X11 header files
 XINCLUDES=""
-AC_TRY_CPP([#include <X11/Intrinsic.h>], , XINCLUDES="nope")
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[#include <X11/Intrinsic.h>]])],[],[XINCLUDES="nope"])
 if test "$XINCLUDES" = nope; then
     dirs="/usr/unsupported/include /usr/local/include /usr/X386/include \
       /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 \
@@ -200,4 +199,5 @@ fi
 #--------------------------------------------------------------------
 #       Emit output
 #--------------------------------------------------------------------
-AC_OUTPUT(system.mk)
+AC_CONFIG_FILES([system.mk])
+AC_OUTPUT
