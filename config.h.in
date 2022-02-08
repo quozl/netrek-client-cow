@@ -198,7 +198,6 @@
 #undef HAVE_STRNCMPI
 #undef HAVE_NINT
 #undef NEED_RINT_DEC
-#undef RETSIGTYPE
 #undef pid_t 
 #undef uid_t 
 #undef gid_t

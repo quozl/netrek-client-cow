@@ -158,12 +158,6 @@ AC_CHECK_LIB(socket, main, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(inet, main, [LIBS="$LIBS -linet"])
 AC_CHECK_LIB(seq, main, [LIBS="$LIBS -lseq"])
 AC_CHECK_LIB(sun, main, [LIBS="$LIBS -lsun"])
-
-#--------------------------------------------------------------------
-#    	Check for type of signals
-#--------------------------------------------------------------------
-
-AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(usleep random setstate strftime ftime)
 AC_CHECK_LIB(m, main, [LIBS="$LIBS -lm"])
 AC_CHECK_FUNCS(nint)

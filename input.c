@@ -592,7 +592,7 @@ void initkeymap(void)
 
 }
 
-RETSIGTYPE
+void
 detsetallow(int _dummy)
 {
   detallow = 1;

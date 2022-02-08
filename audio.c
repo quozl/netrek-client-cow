@@ -26,13 +26,13 @@ static int snd_pid, SoundRet = -1, shmid;
 
 static struct shm_sound *shared_data;
 
-static  RETSIGTYPE
+static  void
         RetOk(int _dummy)
 {
   SoundRet = 0;
 }
 
-static  RETSIGTYPE
+static  void
         RetErr(int _dummy)
 {
   SoundRet = -1;

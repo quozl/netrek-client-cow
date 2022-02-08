@@ -61,7 +61,7 @@ void    terminate(int error);
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
 int     died_from_signal = 0;
-RETSIGTYPE reset_game(int);
+void reset_game(int);
 
 #endif
 
@@ -520,7 +520,7 @@ void
 /* ------------------------------------------------------------------------- */
 
 char    defaulttmp[100];
-RETSIGTYPE handle_exception(int);
+void handle_exception(int);
 
 #ifdef PACKET_LOG
 extern int log_packets;
@@ -1020,7 +1020,7 @@ int     cowmain(char *server, int port, char *name)
   return 0;
 }
 
-RETSIGTYPE
+void
 handle_exception(int _dummy)
 {
   printf("floating point exception error detected; attempting to continue\n");
@@ -1034,7 +1034,7 @@ handle_exception(int _dummy)
 }
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
-RETSIGTYPE
+void
 reset_game(int _dummy)
 {
   died_from_signal = 1;
