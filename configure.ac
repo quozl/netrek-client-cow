@@ -4,7 +4,7 @@ dnl	to configure the system for the local environment.
 AC_INIT
 AC_CONFIG_SRCDIR([name.c])
 AC_CANONICAL_TARGET
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_INSTALL
 
@@ -36,7 +36,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>]], [[fd_set readMask
 #	they don't exist.
 #--------------------------------------------------------------------
 
-AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h memory.h math.h stdlib.h)
 AC_CHECK_HEADERS(sys/timeb.h sys/ptyio.h sys/fcntl.h fcntl.h)
 AC_CHECK_HEADERS(ctype.h machine/endian.h sys/resource.h)
