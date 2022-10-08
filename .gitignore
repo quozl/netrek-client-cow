@@ -14,3 +14,4 @@ config.h
 config.log
 config.status
 null
+compile_commands.json
