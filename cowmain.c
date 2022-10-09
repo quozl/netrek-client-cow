@@ -835,6 +835,7 @@ int     cowmain(char *server, int port, char *name)
     W_FullScreenOff(baseWin);
     W_Flush();
     W_DestroyWindow(baseWin);
+    W_Deinitialize();
     return i - RETURNBASE;			 /* Terminate with retcode */
   }
 
@@ -1049,6 +1050,5 @@ void    terminate(int error)
     fclose(recordFile);
 #endif
 
-  W_Deinitialize();
   longjmp(env, RETURNBASE + error);
 }
