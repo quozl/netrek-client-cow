@@ -3922,5 +3922,14 @@ void W_Deinitialize()
 #ifdef BEEPLITE
   XFreeFont(W_Display, _tts_fontinfo);
 #endif
+  for (int i = 0; i < NCOLORS; i++)
+    {
+      XFreeGC(W_Display, colortable[i].contexts[0]);
+      XFreeGC(W_Display, colortable[i].contexts[1]);
+      XFreeGC(W_Display, colortable[i].contexts[2]);
+      XFreeGC(W_Display, colortable[i].contexts[3]);
+      XFreeGC(W_Display, colortable[i].insens_contexts[1]);
+      XFreeGC(W_Display, colortable[i].contexts[BITGC]);
+    }
   XCloseDisplay(W_Display);
 }
