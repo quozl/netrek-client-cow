@@ -594,8 +594,8 @@ static int ReadMetasRecv(int x)
 
   FD_ZERO(&readfds);
   if (msock >= 0) FD_SET(msock, &readfds);
-  timeout.tv_sec = 10;
-  timeout.tv_usec = 0;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 100000;
 
   if (x != -1) FD_SET(x, &readfds);
   if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) < 0) {
