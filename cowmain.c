@@ -703,7 +703,9 @@ int     cowmain(char *server, int port, char *name)
       newwinmeta(display_host, name);
       parsemeta();
       metawindow();
-      metainput(); /* calls terminate() on quit, may fork(2) */
+      metainput(); /* returns on quit, may fork(2) */
+      W_Deinitialize();
+      exit(0);
     }
 #endif
 

@@ -112,9 +112,6 @@ enum statusTypes {
 
 static const int defaultStatLevel = statusTout;
 
-/* Functions */
-extern void terminate(int error);
-
 char *metahelp_message[] =
   {
     "Netrek Server List - Help",
@@ -1060,7 +1057,6 @@ static void metadone(void)
   W_DestroyWindow(metaWin);
   W_DropImage(metawindow_background);
   free(serverlist);
-  terminate(0);
 }
 
 
@@ -1325,7 +1321,7 @@ void    metainput(void)
     case W_EV_CLOSED:
       if (data.Window == metaWin) {
         fprintf(stderr, "you quit, by closing the server list window\n");
-        terminate(0);
+        return;
       }
       break;
     default:
