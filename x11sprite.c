@@ -791,6 +791,9 @@ static void ss_init(W_Window w)
   }
   fts_close(fts);
   free(path);
+
+  if (ss_next > 0)
+    ss_show = random() % ss_next;
 }
 
 void    W_NextScreenShot(W_Window w, int x, int y)
