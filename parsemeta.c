@@ -1198,6 +1198,7 @@ static int button(W_Event *data)
     toggle_help();
   } else if (data->y == metaHeight-B_QUIT) { /* quit */
     metadone();
+    return 1;
   }
   return 0;
 }
@@ -1208,6 +1209,7 @@ static int key(W_Event *data)
   if (data->y == (metaHeight-B_ADD)) return add_key(data);
   if (data->key == 113 || data->key == 196) { /* q or ^d */
     metadone();
+    return 1;
   } else if (data->key == 114 || data->key == 210) { /* r or ^r */
     refresh();
   } else if (data->key == W_Key_Up) {
