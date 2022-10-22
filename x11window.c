@@ -3827,18 +3827,19 @@ static void kde_fullscreen_off(W_Window window) {
 
 void W_FullScreenOn(W_Window window)
 {
-  struct window *win = W_Void2Window(window);
 #ifdef FULLSCREEN
 #if DEBUG > 0
   fprintf(stderr, "W_FullScreenOn\n");
 #endif
+  struct window *win = W_Void2Window(window);
   XResizeWindow(W_Display, win->window,
                 small_screen ? 800 : 1024,
                 small_screen ? 600 : 768);
-  pointer_grab_on(window);
+  XMoveWindow(W_Display, win->window, 0, 0);
   video_mode_on();
   view_port_warp(window);
   kde_fullscreen_on(window);
+  pointer_grab_on(window);
 #endif
 }
 
