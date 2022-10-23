@@ -108,7 +108,7 @@ int findslot(void)
   /* Wait for some kind of indication about in/not in */
   while (queuePos == -1) {
     socketPauseNoUser();
-    if (isServerDead()) {
+    if (serverDead) {
 #if defined(SOUND)
       Exit_Sound();
 #endif
@@ -151,7 +151,7 @@ int findslot(void)
   for (;;) {
     socketPause();
     readFromServer(NULL);
-    if (isServerDead()) {
+    if (serverDead) {
 #if defined(SOUND)
       Exit_Sound();
 #endif

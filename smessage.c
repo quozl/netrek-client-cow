@@ -48,7 +48,7 @@ void    DisplayMessage()
 #endif
 
   W_ClearWindow(messagew);
-  if (len == 0 && talkative < 5 && !isServerDead()) {
+  if (len == 0 && talkative < 5 && !serverDead) {
     W_WriteText(messagew, 5, 5, W_Red,
                 "Talk to everyone, click here, type, press enter.  "
                 "Read and learn.", -1, W_RegularFont);

@@ -429,7 +429,7 @@ void getname(char *defname, char *defpasswd)
     }
 
     FD_ZERO(&readfds);
-    if (!isServerDead()) {
+    if (!serverDead) {
       FD_SET(sock, &readfds);
       if (udpSock >= 0)
         FD_SET(udpSock, &readfds);
@@ -442,13 +442,13 @@ void getname(char *defname, char *defpasswd)
       continue;
     }
     
-    if (!isServerDead()) {
+    if (!serverDead) {
       if (FD_ISSET(sock, &readfds)
           || (udpSock >= 0 && FD_ISSET(udpSock, &readfds)))
         readFromServer(&readfds);
     }
 
-    if (isServerDead()) {
+    if (serverDead) {
       state = ST_DISCONNECTED;
       redraw();
     }

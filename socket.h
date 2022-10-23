@@ -8,7 +8,7 @@ void connectToServer(int port);
 // int set_tcp_opts(int s);
 // int set_udp_opts(int s);
 void callServer(int port, char *server);
-int isServerDead(void);
+extern int serverDead;
 void socketPauseNoUser(void);
 void socketPause(void);
 int readFromServer(fd_set *readfds);

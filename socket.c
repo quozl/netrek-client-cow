@@ -944,11 +944,6 @@ void callServer(int port, char *server)
   pickSocket(port);				 /* new socket != port */
 }
 
-int isServerDead(void)
-{
-  return serverDead;
-}
-
 void socketPauseCommon(int wake_on_user_input)
 {
   struct timeval timeout;

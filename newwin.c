@@ -935,7 +935,7 @@ void entrywindow(int *team, int *s_type)
 
       /* send initial request to server */
       if (request_sent == 0 && chosen_team != -1 && chosen_ship != -1) {
-        if (isServerDead()) return;
+        if (serverDead) return;
         sendTeamReq(chosen_team, chosen_ship);
         request_sent++;
         request_time = time(NULL);
@@ -960,7 +960,7 @@ void entrywindow(int *team, int *s_type)
 #ifndef HAVE_WIN32
       FD_SET(W_Socket(), &rfds);
 #endif
-      if (!isServerDead()) {
+      if (!serverDead) {
         FD_SET(sock, &rfds);
         if (udpSock >= 0)
           FD_SET(udpSock, &rfds);
@@ -976,7 +976,7 @@ void entrywindow(int *team, int *s_type)
       if (FD_ISSET(sock, &rfds) ||
           (udpSock >= 0 && FD_ISSET(udpSock, &rfds))) {
         readFromServer(&rfds);
-        if (isServerDead()) {
+        if (serverDead) {
           fprintf(stderr, "server connection lost, during team or ship selection\n");
           warning("Lost connection to server, "
                   "your only option is to quit and try again.");

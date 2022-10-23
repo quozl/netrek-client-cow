@@ -645,7 +645,7 @@ void input()
 #ifndef HAVE_WIN32
     FD_SET(xsock, &readfds);
 #endif
-    if (!isServerDead()) {
+    if (!serverDead) {
       FD_SET(sock, &readfds);
       if (udpSock >= 0)
 	FD_SET(udpSock, &readfds);
@@ -698,7 +698,7 @@ void input()
 	stall = 100;
 	intrupt(&readfds);
 	flush++;
-	if (isServerDead()) {
+	if (serverDead) {
 	  warning("Lost connection to server!");
 	}
 
@@ -739,7 +739,7 @@ int process_event(void)
 
 	  if (data.Window == messagew)
 	    break;
-	  if (isServerDead()) {
+	  if (serverDead) {
 	    if (data.key == 'q') terminate(EXIT_DISCONNECTED);
 	  }
 #ifdef DOC_WIN
