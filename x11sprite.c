@@ -419,6 +419,16 @@ void   *S_Ship(int playerno)
     return ((void *) NULL);
 
   this = &players[playerno];
+
+  if ((this->p_status != PALIVE) && (this->p_status != PEXPLODE))
+      return ((void *) NULL);
+
+  if ((this->p_flags & PFOBSERV) && !(this->p_flags & PFPLOCK))
+      return ((void *) NULL);
+
+  if ((this->p_flags & PFOBSERV) && !(this->p_flags & PFCLOAK))
+      return ((void *) NULL);
+
   sprite = &(shipImg[remap[this->p_team]][this->p_ship.s_type]);
   sprite->cloak = 0;
 
@@ -428,19 +438,7 @@ void   *S_Ship(int playerno)
   sprite->view = ((((this->p_dir) + 128 / (sprite->nviews))
 		   / (256 / (sprite->nviews))) % (sprite->nviews));
 
-  if ((this->p_status != PALIVE) && (this->p_status != PEXPLODE))
-    {
-      return ((void *) NULL);
-    }
-  else if ((this->p_flags & PFOBSERV) && !(this->p_flags & PFPLOCK))
-    {
-      return ((void *) NULL);
-    }
-  else if ((this->p_flags & PFOBSERV) && !(this->p_flags & PFCLOAK))
-    {
-      return ((void *) NULL);
-    }
-  else if (this->p_status == PEXPLODE)
+  if (this->p_status == PEXPLODE)
     {
       int     i;
 
