@@ -120,11 +120,6 @@ extern int messtime;
 extern int keeppeace;
 extern int gen_distress;
 
-#ifdef GATEWAY
-extern unsigned LONG netaddr;			 /* for blessing */
-
-#endif
-
 extern int messageon;
 
 #ifdef META
@@ -241,13 +236,7 @@ extern int udpClientRecv;			 /* UDP */
 extern int udpSequenceChk;			 /* UDP */
 extern int weaponUpdate;
 
-#ifdef GATEWAY
-extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
-extern char *gw_mach;				 /* UDP */
-
-#endif
 extern int baseLocalPort;			 /* UDP and TCP */
-
 
 extern int showTractorPressor;
 extern int showLock;

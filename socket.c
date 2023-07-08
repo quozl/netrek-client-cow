@@ -72,30 +72,6 @@ int gather_stats = 0;
 
 #define NETSTAT
 
-#ifdef GATEWAY
-/* (these values are now defined in "main.c":) char *gw_mach        =
- * "charon";     |client gateway; strcmp(serverName) int   gw_serv_port   =
- * 5000;         |what to tell the server to use int   gw_port        = 5001;
- * |where we will contact gw int   gw_local_port  = 5100;         |where we
- * expect gw to contact us
- * 
- * The client binds to "5100" and sends "5000" to the server (TCP).  The server
- * sees that and sends a UDP packet to gw on port udp5000, which passes it
- * through to port udp5100 on the client.  The client-gw gets the server's
- * host and port from recvfrom.  (The client can't use the same method since
- * these sockets are one-way only, so it connect()s to gw_port (udp5001) on
- * the gateway machine regardless of what the server sends.)
- * 
- * So all we need in .gwrc is: udp 5000 5001 tde.uts 5100
- * 
- * assuming the client is on tde.uts.  Note that a UDP declaration will work for
- * ANY server, but you need one per player, and the client has to have the
- * port numbers in advance.
- * 
- * If we're using a standard server, we're set.  If we're running through a
- * gatewayed server, we have to do some unpleasant work on the server side... */
-#endif
-
 void    handleMessage(struct mesg_spacket *packet);
 void    handlePlyrInfo(struct plyr_info_spacket *packet);
 void    handleKills(struct kills_spacket *packet);
@@ -882,64 +858,6 @@ void callServer(int port, char *server)
 
   if (sock >= max_fd)
     max_fd = sock + 1;
-
-#ifdef TREKHOPD
-  /* We use a different scheme from gw: we tell the server who we want to * * 
-   * connect to and what our local UDP port is; it picks its own UDP ports *
-   * * and tells us what they are.  This is MUCH more flexible and avoids a *
-   * * number of problems, and may come in handy if the blessed scheme
-   * changes. * * It's also slightly more work. */
-  {
-    extern int port_req, use_trekhopd, serv_port;
-    extern char *host_req;
-    struct mesg_cpacket msg;
-    struct mesg_spacket reply;
-    int     n, count, *ip;
-    char   *buf;
-
-    if (use_trekhopd)
-      {
-	msg.type = SP_MESSAGE;
-	msg.group = msg.indiv = msg.pad1 = 0;
-	ip = (int *) msg.mesg;
-	*(ip++) = htons(port_req);
-	*(ip++) = htons(gw_local_port);
-	STRNCPY(msg.mesg + 8, login, 8);
-	strcpy(msg.mesg + 16, host_req);
-	if (gwrite(s, &msg, sizeof(struct mesg_cpacket)) < 0)
-	  {
-	    fprintf(stderr, "trekhopd init failure\n");
-	    terminate(1);
-	  }
-	printf("--- trekhopd request sent, awaiting reply\n");
-	/* now block waiting for reply */
-	count = sizeof(struct mesg_spacket);
-
-	for (buf = (char *) &reply; count; buf += n, count -= n)
-	  {
-	    if ((n = read(s, buf, count)) <= 0)
-	      {
-		perror("trekhopd read");
-		terminate(1);
-	      }
-	  }
-
-	if (reply.type != SP_MESSAGE)
-	  {
-	    fprintf(stderr, "Got bogus reply from trekhopd (%d)\n",
-		    reply.type);
-	    terminate(1);
-	  }
-	ip = (int *) reply.mesg;
-	gw_serv_port = ntohl(*ip++);
-	gw_port = ntohl(*ip++);
-	serv_port = ntohl(*ip++);
-	printf("--- trekhopd reply received\n");
-
-	/* printf("ports = %d/%d, %d\n", gw_serv_port, gw_port, serv_port); */
-      }
-  }
-#endif /* TREKHOPD */
 
   pickSocket(port);				 /* new socket != port */
 }
@@ -3091,32 +3009,10 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
   socklen_t len;
   unsigned char *data;
 
-#ifdef GATEWAY
-  extern unsigned LONG netaddr;
-  extern int serv_port;
-#endif
-
   bzero(&response, sizeof(response));
   response.type = CP_RSA_KEY;
   /* encryptRSAPacket (packet, &response);      old style rsa-client  */
 
-#ifdef GATEWAY
-  /* if we didn't get it from -H, go ahead and query the socket */
-  if (netaddr == 0)
-    {
-      len = sizeof(saddr);
-      if (getpeername(sock, (struct sockaddr *) &saddr, &len) < 0)
-	{
-	  perror("getpeername(sock)");
-	  terminate(1);
-	}
-    }
-  else
-    {
-      saddr.sin_addr.s_addr = htonl(netaddr);
-      saddr.sin_port = htons(serv_port);
-    }
-#else
   /* query the socket to determine the remote host (ATM) */
   len = sizeof(saddr);
   if (getpeername(sock, (struct sockaddr *) &saddr, &len) < 0)
@@ -3124,7 +3020,6 @@ void    handleRSAKey(struct rsa_key_spacket *packet)
       perror("getpeername(sock)");
       terminate(1);
     }
-#endif
 
   /* replace the first few bytes of the message */
   /* will be the low order bytes of the number */
@@ -3233,15 +3128,6 @@ void sendUdpReq(int req)
   packet.type = CP_UDP_REQ;
   packet.request = req;
   packet.port = htonl(udpLocalPort);
-
-#ifdef GATEWAY
-  if (!strcmp(serverName, gw_mach))
-    {
-      packet.port = htons(gw_serv_port);	 /* gw port that server * *
-						  * should call */
-      UDPDIAG(("+ Telling server to contact us on %d\n", gw_serv_port));
-    }
-#endif
 
 #ifdef UDP_PORTSWAP
   if (portSwap)
@@ -3445,15 +3331,6 @@ static int openUdpConn(void)
 	  udpLocalPort = (udpLocalPort + 10687) & 32767;
 	}
 
-#ifdef GATEWAY
-      /* we need the gateway to know where to find us */
-      if (!strcmp(serverName, gw_mach))
-	{
-	  UDPDIAG(("+ gateway test: binding to %d\n", gw_local_port));
-	  udpLocalPort = gw_local_port;
-	}
-#endif
-
       addr.sin_port = htons(udpLocalPort);
       if (bind(udpSock, (struct sockaddr *) &addr, sizeof(addr)) >= 0)
 	break;
@@ -3588,15 +3465,6 @@ static int recvUdpConn(void)
     }
   udpServerPort = ntohs(from.sin_port);
   UDPDIAG(("recvfrom() succeeded; will use server port %d\n", udpServerPort));
-
-#ifdef GATEWAY
-  if (!strcmp(serverName, gw_mach))
-    {
-      UDPDIAG(("+ actually, I'm going to use %d\n", gw_port));
-      udpServerPort = gw_port;
-      from.sin_port = htons(udpServerPort);
-    }
-#endif
 
   if (connect(udpSock, (struct sockaddr *) &from, sizeof(from)) < 0)
     {

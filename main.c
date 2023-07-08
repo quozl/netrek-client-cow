@@ -15,14 +15,6 @@
 #include "defaults.h"
 #include "version.h"
 
-#ifdef GATEWAY
-extern int gw_serv_port, gw_port, gw_local_port; /* UDP */
-extern char *gw_mach;                            /* UDP */
-extern char *gateway;
-extern char *serverName;
-void read_servers();
-#endif
-
 extern int logmess;
 
 char   *servertmp = NULL;
@@ -46,10 +38,6 @@ int main2(int argc, char **argv)
 
   char   *name, *ptr;
 
-#ifdef GATEWAY
-  int     hset = 0;
-
-#endif
   int     xtrekPort = -1;
 
   program = argv[0];
@@ -65,10 +53,6 @@ int main2(int argc, char **argv)
   argc--;
   if ((ptr = RINDEX(name, '/')) != NULL)
     name = ptr + 1;
-
-#ifdef GATEWAY
-  netaddr = 0;
-#endif
 
   pseudo[0] = defpasswd[0] = '\0';
 
@@ -240,26 +224,9 @@ int main2(int argc, char **argv)
 
 	    case 'h':
 	      servertmp = *argv;
-
-#ifdef GATEWAY
-	      gw_mach = *argv;
-#endif
-
 	      argc--;
 	      argv++;
 	      break;
-
-#ifdef GATEWAY
-	    case 'H':
-	      hset++;
-              read_servers();
-              serverName = gateway;
-	      netaddr = strToNetaddr(*argv);
-	      /* netaddrstr = *argv; */
-	      argc--;
-	      argv++;
-	      break;
-#endif
 
 	    case 'U':
 	      if ((baseLocalPort = atoi(*argv)) == 0)
@@ -339,17 +306,6 @@ int main2(int argc, char **argv)
       exit(err);
     }
 
-#ifdef GATEWAY
-  if (!hset)
-    use_trekhopd = 0;				 /* allow use via normal * *
-						  * connections */
-  if (netaddr == 0)
-    {
-      fprintf(stderr,
-	      "netrek: no remote address set (-H).  Restricted server will not work.\n");
-    }
-#endif
-
 #ifdef RECORDGAME
   if (inplayback)
     err = pbmain(name);
@@ -379,10 +335,6 @@ static void printUsage(char *prog)
 
 #ifdef IGNORE_SIGNALS_SEGV_BUS
   printf(" [-i]   ignore SIGSEGV and SIGBUS\n");
-#endif
-
-#ifdef GATEWAY
-  printf(" [-H]   specify host (via gateway)\n");
 #endif
 
   printf(" [-U port]       Specify client UDP or TCP port (useful for some firewalls)\n");

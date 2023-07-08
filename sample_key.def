@@ -46,7 +46,7 @@ CWHO		= \"`whoami`@`hostname -f`\"
 # CFLAGS = -D__STDC__=0
 
 # Additional flags for the Makefile
-# EXTRACFLAGS = -DSMALL_SCREEN -DGATEWAY -DTREKHOPD 
+# EXTRACFLAGS = -DSMALL_SCREEN
 # EXTRALINKFLAGS = -s -N
 # EXTRALIBS = 
 

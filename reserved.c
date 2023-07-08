@@ -19,10 +19,6 @@
 
 #include "reserved.h"
 
-#ifdef GATEWAY
-extern unsigned LONG netaddr;
-
-#endif
 extern void terminate(int error);
 
 void makeReservedPacket(struct reserved_spacket *packet)
@@ -66,11 +62,7 @@ void encryptReservedPacket(struct reserved_spacket *spacket, struct reserved_cpa
   char    buf[16];
   unsigned char *s;
   int     len;
-
-#ifndef GATEWAY
   unsigned LONG netaddr = 0;
-
-#endif
 
   MCOPY(spacket->data, cpacket->data, 16);
   MCOPY(spacket->data, cpacket->resp, 16);

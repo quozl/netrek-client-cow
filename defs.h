@@ -271,13 +271,7 @@ char   *getdefault(char *str);
 
 /* UDP control stuff */
 
-#ifdef GATEWAY
-#define UDP_NUMOPTS    11
-#define UDP_GW         UDP_NUMOPTS-1
-#else
 #define UDP_NUMOPTS    10
-#endif
-
 #define UDP_CURRENT     0
 #define UDP_STATUS      1
 #define UDP_DROPPED     2

@@ -105,11 +105,6 @@ int     mustexit = 0;
 int     messtime = 5;
 int     keeppeace = 0;
 
-#ifdef GATEWAY
-unsigned LONG netaddr = 0;			 /* for blessing */
-
-#endif
-
 int     msgBeep = 1;				 /* ATM - msg beep */
 
 int     logmess = 0;
@@ -253,12 +248,6 @@ int     weaponUpdate = 0;			 /* Have any weapon packets *
 						  * 
 						  * 
 						  * * been received recently */
-
-#ifdef GATEWAY
-int     gw_serv_port, gw_port, gw_local_port;	 /* UDP */
-char   *gw_mach = NULL;				 /* UDP */
-
-#endif
 
 /* for router-based firewalls, we need to tunnel through at a specific port */
 int     baseLocalPort = 0;			 /* UDP */

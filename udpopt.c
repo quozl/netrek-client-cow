@@ -132,13 +132,6 @@ void udprefresh(int i)
       sprintf(buf, "Request full update (=)");
       break;
 
-#ifdef GATEWAY
-    case UDP_GW:
-      sprintf(buf, "gw: %s %d/%d/%d", gw_mach, gw_serv_port, gw_port,
-	      gw_local_port);
-      break;
-#endif
-
     case UDP_DONE:
       strcpy(buf, "Done");
       break;
@@ -213,12 +206,6 @@ void    udpaction(W_Event * data)
     case UDP_UPDATE_ALL:
       sendUdpReq(COMM_UPDATE);
       break;
-
-#ifdef GATEWAY
-    case UDP_GW:
-      W_Beep();
-      break;
-#endif
 
     case UDP_DONE:
       udpdone();

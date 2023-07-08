@@ -64,11 +64,6 @@ extern char   *title;
 extern int takeNearest;
 #endif
 
-#ifdef GATEWAY
- extern int use_trekhopd;
- extern unsigned LONG  netaddr;
-#endif
-
 #ifdef TOOLS
 extern char *wwwlink;
 extern char *upgradeURL;
