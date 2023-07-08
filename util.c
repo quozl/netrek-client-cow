@@ -124,26 +124,6 @@ struct obtype *
     }
 }
 
-#ifdef hpux
-#include <time.h>
-#include <sys/resource.h>
-
-getrusage(foo, buf)
-int     foo;
-struct rusage *buf;
-{
-  buf->ru_utime.tv_sec = 0;
-  buf->ru_stime.tv_sec = 0;
-}
-
-#include <sys/signal.h>
-/* int (* signal(sig, funct))() int sig; int (*funct)(); { struct sigvec vec,
- * oldvec;
- * 
- * sigvector(sig, 0, &vec); vec.sv_handler = funct; sigvector(sig, &vec, (struct
- * sigvec *) 0); } */
-#endif /* hpux */
-
 int troop_capacity(void)
 {
   if (me->p_ship.s_type == ASSAULT)
