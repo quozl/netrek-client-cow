@@ -139,6 +139,7 @@ void loaddocs(void)
 
   if (temp == NULL)
     { /* malloc error checking -- 10/30/92 EM */
+      fclose(fptr);
       printf("%s", malloc_fail);
       return;
     }
@@ -182,6 +183,7 @@ void loaddocs(void)
 
       if (temp->next == NULL)
 	{ /* malloc error checking -- 10/30/92 EM */
+	  fclose(fptr);
 	  printf("%s", malloc_fail);
 	  return;
 	}
@@ -194,6 +196,7 @@ void loaddocs(void)
 
   temp->next = NULL;
   docdata = fl;
+  fclose(fptr);
 }
 
 
@@ -305,6 +308,7 @@ void loadxtrekrc(void)
 
   if (temp == NULL)
     { /* malloc error checking -- 10/30/92 EM */
+      fclose(fptr);
       printf("%s", malloc_fail);
       return;
     }
@@ -336,6 +340,7 @@ void loadxtrekrc(void)
 
       if (temp->next == NULL)
 	{ /* malloc error checking -- 10/30/92 EM */
+	  fclose(fptr);
 	  printf("%s", malloc_fail);
 	  return;
 	}
@@ -348,4 +353,5 @@ void loadxtrekrc(void)
 
   temp->next = NULL;
   xtrekrcdata = fl;
+  fclose(fptr);
 }
