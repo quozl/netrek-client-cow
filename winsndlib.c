@@ -76,6 +76,7 @@ int ParseSoundFile(char *fname, PCMWAVEFORMAT *header, DWORD *datalen, char **da
    if (strncmp(chunk, "RIFF", 4))
       {
       fprintf(stderr, "%s is not a valid wave file\n", fname);
+      fclose(in);
       return 0;
       }
          

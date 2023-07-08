@@ -2802,6 +2802,10 @@ handleRank (struct rank_spacket *packet)
   if (i < 0 || j < 0 || i > j) return;
   if (j > nranks) {
     ranks = (struct rank *) realloc(ranks, j * sizeof(struct rank));
+    if (ranks == NULL) {
+      fprintf(stderr, "unable to allocate memory to grow ranks\n");
+      exit(1);
+    }
     memset(&ranks[nranks], 0, (j - nranks) * sizeof(struct rank));
   }
   nranks = j;

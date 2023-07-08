@@ -3477,7 +3477,7 @@ inline void SetTrekSysColors(void)
   return;
 }
 
-pastebuffer(void)
+void pastebuffer(void)
 {
 /*
   int     nbytes, x;

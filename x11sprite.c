@@ -736,11 +736,15 @@ void *W_SetBackgroundImage(W_Window w, char *name)
 
   GetPixmapDir();
   path = malloc(strlen(pixmapDir) + strlen(name) + 2);
-  if (path == NULL) return NULL;
+  if (path == NULL) {
+    free(sprite);
+    return NULL;
+  }
 
   sprintf(path, "%s/%s", pixmapDir, name);
 
   if (ReadFileToSprite(path, sprite, drawable)) {
+    free(sprite);
     free(path);
     return NULL;
   }
@@ -785,6 +789,10 @@ static void ss_init(W_Window w)
     if (ss_next >= ss_size) {
       ss_size += 10;
       ss = realloc(ss, ss_size * sizeof(struct S_Object));
+      if (ss == NULL) {
+        fprintf(stderr, "ss_init; fail to reallocate ss\n");
+        exit(1);
+      }
     }
   }
   fts_close(fts);
@@ -821,12 +829,16 @@ void    *W_ReadImage(W_Window w, char *name)
 
   GetPixmapDir();
   path = malloc(strlen(pixmapDir) + strlen(name) + 2);
-  if (path == NULL) return NULL;
+  if (path == NULL) {
+    free(sprite);
+    return NULL;
+  }
 
   sprintf(path, "%s/%s", pixmapDir, name);
 
   if (ReadFileToSprite(path, sprite, drawable)) {
     free(path);
+    free(sprite);
     return NULL;
   }
   free(path);

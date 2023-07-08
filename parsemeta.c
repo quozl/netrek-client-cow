@@ -345,6 +345,10 @@ static void grow(int servers)
   } else {
     size = sizeof(struct servers) * (servers + num_servers);
     serverlist = (struct servers *) realloc(serverlist, size);
+    if (serverlist == NULL) {
+      fprintf(stderr, "unable to allocate memory to grow server list\n");
+      exit(1);
+    }
   }
 }
 
@@ -692,9 +696,9 @@ static void SaveMetasCache()
 #endif
 	errno = xerrno;
 	perror("Could not write to the new cache file");
+      } else {
+        fclose(cache);
       }
-
-      fclose(cache);
 
 #ifdef WIN32
       /* Can't rename file to existing name under NT */
@@ -782,6 +786,10 @@ static void LoadMetasCache()
       serverlist =
         (struct servers *) realloc(serverlist,
                                    sizeof(struct servers) * (num_servers));
+      if (serverlist == NULL) {
+        fprintf(stderr, "unable to allocate memory to grow server list\n");
+        exit(1);
+      }
     }
 }
 

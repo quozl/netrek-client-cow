@@ -1120,6 +1120,10 @@ rpb_insert(int diskpos, int hdl)
       /* Expand table size */
       max_alloc += EXPANDCOUNT;
       header = realloc(header, max_alloc * sizeof(struct LocPacketInfo));
+      if (header == NULL) {
+        fprintf(stderr, "unable to allocate memory to grow playback header\n");
+        exit(1);
+      }
     }
   header[current].prev = lastPos[hdl];
   header[current].diskpos = diskpos;
