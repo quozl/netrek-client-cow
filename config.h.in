@@ -490,7 +490,7 @@ int _flsbuf(unsigned char, FILE *);
 typedef unsigned short int ushort;
 #define strncasecmp strncmp
 #ifdef THREADED
-#define THREAD(fn) { DWORD junk; CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)f
+#define THREAD(fn) { DWORD junk; CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)fn, 0, 0, &junk); }
 #define ENDTHREAD ExitThread(0);
 typedef unsigned long int SEMAPHORE;
 #define CREATE_SEMAPHORE(initstate) CreateEvent(NULL, 1, initstate, NULL)
