@@ -733,7 +733,7 @@ int readFromFile() {
 
 static int readFromFile0()
 {
-#define MAXPACKETSIZE 128
+#define MAXPACKETSIZE 324 /* SP_LTD */
   static uint aligned_buf[MAXPACKETSIZE/sizeof(uint)];
   static int num_context_written = 0;
 
