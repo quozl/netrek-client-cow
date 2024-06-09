@@ -39,9 +39,9 @@ extern int plistStyle;
 extern int plistUpdated;
 extern int sortMyTeamFirst;
 extern int sortPlayers;
-extern char updatePlayer[MAXPLAYER+1];
-					
-#ifdef PLIST2					
+extern char updatePlayer[MAXPLAYER];
+
+#ifdef PLIST2
 extern int plistHasHostile = FALSE;
 extern int plistHasSpeed = FALSE;
 #endif

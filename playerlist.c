@@ -85,7 +85,7 @@ int     plistStyle = 0;
 int     plistUpdated = FALSE;
 int     sortMyTeamFirst = FALSE;
 int     sortPlayers = TRUE;
-char    updatePlayer[MAXPLAYER + 1];
+char    updatePlayer[MAXPLAYER];
 
 #ifdef PLIST2
 int     plistHasHostile = FALSE;
@@ -190,11 +190,6 @@ void    InitPlayerList()
 
   sortMyTeamFirst = booleanDefault("sortMyTeamFirst", sortMyTeamFirst);
 
-
-  /* plistUpdate[MAXPLAYER] must always be TRUE because thats how we no when
-   * * * to stop looking for a changed player. */
-
-  updatePlayer[MAXPLAYER] = TRUE;
   RedrawPlayerList();
 }
 
@@ -263,7 +258,7 @@ void    RedrawPlayerList()
       break;
 
     default:
-      fprintf(stderr, "Unknown plistStyle in ChangedPlistStyle().\n");
+      fprintf(stderr, "Unknown plistStyle %d in RedrawPlayerList().\n", plistStyle);
       break;
     }
 
@@ -289,12 +284,11 @@ void    UpdatePlistFn()
  * This function should usually be called through the UpdatePlayerList() macro
  * (see playerlist.h).
  * 
- * This function works incrimentally.  If a dramatic change has taken place
+ * This function works incrementally.  If a dramatic change has taken place
  * (i.e. if plistStyle changes) then RedrawPlayerList() should be called
  * instead. */
 {
   int     count;
-  char   *update;
 
   plistUpdated = FALSE;
 
@@ -304,33 +298,14 @@ void    UpdatePlistFn()
   if (!plistReorder)
     {
       /* Redraw the lines that have changed. */
-
-#if defined(sgi)
-#pragma set woff 1167
-#endif
-      update = updatePlayer-1;
-
-      for (;;)
+      for (count = 0; count < MAXPLAYER; count++)
 	{
-	  /* Find the changed player as quickly as possible. */
+	  if (!updatePlayer[count]) continue;
 
-	  do
-	    ++update;
-	  while (!(*update));
+	  updatePlayer[count] = FALSE;
 
-
-	  /* Is this a valid player?  Remember updatePlayer[MAXPLAYER] is * * 
-	   * always TRUE to make the above loop more efficient.  */
-
-	  count = update - updatePlayer;
-	  if (count == MAXPLAYER)
-	    break;
-
-	  *update = FALSE;
-
-
-	  /* We should not get updates for free players any more, but just *
-	   * * incase a packet arrives late... */
+	  /* We should not get updates for free players any more, but
+	   * just incase a packet arrives late... */
 
 	  if (players[count].p_status != PFREE)
 	    PlistLine(players + count, plistPos[count]);
@@ -509,9 +484,7 @@ static void WriteUnsortedPlist(void)
 {
   int     count;
   int     pos;
-  char   *update;
   static int myTeam = -1;
-
 
   /* 
    *  If I have changed team, redraw everything (to get the colors
@@ -522,40 +495,16 @@ static void WriteUnsortedPlist(void)
     {
       myTeam = remap[me->p_team];
 
-      for (update = updatePlayer + MAXPLAYER
-	   ; update >= updatePlayer
-	   ; --update)
-	{
-	  *update = TRUE;
-	}
+      for (count = 0; count < MAXPLAYER; count++)
+        updatePlayer[count] = TRUE;
     }
 
-
-#if defined(sgi)
-#pragma set woff 1167
-#endif
-	update = updatePlayer - 1;
-
-  for (;;)
+  for (count = 0; count < MAXPLAYER; count++)
     {
-      /* Find the changed player as quickly as possible. */
-
-      do
-	++update;
-      while (!(*update));
-
-
-      /* Is this a valid player?  Remember updatePlayer[MAXPLAYER] * is *
-       * always TRUE to make the above loop more efficient.       */
-
-      count = update - updatePlayer;
-      if (count == MAXPLAYER)
-	break;
-
+      if (!updatePlayer[count]) continue;
 
       /* Update the player. */
-
-      *update = FALSE;
+      updatePlayer[count] = FALSE;
       pos = count + 1;
       plistPos[count] = pos;
 
