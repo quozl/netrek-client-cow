@@ -1717,6 +1717,8 @@ void sendServerPacket(void *buffer)
   int     size;
   struct player_spacket *packet = (struct player_spacket *) buffer;
 
+  if (sock == -1) return; /* playback */
+
   if (serverDead)
     return;
   if (packet->type < 1 ||
@@ -2427,6 +2429,7 @@ void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
   struct player *pl;
 
 #ifdef CORRUPTED_PACKETS
+  if (sock == -1) return; /* playback */
   if (sock == udpSock)
     {
       fprintf(stderr, "garbage packet discarded.\n");
@@ -2656,6 +2659,8 @@ void    handleReserved(struct reserved_spacket *packet, int sock)
 
   bzero(&response, sizeof(response));
 #ifdef CORRUPTED_PACKETS
+  if (sock == -1) return; /* playback */
+
   if (sock == udpSock)
     {
       fprintf(stderr, "garbage Reserved packet discarded.\n");

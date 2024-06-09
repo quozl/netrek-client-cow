@@ -64,7 +64,7 @@ extern int opened_info;				 /* counter for infowin *
 
 extern jmp_buf env;
 
-int     pbdelay = 200000;
+int     pbdelay = 200000; /* todo; detect server update rate */
 
 int *pb_index;
 int pb_num_index = 0;
@@ -674,7 +674,7 @@ pb_dopacket(char *buf)
   /* Call the packet handler and return success (zero). */
   (*(handlers[(unsigned char) buf[0]].handler)) (buf
 #ifdef CORRUPTED_PACKETS
-				 ,recordFile
+				 ,-1
 #endif
 				 );
   return 0;

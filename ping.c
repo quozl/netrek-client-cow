@@ -127,6 +127,8 @@ static void sendServerPingResponse(int number)		 /* CP_PING_RESPONSE */
 
   /* printf("ping response sent at %d\n", msetime()); */
 
+  if (s == -1) return; /* playback */
+
   if (gwrite(s, (char *) &packet, sizeof(struct ping_cpacket)) !=
       sizeof  (struct ping_cpacket))
     {
