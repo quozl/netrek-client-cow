@@ -973,9 +973,9 @@ void Init_Sound(void) {
 	 */
 	if (sound_init) {
 		if ((sounddir = getdefault("sounddir")) == NULL) {
-			if ((sd=getenv("SOUNDDIR")) != NULL)
-				sounddir = strdup(sd);
-			else
+			if ((sd = getenv("SOUNDDIR")) != NULL)
+				sounddir = sd;
+                        else
 #if defined(sgi)
 				sounddir = "/usr/local/games/netrek-sgi/sounds";
 #else
