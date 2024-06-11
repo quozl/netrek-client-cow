@@ -1,6 +1,10 @@
 struct window
   {
     Window  window;
+    Drawable drawable;
+    Pixmap  buffer;
+    int     isbuffered;
+    Pixmap  background;
     int     type;
     char   *data;
     int     mapped;

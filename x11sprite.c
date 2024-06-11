@@ -243,8 +243,8 @@ void    GetPixmaps(Display * d, struct window *win, W_Window t, W_Window g)
   char    buf[2048];
   int     missing;
 
-  Drawable tactical = W_Void2Window(t)->window;
-  Drawable galactic = W_Void2Window(g)->window;
+  Drawable tactical = W_Void2Window(t)->drawable;
+  Drawable galactic = W_Void2Window(g)->drawable;
   W_Display = d;
 
   GetPixmapDir();
@@ -692,43 +692,37 @@ void   *S_Plasma(int plasmatorpno)
 
 void    W_GalacticBgd(int which)
 {
-  struct window *win = W_Void2Window(mapw);
+  W_Window this = mapw;
 
   if ((backPix[which] == NoPixmapError) || (pixFlags & NO_BG_PIX))
-    W_UnTileWindow(mapw);
+    W_UnsetBackgroundPixmap(this);
   else
-    XSetWindowBackgroundPixmap(W_Display, win->window, backPix[which]);
-
-  W_ClearWindow(mapw);
+    W_SetBackgroundPixmap(this, backPix[which]);
 }
 
 void    W_LocalBgd(int which)
 {
-  struct window *win = W_Void2Window(w);
+  W_Window this = w;
 
   if ((backPix[which] == NoPixmapError) || (pixFlags & NO_BG_PIX))
-    W_UnTileWindow(w);
+    W_UnsetBackgroundPixmap(this);
   else
-    XSetWindowBackgroundPixmap(W_Display, win->window, backPix[which]);
-
-  W_ClearWindow(w);
+    W_SetBackgroundPixmap(this, backPix[which]);
 }
 
 void    W_SetBackground(W_Window w, int which)
 {
-  struct window *win = W_Void2Window(w);
+  W_Window this = w;
 
   if ((backPix[which] == NoPixmapError) || (pixFlags & NO_BG_PIX))
-    W_UnTileWindow(w);
+    W_UnsetBackgroundPixmap(this);
   else
-    XSetWindowBackgroundPixmap(W_Display, win->window, backPix[which]);
-
-  W_ClearWindow(w);
+    W_SetBackgroundPixmap(this, backPix[which]);
 }
 
 void *W_SetBackgroundImage(W_Window w, char *name)
 {
-  Drawable drawable = W_Void2Window(w)->window;
+  Drawable drawable = W_Void2Window(w)->drawable;
   struct S_Object *sprite = calloc(1, sizeof(struct S_Object));
   char *path;
 
@@ -750,8 +744,7 @@ void *W_SetBackgroundImage(W_Window w, char *name)
   }
   free(path);
 
-  XSetWindowBackgroundPixmap(W_Display, drawable, sprite->image);
-  W_ClearWindow(w);
+  W_SetBackgroundPixmap(w, sprite->image);
   return (void *) sprite;
 }
 
@@ -825,7 +818,7 @@ void    W_DrawScreenShot(W_Window w, int x, int y)
 
 void    *W_ReadImage(W_Window w, char *name)
 {
-  Drawable drawable = W_Void2Window(w)->window;
+  Drawable drawable = W_Void2Window(w)->drawable;
   struct S_Object *sprite = calloc(1, sizeof(struct S_Object));
   char *path;
 

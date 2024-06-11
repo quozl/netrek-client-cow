@@ -129,8 +129,12 @@ void redraw(void) {
 	if (W_IsMapped(statwin))
 		updateStats();
 
+	W_FlushWindow(w);
+	W_Flush();
+
 	/* XFIX: last since its least accurate information */
 	map();
+	W_FlushWindow(mapw);
 	return;
 }
 

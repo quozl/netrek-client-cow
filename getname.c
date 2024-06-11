@@ -376,6 +376,8 @@ void getname(char *defname, char *defpasswd)
 
   char    ppwd[16];
 
+  W_ClearWindow(w);
+
   STRNCPY(ppwd, "\0\0\0", 4);
 
   automatic = (*defpasswd && *defname) ? 1 : 0;
@@ -419,6 +421,7 @@ void getname(char *defname, char *defpasswd)
     }
 
     events();
+    W_FlushWindow(w);
     
     if (automatic) {
       timeout.tv_sec = 0;

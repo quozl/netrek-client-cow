@@ -1346,6 +1346,7 @@ void showMotd(W_Window w, int atline)
     }
 
   if (!motd_clears) showValues(data);
+  W_FlushWindow(w);
 }
 
 /*! @brief Show the current values of the .sysdef parameters.
@@ -1491,6 +1492,7 @@ static void redrawTeam(W_Window win, int teamNo, int *lastnum)
 static void redrawQuit(void)
 {
   char *msg = "Quit";
+  W_ClearWindow(qwin);
   int tx = W_WindowWidth(qwin) / 2 - W_Textwidth * strlen(msg) / 2;
   W_WriteText(qwin, tx, 5, textColor, msg, -1, W_RegularFont);
 }
@@ -1539,4 +1541,5 @@ static void showTimeLeft(time_t time, time_t max)
   tx = cx - W_Textwidth * strlen(cp) / 2;
   ty = CLOCK_Y + CLOCK_HEI;
   W_WriteText(qwin, tx, ty, textColor, cp, strlen(cp), W_RegularFont);
+  W_FlushWindow(qwin);
 }

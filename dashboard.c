@@ -528,4 +528,5 @@ void
     default:
       db_redraw_COW(fr);
     }
+  W_FlushWindow(tstatw);
 }

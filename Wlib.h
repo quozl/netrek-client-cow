@@ -64,6 +64,7 @@ extern W_Font W_MyPlanetFont, W_FriendlyPlanetFont, W_EnemyPlanetFont;
 
 extern void W_Initialize (char *str);
 extern void W_GetPixmaps(W_Window t, W_Window g);
+extern void W_FlushWindow(W_Window window);
 extern void W_RenameWindow(W_Window window, char *str);
 extern W_Window W_MakeWindow (char *name, int x, int y, int width, int height, W_Window parent, int border, W_Color color);
 extern W_Icon W_StoreBitmap (int width, int height, char *data, W_Window window);
@@ -82,6 +83,8 @@ extern void W_UnmapWindow (W_Window window);
 extern int W_EventsPending (void);
 extern void W_NextEvent (W_Event *wevent);
 extern void W_SetWindowName(W_Window window, char *name);
+extern void W_SetBackgroundPixmap(W_Window window, unsigned long background);
+extern void W_UnsetBackgroundPixmap(W_Window window);
 extern void W_TileWindow (W_Window window, W_Icon bit);
 extern void W_UnTileWindow (W_Window window);
 extern void W_ChangeBorder (W_Window window, int color);
