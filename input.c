@@ -644,11 +644,16 @@ void input()
     FD_ZERO(&readfds);
 #ifndef HAVE_WIN32
     FD_SET(xsock, &readfds);
+    if (xsock > max_fd) fprintf(stderr, "input: xsock > max_fd\n");
 #endif
     if (!serverDead) {
       FD_SET(sock, &readfds);
-      if (udpSock >= 0)
-	FD_SET(udpSock, &readfds);
+      if (sock > max_fd) fprintf(stderr, "input: sock > max_fd\n");
+      if (udpSock >= 0) {
+        FD_SET(udpSock, &readfds);
+        if (sock > max_fd)
+          fprintf(stderr, "input: udpSock > max_fd\n");
+      }
     } else {
       warning("Lost connection to server, press q to quit.");
       redrawall = 1;
