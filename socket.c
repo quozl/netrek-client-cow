@@ -2816,8 +2816,12 @@ handleRank (struct rank_spacket *packet)
   nranks = j;
   W_ChangeBorder(rankw, gColor);
   packet->name[15] = 0;
+  // (default_ranks contain string constants at start)
+  // if (ranks[i].name != NULL) free(ranks[i].name);
   ranks[i].name = strdup(packet->name);
   packet->cname[7] = 0;
+  // (default_ranks contain string constants at start)
+  // if (ranks[i].cname != NULL) free(ranks[i].cname);
   ranks[i].cname = strdup(packet->cname);
   ranks[i].hours = (float) (ntohl (packet->hours) / 100.0);
   ranks[i].ratings = (float) (ntohl (packet->ratings) / 100.0);
