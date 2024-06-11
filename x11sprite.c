@@ -772,6 +772,10 @@ static void ss_init(W_Window w)
   GetPixmapDir();
 
   path = malloc(strlen(pixmapDir) + 4);
+  if (path == NULL) {
+    fprintf(stderr, "ss_init; fail to allocate path\n");
+    exit(1);
+  }
   sprintf(path, "%s/ss", pixmapDir);
   argv[0] = path;
   argv[1] = NULL;
