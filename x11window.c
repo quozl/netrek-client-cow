@@ -1922,6 +1922,10 @@ W_StoreBitmap(int width, int height, char *data, W_Window window)
 
   win = W_Void2Window(window);
   newicon = (struct icon *) malloc(sizeof(struct icon));
+  if (newicon == NULL) {
+    fprintf(stderr, "W_StoreBitmap fail to allocate icon");
+    exit(1);
+  }
 
   newicon->width = width;
   newicon->height = height;
@@ -2089,6 +2093,10 @@ struct window *
 
   XSetWMProtocols (W_Display, window, &wm_delete_window, 1);
   newwin = (struct window *) malloc(sizeof(struct window));
+  if (newwin == NULL) {
+    fprintf(stderr, "newWindow fail to allocate window");
+    exit(1);
+  }
 
   newwin->window = window;
   newwin->drawable = window;
@@ -2206,6 +2214,10 @@ int     border;
   XSetWMHints(W_Display, newwin->window, &wm_hint);
   newwin->name = strdup(name);
   sw = (struct scrollingWindow *) malloc(sizeof(struct scrollingWindow));
+  if (sw == NULL) {
+    fprintf(stderr, "W_MakeScrollingWindow fail to allocate scrollingWindow");
+    exit(1);
+  }
 
   sw->lines = 0;
   sw->updated = 0;
@@ -2257,6 +2269,10 @@ int     len;
   else
     {
       new = (struct stringList *) malloc(sizeof(struct stringList));
+      if (new == NULL) {
+        fprintf(stderr, "AddToScrolling fail to allocate stringList");
+        exit(1);
+      }
 
       new->next = sw->head;
       new->prev = NULL;
@@ -2483,6 +2499,10 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   XStoreName(W_Display, newwin->window, name);
   newwin->name = strdup(name);
   items = (struct menuItem *) malloc(height * sizeof(struct menuItem));
+  if (items == NULL) {
+    fprintf(stderr, "W_MakeMenu fail to allocate menuItem");
+    exit(1);
+  }
 
   for (i = 0; i < height; i++)
     {
@@ -3489,6 +3509,10 @@ W_ReinitMenu(W_Window window, int neww, int newh)
    }
    free ((char *)items);
    items = (struct menuItem *) malloc(newh * sizeof(struct menuItem));
+   if (items == NULL) {
+     fprintf(stderr, "W_ReinitMenu fail to allocate menuItem");
+     exit(1);
+   }
    for(i=0; i< newh; i++){
       items[i].column = 0;
       items[i].string = (char *) malloc(MAX_TEXT_WIDTH);
