@@ -1356,6 +1356,7 @@ static void showValues(struct motd_line *data)
   int     i;
   static char *msg = "Server options set:";
 
+  W_ClearWindow(mapw);
   /* try to find the start of the info */
   while (1)
     {
@@ -1383,6 +1384,7 @@ static void showValues(struct motd_line *data)
 		    strlen(data->data), W_RegularFont);
       data = data->next;
     }
+  W_FlushWindow(mapw);
 }
 
 /*! @brief Store a newly received SP_MOTD text line for display.
