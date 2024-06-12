@@ -1351,10 +1351,14 @@ int
       printf(", read type=%d\n", event.type);
 #endif
       win = findWindow(key->window);
-      if (win == NULL)
+      if (win == NULL) {
+	/* fprintf(stderr, "XNextEvent - null window, ignore\n"); */
 	return 0;
-      if (key->send_event == True && event.type != ClientMessage)
-	return 0; /* event sent by another client */
+      }
+      if (key->send_event == True && event.type != ClientMessage) {
+	/* fprintf(stderr, "XNextEvent - came from XSendEvent, ignore\n"); */
+        return 0; /* event sent by another client */
+      }
       if ((event.type == KeyPress || event.type == ButtonPress) &&
 	  win->type == WIN_MENU)
 	{
@@ -1374,6 +1378,17 @@ int
 	      wevent->Window = W_Window2Void(win);
 	      wevent->key = wevent->x = wevent->y = 0;
 	      return 1;
+	    }
+	  if (event.xclient.message_type == 0 &&
+	      event.xclient.data.l[0] == 1 &&
+	      event.xclient.data.l[1] == 2)
+	    {
+	      struct timeval tv;
+	      gettimeofday(&tv, NULL);
+	      unsigned long now = tv.tv_sec * 1000000L + tv.tv_usec;
+	      unsigned long was = event.xclient.data.l[2] | (event.xclient.data.l[3] << 32);
+	      visual_l = now - was;
+	      return 0;
 	    }
 	  break;
 
@@ -3450,6 +3465,25 @@ int
 void W_Flush(void)
 {
   XFlush(W_Display);
+}
+
+void W_ProbeLatency(W_Window w) {
+  struct timeval tv;
+  struct window *win = W_Void2Window(w);
+  XEvent event;
+
+  gettimeofday(&tv, NULL);
+  unsigned long now = tv.tv_sec * 1000000L + tv.tv_usec;
+  event.xclient.type = ClientMessage;
+  event.xclient.message_type = 0;
+  event.xclient.format = 32;
+  event.xclient.display = W_Display;
+  event.xclient.window = win->window;
+  event.xclient.data.l[0] = 1;
+  event.xclient.data.l[1] = 2;
+  event.xclient.data.l[2] = now & 0xffffffff;
+  event.xclient.data.l[3] = (now >> 32) & 0xffffffff;
+  XSendEvent(W_Display, win->window, False, NoEventMask, &event);
 }
 
 #define MAKE_WINDOW_GETTER(name, part) \

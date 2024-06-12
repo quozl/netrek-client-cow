@@ -878,6 +878,8 @@ int process_event(void)
 	    fastQuit = 1;
 	    sendQuitReq();
 	  }
+	  break;
+
 	default:
 	  break;
 	}

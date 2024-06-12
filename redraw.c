@@ -130,12 +130,31 @@ void redraw(void) {
 		updateStats();
 
 	W_FlushWindow(w);
+	W_ProbeLatency(w);
 	W_Flush();
 
 	/* XFIX: last since its least accurate information */
 	map();
 	W_FlushWindow(mapw);
-	return;
+
+	/* automatic step down in response to display lag */
+        if (visual_l > 40000 && client_ups >= 25) {
+	  fprintf(stderr, "redraw: visual latency %lu us exceeds %d ups, drop to 10 ups\n", visual_l, client_ups);
+	  client_ups = 10;
+	  sendUpdatePacket(1000000 / client_ups);
+        }
+
+        if (visual_l > 100000 && client_ups >= 10) {
+	  fprintf(stderr, "redraw: visual latency %lu us exceeds %d ups, drop to 5 ups\n", visual_l, client_ups);
+	  client_ups = 5;
+	  sendUpdatePacket(1000000 / client_ups);
+        }
+
+        if (visual_l > 200000 && client_ups >= 5) {
+	  fprintf(stderr, "redraw: visual latency %lu us exceeds %d ups, drop to 2 ups\n", visual_l, client_ups);
+	  client_ups = 2;
+	  sendUpdatePacket(1000000 / client_ups);
+        }
 }
 
 static void stline(int flag) {

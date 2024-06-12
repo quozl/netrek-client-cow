@@ -124,6 +124,7 @@ extern int W_EventsQueuedCk(void);
 extern void W_OverlayBitmap(int, int, W_Icon, W_Color);
 extern void W_WriteTriangle(W_Window, int, int, int, int, W_Color);
 extern void W_Flush(void);
+extern void W_ProbeLatency(W_Window);
 
 #define W_EV_EXPOSE	1
 #define W_EV_KEY	2

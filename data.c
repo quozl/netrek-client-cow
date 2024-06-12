@@ -285,6 +285,7 @@ W_Window netstatWin, lMeter;
 int     client_ups = 50;	/* client requested updates per second */
 int     server_ups = 50;	/* server responded updates per second */
 int     server_fps = 50;	/* server configured frames per second */
+unsigned long visual_l = 0;	/* estimated visual latency in us */
 
 #ifdef META
 char   *metaserver = "metaserver.netrek.org";

@@ -147,6 +147,7 @@ extern W_Window netstatWin, lMeter;
 extern int client_ups;	/* client requested updates per second */
 extern int server_ups;	/* server responded updates per second */
 extern int server_fps;	/* server configured frames per second */
+extern unsigned long visual_l;	/* estimated visual latency in us */
 
 extern int SBhours;
 
