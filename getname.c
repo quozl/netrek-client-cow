@@ -422,6 +422,7 @@ void getname(char *defname, char *defpasswd)
 
     events();
     W_FlushWindow(w);
+    W_Flush();
     
     if (automatic) {
       timeout.tv_sec = 0;
