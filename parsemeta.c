@@ -827,8 +827,13 @@ static void redraw(int i)
 
   sp = serverlist + i;
 
-  snprintf(buf, LINE, "%-40s          ",
-           strlen(sp->comment) > 0 ? sp->comment : sp->address);
+  char comment[40];
+  if (strlen(sp->comment) > 0)
+    strncpy(comment, sp->comment, 40);
+  else
+    strncpy(comment, sp->address, 40);
+
+  snprintf(buf, LINE, "%-40s          ", comment);
   buf[80] = '\0';
 
   char *str = buf + strlen(buf);
