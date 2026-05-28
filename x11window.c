@@ -1387,7 +1387,9 @@ int
 	      gettimeofday(&tv, NULL);
 	      unsigned long now = tv.tv_sec * 1000000L + tv.tv_usec;
 	      unsigned long was = event.xclient.data.l[2] | (event.xclient.data.l[3] << 32);
-	      visual_l = now - was;
+	      unsigned long vl = now - was;
+	      if (vl < 1000000)
+		visual_l = vl;
 	      return 0;
 	    }
 	  break;
