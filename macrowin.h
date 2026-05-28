@@ -1,3 +1,3 @@
 /* macrowin.c */
-void fillmacro(void);
+void fillmacro(W_Event *);
 void showMacroWin(void);

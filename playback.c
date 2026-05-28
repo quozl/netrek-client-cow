@@ -308,7 +308,7 @@ int
     run_clock(time(0));
 
     if (remap[me->p_team] == NOBODY)
-      RedrawPlayerList();			 /* When you first login */
+      RedrawPlayerList(NULL);			 /* When you first login */
     else
       UpdatePlayerList();			 /* Otherwise */
 
@@ -333,10 +333,10 @@ int
     W_MapWindow(statwin);
 
   if (W_IsMapped(lMeter))
-    redrawLMeter();
+    redrawLMeter(NULL);
 
   if (W_IsMapped(pStats))			 /* support ping stuff */
-    redrawPStats();
+    redrawPStats(NULL);
 
 #ifdef SOUND
 #if defined(sgi)

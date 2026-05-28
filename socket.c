@@ -2208,7 +2208,7 @@ void    handleKills(struct kills_spacket *packet)
       if (me == &players[(unsigned char) packet->pnum])
 	{
 	  calibrate_stats();
-	  redrawStats();
+	  redrawStats(NULL);
 	}
 #endif /* ARMY_SLIDER */
     }
@@ -2576,9 +2576,9 @@ void    handlePlyrInfo(struct plyr_info_spacket *packet)
 
   if (me == pl && lastship != me->p_ship.s_type)
     {
-      redrawTstats();
+      redrawTstats(NULL);
       calibrate_stats();
-      redrawStats();				 /* TSH */
+      redrawStats(NULL);			 /* TSH */
     }
   redrawPlayer[p_no] = 1;
 

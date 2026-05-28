@@ -190,7 +190,7 @@ void    InitPlayerList()
 
   sortMyTeamFirst = booleanDefault("sortMyTeamFirst", sortMyTeamFirst);
 
-  RedrawPlayerList();
+  RedrawPlayerList(NULL);
 }
 
 
@@ -212,7 +212,7 @@ int     PlistMaxWidth()
 }
 
 
-void    RedrawPlayerList()
+void    RedrawPlayerList(W_Event *)
 /* Completly redraw the player list, rather than incrementally updating the
  * list as with UpdatePlayerList().
  * 

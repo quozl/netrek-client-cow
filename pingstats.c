@@ -131,7 +131,7 @@ void initPStats(void)
     }
 }
 
-void    redrawPStats(void)
+void    redrawPStats(W_Event *)
 {
   int     i;
 

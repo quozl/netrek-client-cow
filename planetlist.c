@@ -25,7 +25,7 @@ static char *teamname[9] =
  * statistics.  Players will not know about planets that their team * has not
  * orbited. */
 
-void    planetlist(void)
+void    planetlist(W_Event *)
 {
   register int i;
   register int k = 0;

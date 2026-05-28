@@ -1,2 +1,2 @@
 /* helpwin.c */
-void fillhelp(void);
+void fillhelp(W_Event *);

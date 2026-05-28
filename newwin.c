@@ -119,11 +119,13 @@ static char press_bits[] =
   0x0f, 0x11, 0x0f, 0x01, 0x01};
 
 /* Event Handlers. */
-extern void drawIcon(void), redrawTstats(void), planetlist(void);
-extern void ranklist(void), fillhelp(void);
-extern void redrawLMeter(void), redrawPStats(void), redrawStats(void);
+static void drawIcon(W_Event *);
+extern void planetlist(W_Event *);
+extern void ranklist(W_Event *), fillhelp(W_Event *);
+extern void redrawLMeter(W_Event *), redrawPStats(W_Event *);
+extern void udpaction(W_Event *), redrawStats(W_Event *);
 
-extern void nsaction(W_Event * data);
+extern void nsaction(W_Event *data);
 extern void optionaction(W_Event * data);
 extern int checkMapped(char *name);
 extern int checkMappedPref(char *name, int preferred);
@@ -914,7 +916,7 @@ void entrywindow(int *team, int *s_type)
   updatedeath();
 
   if (remap[me->p_team] == NOBODY)
-    RedrawPlayerList();				 /* When you first login */
+    RedrawPlayerList(NULL);			 /* When you first login */
   else
     UpdatePlayerList();				 /* Otherwise */
 
@@ -1176,9 +1178,9 @@ void entrywindow(int *team, int *s_type)
         redrawQuit();
         showTimeLeft(elapsed, quittime);
       } else if (event.Window == tstatw) {
-        redrawTstats();
+        redrawTstats(NULL);
       } else if (event.Window == iconWin) {
-        drawIcon();
+        drawIcon(NULL);
       } else if (event.Window == w) {
         run_clock(lasttime);
         showMotd(w, motd_offset);
@@ -1186,13 +1188,13 @@ void entrywindow(int *team, int *s_type)
         redrawall = 1;
         map();
       } else if (event.Window == helpWin) {
-        fillhelp();
+        fillhelp(NULL);
 #ifdef NBT
       } else if (event.Window == macroWin) {
-        fillmacro();
+        fillmacro(NULL);
 #endif
       } else if (event.Window == playerw) {
-        RedrawPlayerList();
+        RedrawPlayerList(NULL);
       } else if (event.Window == warnw) {
         W_ClearWindow(warnw);
       } else if (event.Window == messagew) {
@@ -1499,7 +1501,7 @@ static void redrawQuit(void)
   W_WriteText(qwin, tx, 5, textColor, msg, -1, W_RegularFont);
 }
 
-void    drawIcon(void)
+void    drawIcon(W_Event *)
 {
   W_WriteBitmap(0, 0, icon, W_White);
 }

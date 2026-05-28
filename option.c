@@ -643,7 +643,7 @@ void    optionaction(W_Event * data)
 	  if (plistCustomLayout == 0 && plistStyle == 0)
 	    plistStyle = (data->key == W_LBUTTON) ? PLISTLASTSTYLE : 1;
 
-	  RedrawPlayerList();
+	  RedrawPlayerList(NULL);
 	}
       else if (op->op_option == &showgalactic)
 	{
@@ -784,11 +784,11 @@ void    optionaction(W_Event * data)
       if (op->op_option == &showPlanetOwner)
 	redrawall = 1;
       else if (op->op_option == &partitionPlist)
-	RedrawPlayerList();
+	RedrawPlayerList(NULL);
       else if (op->op_option == &sortPlayers)
-	RedrawPlayerList();
+	RedrawPlayerList(NULL);
       else if (op->op_option == &sortMyTeamFirst)
-	RedrawPlayerList();
+	RedrawPlayerList(NULL);
     }
 
   /* Map/unmap window, if it exists */
@@ -804,7 +804,7 @@ void    optionaction(W_Event * data)
 	  if (*op->op_targetwin == udpWin)
 	    udpwindow();
 	  if (*op->op_targetwin == pStats)
-	    redrawPStats();
+	    redrawPStats(NULL);
 	  if (*op->op_targetwin == netstatWin)
 	    nswindow();
 	  if (*op->op_targetwin == spWin)

@@ -155,7 +155,7 @@ char   *help_message[] =
 
 
 void
-        fillhelp(void)
+        fillhelp(W_Event *)
 {
   register int i = 0, row, column;
   char    helpmessage[MAXHELP];

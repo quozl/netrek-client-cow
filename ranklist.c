@@ -64,7 +64,7 @@ static float toNextRank(int rank)
         return (-1);
 }
 
-void    ranklist(void)
+void    ranklist(W_Event *)
 {
   int i;
   char buf[80];

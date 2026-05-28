@@ -117,12 +117,12 @@ void redraw(void) {
 		if (newDashboard == old_db)
 			db_redraw(0);
 		else
-			redrawTstats();
+			redrawTstats(NULL);
 
 	else if (newDashboard == old_db)
 		stline(0);
 	else
-		redrawTstats();
+		redrawTstats(NULL);
 
 	old_db = newDashboard;
 
@@ -361,7 +361,7 @@ static void stline(int flag) {
  * return ((unsigned char) nint(atan2((double) (x - me->p_x), (double)
  * (me->p_y - y)) / 3.14159 * 128.)); } */
 
-void redrawTstats(void) {
+void redrawTstats(W_Event *) {
 	if (newDashboard)		/* 6/2/93 LAB */
 		db_redraw(1);
 	else {

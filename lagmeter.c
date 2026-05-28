@@ -36,7 +36,7 @@ int lMeterWidth(void)
   return L_WIDTH;
 }
 
-void    redrawLMeter(void)
+void    redrawLMeter(W_Event *)
 {
   int i;
   char    buf[8];

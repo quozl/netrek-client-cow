@@ -98,7 +98,7 @@ void initStats(void)
     }
 }
 
-void    redrawStats(void)
+void    redrawStats(W_Event *)
 {
   int     i;
 

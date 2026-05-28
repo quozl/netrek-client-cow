@@ -119,7 +119,7 @@ int PlistMaxWidth(void);
 */
 
 
-void RedrawPlayerList(void);
+void RedrawPlayerList(W_Event *);
 /*
    Completly redraw the player list, rather than incrimentally updating
    the list as with UpdatePlayerList().

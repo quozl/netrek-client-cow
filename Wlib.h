@@ -19,8 +19,6 @@
 #include "copyright2.h"
 #include "defs.h"
 
-typedef void (*W_Callback) ();
-
 typedef char *W_Window;
 
 typedef struct event
@@ -34,6 +32,8 @@ typedef struct event
 #endif
  }
 W_Event;
+
+typedef void (*W_Callback) (W_Event *data);
 
 /* mapping for some X11 keys that are not represented by ASCII or Latin-1 */
 #define W_Key_Up   1

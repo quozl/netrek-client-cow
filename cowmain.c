@@ -472,10 +472,10 @@ int     cowmain(char *server, int port, char *name)
 	W_MapWindow(statwin);
 
       if (W_IsMapped(lMeter))
-	redrawLMeter();
+	redrawLMeter(NULL);
 
       if (W_IsMapped(pStats))			 /* support ping stuff */
-	redrawPStats();
+	redrawPStats(NULL);
 
       if (isFirstEntry)
 	{

@@ -19,7 +19,7 @@ void sprefresh(int i);
 */
 
 
-void spaction(W_Event * data);
+void spaction(W_Event *data);
 /*
    Handle a button press.
 */

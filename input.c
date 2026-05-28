@@ -1729,7 +1729,7 @@ static void Key44(void)
   else
     {
       W_MapWindow(pStats);
-      redrawPStats();
+      redrawPStats(NULL);
     }
 }
 
@@ -1751,7 +1751,7 @@ static void Key46(void)
 static void Key47(void)
 {
   sortPlayers = !sortPlayers;
-  RedrawPlayerList();
+  RedrawPlayerList(NULL);
 }
 
 static void Key48(void)
@@ -2230,7 +2230,7 @@ static void Key104(void)
     }
   else
     {
-      fillhelp();
+      fillhelp(NULL);
       W_MapWindow(helpWin);
     }
   if (optionWin)

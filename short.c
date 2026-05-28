@@ -1963,7 +1963,7 @@ unsigned char *sbuf;
 	  if (me == &players[(int) pnum])
 	    {
 	      calibrate_stats();
-	      redrawStats();
+	      redrawStats(NULL);
 	    }
 #endif /* ARMY_SLIDER */
 	}

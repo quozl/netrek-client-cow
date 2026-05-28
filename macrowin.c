@@ -114,7 +114,7 @@ static void
 
 
 void
-        fillmacro(void)
+        fillmacro(W_Event *)
 {
   register int row, i;
   char    macromessage[MACROLEN];
@@ -214,7 +214,7 @@ void
     }
 }
 
-static void    switchmacros(void)
+static void    switchmacros(W_Event *)
 {
   int     num = macrocnt + 5;
 
