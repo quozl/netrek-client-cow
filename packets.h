@@ -264,7 +264,11 @@
 struct packet_handler
   {
     int     size;
-    void    (*handler) ();
+#ifdef CORRUPTED_PACKETS
+    void    (*handler) (void *buf, int sock);
+#else
+    void    (*handler) (void *buf);
+#endif
   };
 
 struct mesg_spacket
