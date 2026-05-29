@@ -14,15 +14,19 @@
 
 void myf(int x, int y, W_Color color, W_Font font, const char *fmt, ...)
 {
-  char buf[101];
+  char buf[128];
   int len;
   va_list args;
 
   va_start(args, fmt);
-  len = vsnprintf(buf, 100, fmt, args);
-  buf[len] = '\0';
-  W_WriteText(w, x, y, color, buf, len, font);
+  len = vsnprintf(buf, sizeof(buf), fmt, args);
   va_end(args);
+
+  if (len >= (int) sizeof(buf))
+    len = sizeof(buf) - 1;
+
+  if (len > 0)
+    W_WriteText(w, x, y, color, buf, len, font);
 }
 
 
