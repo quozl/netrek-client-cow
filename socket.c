@@ -200,125 +200,125 @@ void print_packet(char *packet, int size);
 struct packet_handler handlers[] =
 {
   {0, NULL},					 /* record 0 */
-  {sizeof(struct mesg_spacket), handleMessage},	 /* SP_MESSAGE */
-  {sizeof(struct plyr_info_spacket), handlePlyrInfo},	/* SP_PLAYER_INFO */
-  {sizeof(struct kills_spacket), handleKills},	 /* SP_KILLS */
-  {sizeof(struct player_spacket), handlePlayer}, /* SP_PLAYER */
-  {sizeof(struct torp_info_spacket), handleTorpInfo},	/* SP_TORP_INFO */
-  {sizeof(struct torp_spacket), handleTorp},	 /* SP_TORP */
-  {sizeof(struct phaser_spacket), handlePhaser}, /* SP_PHASER */
-  {sizeof(struct plasma_info_spacket), handlePlasmaInfo},	/* SP_PLASMA_INFO 
+  {sizeof(struct mesg_spacket), (void (*)(void *, int))handleMessage},	 /* SP_MESSAGE */
+  {sizeof(struct plyr_info_spacket), (void (*)(void *, int))handlePlyrInfo},	/* SP_PLAYER_INFO */
+  {sizeof(struct kills_spacket), (void (*)(void *, int))handleKills},	 /* SP_KILLS */
+  {sizeof(struct player_spacket), (void (*)(void *, int))handlePlayer}, /* SP_PLAYER */
+  {sizeof(struct torp_info_spacket), (void (*)(void *, int))handleTorpInfo},	/* SP_TORP_INFO */
+  {sizeof(struct torp_spacket), (void (*)(void *, int))handleTorp},	 /* SP_TORP */
+  {sizeof(struct phaser_spacket), (void (*)(void *, int))handlePhaser}, /* SP_PHASER */
+  {sizeof(struct plasma_info_spacket), (void (*)(void *, int))handlePlasmaInfo},	/* SP_PLASMA_INFO 
 								 * 
 								 */
-  {sizeof(struct plasma_spacket), handlePlasma}, /* SP_PLASMA */
-  {sizeof(struct warning_spacket), handleWarning},	/* SP_WARNING */
-  {sizeof(struct motd_spacket), handleMotd},	 /* SP_MOTD */
-  {sizeof(struct you_spacket), handleSelf},	 /* SP_YOU */
-  {sizeof(struct queue_spacket), handleQueue},	 /* SP_QUEUE */
-  {sizeof(struct status_spacket), handleStatus}, /* SP_STATUS */
-  {sizeof(struct planet_spacket), handlePlanet}, /* SP_PLANET */
-  {sizeof(struct pickok_spacket), handlePickok}, /* SP_PICKOK */
-  {sizeof(struct login_spacket), handleLogin},	 /* SP_LOGIN */
-  {sizeof(struct flags_spacket), handleFlags},	 /* SP_FLAGS */
-  {sizeof(struct mask_spacket), handleMask},	 /* SP_MASK */
-  {sizeof(struct pstatus_spacket), handlePStatus},	/* SP_PSTATUS */
-  {sizeof(struct badversion_spacket), handleBadVersion},	/* SP_BADVERSION 
+  {sizeof(struct plasma_spacket), (void (*)(void *, int))handlePlasma}, /* SP_PLASMA */
+  {sizeof(struct warning_spacket), (void (*)(void *, int))handleWarning},	/* SP_WARNING */
+  {sizeof(struct motd_spacket), (void (*)(void *, int))handleMotd},	 /* SP_MOTD */
+  {sizeof(struct you_spacket), (void (*)(void *, int))handleSelf},	 /* SP_YOU */
+  {sizeof(struct queue_spacket), (void (*)(void *, int))handleQueue},	 /* SP_QUEUE */
+  {sizeof(struct status_spacket), (void (*)(void *, int))handleStatus}, /* SP_STATUS */
+  {sizeof(struct planet_spacket), (void (*)(void *, int))handlePlanet}, /* SP_PLANET */
+  {sizeof(struct pickok_spacket), (void (*)(void *, int))handlePickok}, /* SP_PICKOK */
+  {sizeof(struct login_spacket), (void (*)(void *, int))handleLogin},	 /* SP_LOGIN */
+  {sizeof(struct flags_spacket), (void (*)(void *, int))handleFlags},	 /* SP_FLAGS */
+  {sizeof(struct mask_spacket), (void (*)(void *, int))handleMask},	 /* SP_MASK */
+  {sizeof(struct pstatus_spacket), (void (*)(void *, int))handlePStatus},	/* SP_PSTATUS */
+  {sizeof(struct badversion_spacket), (void (*)(void *, int))handleBadVersion},	/* SP_BADVERSION 
 								 * 
 								 */
-  {sizeof(struct hostile_spacket), handleHostile},	/* SP_HOSTILE */
-  {sizeof(struct stats_spacket), handleStats},	 /* SP_STATS */
-  {sizeof(struct plyr_login_spacket), handlePlyrLogin},		/* SP_PL_LOGIN 
+  {sizeof(struct hostile_spacket), (void (*)(void *, int))handleHostile},	/* SP_HOSTILE */
+  {sizeof(struct stats_spacket), (void (*)(void *, int))handleStats},	 /* SP_STATS */
+  {sizeof(struct plyr_login_spacket), (void (*)(void *, int))handlePlyrLogin},		/* SP_PL_LOGIN 
 								 * 
 								 */
-  {sizeof(struct reserved_spacket), handleReserved},	/* SP_RESERVED */
-  {sizeof(struct planet_loc_spacket), handlePlanetLoc},		/* SP_PLANET_LOC 
+  {sizeof(struct reserved_spacket), (void (*)(void *, int))handleReserved},	/* SP_RESERVED */
+  {sizeof(struct planet_loc_spacket), (void (*)(void *, int))handlePlanetLoc},		/* SP_PLANET_LOC 
 								 * 
 								 */
 
 #ifdef HANDLE_SCAN
-  {sizeof(struct scan_spacket), handleScan}	 /* SP_SCAN (ATM) */
+  {sizeof(struct scan_spacket), (void (*)(void *, int))handleScan}	 /* SP_SCAN (ATM) */
 #else
-  {0, dummy},					 /* won't be called */
+  {0, (void (*)(void *, int))dummy},					 /* won't be called */
 #endif
 
-  {sizeof(struct udp_reply_spacket), handleUdpReply},	/* SP_UDP_STAT */
-  {sizeof(struct sequence_spacket), handleSequence},	/* SP_SEQUENCE */
-  {sizeof(struct sc_sequence_spacket), handleSequence},		/* SP_SC_SEQUENCE 
+  {sizeof(struct udp_reply_spacket), (void (*)(void *, int))handleUdpReply},	/* SP_UDP_STAT */
+  {sizeof(struct sequence_spacket), (void (*)(void *, int))handleSequence},	/* SP_SEQUENCE */
+  {sizeof(struct sc_sequence_spacket), (void (*)(void *, int))handleSequence},		/* SP_SC_SEQUENCE 
 								 * 
 								 */
 
 #ifdef RSA
-  {sizeof(struct rsa_key_spacket), handleRSAKey},	/* SP_RSA_KEY */
+  {sizeof(struct rsa_key_spacket), (void (*)(void *, int))handleRSAKey},	/* SP_RSA_KEY */
 #else
-  {0, dummy},					 /* #31, and dummy won't */
+  {0, (void (*)(void *, int))dummy},					 /* #31, and dummy won't */
 #endif
 
-  {sizeof(struct generic_32_spacket), handleGeneric32}, /* SP_GENERIC_32 */
-  {0, dummy},					 /* 33 */
-  {0, dummy},					 /* 34 */
-  {0, dummy},					 /* 35 */
-  {0, dummy},					 /* 36 */
-  {0, dummy},					 /* 37 */
-  {0, dummy},					 /* 38 */
-  {sizeof(struct ship_cap_spacket), handleShipCap},	/* SP_SHIP_CAP */
+  {sizeof(struct generic_32_spacket), (void (*)(void *, int))handleGeneric32}, /* SP_GENERIC_32 */
+  {0, (void (*)(void *, int))dummy},					 /* 33 */
+  {0, (void (*)(void *, int))dummy},					 /* 34 */
+  {0, (void (*)(void *, int))dummy},					 /* 35 */
+  {0, (void (*)(void *, int))dummy},					 /* 36 */
+  {0, (void (*)(void *, int))dummy},					 /* 37 */
+  {0, (void (*)(void *, int))dummy},					 /* 38 */
+  {sizeof(struct ship_cap_spacket), (void (*)(void *, int))handleShipCap},	/* SP_SHIP_CAP */
 
 #ifdef SHORT_PACKETS
-  {sizeof(struct shortreply_spacket), handleShortReply},	/* SP_S_REPLY 
+  {sizeof(struct shortreply_spacket), (void (*)(void *, int))handleShortReply},	/* SP_S_REPLY 
 								 * 
 								 */
-  {-1, handleSMessage},				 /* SP_S_MESSAGE */
+  {-1, (void (*)(void *, int))handleSMessage},				 /* SP_S_MESSAGE */
   {-1						 /* sizeof(struct *
-						  * warning_s_spacket) */ , handleSWarning},
+						  * warning_s_spacket) */ , (void (*)(void *, int))handleSWarning},
 						 /* SP_S_WARNING */
-  {sizeof(struct youshort_spacket), handleSelfShort},	/* SP_S_YOU */
-  {sizeof(struct youss_spacket), handleSelfShip},	/* SP_S_YOU_SS */
-  {-1, /* variable */ handleVPlayer},		 /* SP_S_PLAYER */
+  {sizeof(struct youshort_spacket), (void (*)(void *, int))handleSelfShort},	/* SP_S_YOU */
+  {sizeof(struct youss_spacket), (void (*)(void *, int))handleSelfShip},	/* SP_S_YOU_SS */
+  {-1, (void (*)(void *, int))handleVPlayer},		 /* SP_S_PLAYER */
 #else
-  {0, dummy},					 /* 40 */
-  {0, dummy},					 /* 41 */
-  {0, dummy},					 /* 42 */
-  {0, dummy},					 /* 43 */
-  {0, dummy},					 /* 44 */
-  {0, dummy},					 /* 45 */
+  {0, (void (*)(void *, int))dummy},					 /* 40 */
+  {0, (void (*)(void *, int))dummy},					 /* 41 */
+  {0, (void (*)(void *, int))dummy},					 /* 42 */
+  {0, (void (*)(void *, int))dummy},					 /* 43 */
+  {0, (void (*)(void *, int))dummy},					 /* 44 */
+  {0, (void (*)(void *, int))dummy},					 /* 45 */
 #endif
-  {sizeof(struct ping_spacket), handlePing},	 /* SP_PING */
+  {sizeof(struct ping_spacket), (void (*)(void *, int))handlePing},	 /* SP_PING */
 
 #ifdef SHORT_PACKETS
-  {-1, /* variable */ handleVTorp},		 /* SP_S_TORP */
-  {-1, handleVTorpInfo},			 /* SP_S_TORP_INFO */
-  {20, handleVTorp},				 /* SP_S_8_TORP */
-  {-1, handleVPlanet},				 /* SP_S_PLANET */
+  {-1, (void (*)(void *, int))handleVTorp},		 /* SP_S_TORP */
+  {-1, (void (*)(void *, int))handleVTorpInfo},			 /* SP_S_TORP_INFO */
+  {20, (void (*)(void *, int))handleVTorp},				 /* SP_S_8_TORP */
+  {-1, (void (*)(void *, int))handleVPlanet},				 /* SP_S_PLANET */
 #else
-  {0, dummy},					 /* 47 */
-  {0, dummy},					 /* 48 */
-  {0, dummy},					 /* 49 */
-  {0, dummy},					 /* 50 */
+  {0, (void (*)(void *, int))dummy},					 /* 47 */
+  {0, (void (*)(void *, int))dummy},					 /* 48 */
+  {0, (void (*)(void *, int))dummy},					 /* 49 */
+  {0, (void (*)(void *, int))dummy},					 /* 50 */
 #endif
 
-  {0, dummy},					 /* 51 */
-  {0, dummy},					 /* 52 */
-  {0, dummy},					 /* 53 */
-  {0, dummy},					 /* 54 */
-  {0, dummy},					 /* 55 */
+  {0, (void (*)(void *, int))dummy},					 /* 51 */
+  {0, (void (*)(void *, int))dummy},					 /* 52 */
+  {0, (void (*)(void *, int))dummy},					 /* 53 */
+  {0, (void (*)(void *, int))dummy},					 /* 54 */
+  {0, (void (*)(void *, int))dummy},					 /* 55 */
 
 #ifdef SHORT_PACKETS				 /* S_P2 */
-  {0, dummy},					 /* SP_S_SEQUENCE not yet * * 
+  {0, (void (*)(void *, int))dummy},					 /* SP_S_SEQUENCE not yet * * 
 						  * implemented */
-  {-1, handleVPhaser},				 /* SP_S_PHASER */
-  {-1, handleVKills},				 /* SP_S_KILLS */
-  {sizeof(struct stats_s_spacket), handle_s_Stats},	/* SP_S_STATS */
+  {-1, (void (*)(void *, int))handleVPhaser},				 /* SP_S_PHASER */
+  {-1, (void (*)(void *, int))handleVKills},				 /* SP_S_KILLS */
+  {sizeof(struct stats_s_spacket), (void (*)(void *, int))handle_s_Stats},	/* SP_S_STATS */
 #else
-  {0, dummy},					 /* 56 */
-  {0, dummy},					 /* 57 */
-  {0, dummy},					 /* 58 */
-  {0, dummy},					 /* 59 */
+  {0, (void (*)(void *, int))dummy},					 /* 56 */
+  {0, (void (*)(void *, int))dummy},					 /* 57 */
+  {0, (void (*)(void *, int))dummy},					 /* 58 */
+  {0, (void (*)(void *, int))dummy},					 /* 59 */
 #endif
 
 #ifdef FEATURE_PACKETS
-  {sizeof(struct feature_cpacket), handleFeature},	/* SP_FEATURE; 60 */
+  {sizeof(struct feature_cpacket), (void (*)(void *, int))handleFeature},	/* SP_FEATURE; 60 */
 #endif
-  {sizeof(struct rank_spacket), handleRank},	/* SP_RANK; 61 */
-  {sizeof(struct ltd_spacket), handleLtd},	/* SP_LTD; 62 */
+  {sizeof(struct rank_spacket), (void (*)(void *, int))handleRank},	/* SP_RANK; 61 */
+  {sizeof(struct ltd_spacket), (void (*)(void *, int))handleLtd},	/* SP_LTD; 62 */
 
 };
 
