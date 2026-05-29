@@ -142,7 +142,12 @@ extern void handleFeature(struct feature_cpacket *packet);
 
 #endif
 void handleRank (struct rank_spacket *packet);
-void handleLtd (struct ltd_spacket *packet);
+void
+handleLtd (struct ltd_spacket *packet
+#ifdef CORRUPTED_PACKETS
+		       , int sock
+#endif
+	   );
 
 static void pickSocket(int old);
 static int connUdpConn(void);
@@ -2423,7 +2428,11 @@ void    handleHostile(struct hostile_spacket *packet)
     }
 }
 
-void    handlePlyrLogin(struct plyr_login_spacket *packet, int sock)
+void    handlePlyrLogin(struct plyr_login_spacket *packet
+#ifdef CORRUPTED_PACKETS
+			, int sock
+#endif
+			)
 {
   int p_no = packet->pnum;
   struct player *pl;
@@ -2653,7 +2662,11 @@ void    handlePlanetLoc(struct planet_loc_spacket *packet)
 }
 
 
-void    handleReserved(struct reserved_spacket *packet, int sock)
+void    handleReserved(struct reserved_spacket *packet
+#ifdef CORRUPTED_PACKETS
+		       , int sock
+#endif
+		       )
 {
   struct reserved_cpacket response;
 
@@ -2841,7 +2854,11 @@ static void dump_prefix(const char *abbr, const char *name) {
 }
 
 void
-handleLtd (struct ltd_spacket *packet)
+handleLtd (struct ltd_spacket *packet
+#ifdef CORRUPTED_PACKETS
+		       , int sock
+#endif
+		       )
 {
   if (packet->version != LTD_VERSION) return;
 
