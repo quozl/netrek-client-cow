@@ -2172,12 +2172,9 @@ void addToHash(struct window * win)
   (*new)->window = win;
 }
 
-W_Window
-W_MakeScrollingWindow(name, x, y, width, height, parent, border)
-char   *name;
-int     x, y, width, height;
-W_Window parent;
-int     border;
+W_Window W_MakeScrollingWindow(char *name,
+			       int x, int y, int width, int height,
+			       W_Window parent, int border)
 {
   struct window *newwin;
   Window  wparent;
@@ -2258,13 +2255,11 @@ int     border;
 /*
  * Add a string to the string list of the scrolling window.
  */
-static void
-        AddToScrolling(win, color, font, str, len)
-struct window *win;
-W_Color color;
-W_Font  font;
-char   *str;
-int     len;
+static void AddToScrolling(struct window *win,
+			   W_Color color,
+			   W_Font  font,
+			   char   *str,
+			   int     len)
 {
   struct scrollingWindow *sw;
   struct stringList *new;
@@ -2327,10 +2322,7 @@ int     len;
     }
 }
 
-void
-        W_FlushScrollingWindow(window)
-
-W_Window window;
+void W_FlushScrollingWindow(W_Window window)
 {
   struct window *win = W_Void2Window(window);
   struct scrollingWindow *sw;
@@ -2383,11 +2375,7 @@ W_Window window;
 #endif
 }
 
-static void
-        drawThumb(win, sw)
-
-struct window *win;
-struct scrollingWindow *sw;
+static void drawThumb(struct window *win, struct scrollingWindow *sw)
 {
   int x, y, h;
   int savedlines, maxrow, thumbTop, thumbHeight, totalHeight, winheight;
@@ -2434,9 +2422,7 @@ struct scrollingWindow *sw;
 	    x, 0, x, winheight);
 }
 
-static void
-        redrawScrolling(win)
-struct window *win;
+static void redrawScrolling(struct window *win)
 {
   int     y;
   struct scrollingWindow *sw;
@@ -3154,11 +3140,7 @@ void
   XSetWMHints(W_Display, W_Void2Window(main)->window, &hints);
 }
 
-static void
-        scrollUp(win, y)
-
-struct window *win;
-int     y;
+static void scrollUp(struct window *win, int y)
 {
   struct scrollingWindow *sw = (struct scrollingWindow *) win->data;
   int     savedlines = sw->lines - win->height;
@@ -3179,11 +3161,7 @@ int     y;
     }
 }
 
-static void
-        scrollDown(win, y)
-
-struct window *win;
-int     y;
+static void scrollDown(struct window *win, int y)
 {
   struct scrollingWindow *sw = (struct scrollingWindow *) win->data;
 
@@ -3201,11 +3179,7 @@ int     y;
 }
 
 
-static void
-        scrollPosition(win, y)
-
-struct window *win;
-int     y;
+static void scrollPosition(struct window *win, int y)
 {
   struct scrollingWindow *sw = (struct scrollingWindow *) win->data;
   int     savedlines, maxrow, winheight, newtop;
@@ -3224,12 +3198,7 @@ int     y;
   scrollTo(win, sw, newtop);
 }
 
-static void
-        scrollTo(win, sw, topline)
-
-struct window *win;
-struct scrollingWindow *sw;
-int     topline;
+static void scrollTo(struct window *win, struct scrollingWindow *sw, int topline)
 {
   while (topline < sw->topline)
     {
@@ -3254,10 +3223,7 @@ int     topline;
   redrawScrolling(win);
 }
 
-static void
-        scrollScrolling(wevent)
-
-W_Event *wevent;
+static void scrollScrolling(W_Event *wevent)
 {
   switch (wevent->key)
     {
@@ -3277,13 +3243,7 @@ W_Event *wevent;
     }
 }
 
-static void
-        configureScrolling(win, x, y, width, height)
-
-struct window *win;
-int     x, y;					 /* TODO */
-int     width, height;
-
+static void configureScrolling(struct window *win, int x, int y, int width, int height)
 {
   int     new_text_width, new_text_height;
   int     new_real_width, new_real_height;

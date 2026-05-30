@@ -1929,9 +1929,7 @@ void
 }
 
 /* S_P2 */
-void
-        handleVKills(sbuf)
-unsigned char *sbuf;
+void handleVKills(unsigned char *sbuf)
 {
   register int i, numofkills, pnum;
   register unsigned short pkills;
@@ -1972,9 +1970,7 @@ unsigned char *sbuf;
 
 }						 /* handleVKills */
 
-void
-        handleVPhaser(sbuf)
-unsigned char *sbuf;
+void handleVPhaser(unsigned char *sbuf)
 {
   struct phaser *phas;
   struct phaser_s_spacket *packet = (struct phaser_s_spacket *) &sbuf[0];
@@ -2029,9 +2025,7 @@ unsigned char *sbuf;
 #endif
 }
 
-void
-        handle_s_Stats(packet)
-struct stats_s_spacket *packet;
+void handle_s_Stats(struct stats_s_spacket *packet)
 {
   register struct player *pl;
 
