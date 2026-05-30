@@ -1,3 +1,36 @@
+Sat May 30 13:09:10 2026  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.3.3: released
+
+	- rework updates per second calculations and feature exchange,
+
+	- handle X11 events that don't arrive via the X socket,
+
+	- add double buffering, to reduce X operations,
+
+	- step down updates automatically if visual latency high,
+
+	- fix lag on login,
+
+	- fix fullscreen mouse pointer limit,
+
+	- limit det to server frame rate,
+
+	- tune up playback mode,
+
+	- fix data corruptions; write of uninitialised data, format
+	overflows, leaks of heap,
+
+	- finish removing Kathy Ireland imagery, no license for use,
+
+	- remove GATEWAY and TREKHOPD features, no current need,
+
+	- remove support for old HP-UX,
+
+	- fix compilation errors, GCC 15 & 16,
+
+	- add reproducible builds support,
+
 Sat May 16 21:30:39 2020  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.3.2: released

@@ -4,7 +4,10 @@
 # resolve any differences between working directory and repository
 
 # decide on version number
-export VERSION=3.3.2
+export VERSION=3.3.3
+
+# udpate this file
+git add README.releasing
 
 # update version.h patchlevel.h cow.spec
 git add version.h patchlevel.h cow.spec
