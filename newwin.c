@@ -157,7 +157,7 @@ static void
       break;
     case W_LBUTTON:
       if (messageon == 0) {
-        Key109(); /* m */
+        Key109(event); /* m */
         if (messpend == 0) smessage('A');
       }
       return;

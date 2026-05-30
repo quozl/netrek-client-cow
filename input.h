@@ -10,4 +10,4 @@ int getcourse(W_Window ww, int x, int y);
 void lockPlanetOrBase(W_Window ww, int x, int y);
 void macro_on(void);
 void doMacro(W_Event *data);
-void Key109(void);
+void Key109(W_Event *data);

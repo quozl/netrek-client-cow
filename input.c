@@ -82,29 +82,29 @@ unsigned char key = ' ';
  * performance gains... instead of having to test * n/2 times for n different
  * keys, the key is run directly * via an array of input functions whose
  * index happens * to coorespond to the value of input char. - jn */
-static void emptyKey(void), Key32(void), Key33(void), Key34(W_Event * data),
-        Key35(void), Key36(void), Key37(void), Key38(void), Key39(void),
-        Key40(void), Key41(W_Event * data), Key42(void), Key43(void), Key44(void),
-        Key45(void), Key46(void), Key47(void), Key48(void), Key49(void),
-        Key50(void), Key51(void), Key52(void), Key53(void), Key54(void),
-        Key55(void), Key56(void), Key57(void), Key58(void), Key59(W_Event * data),
-        Key60(void), Key61(void), Key62(void), Key63(void), Key64(void),
-        Key65(W_Event * data), Key66(void), Key67(void), Key68(void), Key69(W_Event * data),
+static void emptyKey(W_Event * data), Key32(W_Event * data), Key33(W_Event * data), Key34(W_Event * data),
+        Key35(W_Event * data), Key36(W_Event * data), Key37(W_Event * data), Key38(W_Event * data), Key39(W_Event * data),
+        Key40(W_Event * data), Key41(W_Event * data), Key42(W_Event * data), Key43(W_Event * data), Key44(W_Event * data),
+        Key45(W_Event * data), Key46(W_Event * data), Key47(W_Event * data), Key48(W_Event * data), Key49(W_Event * data),
+        Key50(W_Event * data), Key51(W_Event * data), Key52(W_Event * data), Key53(W_Event * data), Key54(W_Event * data),
+        Key55(W_Event * data), Key56(W_Event * data), Key57(W_Event * data), Key58(W_Event * data), Key59(W_Event * data),
+        Key60(W_Event * data), Key61(W_Event * data), Key62(W_Event * data), Key63(W_Event * data), Key64(W_Event * data),
+        Key65(W_Event * data), Key66(W_Event * data), Key67(W_Event * data), Key68(W_Event * data), Key69(W_Event * data),
         Key70(W_Event * data), Key71(W_Event * data), Key72(W_Event * data),
-        Key73(W_Event * data), Key74(W_Event * data), Key75(void), Key76(void),
-        Key77(W_Event * data), Key78(void), Key79(void), Key80(void), Key81(void),
-        Key82(void), Key83(void), Key84(W_Event * data), Key85(void), Key86(void),
-        Key87(W_Event * data), Key88(void), Key89(W_Event * data), Key90(W_Event * data),
-        Key91(void), Key92(void), Key93(void), Key94(W_Event * data), Key95(W_Event * data),
-        Key96(void), Key98(void), Key99(void), Key100(void),
-        Key101(void), Key102(W_Event * data), Key103(W_Event * data), Key104(void),
+        Key73(W_Event * data), Key74(W_Event * data), Key75(W_Event * data), Key76(W_Event * data),
+        Key77(W_Event * data), Key78(W_Event * data), Key79(W_Event * data), Key80(W_Event * data), Key81(W_Event * data),
+        Key82(W_Event * data), Key83(W_Event * data), Key84(W_Event * data), Key85(W_Event * data), Key86(W_Event * data),
+        Key87(W_Event * data), Key88(W_Event * data), Key89(W_Event * data), Key90(W_Event * data),
+        Key91(W_Event * data), Key92(W_Event * data), Key93(W_Event * data), Key94(W_Event * data), Key95(W_Event * data),
+        Key96(W_Event * data), Key98(W_Event * data), Key99(W_Event * data), Key100(W_Event * data),
+        Key101(W_Event * data), Key102(W_Event * data), Key103(W_Event * data), Key104(W_Event * data),
         Key105(W_Event * data), Key106(W_Event * data), Key107(W_Event * data),
-        Key108(W_Event * data), Key110(W_Event * data), Key111(void),
-        Key112(W_Event * data), Key113(void), Key114(void), Key115(void),
-        Key116(W_Event * data), Key117(void), Key118(W_Event * data), Key119(void),
-        Key120(void), Key121(W_Event * data), Key122(void), Key123(void),
-        Key124(void), Key125(void), Key126(W_Event * data), Key127(W_Event * data);
-void Key109(void);
+        Key108(W_Event * data), Key110(W_Event * data), Key111(W_Event * data),
+        Key112(W_Event * data), Key113(W_Event * data), Key114(W_Event * data), Key115(W_Event * data),
+        Key116(W_Event * data), Key117(W_Event * data), Key118(W_Event * data), Key119(W_Event * data),
+        Key120(W_Event * data), Key121(W_Event * data), Key122(W_Event * data), Key123(W_Event * data),
+        Key124(W_Event * data), Key125(W_Event * data), Key126(W_Event * data), Key127(W_Event * data);
+void Key109(W_Event * data);
 
 /* control keys */
 static void Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * data),
@@ -119,239 +119,239 @@ static void Key131(W_Event * data), Key144(W_Event * data), Key145(W_Event * dat
 
 typedef struct
   {
-    void (*handler) ();
+    void (*handler) (W_Event * data);
   }
 key_handler_type;
 
 key_handler_type key_handlers[MAXKEY] =
 {
-  { emptyKey },					 /* \0 */
-  { emptyKey },					 /* 1 */
-  { emptyKey },					 /* 2 */
-  { emptyKey },					 /* 3 */
-  { emptyKey },					 /* 4 */
-  { emptyKey },					 /* 5 */
-  { emptyKey },					 /* 6 */
-  { emptyKey },					 /* 7 */
-  { emptyKey },					 /* 8 */
-  { emptyKey },					 /* 9 */
-  { emptyKey },					 /* 10 */
-  { emptyKey },					 /* 11 */
-  { emptyKey },					 /* 12 */
-  { emptyKey },					 /* 13 */
-  { emptyKey },					 /* 14 */
-  { emptyKey },					 /* 15 */
-  { emptyKey },					 /* 16 */
-  { emptyKey },					 /* 17 */
-  { emptyKey },					 /* 18 */
-  { emptyKey },					 /* 19 */
-  { emptyKey },					 /* 20 */
-  { emptyKey },					 /* 21 */
-  { emptyKey },					 /* 22 */
-  { emptyKey },					 /* 23 */
-  { emptyKey },					 /* 24 */
-  { emptyKey },					 /* 25 */
-  { emptyKey },					 /* 26 */
-  { emptyKey },					 /* 27 */
-  { emptyKey },					 /* 28 */
-  { emptyKey },					 /* 29 */
-  { emptyKey },					 /* 30 */
-  { emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* \0 */
+  { (void (*)(W_Event *))emptyKey },					 /* 1 */
+  { (void (*)(W_Event *))emptyKey },					 /* 2 */
+  { (void (*)(W_Event *))emptyKey },					 /* 3 */
+  { (void (*)(W_Event *))emptyKey },					 /* 4 */
+  { (void (*)(W_Event *))emptyKey },					 /* 5 */
+  { (void (*)(W_Event *))emptyKey },					 /* 6 */
+  { (void (*)(W_Event *))emptyKey },					 /* 7 */
+  { (void (*)(W_Event *))emptyKey },					 /* 8 */
+  { (void (*)(W_Event *))emptyKey },					 /* 9 */
+  { (void (*)(W_Event *))emptyKey },					 /* 10 */
+  { (void (*)(W_Event *))emptyKey },					 /* 11 */
+  { (void (*)(W_Event *))emptyKey },					 /* 12 */
+  { (void (*)(W_Event *))emptyKey },					 /* 13 */
+  { (void (*)(W_Event *))emptyKey },					 /* 14 */
+  { (void (*)(W_Event *))emptyKey },					 /* 15 */
+  { (void (*)(W_Event *))emptyKey },					 /* 16 */
+  { (void (*)(W_Event *))emptyKey },					 /* 17 */
+  { (void (*)(W_Event *))emptyKey },					 /* 18 */
+  { (void (*)(W_Event *))emptyKey },					 /* 19 */
+  { (void (*)(W_Event *))emptyKey },					 /* 20 */
+  { (void (*)(W_Event *))emptyKey },					 /* 21 */
+  { (void (*)(W_Event *))emptyKey },					 /* 22 */
+  { (void (*)(W_Event *))emptyKey },					 /* 23 */
+  { (void (*)(W_Event *))emptyKey },					 /* 24 */
+  { (void (*)(W_Event *))emptyKey },					 /* 25 */
+  { (void (*)(W_Event *))emptyKey },					 /* 26 */
+  { (void (*)(W_Event *))emptyKey },					 /* 27 */
+  { (void (*)(W_Event *))emptyKey },					 /* 28 */
+  { (void (*)(W_Event *))emptyKey },					 /* 29 */
+  { (void (*)(W_Event *))emptyKey },					 /* 30 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
 
-  { Key32 },					 /* space */
-  { Key33 },					 /* ! */
-  { Key34 },					 /* " */
-  { Key35 },					 /* # */
-  { Key36 },					 /* $ */
-  { Key37 },					 /* % */
-  { Key38 },					 /* & */
-  { Key39 },					 /* ' */
-  { Key40 },					 /* ( */
-  { Key41 },					 /* ) */
-  { Key42 },					 /* * */
-  { Key43 },					 /* + */
-  { Key44 },					 /* , */
-  { Key45 },					 /* - */
-  { Key46 },					 /* . */
-  { Key47 },					 /* / */
-  { Key48 },					 /* 0 */
-  { Key49 },					 /* 1 */
-  { Key50 },					 /* 2 */
-  { Key51 },					 /* 3 */
-  { Key52 },					 /* 4 */
-  { Key53 },					 /* 5 */
-  { Key54 },					 /* 6 */
-  { Key55 },					 /* 7 */
-  { Key56 },					 /* 8 */
-  { Key57 },					 /* 9 */
-  { Key58 },					 /* : */
-  { Key59 },					 /* ; */
-  { Key60 },					 /* < */
-  { Key61 },					 /* = */
-  { Key62 },					 /* > */
-  { Key63 },					 /* ?  -  you know this is *
+  { (void (*)(W_Event *))Key32 },					 /* space */
+  { (void (*)(W_Event *))Key33 },					 /* ! */
+  { (void (*)(W_Event *))Key34 },					 /* " */
+  { (void (*)(W_Event *))Key35 },					 /* # */
+  { (void (*)(W_Event *))Key36 },					 /* $ */
+  { (void (*)(W_Event *))Key37 },					 /* % */
+  { (void (*)(W_Event *))Key38 },					 /* & */
+  { (void (*)(W_Event *))Key39 },					 /* ' */
+  { (void (*)(W_Event *))Key40 },					 /* ( */
+  { (void (*)(W_Event *))Key41 },					 /* ) */
+  { (void (*)(W_Event *))Key42 },					 /* * */
+  { (void (*)(W_Event *))Key43 },					 /* + */
+  { (void (*)(W_Event *))Key44 },					 /* , */
+  { (void (*)(W_Event *))Key45 },					 /* - */
+  { (void (*)(W_Event *))Key46 },					 /* . */
+  { (void (*)(W_Event *))Key47 },					 /* / */
+  { (void (*)(W_Event *))Key48 },					 /* 0 */
+  { (void (*)(W_Event *))Key49 },					 /* 1 */
+  { (void (*)(W_Event *))Key50 },					 /* 2 */
+  { (void (*)(W_Event *))Key51 },					 /* 3 */
+  { (void (*)(W_Event *))Key52 },					 /* 4 */
+  { (void (*)(W_Event *))Key53 },					 /* 5 */
+  { (void (*)(W_Event *))Key54 },					 /* 6 */
+  { (void (*)(W_Event *))Key55 },					 /* 7 */
+  { (void (*)(W_Event *))Key56 },					 /* 8 */
+  { (void (*)(W_Event *))Key57 },					 /* 9 */
+  { (void (*)(W_Event *))Key58 },					 /* : */
+  { (void (*)(W_Event *))Key59 },					 /* ; */
+  { (void (*)(W_Event *))Key60 },					 /* < */
+  { (void (*)(W_Event *))Key61 },					 /* = */
+  { (void (*)(W_Event *))Key62 },					 /* > */
+  { (void (*)(W_Event *))Key63 },					 /* ?  -  you know this is *
 						  * * boring as hell... */
-  { Key64 },					 /* @ */
-  { Key65 },					 /* A */
-  { Key66 },					 /* B */
-  { Key67 },					 /* C */
-  { Key68 },					 /* D */
-  { Key69 },					 /* E */
-  { Key70 },					 /* F */
-  { Key71 },					 /* G */
-  { Key72 },					 /* H */
-  { Key73 },					 /* I */
-  { Key74 },					 /* J */
-  { Key75 },					 /* K */
-  { Key76 },					 /* L */
-  { Key77 },					 /* M */
-  { Key78 },					 /* N */
-  { Key79 },					 /* O */
-  { Key80 },					 /* P */
-  { Key81 },					 /* Q */
-  { Key82 },					 /* R */
-  { Key83 },					 /* S */
-  { Key84 },					 /* T */
-  { Key85 },					 /* U */
-  { Key86 },					 /* V */
-  { Key87 },					 /* W */
-  { Key88 },					 /* X */
-  { Key89 },					 /* Y */
-  { Key90 },					 /* Z */
-  { Key91 },					 /* [ */
-  { Key92 },					 /* \ */
-  { Key93 },					 /* ]  -  ascii is fucked... */
-  { Key94 },					 /* ^ */
-  { Key95 },					 /* _ */
-  { Key96 },					 /* ` */
-  { emptyKey },					 /* a */
-  { Key98 },					 /* b */
-  { Key99 },					 /* c */
-  { Key100 },					 /* d */
-  { Key101 },					 /* e */
-  { Key102 },					 /* f */
-  { Key103 },					 /* g */
-  { Key104 },					 /* h */
-  { Key105 },					 /* i */
-  { Key106 },					 /* j */
-  { Key107 },					 /* k */
-  { Key108 },					 /* l */
-  { Key109 },					 /* m */
-  { Key110 },					 /* n */
-  { Key111 },					 /* o */
-  { Key112 },					 /* p */
-  { Key113 },					 /* q */
-  { Key114 },					 /* r */
-  { Key115 },					 /* s */
-  { Key116 },					 /* t */
-  { Key117 },					 /* u */
-  { Key118 },					 /* v */
-  { Key119 },					 /* w */
-  { Key120 },					 /* x */
-  { Key121 },					 /* y */
-  { Key122 },					 /* z */
-  { Key123 },					 /* { */
-  { Key124 },					 /* | */
-  { Key125 },					 /* } - my wife was once * *
+  { (void (*)(W_Event *))Key64 },					 /* @ */
+  { (void (*)(W_Event *))Key65 },					 /* A */
+  { (void (*)(W_Event *))Key66 },					 /* B */
+  { (void (*)(W_Event *))Key67 },					 /* C */
+  { (void (*)(W_Event *))Key68 },					 /* D */
+  { (void (*)(W_Event *))Key69 },					 /* E */
+  { (void (*)(W_Event *))Key70 },					 /* F */
+  { (void (*)(W_Event *))Key71 },					 /* G */
+  { (void (*)(W_Event *))Key72 },					 /* H */
+  { (void (*)(W_Event *))Key73 },					 /* I */
+  { (void (*)(W_Event *))Key74 },					 /* J */
+  { (void (*)(W_Event *))Key75 },					 /* K */
+  { (void (*)(W_Event *))Key76 },					 /* L */
+  { (void (*)(W_Event *))Key77 },					 /* M */
+  { (void (*)(W_Event *))Key78 },					 /* N */
+  { (void (*)(W_Event *))Key79 },					 /* O */
+  { (void (*)(W_Event *))Key80 },					 /* P */
+  { (void (*)(W_Event *))Key81 },					 /* Q */
+  { (void (*)(W_Event *))Key82 },					 /* R */
+  { (void (*)(W_Event *))Key83 },					 /* S */
+  { (void (*)(W_Event *))Key84 },					 /* T */
+  { (void (*)(W_Event *))Key85 },					 /* U */
+  { (void (*)(W_Event *))Key86 },					 /* V */
+  { (void (*)(W_Event *))Key87 },					 /* W */
+  { (void (*)(W_Event *))Key88 },					 /* X */
+  { (void (*)(W_Event *))Key89 },					 /* Y */
+  { (void (*)(W_Event *))Key90 },					 /* Z */
+  { (void (*)(W_Event *))Key91 },					 /* [ */
+  { (void (*)(W_Event *))Key92 },					 /* \ */
+  { (void (*)(W_Event *))Key93 },					 /* ]  -  ascii is fucked... */
+  { (void (*)(W_Event *))Key94 },					 /* ^ */
+  { (void (*)(W_Event *))Key95 },					 /* _ */
+  { (void (*)(W_Event *))Key96 },					 /* ` */
+  { (void (*)(W_Event *))emptyKey },					 /* a */
+  { (void (*)(W_Event *))Key98 },					 /* b */
+  { (void (*)(W_Event *))Key99 },					 /* c */
+  { (void (*)(W_Event *))Key100 },					 /* d */
+  { (void (*)(W_Event *))Key101 },					 /* e */
+  { (void (*)(W_Event *))Key102 },					 /* f */
+  { (void (*)(W_Event *))Key103 },					 /* g */
+  { (void (*)(W_Event *))Key104 },					 /* h */
+  { (void (*)(W_Event *))Key105 },					 /* i */
+  { (void (*)(W_Event *))Key106 },					 /* j */
+  { (void (*)(W_Event *))Key107 },					 /* k */
+  { (void (*)(W_Event *))Key108 },					 /* l */
+  { (void (*)(W_Event *))Key109 },					 /* m */
+  { (void (*)(W_Event *))Key110 },					 /* n */
+  { (void (*)(W_Event *))Key111 },					 /* o */
+  { (void (*)(W_Event *))Key112 },					 /* p */
+  { (void (*)(W_Event *))Key113 },					 /* q */
+  { (void (*)(W_Event *))Key114 },					 /* r */
+  { (void (*)(W_Event *))Key115 },					 /* s */
+  { (void (*)(W_Event *))Key116 },					 /* t */
+  { (void (*)(W_Event *))Key117 },					 /* u */
+  { (void (*)(W_Event *))Key118 },					 /* v */
+  { (void (*)(W_Event *))Key119 },					 /* w */
+  { (void (*)(W_Event *))Key120 },					 /* x */
+  { (void (*)(W_Event *))Key121 },					 /* y */
+  { (void (*)(W_Event *))Key122 },					 /* z */
+  { (void (*)(W_Event *))Key123 },					 /* { */
+  { (void (*)(W_Event *))Key124 },					 /* | */
+  { (void (*)(W_Event *))Key125 },					 /* } - my wife was once * *
 						  * bitten by a lhama */
-  { Key126 },					 /* ~ */
-  { Key127 },					 /* delete */
-  { emptyKey },					 /* 128 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key131 },					 /* ^# */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key144 },					 /* ^0 */
-  { Key145 },					 /* ^1 */
-  { Key146 },					 /* ^2 */
-  { Key147 },					 /* ^3 */
-  { Key148 },					 /* ^4 */
-  { Key149 },					 /* ^5 */
-  { Key150 },					 /* ^6 */
-  { Key151 },					 /* ^7 */
-  { Key152 },					 /* ^8 */
-  { Key153 },					 /* ^9 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key160 },					 /* ^@ */
-  { emptyKey },					 /* 31 */
-  { Key162 },					 /* ^B */
-  { Key163 },					 /* ^C */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key175 },					 /* ^O */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key180 },					 /* ^T */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key194 },					 /* ^b */
-  { Key195 },					 /* ^c */
-  { emptyKey },					 /* 31 */
-  { Key197 },					 /* ^e */
-  { Key198 },					 /* ^f */
-  { emptyKey },					 /* 31 */
-  { Key200 },					 /* ^h */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key204 },					 /* ^l */
-  { Key205 },					 /* ^m */
-  { Key206 },					 /* ^n */
-  { Key207 },					 /* ^o */
-  { Key208 },					 /* ^p */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { Key212 },					 /* ^t */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 31 */
-  { emptyKey },					 /* 223 */
+  { (void (*)(W_Event *))Key126 },					 /* ~ */
+  { (void (*)(W_Event *))Key127 },					 /* delete */
+  { (void (*)(W_Event *))emptyKey },					 /* 128 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key131 },					 /* ^# */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key144 },					 /* ^0 */
+  { (void (*)(W_Event *))Key145 },					 /* ^1 */
+  { (void (*)(W_Event *))Key146 },					 /* ^2 */
+  { (void (*)(W_Event *))Key147 },					 /* ^3 */
+  { (void (*)(W_Event *))Key148 },					 /* ^4 */
+  { (void (*)(W_Event *))Key149 },					 /* ^5 */
+  { (void (*)(W_Event *))Key150 },					 /* ^6 */
+  { (void (*)(W_Event *))Key151 },					 /* ^7 */
+  { (void (*)(W_Event *))Key152 },					 /* ^8 */
+  { (void (*)(W_Event *))Key153 },					 /* ^9 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key160 },					 /* ^@ */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key162 },					 /* ^B */
+  { (void (*)(W_Event *))Key163 },					 /* ^C */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key175 },					 /* ^O */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key180 },					 /* ^T */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key194 },					 /* ^b */
+  { (void (*)(W_Event *))Key195 },					 /* ^c */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key197 },					 /* ^e */
+  { (void (*)(W_Event *))Key198 },					 /* ^f */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key200 },					 /* ^h */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key204 },					 /* ^l */
+  { (void (*)(W_Event *))Key205 },					 /* ^m */
+  { (void (*)(W_Event *))Key206 },					 /* ^n */
+  { (void (*)(W_Event *))Key207 },					 /* ^o */
+  { (void (*)(W_Event *))Key208 },					 /* ^p */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))Key212 },					 /* ^t */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 31 */
+  { (void (*)(W_Event *))emptyKey },					 /* 223 */
 };
 
 unsigned char
@@ -1395,7 +1395,7 @@ void lockPlanetOrBase(W_Window ww, int x, int y)
 }
 
 
-static void emptyKey(void)
+static void emptyKey(W_Event * data)
 {
   fprintf(stderr, "input.c: emptyKey %d\n", key);
   W_Beep();
@@ -1603,7 +1603,7 @@ void    doMacro(W_Event * data)
 #endif
 }
 
-static void Key32(void)
+static void Key32(W_Event * data)
 {
   /* ' ' = clear special windows */
   W_UnmapWindow(planetw);
@@ -1628,7 +1628,7 @@ static void Key32(void)
     udpdone();
 }
 
-static void Key33(void)
+static void Key33(W_Event * data)
 {
   set_speed(11);
 }
@@ -1649,22 +1649,22 @@ static void Key34(W_Event * data)
   }
 }
 
-static void Key35(void)
+static void Key35(W_Event * data)
 {
   set_speed(me->p_ship.s_maxspeed / 2);
 }
 
-static void Key36(void)
+static void Key36(W_Event * data)
 {
   sendTractorReq(0, me->p_no);
 }
 
-static void Key37(void)
+static void Key37(W_Event * data)
 {
   set_speed(99);				 /* Max speed... */
 }
 
-static void Key38(void)
+static void Key38(W_Event * data)
 {
   char    mbuf[80];
 
@@ -1684,12 +1684,12 @@ static void Key38(void)
     }
 }
 
-static void Key39(void)
+static void Key39(W_Event * data)
 {
   sendUdpReq(COMM_UPDATE);
 }
 
-static void Key40(void)
+static void Key40(W_Event * data)
 {
   set_speed(10);
 }
@@ -1699,12 +1699,12 @@ static void Key41(W_Event * data)
   set_speed(10);
 }
 
-static void Key42(void)
+static void Key42(W_Event * data)
 {
   sendPractrReq();
 }
 
-static void Key43(void)
+static void Key43(W_Event * data)
 {
   /* UDP: pop up UDP control window */
   if (udpWin != NULL && W_IsMapped(udpWin))
@@ -1720,7 +1720,7 @@ static void Key43(void)
     }
 }
 
-static void Key44(void)
+static void Key44(W_Event * data)
 {
   if (W_IsMapped(pStats))
     {
@@ -1733,14 +1733,14 @@ static void Key44(void)
     }
 }
 
-static void Key45(void)
+static void Key45(W_Event * data)
 {
 #ifdef SHORT_PACKETS
   sendShortReq(SPK_SALL);
 #endif
 }
 
-static void Key46(void)
+static void Key46(W_Event * data)
 {
   if (netstatWin != NULL && W_IsMapped(netstatWin))
     nsdone();
@@ -1748,63 +1748,63 @@ static void Key46(void)
     nswindow();
 }
 
-static void Key47(void)
+static void Key47(W_Event * data)
 {
   sortPlayers = !sortPlayers;
   RedrawPlayerList(NULL);
 }
 
-static void Key48(void)
+static void Key48(W_Event * data)
 {
   set_speed(0);
 }
 
-static void Key49(void)
+static void Key49(W_Event * data)
 {
   set_speed(1);
 }
 
-static void Key50(void)
+static void Key50(W_Event * data)
 {
   set_speed(2);
 }
 
-static void Key51(void)
+static void Key51(W_Event * data)
 {
   set_speed(3);
 }
 
-static void Key52(void)
+static void Key52(W_Event * data)
 {
   set_speed(4);
 }
 
-static void Key53(void)
+static void Key53(W_Event * data)
 {
   set_speed(5);
 }
 
-static void Key54(void)
+static void Key54(W_Event * data)
 {
   set_speed(6);
 }
 
-static void Key55(void)
+static void Key55(W_Event * data)
 {
   set_speed(7);
 }
 
-static void Key56(void)
+static void Key56(W_Event * data)
 {
   set_speed(8);
 }
 
-static void Key57(void)
+static void Key57(W_Event * data)
 {
   set_speed(9);
 }
 
-static void Key58(void)
+static void Key58(W_Event * data)
 {
   logmess = !logmess;
   if (logmess)
@@ -1819,24 +1819,24 @@ static void Key59(W_Event * data)
 }
 
 /* < */
-static void Key60(void)
+static void Key60(W_Event * data)
 {
   set_speed(me->p_speed - 1);
 }
 
-static void Key61(void)
+static void Key61(W_Event * data)
 {
   /* UDP: request for full update */
   sendUdpReq(COMM_UPDATE);
 }
 
 /* > */
-static void Key62(void)
+static void Key62(W_Event * data)
 {
   set_speed(me->p_speed + 1);
 }
 
-static void Key63(void)
+static void Key63(W_Event * data)
 {
   if (W_IsMapped(phaserwin))
     phaserWindow = 1;
@@ -1881,7 +1881,7 @@ static void Key63(void)
     }
 }
 
-static void Key64(void)
+static void Key64(W_Event * data)
 {
   set_speed(12);
 }
@@ -1889,10 +1889,10 @@ static void Key64(void)
 static void Key65(W_Event * data)
 {
   /* W_ShowBitmaps(); */
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key66(void)
+static void Key66(W_Event * data)
 {
   showgalactic++;
   if (showgalactic > 4)
@@ -1901,13 +1901,13 @@ static void Key66(void)
   redrawall = 2;
 }
 
-static void Key67(void)
+static void Key67(W_Event * data)
 {
   sendCoupReq();
   W_CameraSnap(w);
 }
 
-static void Key68(void)
+static void Key68(W_Event * data)
 {
   detmine();
 
@@ -1931,12 +1931,12 @@ static void Key70(W_Event * data)
 
 static void Key71(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
 static void Key72(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
 static void Key73(W_Event * data)
@@ -1956,15 +1956,15 @@ static void Key73(W_Event * data)
 
 static void Key74(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key75(void)
+static void Key75(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key76(void)
+static void Key76(W_Event * data)
 {
   if (W_IsMapped(playerw))
     {
@@ -1981,11 +1981,11 @@ static void Key77(W_Event * data)
 #ifdef TOOLS
   showToolsWin();
 #else
-  emptyKey();
+  emptyKey(data);
 #endif
 }
 
-static void Key78(void)
+static void Key78(W_Event * data)
 {
   /* N = Toggle Name mode */
   namemode = !namemode;
@@ -1993,7 +1993,7 @@ static void Key78(void)
     optionredrawoption(&namemode);
 }
 
-static void Key79(void)
+static void Key79(W_Event * data)
 {
   if (optionWin != NULL && W_IsMapped(optionWin))
     optiondone();
@@ -2001,7 +2001,7 @@ static void Key79(void)
     optionwindow();
 }
 
-static void Key80(void)
+static void Key80(W_Event * data)
 {
   if (W_IsMapped(planetw))
     {
@@ -2013,7 +2013,7 @@ static void Key80(void)
     }
 }
 
-static void Key81(void)
+static void Key81(W_Event * data)
 {
 #ifdef SOUND
   Play_Sound(SELF_DESTRUCT_SOUND);
@@ -2021,12 +2021,12 @@ static void Key81(void)
   sendQuitReq();
 }
 
-static void Key82(void)
+static void Key82(W_Event * data)
 {
   sendRepairReq(1);
 }
 
-static void Key83(void)
+static void Key83(W_Event * data)
 {
   if (W_IsMapped(statwin))
     {
@@ -2057,7 +2057,7 @@ static void Key84(W_Event * data)
     }
 }
 
-static void Key85(void)
+static void Key85(W_Event * data)
 {
   if (W_IsMapped(rankw))
     {
@@ -2070,7 +2070,7 @@ static void Key85(void)
 }
 
 /* I really should get paid for this... */
-static void Key86(void)
+static void Key86(W_Event * data)
 {
   showlocal++;
   if (showlocal > 4)
@@ -2079,30 +2079,30 @@ static void Key86(void)
 
 static void Key87(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key88(void)
+static void Key88(W_Event * data)
 {
   macro_on();
 }
 
 static void Key89(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
 static void Key90(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key91(void)
+static void Key91(W_Event * data)
 {
   shield_down();
 }
 
-static void Key92(void)
+static void Key92(W_Event * data)
 {
   if (netstat)
     {
@@ -2117,7 +2117,7 @@ static void Key92(void)
     }
 }
 
-static void Key93(void)
+static void Key93(W_Event * data)
 {
   shield_up();
 }
@@ -2140,7 +2140,7 @@ static void Key95(W_Event * data)
   sendTractorReq(1, target->o_num);
 }
 
-static void Key96(void)
+static void Key96(W_Event * data)
 {
 #ifdef SHORT_PACKETS
   if (spWin != NULL && W_IsMapped(spWin))
@@ -2150,7 +2150,7 @@ static void Key96(void)
 #endif
 }
 
-static void Key98(void)
+static void Key98(W_Event * data)
 {
 #ifdef AUTOKEY
   if (autoKey && !(localflags & PFREFIT))
@@ -2162,12 +2162,12 @@ static void Key98(void)
 #endif /* AUTOKEY */
 }
 
-static void Key99(void)
+static void Key99(W_Event * data)
 {
   cloak();
 }
 
-static void Key100(void)
+static void Key100(W_Event * data)
 {
   static unsigned long lastdet = 0;
   unsigned long curtime;
@@ -2189,7 +2189,7 @@ static void Key100(void)
   detCircle = 1;
 }
 
-static void Key101(void)
+static void Key101(W_Event * data)
 {
   if (me->p_flags & PFDOCKOK)
     sendDockingReq(0);
@@ -2218,10 +2218,10 @@ static void Key102(W_Event * data)
 
 static void Key103(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key104(void)
+static void Key104(W_Event * data)
 {
   /* h = Map help window */
   if (W_IsMapped(helpWin))
@@ -2253,7 +2253,7 @@ static void Key105(W_Event * data)
 
 static void Key106(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
 static void Key107(W_Event * data)
@@ -2288,7 +2288,7 @@ static void Key108(W_Event * data)
     }
 }
 
-void Key109(void)
+void Key109(W_Event * data)
 {
 #ifdef SOUND
   Play_Sound(MESSAGE_SOUND);
@@ -2298,10 +2298,10 @@ void Key109(void)
 
 static void Key110(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key111(void)
+static void Key111(W_Event * data)
 {
 #ifdef AUTOKEY
   if (autoKey)
@@ -2331,7 +2331,7 @@ static void Key112(W_Event * data)
 #endif /* AUTOKEY */
 }
 
-static void Key113(void)
+static void Key113(W_Event * data)
 {
 #ifdef SOUND
   Play_Sound(SELF_DESTRUCT_SOUND);
@@ -2342,13 +2342,13 @@ static void Key113(void)
 }
 
 /* r */
-static void Key114(void)
+static void Key114(W_Event * data)
 {
   localflags |= PFREFIT;
   warning("s=scout, d=destroyer, c=cruiser, b=battleship, a=assault, g=galaxy, o=starbase/outpost");
 }
 
-static void Key115(void)
+static void Key115(W_Event * data)
 {
   shield_tog();
 }
@@ -2371,17 +2371,17 @@ static void Key116(W_Event * data)
 #endif /* AUTOKEY */
 }
 
-static void Key117(void)
+static void Key117(W_Event * data)
 {
   shield_tog();
 }
 
 static void Key118(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
-static void Key119(void)
+static void Key119(W_Event * data)
 {
   /* w = map war stuff */
   if (W_IsMapped(war))
@@ -2390,7 +2390,7 @@ static void Key119(void)
     warwindow();
 }
 
-static void Key120(void)
+static void Key120(W_Event * data)
 {
 #ifdef AUTOKEY
   if (autoKey)
@@ -2419,7 +2419,7 @@ static void Key121(W_Event * data)
     }
 }
 
-static void Key122(void)
+static void Key122(W_Event * data)
 {
 #ifdef AUTOKEY
   if (autoKey)
@@ -2429,19 +2429,19 @@ static void Key122(void)
     beam_up();
 }
 
-static void Key123(void)
+static void Key123(W_Event * data)
 {
   cloak_on();
 }
 
-static void Key124(void)
+static void Key124(W_Event * data)
 {
 #ifdef SHORT_PACKETS
   sendShortReq(SPK_ALL);
 #endif
 }
 
-static void Key125(void)
+static void Key125(W_Event * data)
 {
   cloak_off();
 }
@@ -2455,13 +2455,13 @@ static void Key126(W_Event * data) {
   else
     soundwindow();
 #else
-  emptyKey();
+  emptyKey(data);
 #endif
 }
 
 static void Key127(W_Event * data)
 {
-  emptyKey();
+  emptyKey(data);
 }
 
 /* ^T */
