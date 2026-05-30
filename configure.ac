@@ -1,8 +1,8 @@
 dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Netrek installation
 dnl	to configure the system for the local environment.
-AC_PREREQ([2.69])
-AC_INIT([netrek-client-cow], [3.3.2], [quozl@netrek.org])
+AC_PREREQ([2.71])
+AC_INIT([netrek-client-cow],[3.3.2],[quozl@netrek.org])
 AC_CONFIG_SRCDIR([socket.c])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADERS([config.h])
