@@ -1413,7 +1413,7 @@ void    macro_on(void)
 void    doMacro(W_Event * data)
 {
   struct obtype *gettarget(W_Window ww, int x, int y, int targtype), *target;
-  int     targettype;
+  int targettype;
   enum dist_type i;
 
 #ifdef NBT
@@ -1510,7 +1510,7 @@ void    doMacro(W_Event * data)
 		      targettype |= TARG_FRIEND;
 
 		    target = gettarget(data->Window, data->x, data->y,
-				       TARG_PLAYER | TARG_CLOAK);
+				       targettype | TARG_CLOAK);
 		    if (target->o_type == PLAYERTYPE)
 		      {
 			j = &players[target->o_num];
