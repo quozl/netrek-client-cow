@@ -851,11 +851,11 @@ void    optionaction(W_Event * data)
  * argument */
 void SetMenuPage(int pagenum)
 {
-  int     i = 1;
-
-  if (FirstMenu != NULL)
-    for (CurrentMenu = FirstMenu; CurrentMenu->Next != NULL &&
-    CurrentMenu->page_num != pagenum; i++, CurrentMenu = CurrentMenu->Next);
+  if (FirstMenu != NULL) {
+    for (CurrentMenu = FirstMenu;
+	 CurrentMenu->Next != NULL && CurrentMenu->page_num != pagenum;
+	 CurrentMenu = CurrentMenu->Next);
+  }
 }
 
 void optiondone(void)
