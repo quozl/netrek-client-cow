@@ -33,6 +33,11 @@
 #include "struct.h"
 #include "data.h"
 #include "sdl2window.h"
+
+#ifdef WINDOWMAKER
+char **wm_argv;
+int wm_argc;
+#endif
 #include "sdl2sprite.h"
 #include "defaults.h"
 
