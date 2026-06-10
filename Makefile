@@ -11,7 +11,7 @@ all: netrek-client-cow
 netrek-client-cow: system.mk netrekI
 
 netrekI::
-	$(MAKE) -f system.mk netrek-client-cow
+	$(MAKE) -j$(shell nproc) -f system.mk netrek-client-cow
 
 netrek.shared: name system.mk
 	$(MAKE) -f system.mk S=SHARED netrek.shared
