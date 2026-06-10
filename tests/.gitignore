@@ -1,0 +1,9 @@
+test_drawing
+test_event_pipe
+test_event_translation
+test_render_png
+test_sprite
+test_text
+test_window_mgmt
+*.dSYM/
+.DS_Store
