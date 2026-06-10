@@ -19,6 +19,9 @@ netrek.shared: name system.mk
 profile:
 	$(MAKE) -f system.mk OPT="-ggdb3 -pg -a" EXTRALINKFLAGS="-ggdb3 -pg -a" netrek-client-cow
 
+test: system.mk
+	$(MAKE) -f system.mk test
+
 clean:
 	rm -f *.o $(OBJ) $(SHAREDTARGET)
 

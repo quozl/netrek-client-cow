@@ -67,14 +67,75 @@ PATH_MAX
 AC_CHECK_FUNCS(strcmpi strncmpi)
 
 #--------------------------------------------------------------------
+#       Backend selection: --with-backend=sdl2|x11|auto
+#       Default: auto (prefer SDL2 when all deps present, else X11)
+#--------------------------------------------------------------------
+
+AC_ARG_WITH([backend],
+  [AS_HELP_STRING([--with-backend=sdl2|x11|auto],
+    [select rendering backend (default: auto, prefer sdl2)])],
+  [backend=$withval], [backend=auto])
+
+NOSDL2="#"
+NOWIN32="#"
+
+#--------------------------------------------------------------------
+#       Check for SDL2 backend dependencies via pkg-config
+#--------------------------------------------------------------------
+
+PKG_PROG_PKG_CONFIG
+
+have_sdl2_all=no
+if test "x$backend" = xsdl2 || test "x$backend" = xauto; then
+  PKG_CHECK_MODULES([SDL2],       [sdl2 >= 2.0.0],
+    [have_sdl2=yes],       [have_sdl2=no])
+  PKG_CHECK_MODULES([SDL2_IMAGE], [SDL2_image >= 2.0.0],
+    [have_sdl2_image=yes], [have_sdl2_image=no])
+  PKG_CHECK_MODULES([SDL2_TTF],   [SDL2_ttf >= 2.0.0],
+    [have_sdl2_ttf=yes],   [have_sdl2_ttf=no])
+  PKG_CHECK_MODULES([SDL2_MIXER], [SDL2_mixer >= 2.0.0],
+    [have_sdl2_mixer=yes], [have_sdl2_mixer=no])
+  if test "x$have_sdl2$have_sdl2_image$have_sdl2_ttf$have_sdl2_mixer" = xyesyesyesyes; then
+    have_sdl2_all=yes
+  fi
+fi
+
+if test "x$backend" = xsdl2 && test "x$have_sdl2_all" = xno; then
+  AC_MSG_ERROR([--with-backend=sdl2 requires sdl2 >= 2.0, SDL2_image, SDL2_ttf, and SDL2_mixer])
+fi
+
+if test "x$have_sdl2_all" = xyes; then
+  AC_DEFINE([HAVE_SDL2], [1], [SDL2 rendering backend])
+  NOSDL2=""
+  NOX11="#"
+  XXF86VM_LIBS=""
+  AC_MSG_NOTICE([SDL2 rendering backend selected])
+else
+  XXF86VM_LIBS="-lXxf86vm"
+  AC_MSG_NOTICE([X11 rendering backend selected])
+fi
+
+AC_SUBST(NOSDL2)
+AC_SUBST(SDL2_CFLAGS)
+AC_SUBST(SDL2_LIBS)
+AC_SUBST(SDL2_IMAGE_CFLAGS)
+AC_SUBST(SDL2_IMAGE_LIBS)
+AC_SUBST(SDL2_TTF_CFLAGS)
+AC_SUBST(SDL2_TTF_LIBS)
+AC_SUBST(SDL2_MIXER_CFLAGS)
+AC_SUBST(SDL2_MIXER_LIBS)
+AC_SUBST(XXF86VM_LIBS)
+
+#--------------------------------------------------------------------
 #	Locate the X11 header files and the X11 library archive.
 #--------------------------------------------------------------------
 
 AC_PATH_X
 
-AC_DEFINE(HAVE_X11)
-AC_DEFINE(HAVE_X11_XPM_H)
-NOWIN32="#"
+if test "x$NOSDL2" = "x#"; then
+  AC_DEFINE(HAVE_X11)
+  AC_DEFINE(HAVE_X11_XPM_H)
+fi
 
 if test -z "$NOX11" ; then
 
@@ -132,22 +193,25 @@ fi
 
 AC_SUBST(NOX11)
 AC_SUBST(NOWIN32)
+INCS=""
 
-SAVELIBS="$LIBS"
-LIBS="$LIBS $XLIBSWDIR $XLIBSWLIB"
-SAVEINCS="$INCS"
-INCS="$INCS $XINCLUDES"
-AC_CHECK_LIB(Xpm, main, [AC_DEFINE(HAVE_XPM) XPMLIBS="-lXpm"])
-AC_CHECK_HEADERS(X11/xpm.h)
-LIBS="$SAVELIBS"
-INCS="$SAVEINCS"
+if test "x$NOSDL2" = "x#"; then
+  SAVELIBS="$LIBS"
+  LIBS="$LIBS $XLIBSWDIR $XLIBSWLIB"
+  SAVEINCS="$INCS"
+  INCS="$INCS $XINCLUDES"
+  AC_CHECK_LIB(Xpm, main, [AC_DEFINE(HAVE_XPM) XPMLIBS="-lXpm"])
+  AC_CHECK_HEADERS(X11/xpm.h)
+  LIBS="$SAVELIBS"
+  INCS="$SAVEINCS"
 
-# Fix link order for Xpm
-XLIBSW="$XLIBSWDIR $XPMLIBS $XLIBSWLIB"
+  # Fix link order for Xpm
+  XLIBSW="$XLIBSWDIR $XPMLIBS $XLIBSWLIB"
 
-INCS="$INCS $XINCLUDES"
+  INCS="$INCS $XINCLUDES"
+  LIBS="$LIBS $XLIBSW"
+fi
 AC_SUBST(INCS)
-LIBS="$LIBS $XLIBSW"
 
 #--------------------------------------------------------------------
 #	Check for the existence of various libraries.  The order here
@@ -171,26 +235,40 @@ AC_REPLACE_FUNCS(usleep setstate strdup rint)
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
-#       Check for Imlib
+#       Check for Imlib2 (X11 backend only)
 #--------------------------------------------------------------------
-AC_SEARCH_LIBS([imlib_load_image], [Imlib2], [],
-               [AC_MSG_ERROR([Could not find Imlib2])])
+if test "x$NOSDL2" = "x#"; then
+  AC_SEARCH_LIBS([imlib_load_image], [Imlib2], [],
+                 [AC_MSG_ERROR([Could not find Imlib2 (required for X11 backend)])])
+fi
 
 #--------------------------------------------------------------------
-#       Check for SDL
+#       Check for SDL 1.2 + SDL_mixer (X11 backend sound only)
+#       SDL2 backend uses SDL2_mixer detected above via pkg-config.
 #--------------------------------------------------------------------
 
-AM_PATH_SDL(1.2.4, AC_DEFINE(HAVE_SDL),[])
-AM_CONDITIONAL(HAVE_SDL, [test x"$no_sdl" != x"yes"])
+SDL_CONFIG=""
+SDL_CFLAGS=""
+SDL_LIBS=""
+SDL_MIXER_LIBS=""
 
-if test x$no_sdl != xyes; then
-  have_SDLmixer=no
-  AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio, [have_SDLmixer=yes SDL_MIXER_LIBS="-lSDL_mixer"])
-  if test x$have_SDLmixer != xyes; then
-    AC_MSG_ERROR([*** Can't find the SDL_mixer library Try: http://www.libsdl.org/projects/SDL_mixer/])
-    AC_SUBST(SDL_MIXER_LIBS)
+if test "x$NOSDL2" = "x#"; then
+  PKG_CHECK_MODULES([SDL], [sdl >= 1.2.4],
+    [AC_DEFINE(HAVE_SDL, 1, [SDL 1.2 available]) no_sdl=no],
+    [no_sdl=yes])
+  if test "x$no_sdl" = xno; then
+    SDL_CFLAGS="$SDL_CFLAGS"
+    SDL_LIBS="$SDL_LIBS"
+    AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio,
+      [SDL_MIXER_LIBS="-lSDL_mixer"],
+      [AC_MSG_ERROR([SDL_mixer not found; required for X11 backend sound])])
   fi
 fi
+
+AC_SUBST(SDL_CONFIG)
+AC_SUBST(SDL_CFLAGS)
+AC_SUBST(SDL_LIBS)
+AC_SUBST(SDL_MIXER_LIBS)
 
 #--------------------------------------------------------------------
 #       Emit output
