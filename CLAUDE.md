@@ -10,6 +10,8 @@ sh autogen.sh
 make
 ```
 
+After pulling changes that touch `configure.ac` or `system.mk.in`, re-run `autogen.sh` and `./configure` before `make`.
+
 To rebuild after changing `configure.ac`:
 ```sh
 autoconf
