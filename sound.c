@@ -2,7 +2,16 @@
 
 #ifdef SOUND
 
-#if defined(HAVE_SDL)
+#if defined(HAVE_SDL2)
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+/* SDL2_mixer Mix_ API is compatible with SDL_mixer 1.2 — reuse all HAVE_SDL
+ * guards throughout this file rather than duplicating them. */
+#ifndef HAVE_SDL
+#define HAVE_SDL 1
+#define SDL2_SOUND 1  /* marks this compilation as SDL2 variant */
+#endif
+#elif defined(HAVE_SDL)
 #include "SDL.h"
 #include "SDL_mixer.h"
 #endif
@@ -1048,10 +1057,20 @@ void Init_Sound(void) {
 
 #elif defined(HAVE_SDL)
 #ifdef DEBUG
-	printf("Init_Sound using SDL\n");
+	printf("Init_Sound using %s\n", SDL2_SOUND ? "SDL2_mixer" : "SDL_mixer");
 #endif
 
-	/* Initialize the SDL library */
+	/* Initialize the audio subsystem; SDL2 backend already called SDL_Init
+	 * for video, so use SDL_InitSubSystem to avoid conflict. */
+#if defined(SDL2_SOUND)
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+	  fprintf(stderr, "Couldn't initialize SDL audio: %s\n", SDL_GetError());
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+	  fprintf(stderr, "Mix_OpenAudio: %s\n", Mix_GetError());
+	  sound_init = 0;
+	}
+#else
 	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
 	  fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
 	}
@@ -1062,6 +1081,7 @@ void Init_Sound(void) {
 	  fprintf(stderr,"Mix_OpenAudio: %s\n", Mix_GetError());
 	  sound_init = 0;
 	}
+#endif
 
         Mix_AllocateChannels(16);
 

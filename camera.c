@@ -1,5 +1,7 @@
 #include "config.h"
 #ifdef CAMERA
+
+#ifdef HAVE_X11
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
@@ -62,4 +64,6 @@ void camera_snap(Display *arg_disp, Window arg_window)
   fprintf(stderr, "camera_snap: %s\n", name);
   free(name);
 }
-#endif
+#endif /* HAVE_X11 */
+
+#endif /* CAMERA */

@@ -85,48 +85,114 @@ INPUTOBJ 	= input.o redraw.o
 MAINOBJ 	= main.o
 MAINSRC 	= main.c
 
-X11OBJ	 	= @NOX11@ x11window.o x11sprite.o audio.o
-X11SRC		= @NOX11@ x11window.c x11sprite.c audio.c
+X11OBJ	 	= @NOX11@ x11/x11window.o x11/x11sprite.o x11/audio.o
+X11SRC		= @NOX11@ x11/x11window.c x11/x11sprite.c x11/audio.c
 
-WIN32OBJ	= @NOWIN32@ gnu_win32.o winsprite.o winsndlib.o
-WIN32SRC	= @NOWIN32@ gnu_win32.c winsprite.c winsndlib.c
+WIN32OBJ	= @NOWIN32@ win32/gnu_win32.o win32/winsprite.o win32/winsndlib.o
+WIN32SRC	= @NOWIN32@ win32/gnu_win32.c win32/winsprite.c win32/winsndlib.c
+
+SDL2OBJ		= @NOSDL2@ sdl2/sdl2window.o sdl2/sdl2sprite.o
+SDL2SRC		= @NOSDL2@ sdl2/sdl2window.c sdl2/sdl2sprite.c
 
 SDL_CONFIG 	= @SDL_CONFIG@
 SDL_CFLAGS 	= @SDL_CFLAGS@
 SDL_LIBS 	= @SDL_LIBS@
 SDL_MIXER_LIBS	= @SDL_MIXER_LIBS@
 
-# full screen support
-XXF86VM_LIBS    = -lXxf86vm
+ALL_SDL2_CFLAGS	= @SDL2_CFLAGS@ @SDL2_IMAGE_CFLAGS@ @SDL2_TTF_CFLAGS@ @SDL2_MIXER_CFLAGS@
+ALL_SDL2_LIBS	= @SDL2_LIBS@ @SDL2_IMAGE_LIBS@ @SDL2_TTF_LIBS@ @SDL2_MIXER_LIBS@
+
+# full screen support (X11 only; SDL2 uses SDL_SetWindowFullscreen)
+XXF86VM_LIBS    = @XXF86VM_LIBS@
 
 SHARED 	= $(SL_CFLAGS)
 INCDIRS = $(INCS)
 CFLAGS ?= $(OPT)
 CFLAGS += $(INCDIRS)
 LDFLAGS ?= -g
-LIBRARIES = $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(XXF86VM_LIBS)
+LIBRARIES = $(LIBS) $(EXTRALIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) $(ALL_SDL2_LIBS) $(XXF86VM_LIBS)
 
-netrek-client-cow: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ)
-	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(INPUTOBJ) $(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(LIBRARIES)
+netrek-client-cow: $(PMAKE) null $(ROBJ) $(MAINOBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(SDL2OBJ) $(RANDOMOBJ)
+	$(CC) $(LDFLAGS) -o netrek-client-cow $(ROBJ) $(INPUTOBJ) $(MAINOBJ) $(X11OBJ) $(WIN32OBJ) $(SDL2OBJ) $(RANDOMOBJ) $(LIBRARIES)
 
 netrek.shared: done.libcow $(MAINOBJ) $(COWAPI)
 	$(CC) $(LDFLAGS) $(MAINOBJ) -L. -lcow $(LIBS) -o netrek.shared
 
-done.libcow: $(PMAKE) $(ROBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ)
+done.libcow: $(PMAKE) $(ROBJ) $(INPUTOBJ) $(X11OBJ) $(WIN32OBJ) $(SDL2OBJ) $(RANDOMOBJ)
 	$(CC) $(ROBJ) $(INPUTOBJ) \
-	$(X11OBJ) $(WIN32OBJ) $(RANDOMOBJ) $(SL_LDFLAGS) $(SL_LIBFLAGS) -o $(COWLIB)
+	$(X11OBJ) $(WIN32OBJ) $(SDL2OBJ) $(RANDOMOBJ) $(SL_LDFLAGS) $(SL_LIBFLAGS) -o $(COWLIB)
 	$(RM) $(SL_LIB)
 	$(LN) $(COWLIB) $(SL_LIB)
 	$(TOUCH) done.libcow
 
 sound.o: sound.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(SDL_CFLAGS) -c sound.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SDL_CFLAGS) $(ALL_SDL2_CFLAGS) -c sound.c
+
+sdl2/sdl2window.o: sdl2/sdl2window.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. $(ALL_SDL2_CFLAGS) -c sdl2/sdl2window.c -o sdl2/sdl2window.o
+
+sdl2/sdl2sprite.o: sdl2/sdl2sprite.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. $(ALL_SDL2_CFLAGS) -c sdl2/sdl2sprite.c -o sdl2/sdl2sprite.o
+
+x11/x11window.o: x11/x11window.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c x11/x11window.c -o x11/x11window.o
+
+x11/x11sprite.o: x11/x11sprite.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c x11/x11sprite.c -o x11/x11sprite.o
+
+x11/audio.o: x11/audio.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c x11/audio.c -o x11/audio.o
+
+win32/gnu_win32.o: win32/gnu_win32.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c win32/gnu_win32.c -o win32/gnu_win32.o
+
+win32/winsprite.o: win32/winsprite.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c win32/winsprite.c -o win32/winsprite.o
+
+win32/winsndlib.o: win32/winsndlib.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -c win32/winsndlib.c -o win32/winsndlib.o
 
 random.o: random.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c random.c
 
 strdup.o: strdup.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c strdup.c
+
+test:
+	$(MAKE) -C tests check
+
+# macOS application bundle
+# Requires: dylibbundler (brew install dylibbundler) to embed SDL2 dylibs.
+# Without dylibbundler the bundle still runs on the build machine but
+# will fail on machines that do not have SDL2 installed via Homebrew.
+BUNDLE_APP  = Netrek.app
+BUNDLE_CONT = $(BUNDLE_APP)/Contents
+
+bundle: netrek-client-cow
+	@echo "==> Creating $(BUNDLE_APP) ..."
+	@rm -rf $(BUNDLE_APP)
+	@mkdir -p $(BUNDLE_CONT)/MacOS $(BUNDLE_CONT)/Frameworks $(BUNDLE_CONT)/Resources
+	@cp macos/Info.plist $(BUNDLE_CONT)/Info.plist
+	@cp netrek-client-cow $(BUNDLE_CONT)/MacOS/netrek-client-cow
+	@cp macos/netrek-launcher.sh $(BUNDLE_CONT)/MacOS/Netrek
+	@chmod +x $(BUNDLE_CONT)/MacOS/Netrek $(BUNDLE_CONT)/MacOS/netrek-client-cow
+	@cp -r pixmaps $(BUNDLE_CONT)/Resources/
+	@mkdir -p $(BUNDLE_CONT)/Resources/sdl2/fonts
+	@cp sdl2/fonts/DejaVuSansMono.ttf $(BUNDLE_CONT)/Resources/sdl2/fonts/
+	@if [ -d sounds ]; then cp -r sounds $(BUNDLE_CONT)/Resources/; fi
+	@if command -v dylibbundler >/dev/null 2>&1; then \
+	  echo "==> Bundling SDL2 dylibs with dylibbundler ..."; \
+	  dylibbundler -b -x $(BUNDLE_CONT)/MacOS/netrek-client-cow \
+	    -d $(BUNDLE_CONT)/Frameworks/ \
+	    -p '@executable_path/../Frameworks/' \
+	    -od -q; \
+	else \
+	  echo "==> Warning: dylibbundler not found."; \
+	  echo "    SDL2 dylibs will not be embedded."; \
+	  echo "    Install with: brew install dylibbundler"; \
+	fi
+	@echo "==> $(BUNDLE_APP) is ready."
+	@echo "    Open with: open $(BUNDLE_APP)"
 
 tags: $(RSRC)
 	ctags $(RSRC) $(INCLUDES)
@@ -136,13 +202,13 @@ depend: null
 	$(X11SRC) name.c $(INCDIRS)
 
 proto: null
-	$(PROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC)
+	$(PROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC) $(SDL2SRC)
 
 unproto: null
-	$(UNPROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC)
+	$(UNPROTOIZE) $(RSRC) $(MAINSRC) $(X11SRC) $(WIN32SRC) $(SDL2SRC)
 
 indent: null
-	$(INDENT) $(RSRC) $(MAINSRC) $(INCLUDES) $(X11SRC) $(WIN32SRC)
+	$(INDENT) $(RSRC) $(MAINSRC) $(INCLUDES) $(X11SRC) $(WIN32SRC) $(SDL2SRC)
 
 to_unix: $(RSRC) $(INCLUDES) $(MAINSRC) $(X11SRC)
 	-for f in $(RSRC) $(INCLUDES) $(MAINSRC) $(X11SRC) $(WIN32SRC) ; do \

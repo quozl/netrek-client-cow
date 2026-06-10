@@ -517,4 +517,7 @@ typedef unsigned long int SEMAPHORE;
 /* define this if you have the SDL library (checked by configure.in) */
 #undef HAVE_SDL
 
+/* define this if the SDL2 rendering backend is selected */
+#undef HAVE_SDL2
+
 #endif  /* __CONFIG_H */
