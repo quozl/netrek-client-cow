@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Netrek
-Exec=/usr/games/netrek-client-cow
+Exec=netrek-client-cow
 Icon=/usr/share/pixmaps/netrek-client-cow/icon.png
 StartupNotify=false
 Terminal=false
