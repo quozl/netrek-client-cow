@@ -392,9 +392,9 @@ void W_DrawSpriteAbsolute(void *in, int x, int y)
     return;
 
   XSetClipMask(W_Display, sprite->gc, sprite->shape);
-  XSetClipOrigin(W_Display, sprite->gc, x, y);
+  XSetClipOrigin(W_Display, sprite->gc, x, y - sprite->view * sprite->height);
   XCopyArea(W_Display, sprite->image, sprite->drawable, sprite->gc,
-            0, 0, sprite->width, sprite->height, x, y);
+            0, sprite->view * sprite->height, sprite->width, sprite->height, x, y);
 }
 
 void W_ClearSpriteAbsolute(void *in, int x, int y)
@@ -859,6 +859,30 @@ void    W_DropImage(void *sprite_v)
 
   XFreeGC(W_Display, sprite->gc);
   XFreePixmap(W_Display, sprite->image);
-  XFreePixmap(W_Display, sprite->shape);
+  if (sprite->shape)
+    XFreePixmap(W_Display, sprite->shape);
   free(sprite);
+}
+
+char    *W_PixmapDir(void)
+{
+  GetPixmapDir();
+  return pixmapDir;
+}
+
+void    W_ImageInfo(void *sprite_v, int *width, int *height, int *nviews)
+{
+  struct S_Object *sprite = (struct S_Object *) sprite_v;
+
+  *width = sprite ? sprite->width : 0;
+  *height = sprite ? sprite->height : 0;
+  *nviews = sprite ? sprite->nviews : 0;
+}
+
+void    W_AdvanceImageView(void *sprite_v)
+{
+  struct S_Object *sprite = (struct S_Object *) sprite_v;
+
+  if (sprite == NULL || sprite->nviews < 1) return;
+  sprite->view = (sprite->view + 1) % sprite->nviews;
 }

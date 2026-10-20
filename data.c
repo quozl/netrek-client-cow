@@ -699,3 +699,5 @@ int F_sp_ltd = 0;
 int F_tips = 1;
 char *program = NULL;
 int small_screen = 0;
+int spriteTest = 0;
+int W_Scale = 1;

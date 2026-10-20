@@ -18,6 +18,7 @@
 extern int logmess;
 
 char   *servertmp = NULL;
+char   *scaleArg = NULL;
 
 #define NO_PIXMAPS 0x8000
 extern int pixMissing;
@@ -74,6 +75,25 @@ int main2(int argc, char **argv)
 	small_screen++;
 	argv++; argc--;
 	continue;
+      }
+
+      if (!strcmp(*argv, "--sprite-test")) {
+	extern int spriteTest;
+	spriteTest++;
+	argv++; argc--;
+	continue;
+      }
+
+      if (!strcmp(*argv, "--scale")) {
+	argv++; argc--;
+	if (*argv) {
+	  scaleArg = *argv;
+	  argv++; argc--;
+	  continue;
+	}
+	fprintf(stderr, "%s: --scale needs a value (N or auto)\n", name);
+	err++;
+	break;
       }
 
       if (!strcmp(*argv, "--server")) {
@@ -326,6 +346,8 @@ static void printUsage(char *prog)
   printf(" [--port n]          Port to connect to\n");
   printf(" [--fast-guest]      Bypass login and play as guest\n");
   printf(" [--small-screen]    Shrink windows to fit on an 800x600 screen\n");
+  printf(" [--sprite-test]     Show the main window and animate every pixmap; q quits\n");
+  printf(" [--scale N|auto]    Display scale factor (1-8), or auto from the display size\n");
   printf(" [-r defaultsfile]   Specify defaults file\n");
   printf(" [-s socketnum]      Specify listen socket port for manual start\n");
   printf(" [-G playernum]      Reconnect after ghostbust.  Use with -s\n");

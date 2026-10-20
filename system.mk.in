@@ -63,7 +63,7 @@ ROBJ = \
     lagmeter.o local.o macrowin.o map.o myf.o netstat.o netstatopt.o \
     newwin.o option.o parsemeta.o ping.o pingstats.o planetlist.o \
     playback.o playerlist.o ranklist.o reserved.o rotate.o senddist.o \
-    short.o sintab.o smessage.o socket.o sound.o spopt.o stats.o \
+    short.o sintab.o smessage.o socket.o sound.o spopt.o spritetest.o stats.o \
     string_util.o tools.o udpopt.o util.o war.o warning.o
 
 RSRC = \

@@ -42,6 +42,7 @@
 #include "pingstats.h"
 #include "playerlist.h"
 #include "parsemeta.h"
+#include "spritetest.h"
 #include "short.h"
 #include "smessage.h"
 #include "socket.h"
@@ -95,6 +96,30 @@ int     usemeta = 0;
 #define DEFAULT_METATYPE 1
 
 #endif
+
+/* Parse a scale value: 1-8, or "auto" for W_SCALE_AUTO.  NULL means the
+ * default of 1.  Returns nonzero if the value is not valid. */
+static int setScale(char *value)
+{
+  char *end;
+  long n;
+
+  if (value == NULL) {
+    W_Scale = 1;
+    return 0;
+  }
+  if (strcmp(value, "auto") == 0) {
+    W_Scale = W_SCALE_AUTO;
+    return 0;
+  }
+  n = strtol(value, &end, 10);
+  if (end == value || *end != '\0' || n < 1 || n > 8) {
+    fprintf(stderr, "invalid scale '%s': use 1-8 or auto\n", value);
+    return 1;
+  }
+  W_Scale = (int) n;
+  return 0;
+}
 
 int     cowmain(char *server, int port, char *name)
 {
@@ -206,6 +231,22 @@ int     cowmain(char *server, int port, char *name)
 	  perror(logFileName);
 	  return 1;
 	}
+    }
+
+  {
+    extern char *scaleArg;
+
+    if (setScale(scaleArg ? scaleArg : getdefault("scale")))
+      return 1;
+  }
+
+  if (spriteTest)
+    {
+      newwin(display_host, name);
+      mapAll();
+      i = spriteTestLoop();
+      W_Deinitialize();
+      return i;
     }
 
 #ifdef META

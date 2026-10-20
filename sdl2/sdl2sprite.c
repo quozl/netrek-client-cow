@@ -523,6 +523,24 @@ void W_DropImage(void *sprite_v) {
     free(s);
 }
 
+char *W_PixmapDir(void) {
+    GetPixmapDir();
+    return pixmapDir;
+}
+
+void W_ImageInfo(void *sprite_v, int *width, int *height, int *nviews) {
+    struct sdl2_sprite *s = (struct sdl2_sprite *)sprite_v;
+    *width  = s ? s->width  : 0;
+    *height = s ? s->height : 0;
+    *nviews = s ? s->nviews : 0;
+}
+
+void W_AdvanceImageView(void *sprite_v) {
+    struct sdl2_sprite *s = (struct sdl2_sprite *)sprite_v;
+    if (!s || s->nviews < 1) return;
+    s->view = (s->view + 1) % s->nviews;
+}
+
 /* =========================================================================
  * Screen-shot slideshow (stub — no FTS on all platforms)
  * ========================================================================= */

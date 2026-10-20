@@ -528,4 +528,5 @@ extern int F_sp_ltd;
 extern int F_tips;
 extern char *program;
 extern int small_screen;
+extern int spriteTest;
 #endif /* _h_data */

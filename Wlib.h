@@ -198,6 +198,14 @@ void W_DrawScreenShot(W_Window w, int x, int y);
 void *W_ReadImage(W_Window w, char *name);
 void W_DrawImage(int x, int y, void *sprite_v);
 void W_DropImage(void *sprite_v);
+char *W_PixmapDir(void);
+void W_ImageInfo(void *sprite_v, int *width, int *height, int *nviews);
+void W_AdvanceImageView(void *sprite_v);
 extern void W_Deinitialize();
+
+/* Requested display scale from --scale or the "scale" default.
+ * W_SCALE_AUTO is resolved by the backend once the display size is known. */
+#define W_SCALE_AUTO 0
+extern int W_Scale;
 
 #endif /* _h_Wlib */
