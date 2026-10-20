@@ -238,6 +238,11 @@ int     cowmain(char *server, int port, char *name)
 
     if (setScale(scaleArg ? scaleArg : getdefault("scale")))
       return 1;
+#ifndef HAVE_SDL2
+    if (W_Scale != 1)
+      fprintf(stderr, "%s: --scale is only applied by the SDL2 backend; "
+	      "this build ignores it\n", name);
+#endif
   }
 
   if (spriteTest)
