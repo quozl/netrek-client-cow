@@ -12,15 +12,6 @@
 /* Test hook exposed by sdl2window.c when UNIT_TEST is defined */
 extern int sdl2_test_translate(SDL_Event *e, W_Event *we);
 
-static void push_keydown(SDL_Keycode sym) {
-    SDL_Event e;
-    SDL_memset(&e, 0, sizeof(e));
-    e.type              = SDL_KEYDOWN;
-    e.key.keysym.sym    = sym;
-    e.key.keysym.mod    = KMOD_NONE;
-    SDL_PushEvent(&e);
-}
-
 static void push_quit(void) {
     SDL_Event e;
     SDL_memset(&e, 0, sizeof(e));
@@ -40,13 +31,29 @@ static SDL_Event make_button_event(Uint8 button, int x, int y) {
 
 /* --- tests using SDL event queue (reliable with dummy driver) --- */
 
-static void test_ascii_keydown(void) {
-    push_keydown(SDLK_a);
+static SDL_Event make_text_event(const char *text) {
+    SDL_Event e;
+    SDL_memset(&e, 0, sizeof(e));
+    e.type = SDL_TEXTINPUT;
+    SDL_strlcpy(e.text.text, text, sizeof(e.text.text));
+    return e;
+}
+
+static void test_ascii_textinput(void) {
+    SDL_Event e = make_text_event("a");
     W_Event ev;
-    while (W_SpNextEvent(&ev)) {
-        if (ev.type == W_EV_KEY && ev.key == 'a') { TEST_PASS(); return; }
-    }
-    TEST_FAIL_MESSAGE("'a' key not received");
+    TEST_ASSERT_TRUE(sdl2_test_translate(&e, &ev));
+    TEST_ASSERT_EQUAL_INT(W_EV_KEY, ev.type);
+    TEST_ASSERT_EQUAL_INT('a',      ev.key);
+}
+
+static void test_shifted_textinput(void) {
+    /* Shift+8 arrives as text "*", not as the keysym '8' */
+    SDL_Event e = make_text_event("*");
+    W_Event ev;
+    TEST_ASSERT_TRUE(sdl2_test_translate(&e, &ev));
+    TEST_ASSERT_EQUAL_INT(W_EV_KEY, ev.type);
+    TEST_ASSERT_EQUAL_INT('*',      ev.key);
 }
 
 static void test_quit_event_via_queue(void) {
@@ -93,16 +100,27 @@ static void test_middle_button_translation(void) {
     TEST_ASSERT_EQUAL_INT(W_MBUTTON,   ev.key);
 }
 
-static void test_keydown_translation(void) {
+static void test_keydown_printable_left_to_textinput(void) {
+    /* Unmodified printable keys produce no KEYDOWN translation; the
+     * character comes from SDL_TEXTINPUT instead, so it is not doubled. */
     SDL_Event e;
     SDL_memset(&e, 0, sizeof(e));
     e.type = SDL_KEYDOWN;
     e.key.keysym.sym = SDLK_z;
     W_Event ev;
+    TEST_ASSERT_FALSE(sdl2_test_translate(&e, &ev));
+}
+
+static void test_keydown_special_key_translation(void) {
+    SDL_Event e;
+    SDL_memset(&e, 0, sizeof(e));
+    e.type = SDL_KEYDOWN;
+    e.key.keysym.sym = SDLK_RETURN;
+    W_Event ev;
     int ok = sdl2_test_translate(&e, &ev);
     TEST_ASSERT_TRUE(ok);
     TEST_ASSERT_EQUAL_INT(W_EV_KEY, ev.type);
-    TEST_ASSERT_EQUAL_INT('z',      ev.key);
+    TEST_ASSERT_EQUAL_INT(13,       ev.key);
 }
 
 static void test_quit_translation(void) {
@@ -119,12 +137,14 @@ int main(void) {
     W_Initialize(NULL);
 
     UNITY_BEGIN();
-    RUN_TEST(test_ascii_keydown);
+    RUN_TEST(test_ascii_textinput);
+    RUN_TEST(test_shifted_textinput);
     RUN_TEST(test_quit_event_via_queue);
     RUN_TEST(test_left_button_translation);
     RUN_TEST(test_right_button_translation);
     RUN_TEST(test_middle_button_translation);
-    RUN_TEST(test_keydown_translation);
+    RUN_TEST(test_keydown_printable_left_to_textinput);
+    RUN_TEST(test_keydown_special_key_translation);
     RUN_TEST(test_quit_translation);
     return UNITY_END();
 }

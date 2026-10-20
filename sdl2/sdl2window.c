@@ -398,6 +398,7 @@ void W_Initialize(char *display_name) {
         exit(1);
     }
 
+    SDL_StartTextInput();   /* printable keys arrive as SDL_TEXTINPUT */
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     /* The composite is only blits, and with an emulated GPU the accelerated
      * driver burns far more CPU than the software one.  An explicit
@@ -1216,14 +1217,31 @@ static int translate_sdl_event(SDL_Event *e, W_Event *we) {
         if (k == SDLK_RETURN || k == SDLK_KP_ENTER) { we->key = 13; return 1; }
         if (k == SDLK_ESCAPE)    { we->key = 27;  return 1; }
         if (k == SDLK_TAB)       { we->key = 9;   return 1; }
-        /* Printable ASCII */
-        if (k >= 32 && k <= 126) { we->key = (unsigned char)k; return 1; }
+        /* Printable characters without Ctrl arrive as SDL_TEXTINPUT, which
+         * carries the shifted character (Shift+8 is '*').  With Ctrl held
+         * keep the keysym, as before. */
+        if ((e->key.keysym.mod & KMOD_CTRL) && k >= 32 && k <= 126) {
+            we->key = (unsigned char)k;
+            return 1;
+        }
         /* Ctrl modifier: produce control character */
         if ((e->key.keysym.mod & KMOD_CTRL) && k >= SDLK_a && k <= SDLK_z) {
             we->key = (unsigned char)(k - SDLK_a + 1);
             return 1;
         }
         return 0; }
+
+    case SDL_TEXTINPUT: {
+        /* One ASCII character typed; multi-byte UTF-8 is not used by the game */
+        unsigned char c = (unsigned char)e->text.text[0];
+        if (e->text.text[1] != '\0' || c < 32 || c > 126) return 0;
+        we->type   = W_EV_KEY;
+        we->Window = sdl2_last_mwin ? sdl2_last_mwin
+                                    : sdl_window_to_wwin(e->text.windowID);
+        we->x = sdl2_last_mx;
+        we->y = sdl2_last_my;
+        we->key = c;
+        return 1; }
 
 #ifdef AUTOKEY
     case SDL_KEYUP: {
