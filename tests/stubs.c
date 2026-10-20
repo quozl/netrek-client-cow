@@ -30,6 +30,7 @@ struct plasmatorp *plasmatorps = _plasmatorps;
 
 /* ---- simple scalars ---- */
 int  pixMissing   = 0;
+int  W_Scale      = 1;
 int  playback     = 0;
 int  pixFlags     = 0;
 int  remap[NUMTEAM + 1] = {0, 1, 2, 3, 4};

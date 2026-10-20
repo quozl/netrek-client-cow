@@ -60,6 +60,15 @@ static W_Window sdl2_last_mwin = NULL;
 static int      sdl2_last_mx   = 0;
 static int      sdl2_last_my   = 0;
 
+/* Display scale (W_Scale, resolved in W_Initialize) and the logical size the
+ * OS window was last set to.  Windows are drawn at logical size and scaled up
+ * when composited in W_Flush(); mouse positions are divided back down. */
+#define SDL2_BASE_W 1100
+#define SDL2_BASE_H 700
+static int       sdl2_scale = 1;
+static int       sdl2_ext_w = SDL2_BASE_W;
+static int       sdl2_ext_h = SDL2_BASE_H;
+
 #ifdef SOUND
 /* Pre-built 880 Hz beep chunk for W_Beep(); NULL if audio unavailable. */
 static Mix_Chunk *sdl2_beep_chunk = NULL;
@@ -326,6 +335,22 @@ static inline int font_idx(W_Font f) {
  * W_Initialize / W_Deinitialize
  * ========================================================================= */
 
+/* Resolve W_Scale.  "auto" picks the largest whole multiple of the 1024x768
+ * game layout that fits on the first display. */
+static int resolve_scale(void) {
+    SDL_Rect r;
+    int s;
+
+    if (W_Scale != W_SCALE_AUTO)
+        return W_Scale;
+    if (SDL_GetDisplayBounds(0, &r) != 0)
+        return 1;
+    s = r.w / 1024;
+    if (r.h / 768 < s)
+        s = r.h / 768;
+    return s < 1 ? 1 : (s > 8 ? 8 : s);
+}
+
 void W_Initialize(char *display_name) {
     (void)display_name; /* SDL2 doesn't need a display string */
 
@@ -344,17 +369,20 @@ void W_Initialize(char *display_name) {
         exit(1);
     }
 
-    /* Initial window size — will grow as W_MakeWindow creates windows */
+    sdl2_scale = resolve_scale();
+
+    /* Initial window size — W_Flush() grows it to fit the mapped windows */
     sdl2_window_handle = SDL_CreateWindow(
         "Netrek",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        1100, 700,
+        SDL2_BASE_W * sdl2_scale, SDL2_BASE_H * sdl2_scale,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     if (!sdl2_window_handle) {
         fprintf(stderr, "sdl2window: SDL_CreateWindow: %s\n", SDL_GetError());
         exit(1);
     }
 
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     sdl2_renderer = SDL_CreateRenderer(
         sdl2_window_handle, -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
@@ -1055,14 +1083,24 @@ void W_FlushWindow(W_Window wv) {
 }
 
 void W_Flush(void) {
+    int ew = SDL2_BASE_W, eh = SDL2_BASE_H;
+
     SDL_SetRenderTarget(sdl2_renderer, NULL);
     SDL_SetRenderDrawColor(sdl2_renderer, 0, 0, 0, 255);
     SDL_RenderClear(sdl2_renderer);
     for (int i = 0; i < winorder_count; i++) {
         struct sdl2_window *win = winorder[i];
         if (!win->mapped || !win->texture) continue;
-        SDL_Rect dst = {win->x, win->y, win->width, win->height};
+        if (win->x + win->width > ew) ew = win->x + win->width;
+        if (win->y + win->height > eh) eh = win->y + win->height;
+        SDL_Rect dst = {win->x * sdl2_scale, win->y * sdl2_scale,
+                        win->width * sdl2_scale, win->height * sdl2_scale};
         SDL_RenderCopy(sdl2_renderer, win->texture, NULL, &dst);
+    }
+    if (ew != sdl2_ext_w || eh != sdl2_ext_h) {
+        sdl2_ext_w = ew;
+        sdl2_ext_h = eh;
+        SDL_SetWindowSize(sdl2_window_handle, ew * sdl2_scale, eh * sdl2_scale);
     }
     SDL_RenderPresent(sdl2_renderer);
 }
@@ -1161,7 +1199,7 @@ static int translate_sdl_event(SDL_Event *e, W_Event *we) {
 
     case SDL_MOUSEMOTION: {
         /* Track position so key events can aim directional commands at cursor */
-        int sx = e->motion.x, sy = e->motion.y;
+        int sx = e->motion.x / sdl2_scale, sy = e->motion.y / sdl2_scale;
         sdl2_last_mwin = win_at(sx, sy);
         if (sdl2_last_mwin) {
             struct sdl2_window *mv = (struct sdl2_window *)sdl2_last_mwin;
@@ -1175,9 +1213,9 @@ static int translate_sdl_event(SDL_Event *e, W_Event *we) {
 
     case SDL_MOUSEBUTTONDOWN: {
         we->type   = W_EV_BUTTON;
-        we->x      = e->button.x;
-        we->y      = e->button.y;
-        we->Window = win_at(e->button.x, e->button.y);
+        we->x      = e->button.x / sdl2_scale;
+        we->y      = e->button.y / sdl2_scale;
+        we->Window = win_at(we->x, we->y);
         if (we->Window) {
             struct sdl2_window *win = (struct sdl2_window *)we->Window;
             we->x -= win->x;
@@ -1360,6 +1398,8 @@ void W_DefineArrowCursor(W_Window w)   { (void)w; }
 int findMouseInWin(int *x, int *y, W_Window wv) {
     int mx, my;
     SDL_GetMouseState(&mx, &my);
+    mx /= sdl2_scale;
+    my /= sdl2_scale;
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w) { *x = mx; *y = my; return 1; }
     *x = mx - w->x;
