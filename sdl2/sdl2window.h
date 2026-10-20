@@ -101,6 +101,8 @@ struct sdl2_winlist {
 
 /* Exposed globals used by sdl2sprite.c */
 extern SDL_Renderer  *sdl2_renderer;
+/* Set when anything has been drawn or a window changed since the last present. */
+extern int            sdl2_dirty;
 extern struct sdl2_font sdl2_fonts[SDL2_NFONTS];
 extern SDL_Color      sdl2_colortable[SDL2_NCOLORS];
 

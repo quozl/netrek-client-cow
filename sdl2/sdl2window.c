@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
@@ -47,6 +48,7 @@ int wm_argc;
 
 static SDL_Window   *sdl2_window_handle = NULL;
 SDL_Renderer        *sdl2_renderer      = NULL;
+int                  sdl2_dirty         = 1;
 
 /* Self-pipe for select() compatibility */
 static int pipe_read_fd  = -1;
@@ -60,14 +62,28 @@ static W_Window sdl2_last_mwin = NULL;
 static int      sdl2_last_mx   = 0;
 static int      sdl2_last_my   = 0;
 
-/* Display scale (W_Scale, resolved in W_Initialize) and the logical size the
- * OS window was last set to.  Windows are drawn at logical size and scaled up
- * when composited in W_Flush(); mouse positions are divided back down. */
+/* Display scale (W_Scale, resolved in W_Initialize).  Windows are drawn at
+ * logical size and scaled up when composited in W_Flush(); mouse positions
+ * are divided back down.  The OS window is sized once, at creation, to the
+ * extent of the default layout: resizing it at run time leaves the software
+ * renderer with an invalid window surface. */
 #define SDL2_BASE_W 1100
-#define SDL2_BASE_H 700
+#define SDL2_BASE_H 1029
 static int       sdl2_scale = 1;
-static int       sdl2_ext_w = SDL2_BASE_W;
-static int       sdl2_ext_h = SDL2_BASE_H;
+
+/* Presents are limited to one per SDL2_FRAME_S seconds.  The server sends
+ * about 25 updates a second, and each full-window present costs a lot of CPU
+ * on software-only GPU stacks.  A frame that falls inside the limit stays
+ * dirty and is presented by the next call to W_SpNextEvent or
+ * W_EventsQueuedCk. */
+#define SDL2_FRAME_S 0.04
+static double    sdl2_last_present = 0.0;
+
+static double sdl2_now(void) {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return t.tv_sec + t.tv_nsec / 1e9;
+}
 
 #ifdef SOUND
 /* Pre-built 880 Hz beep chunk for W_Beep(); NULL if audio unavailable. */
@@ -371,7 +387,7 @@ void W_Initialize(char *display_name) {
 
     sdl2_scale = resolve_scale();
 
-    /* Initial window size — W_Flush() grows it to fit the mapped windows */
+    /* Window size: the default layout's extent, scaled */
     sdl2_window_handle = SDL_CreateWindow(
         "Netrek",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -383,6 +399,11 @@ void W_Initialize(char *display_name) {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+    /* The composite is only blits, and with an emulated GPU the accelerated
+     * driver burns far more CPU than the software one.  An explicit
+     * SDL_RENDER_DRIVER in the environment still takes precedence. */
+    if (getenv("SDL_RENDER_DRIVER") == NULL)
+        SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
     sdl2_renderer = SDL_CreateRenderer(
         sdl2_window_handle, -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
@@ -520,6 +541,7 @@ static struct sdl2_window *make_win(const char *name, int x, int y,
     if (w->texture) {
         SDL_SetTextureBlendMode(w->texture, SDL_BLENDMODE_BLEND);
         /* Clear to black */
+        sdl2_dirty = 1;
         SDL_SetRenderTarget(sdl2_renderer, w->texture);
         SDL_SetRenderDrawColor(sdl2_renderer, 0, 0, 0, 255);
         SDL_RenderClear(sdl2_renderer);
@@ -585,12 +607,12 @@ W_Window W_MakeMenu(char *name, int x, int y,
 
 void W_MapWindow(W_Window wv) {
     struct sdl2_window *w = sdl2_find_window(wv);
-    if (w) w->mapped = 1;
+    if (w) { w->mapped = 1; sdl2_dirty = 1; }
 }
 
 void W_UnmapWindow(W_Window wv) {
     struct sdl2_window *w = sdl2_find_window(wv);
-    if (w) w->mapped = 0;
+    if (w) { w->mapped = 0; sdl2_dirty = 1; }
 }
 
 int W_IsMapped(W_Window wv) {
@@ -601,6 +623,7 @@ int W_IsMapped(W_Window wv) {
 void W_DestroyWindow(W_Window wv) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w) return;
+    sdl2_dirty = 1;
     win_deregister(w);
     if (w->texture) SDL_DestroyTexture(w->texture);
     free(w->name);
@@ -621,6 +644,7 @@ void W_DestroyWindow(W_Window wv) {
 void W_ResizeWindow(W_Window wv, int neww, int newh) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w) return;
+    sdl2_dirty = 1;
     if (w->texture) SDL_DestroyTexture(w->texture);
     w->width  = neww;
     w->height = newh;
@@ -700,6 +724,7 @@ void W_GetPixmaps(W_Window t, W_Window g) { sdl2_GetPixmaps(t, g); }
  * ========================================================================= */
 
 void sdl2_set_target(struct sdl2_window *w) {
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w ? w->texture : NULL);
 }
 
@@ -716,6 +741,7 @@ static inline void set_color(int color) {
 void W_ClearWindow(W_Window wv) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     SDL_Color c = sdl2_colortable[(int)backColor < SDL2_NCOLORS ? (int)backColor : 1];
     SDL_SetRenderDrawColor(sdl2_renderer, c.r, c.g, c.b, 255);
@@ -726,6 +752,7 @@ void W_ClearWindow(W_Window wv) {
 void W_ClearArea(W_Window wv, int x, int y, int width, int height) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     set_color((int)backColor < SDL2_NCOLORS ? (int)backColor : 1);
     SDL_Rect r = {x, y, width, height};
@@ -746,6 +773,7 @@ void W_FlushClearAreaCache(W_Window wv) { (void)wv; }
 void W_FillArea(W_Window wv, int x, int y, int width, int height, W_Color color) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     if (w->type == SDL2WIN_TEXT || w->type == SDL2WIN_MENU) {
         /* Character-grid coords → pixels */
@@ -763,6 +791,7 @@ void W_FillArea(W_Window wv, int x, int y, int width, int height, W_Color color)
 void W_MakeLine(W_Window wv, int x0, int y0, int x1, int y1, W_Color color) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     set_color(color);
     SDL_RenderDrawLine(sdl2_renderer, x0, y0, x1, y1);
@@ -773,6 +802,7 @@ void W_MakeLine(W_Window wv, int x0, int y0, int x1, int y1, W_Color color) {
 void W_MakeTractLine(W_Window wv, int x0, int y0, int x1, int y1, W_Color color) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     set_color(color);
     /* Match X11 LineOnOffDash {1, 8}: 1px on, 8px off → one point per 9px */
@@ -807,6 +837,7 @@ void W_FlushLineCaches(W_Window wv) { (void)wv; }
 void W_WriteCircle(W_Window wv, int bx, int by, int diam, W_Color color) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     set_color(color);
     int rad = diam / 2;
@@ -832,6 +863,7 @@ void W_WriteCircle(W_Window wv, int bx, int by, int diam, W_Color color) {
 void W_WriteTriangle(W_Window wv, int x, int y, int s, int t, W_Color color) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     set_color(color);
     SDL_Point pts[4];
@@ -896,6 +928,8 @@ void W_WriteText(W_Window wv, int x, int y, W_Color color,
     if (!w || !w->texture) return;
     int fidx = font_idx(font);
 
+    sdl2_dirty = 1;
+
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
 
     int px, py;
@@ -945,6 +979,7 @@ void W_MaskText(W_Window wv, int x, int y, W_Color color,
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || !w->texture) return;
     int fidx = font_idx(font);
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     int px, py;
     if (w->type == SDL2WIN_TEXT || w->type == SDL2WIN_MENU) {
@@ -961,6 +996,8 @@ void W_FlushScrollingWindow(W_Window wv) {
     struct sdl2_window *w = sdl2_find_window(wv);
     if (!w || w->type != SDL2WIN_SCROLL || !w->texture) return;
     struct sdl2_scroll *sc = (struct sdl2_scroll *)w->data;
+
+    sdl2_dirty = 1;
 
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     SDL_SetRenderDrawColor(sdl2_renderer, 0, 0, 0, 255);
@@ -1054,6 +1091,8 @@ static void write_bitmap_impl(int x, int y, W_Icon bit,
     SDL_SetTextureAlphaMod(icon->texture, 255);
     SDL_SetTextureBlendMode(icon->texture, SDL_BLENDMODE_BLEND);
 
+    sdl2_dirty = 1;
+
     SDL_SetRenderTarget(sdl2_renderer, w->texture);
     SDL_Rect dst = {x, y, icon->width, icon->height};
     SDL_RenderCopy(sdl2_renderer, icon->texture, NULL, &dst);
@@ -1083,7 +1122,11 @@ void W_FlushWindow(W_Window wv) {
 }
 
 void W_Flush(void) {
-    int ew = SDL2_BASE_W, eh = SDL2_BASE_H;
+    double now = sdl2_now();
+
+    if (!sdl2_dirty || now - sdl2_last_present < SDL2_FRAME_S) return;
+    sdl2_dirty = 0;
+    sdl2_last_present = now;
 
     SDL_SetRenderTarget(sdl2_renderer, NULL);
     SDL_SetRenderDrawColor(sdl2_renderer, 0, 0, 0, 255);
@@ -1091,16 +1134,9 @@ void W_Flush(void) {
     for (int i = 0; i < winorder_count; i++) {
         struct sdl2_window *win = winorder[i];
         if (!win->mapped || !win->texture) continue;
-        if (win->x + win->width > ew) ew = win->x + win->width;
-        if (win->y + win->height > eh) eh = win->y + win->height;
         SDL_Rect dst = {win->x * sdl2_scale, win->y * sdl2_scale,
                         win->width * sdl2_scale, win->height * sdl2_scale};
         SDL_RenderCopy(sdl2_renderer, win->texture, NULL, &dst);
-    }
-    if (ew != sdl2_ext_w || eh != sdl2_ext_h) {
-        sdl2_ext_w = ew;
-        sdl2_ext_h = eh;
-        SDL_SetWindowSize(sdl2_window_handle, ew * sdl2_scale, eh * sdl2_scale);
     }
     SDL_RenderPresent(sdl2_renderer);
 }
@@ -1124,6 +1160,7 @@ int W_Socket(void) { return pipe_read_fd; }
 
 int W_EventsQueuedCk(void) {
     SDL_PumpEvents();
+    if (sdl2_dirty) W_Flush();   /* present a frame deferred by the limit */
     int n = SDL_PeepEvents(NULL, 0, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
     if (n > 0) pipe_signal();
     return n;
@@ -1241,6 +1278,7 @@ static int translate_sdl_event(SDL_Event *e, W_Event *we) {
 
     case SDL_WINDOWEVENT:
         if (e->window.event == SDL_WINDOWEVENT_EXPOSED) {
+            sdl2_dirty = 1;
             we->type   = W_EV_EXPOSE;
             we->Window = sdl_window_to_wwin(e->window.windowID);
             return 1;
@@ -1265,6 +1303,7 @@ static int translate_sdl_event(SDL_Event *e, W_Event *we) {
 int W_SpNextEvent(W_Event *ev) {
     pipe_drain();
     SDL_PumpEvents();
+    if (sdl2_dirty) W_Flush();   /* present a frame deferred by the limit */
 
     /* Return buffered event first */
     if (have_pending) {

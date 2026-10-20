@@ -275,6 +275,7 @@ int W_DrawSprite(void *sprite_v, int x, int y, int winside) {
                      draw->width, draw->height };
 
     /* Render directly to the backbuffer (master window) */
+    sdl2_dirty = 1;
     SDL_SetRenderTarget(sdl2_renderer, draw->target->texture);
     SDL_RenderCopy(sdl2_renderer, draw->texture, &src,
                    &(SDL_Rect){ dx, dy, draw->width, draw->height });
@@ -290,6 +291,8 @@ void W_DrawSpriteAbsolute(void *sprite_v, int x, int y) {
     SDL_Rect src = { 0, s->view * s->height, s->width, s->height };
     SDL_Rect dst = { x, y, s->width, s->height };
 
+    sdl2_dirty = 1;
+
     SDL_SetRenderTarget(sdl2_renderer, s->target->texture);
     SDL_RenderCopy(sdl2_renderer, s->texture, &src, &dst);
     SDL_SetRenderTarget(sdl2_renderer, NULL);
@@ -298,6 +301,8 @@ void W_DrawSpriteAbsolute(void *sprite_v, int x, int y) {
 void W_ClearSpriteAbsolute(void *sprite_v, int x, int y) {
     struct sdl2_sprite *s = (struct sdl2_sprite *)sprite_v;
     if (!s || !s->target) return;
+
+    sdl2_dirty = 1;
 
     SDL_SetRenderTarget(sdl2_renderer, s->target->texture);
     SDL_SetRenderDrawColor(sdl2_renderer, 0, 0, 0, 255);
