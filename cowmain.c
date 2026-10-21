@@ -238,10 +238,9 @@ int     cowmain(char *server, int port, char *name)
 
     if (setScale(scaleArg ? scaleArg : getdefault("scale")))
       return 1;
-#ifndef HAVE_SDL2
+#if !defined(HAVE_SDL2) && !defined(HAVE_X11)
     if (W_Scale != 1)
-      fprintf(stderr, "%s: --scale is only applied by the SDL2 backend; "
-	      "this build ignores it\n", name);
+      fprintf(stderr, "%s: --scale is not supported by this build\n", name);
 #endif
   }
 

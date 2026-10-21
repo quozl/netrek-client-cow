@@ -114,7 +114,16 @@ if test "x$have_sdl2_all" = xyes; then
 else
   XXF86VM_LIBS="-lXxf86vm"
   AC_MSG_NOTICE([X11 rendering backend selected])
+  dnl XRender composites scaled window buffers (--scale)
+  AC_CHECK_HEADER([X11/extensions/Xrender.h],
+    [AC_CHECK_LIB([Xrender], [XRenderComposite],
+      [AC_DEFINE([HAVE_XRENDER], [1], [XRender available for X11 scaling])
+       XRENDER_LIBS="-lXrender"],
+      [AC_MSG_WARN([libXrender not found: X11 --scale will be ignored])],
+      [-lX11])],
+    [AC_MSG_WARN([Xrender.h not found: X11 --scale will be ignored])])
 fi
+AC_SUBST(XRENDER_LIBS)
 
 AC_SUBST(NOSDL2)
 AC_SUBST(SDL2_CFLAGS)

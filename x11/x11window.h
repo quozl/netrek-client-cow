@@ -1,3 +1,7 @@
+#ifdef HAVE_XRENDER
+#include <X11/extensions/Xrender.h>
+#endif
+
 struct window
   {
     Window  window;
@@ -5,10 +9,18 @@ struct window
     Pixmap  buffer;
     int     isbuffered;
     Pixmap  background;
+    Pixmap  tile;
     int     type;
     char   *data;
     int     mapped;
     int     width, height;
+    /* logical pixel size (the game layout's units); the X window is this
+     * times x11_scale.  Buffers and composites use these. */
+    int     pw, ph;
+#ifdef HAVE_XRENDER
+    Picture src_pict;			 /* buffer, scaled by x11_scale */
+    Picture dst_pict;			 /* X window */
+#endif
     char   *name;
     W_Callback handle_keydown;
     W_Callback handle_keyup;

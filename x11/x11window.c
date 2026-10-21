@@ -222,6 +222,8 @@ struct icon
     Pixmap  bitmap;
     int     width, height;
     Pixmap  pixmap;
+    struct window *owner;		 /* where the icon is drawn: its
+					  * drawable may be reallocated */
   };
 
 #define WIN_GRAPH       1
@@ -302,6 +304,131 @@ struct window myroot;
 #define W_Window2Void(window) ((W_Window) (window))
 #define W_Void2Icon(bit) ((struct icon *) (bit))
 #define W_Icon2Void(bit) ((W_Icon) (bit))
+
+/* Display scale.  The game lays out windows in logical pixels (the 1024x768
+ * design).  With x11_scale > 1 every window draws into a logical-size buffer,
+ * and the buffer is composited to its X window at x11_scale times the size
+ * with XRender (nearest filter).  PHYS() and LOGICAL() convert at the edges:
+ * window geometry, and pointer coordinates from the X server. */
+int     x11_scale = 1;
+#define PHYS(v) ((v) * x11_scale)
+#define LOGICAL(v) ((v) / x11_scale)
+
+#ifdef HAVE_XRENDER
+static XRenderPictFormat *win_format(void)
+{
+  return XRenderFindVisualFormat(W_Display, W_Visual);
+}
+#endif
+
+/* Free a window's buffer and its XRender pictures. */
+static void win_free_buffer(struct window *win)
+{
+#ifdef HAVE_XRENDER
+  if (win->src_pict) {
+    XRenderFreePicture(W_Display, win->src_pict);
+    win->src_pict = 0;
+  }
+  if (win->dst_pict) {
+    XRenderFreePicture(W_Display, win->dst_pict);
+    win->dst_pict = 0;
+  }
+#endif
+  if (win->buffer) {
+    XFreePixmap(W_Display, win->buffer);
+    win->buffer = 0;
+  }
+}
+
+/* Give a window a logical-size drawing buffer, cleared to the back colour.
+ * All drawing then goes to the buffer, and win_present() shows it. */
+static void win_alloc_buffer(struct window *win)
+{
+  win->buffer = XCreatePixmap(W_Display, W_Root, win->pw, win->ph,
+                              DefaultDepth(W_Display, W_Screen));
+  win->drawable = win->buffer;
+  win->isbuffered = 1;
+  /* black, as the X window background is: backColor is not set yet when
+   * the first windows are made */
+  XFillRectangle(W_Display, win->drawable, colortable[W_Black].contexts[0],
+                 0, 0, win->pw, win->ph);
+
+#ifdef HAVE_XRENDER
+  if (x11_scale > 1) {
+    XTransform t = {{
+      {XDoubleToFixed(1.0 / x11_scale), 0, 0},
+      {0, XDoubleToFixed(1.0 / x11_scale), 0},
+      {0, 0, XDoubleToFixed(1.0)}}};
+
+    win->src_pict = XRenderCreatePicture(W_Display, win->buffer, win_format(),
+                                         0, NULL);
+    win->dst_pict = XRenderCreatePicture(W_Display, win->window, win_format(),
+                                         0, NULL);
+    XRenderSetPictureTransform(W_Display, win->src_pict, &t);
+    XRenderSetPictureFilter(W_Display, win->src_pict, "nearest", NULL, 0);
+  }
+#endif
+}
+
+/* Clear part of a window's drawable.  XClearArea needs a window, and a
+ * buffered window draws into a pixmap, so fill with black there. */
+static void clear_drawable_area(struct window *win, int x, int y,
+				int width, int height)
+{
+  if (win->isbuffered) {
+    XFillRectangle(W_Display, win->drawable, colortable[W_Black].contexts[0],
+		   x, y, width, height);
+    return;
+  }
+  XClearArea(W_Display, win->drawable, x, y, width, height, False);
+}
+
+/* Show a buffered window: composite its buffer to the X window. */
+static void win_present(struct window *win)
+{
+  if (!win->isbuffered)
+    return;
+
+#ifdef HAVE_XRENDER
+  if (x11_scale > 1 && win->src_pict && win->dst_pict) {
+    XRenderComposite(W_Display, PictOpSrc, win->src_pict, None, win->dst_pict,
+                     0, 0, 0, 0, 0, 0, PHYS(win->pw), PHYS(win->ph));
+    return;
+  }
+#endif
+  XCopyArea(W_Display, win->buffer, win->window,
+            colortable[W_Black].contexts[0], 0, 0, win->pw, win->ph, 0, 0);
+}
+
+/* Resolve the requested scale against the display and the build. */
+static int x11_resolve_scale(void)
+{
+  int s = W_Scale;
+  int dw = DisplayWidth(W_Display, W_Screen);
+  int dh = DisplayHeight(W_Display, W_Screen);
+
+  if (s == W_SCALE_AUTO) {
+    s = dw / 1024;
+    if (dh / 768 < s)
+      s = dh / 768;
+  }
+  if (s < 1)
+    s = 1;
+  if (s > 8)
+    s = 8;
+#ifdef HAVE_XRENDER
+  if (s > 1 && win_format() == NULL) {
+    fprintf(stderr, "x11window: no XRender format for this visual; scale 1\n");
+    s = 1;
+  }
+#else
+  if (s > 1) {
+    fprintf(stderr, "x11window: built without XRender; scale 1\n");
+    s = 1;
+  }
+#endif
+  return s;
+}
 #define fontNum(font) (*((int *) font))
 #define TILESIDE 16
 
@@ -429,6 +556,9 @@ void
   W_Visual = DefaultVisual(W_Display, DefaultScreen(W_Display));
   W_Screen = DefaultScreen(W_Display);
   W_Colormap = DefaultColormap(W_Display, W_Screen);
+  x11_scale = x11_resolve_scale();
+  if (x11_scale > 1)
+    fprintf(stderr, "x11window: scale %d\n", x11_scale);
   myroot.window = W_Root;
   myroot.type = WIN_GRAPH;
   GetFonts();
@@ -920,6 +1050,22 @@ void GetColors(void)
 
 void W_SetBackgroundPixmap(W_Window window, unsigned long background) {
   struct window *win = W_Void2Window(window);
+  GC      gc;
+
+  if (x11_scale > 1) {
+    /* The X window background is covered by the composite, so tile the
+     * logical background pixmap directly. */
+    if (win->background)
+      XFreePixmap(W_Display, win->background);
+    win->background = XCreatePixmap(W_Display, W_Root, win->pw, win->ph,
+                                    DefaultDepth(W_Display, W_Screen));
+    gc = XCreateGC(W_Display, win->background, 0, NULL);
+    XSetFillStyle(W_Display, gc, FillTiled);
+    XSetTile(W_Display, gc, background);
+    XFillRectangle(W_Display, win->background, gc, 0, 0, win->pw, win->ph);
+    XFreeGC(W_Display, gc);
+    return;
+  }
 
   XSetWindowBackgroundPixmap(W_Display, win->window, background);
   XClearWindow(W_Display, win->window);
@@ -941,6 +1087,8 @@ void W_UnsetBackgroundPixmap(W_Window window) {
   }
   XSetWindowBackgroundPixmap(W_Display, win->window, ParentRelative);
   XClearWindow(W_Display, win->window);
+  if (x11_scale > 1)
+    return;
   XCopyArea(W_Display, win->window, win->drawable,
             colortable[W_White].contexts[0], 0, 0,
             win->width, win->height, 0, 0);
@@ -951,10 +1099,7 @@ W_FlushWindow(W_Window window)
 {
   struct window * win = W_Void2Window(window);
 
-  if (win->isbuffered)
-    XCopyArea(W_Display, win->buffer, win->window,
-              colortable[W_Black].contexts[0], 0, 0, win->width,
-              win->height, 0, 0);
+  win_present(win);
 }
 
 void W_RenameWindow(W_Window window, char *str)
@@ -997,7 +1142,8 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   attrs.background_pixel = colortable[W_Black].pixelValue;
   attrs.do_not_propagate_mask = KeyPressMask | ButtonPressMask | ExposureMask;
   newwin = newWindow(
-	      XCreateWindow(W_Display, wparent, x, y, width, height, border,
+	      XCreateWindow(W_Display, wparent, PHYS(x), PHYS(y),
+			    PHYS(width), PHYS(height), border,
 			    CopyFromParent, InputOutput, CopyFromParent,
 			    CWBackPixel | CWEventMask | CWBorderPixel,
 			    &attrs),
@@ -1029,10 +1175,10 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
       else
 	/* but title on command line will override */ if (title)
 	window_title = title;
-      sz_hints->min_width = width;
-      sz_hints->max_width = width;
-      sz_hints->min_height = height;
-      sz_hints->max_height = height;
+      sz_hints->min_width = PHYS(width);
+      sz_hints->max_width = PHYS(width);
+      sz_hints->min_height = PHYS(height);
+      sz_hints->max_height = PHYS(height);
       sz_hints->flags = PMinSize | PMaxSize;
 
       if (!small_screen)
@@ -1057,6 +1203,8 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
   newwin->data = NULL;
   newwin->width = width;
   newwin->height = height;
+  newwin->pw = width;
+  newwin->ph = height;
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
@@ -1069,17 +1217,8 @@ W_MakeWindow(char *name, int x, int y, int width, int height, W_Window parent, i
 
   char default_buffered_name[80];
   snprintf(default_buffered_name, 80, "%s.buffered", name);
-  if (booleanDefault(default_buffered_name, default_buffered)) {
-    newwin->isbuffered = 1;
-    if (newwin->buffer == 0) {
-      newwin->buffer = XCreatePixmap(W_Display, W_Root,
-                                     newwin->width, newwin->height,
-                                     DefaultDepth(W_Display, W_Screen));
-    }
-    newwin->drawable = newwin->buffer;
-    XFillRectangle(W_Display, newwin->drawable, colortable[backColor].contexts[0],
-                   0, 0, newwin->width, newwin->height);
-  }
+  if (x11_scale > 1 || booleanDefault(default_buffered_name, default_buffered))
+    win_alloc_buffer(newwin);
 
 #if DEBUG > 0
   printf("New graphics window %d, child of %d\n", newwin, parent);
@@ -1254,14 +1393,23 @@ void
   }
 
   if (!win->background) {
+    if (win->tile) {
+      GC      gc = XCreateGC(W_Display, win->drawable, 0, NULL);
+
+      XSetFillStyle(W_Display, gc, FillTiled);
+      XSetTile(W_Display, gc, win->tile);
+      XFillRectangle(W_Display, win->drawable, gc, 0, 0, win->pw, win->ph);
+      XFreeGC(W_Display, gc);
+      return;
+    }
     XFillRectangle(W_Display, win->drawable, colortable[backColor].contexts[0],
-                   0, 0, win->width, win->height);
+                   0, 0, win->pw, win->ph);
     return;
   }
 
   XCopyArea(W_Display, win->background, win->drawable,
             colortable[W_White].contexts[0], 0, 0,
-            win->width, win->height, 0, 0);
+            win->pw, win->ph, 0, 0);
 }
 
 int
@@ -1354,6 +1502,13 @@ int
       if (win == NULL) {
 	/* fprintf(stderr, "XNextEvent - null window, ignore\n"); */
 	return 0;
+      }
+      if (x11_scale > 1 && (event.type == KeyPress || event.type == KeyRelease ||
+			    event.type == ButtonPress || event.type == ButtonRelease ||
+			    event.type == MotionNotify)) {
+	/* key, button and motion events share the x/y layout */
+	key->x = LOGICAL(key->x);
+	key->y = LOGICAL(key->y);
       }
       if (key->send_event == True && event.type != ClientMessage) {
 	/* fprintf(stderr, "XNextEvent - came from XSendEvent, ignore\n"); */
@@ -1681,13 +1836,17 @@ int
 	      configureScrolling(win, expose->x, expose->y,
 				 expose->width, expose->height);
 	      redrawScrolling(win);
+	      win_present(win);
 	      return 0;
 	    }
 	  if (win->type == WIN_MENU)
 	    {
 	      redrawMenu(win);
+	      win_present(win);
 	      return 0;
 	    }
+	  if (x11_scale > 1)
+	    win_present(win);			 /* the X window lost its contents */
 
 	  wevent->type = W_EV_EXPOSE;
 	  wevent->Window = W_Window2Void(win);
@@ -1869,9 +2028,9 @@ void
 	 colortable[W_White].contexts[0], WIN_EDGE, MENU_PAD + W_Textheight,
 		win->width * W_Textwidth, (win->height - 1) * W_Textheight,
 		WIN_EDGE, MENU_PAD);
-      XClearArea(W_Display, win->drawable,
+      clear_drawable_area(win,
 		 WIN_EDGE, MENU_PAD + W_Textheight * (win->height - 1),
-		 W_Textwidth * win->width, W_Textheight, False);
+		 W_Textwidth * win->width, W_Textheight);
       if (len < 0) len = strlen(str);
       XDrawImageString(W_Display, win->drawable,
 
@@ -1960,6 +2119,7 @@ W_StoreBitmap(int width, int height, char *data, W_Window window)
 #endif /* nodef */
 
   newicon->window = win->drawable;
+  newicon->owner = win;
   newicon->pixmap = 0;
   return W_Icon2Void(newicon);
 }
@@ -1975,7 +2135,8 @@ void
   printf("Writing bitmap to %d\n", icon->window);
 #endif
 
-  XCopyPlane(W_Display, icon->bitmap, icon->window,
+  XCopyPlane(W_Display, icon->bitmap,
+	     icon->owner ? icon->owner->drawable : icon->window,
 	 colortable[color].contexts[BITGC], 0, 0, icon->width, icon->height,
 	     x, y, 1);
 
@@ -2009,6 +2170,11 @@ void
 	   colortable[W_White].contexts[0], 0, 0, icon->width, icon->height,
 		 0, 0, 1);
     }
+  if (x11_scale > 1) {
+    W_Void2Window(window)->tile = icon->pixmap;
+    W_ClearWindow(window);
+    return;
+  }
   XSetWindowBackgroundPixmap(W_Display, win, icon->pixmap);
   XClearWindow(W_Display, win);
 
@@ -2026,6 +2192,11 @@ void
   printf("Untiling window %d\n", window);
 #endif
 
+  if (x11_scale > 1) {
+    W_Void2Window(window)->tile = 0;
+    W_ClearWindow(window);
+    return;
+  }
   win = W_Void2Window(window)->window;
 
   XSetWindowBackground(W_Display, win, colortable[W_Black].pixelValue);
@@ -2062,8 +2233,9 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   attrs.do_not_propagate_mask = ExposureMask;
   wparent = W_Void2Window(parent)->window;
   newwin = newWindow(
-		      XCreateWindow(W_Display, wparent, x, y,
-   width * W_Textwidth + WIN_EDGE * 2, MENU_PAD * 2 + height * W_Textheight,
+		      XCreateWindow(W_Display, wparent, PHYS(x), PHYS(y),
+   PHYS(width * W_Textwidth + WIN_EDGE * 2),
+   PHYS(MENU_PAD * 2 + height * W_Textheight),
 			border, CopyFromParent, InputOutput, CopyFromParent,
 				    CWBackPixel | CWEventMask |
 				    CWBorderPixel,
@@ -2071,14 +2243,14 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
 		      WIN_TEXT);
   class_hint.res_name = name;
   sz_hints = XAllocSizeHints();
-  sz_hints->min_width = WIN_EDGE * 2 + width * W_Textwidth;
-  sz_hints->max_width = WIN_EDGE * 2 + width * W_Textwidth;
-  sz_hints->base_width = WIN_EDGE * 2;
-  sz_hints->width_inc = W_Textwidth;
-  sz_hints->min_height = MENU_PAD * 2 + 3 * W_Textheight;
-  sz_hints->max_height = MENU_PAD * 2 + height * W_Textheight;
-  sz_hints->base_height = MENU_PAD * 2 + 2 * W_Textheight;
-  sz_hints->height_inc = W_Textheight;
+  sz_hints->min_width = PHYS(WIN_EDGE * 2 + width * W_Textwidth);
+  sz_hints->max_width = PHYS(WIN_EDGE * 2 + width * W_Textwidth);
+  sz_hints->base_width = PHYS(WIN_EDGE * 2);
+  sz_hints->width_inc = PHYS(W_Textwidth);
+  sz_hints->min_height = PHYS(MENU_PAD * 2 + 3 * W_Textheight);
+  sz_hints->max_height = PHYS(MENU_PAD * 2 + height * W_Textheight);
+  sz_hints->base_height = PHYS(MENU_PAD * 2 + 2 * W_Textheight);
+  sz_hints->height_inc = PHYS(W_Textheight);
   sz_hints->flags = PResizeInc | PMinSize | PMaxSize | PBaseSize;
   if (gcheck_result & G_SET_X || gcheck_result & G_SET_Y)
     sz_hints->flags |= WMXYHintMode_default();
@@ -2091,9 +2263,13 @@ W_MakeTextWindow(char *name, int x, int y, int width, int height, W_Window paren
   newwin->data = NULL;
   newwin->width = width;
   newwin->height = height;
+  newwin->pw = width * W_Textwidth + WIN_EDGE * 2;
+  newwin->ph = MENU_PAD * 2 + height * W_Textheight;
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
+  if (x11_scale > 1)
+    win_alloc_buffer(newwin);
 
 #if DEBUG > 0
   printf("New text window %d, child of %d\n", newwin, parent);
@@ -2120,6 +2296,13 @@ struct window *
   newwin->isbuffered = 0;
   newwin->buffer = 0;
   newwin->background = 0;
+  newwin->tile = 0;
+  newwin->pw = 0;
+  newwin->ph = 0;
+#ifdef HAVE_XRENDER
+  newwin->src_pict = 0;
+  newwin->dst_pict = 0;
+#endif
   newwin->type = type;
   newwin->mapped = 0;
   newwin->handle_keydown = 0;
@@ -2203,21 +2386,21 @@ W_Window W_MakeScrollingWindow(char *name,
   /* NOTE: CWDontPropagate seems to crash in OpenWindows */
   attrs.do_not_propagate_mask = ResizeRedirectMask | ExposureMask;
   newwin = newWindow(
-		      XCreateWindow(W_Display, wparent, x, y,
-				    width * W_Textwidth + WIN_EDGE * 2 + scw,
-				    MENU_PAD * 2 + height * W_Textheight,
+		      XCreateWindow(W_Display, wparent, PHYS(x), PHYS(y),
+				    PHYS(width * W_Textwidth + WIN_EDGE * 2 + scw),
+				    PHYS(MENU_PAD * 2 + height * W_Textheight),
 			border, CopyFromParent, InputOutput, CopyFromParent,
 				    CWBackPixel | CWEventMask |
 				    CWBorderPixel /* | CWDontPropagate */ ,
 				    &attrs), WIN_SCROLL);
   class_hint.res_name = name;
   sz_hints = XAllocSizeHints();
-  sz_hints->width_inc = W_Textwidth;
-  sz_hints->height_inc = W_Textheight;
-  sz_hints->min_width = WIN_EDGE * 2 + W_Textwidth + scw;
-  sz_hints->min_height = MENU_PAD * 2 + W_Textheight;
-  sz_hints->base_width = WIN_EDGE * 2 + scw;
-  sz_hints->base_height = MENU_PAD * 2;
+  sz_hints->width_inc = PHYS(W_Textwidth);
+  sz_hints->height_inc = PHYS(W_Textheight);
+  sz_hints->min_width = PHYS(WIN_EDGE * 2 + W_Textwidth + scw);
+  sz_hints->min_height = PHYS(MENU_PAD * 2 + W_Textheight);
+  sz_hints->base_width = PHYS(WIN_EDGE * 2 + scw);
+  sz_hints->base_height = PHYS(MENU_PAD * 2);
   sz_hints->flags = PResizeInc | PMinSize | PBaseSize;
   if (gcheck_result & XValue || gcheck_result & YValue)
     sz_hints->flags |= WMXYHintMode_default();
@@ -2240,9 +2423,13 @@ W_Window W_MakeScrollingWindow(char *name,
   newwin->data = (char *) sw;
   newwin->width = width;
   newwin->height = height;
+  newwin->pw = width * W_Textwidth + WIN_EDGE * 2 + scw;
+  newwin->ph = MENU_PAD * 2 + height * W_Textheight;
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
+  if (x11_scale > 1)
+    win_alloc_buffer(newwin);
 
 #if DEBUG > 0
   printf("New scroll window %d, child of %d\n", newwin, parent);
@@ -2413,8 +2600,7 @@ static void drawThumb(struct window *win, struct scrollingWindow *sw)
   y = winheight * thumbTop / totalHeight;
   h = winheight * thumbHeight / totalHeight;
 
-  XClearArea(W_Display, win->drawable, x, 0, scroll_thumb_width, winheight,
-	     False);
+  clear_drawable_area(win, x, 0, scroll_thumb_width, winheight);
   XFillRectangle(W_Display, win->drawable, scroll_thumb_gc,
 		 x, y,
 		 scroll_thumb_width, h);
@@ -2488,9 +2674,9 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   attrs.background_pixel = colortable[W_Black].pixelValue;
   attrs.do_not_propagate_mask = KeyPressMask | ButtonPressMask | ExposureMask;
   newwin = newWindow(
-		      XCreateWindow(W_Display, wparent, x, y,
-				    width * W_Textwidth + WIN_EDGE * 2,
-   height * (W_Textheight + MENU_PAD * 2) + (height - 1) * MENU_BAR, border,
+		      XCreateWindow(W_Display, wparent, PHYS(x), PHYS(y),
+				    PHYS(width * W_Textwidth + WIN_EDGE * 2),
+   PHYS(height * (W_Textheight + MENU_PAD * 2) + (height - 1) * MENU_BAR), border,
 				CopyFromParent, InputOutput, CopyFromParent,
 				    CWBackPixel | CWEventMask |
 				    CWBorderPixel,
@@ -2517,9 +2703,13 @@ W_MakeMenu(char *name, int x, int y, int width, int height, W_Window parent, int
   newwin->data = (char *) items;
   newwin->width = width;
   newwin->height = height;
+  newwin->pw = width * W_Textwidth + WIN_EDGE * 2;
+  newwin->ph = height * (W_Textheight + MENU_PAD * 2) + (height - 1) * MENU_BAR;
   if (wparent != W_Root)
     if (checkMapped(name))
       W_MapWindow(W_Window2Void(newwin));
+  if (x11_scale > 1)
+    win_alloc_buffer(newwin);
 
 #if DEBUG > 0
   printf("New menu window %d, child of %d\n", newwin, parent);
@@ -3096,7 +3286,7 @@ void
   free(win->data);
   deleteWindow(win);
   XDestroyWindow(W_Display, win->window);
-  if (win->buffer) XFreePixmap(W_Display, win->buffer);
+  win_free_buffer(win);
   if (win->background) XFreePixmap(W_Display, win->background);
   free((char *) win);
 }
@@ -3259,6 +3449,9 @@ static void configureScrolling(struct window *win, int x, int y, int width, int 
 #endif
 
   XGetWindowAttributes(W_Display, win->window, &wa);
+  /* work in logical pixels from here on */
+  wa.width = LOGICAL(wa.width);
+  wa.height = LOGICAL(wa.height);
 
   new_text_width = (wa.width - WIN_EDGE * 2 - sw) / W_Textwidth;
   new_text_height = (wa.height - MENU_PAD * 2) / W_Textheight;
@@ -3275,7 +3468,14 @@ static void configureScrolling(struct window *win, int x, int y, int width, int 
 
   if (new_real_height != wa.height || new_real_width != wa.width)
     {
-      XResizeWindow(W_Display, win->window, new_real_width, new_real_height);
+      XResizeWindow(W_Display, win->window,
+		    PHYS(new_real_width), PHYS(new_real_height));
+      if (x11_scale > 1) {
+	win_free_buffer(win);
+	win->pw = new_real_width;
+	win->ph = new_real_height;
+	win_alloc_buffer(win);
+      }
     }
 
   win->width = new_text_width;
@@ -3412,10 +3612,10 @@ int
       /* if it's in the window we specified then the values returned should * 
        * 
        * * be within the with and height of the window */
-      if (wX <= win->width && wY <= win->height)
+      if (LOGICAL(wX) < win->pw && LOGICAL(wY) < win->ph)
 	{
-	  *x = wX;
-	  *y = wY;
+	  *x = LOGICAL(wX);
+	  *y = LOGICAL(wY);
 	  return 1;
 	}
     }
@@ -3426,6 +3626,15 @@ int
 
 void W_Flush(void)
 {
+  if (x11_scale > 1) {
+    int     i;
+    struct windowlist *l;
+
+    for (i = 0; i < HASHSIZE; i++)
+      for (l = hashtable[i]; l != NULL; l = l->next)
+	if (l->window->isbuffered && l->window->mapped)
+	  win_present(l->window);
+  }
   XFlush(W_Display);
 }
 
@@ -3482,14 +3691,20 @@ void
   XSizeHints *sz_hints;
 
   sz_hints = XAllocSizeHints();
-  sz_hints->min_width = neww;
-  sz_hints->max_width = neww;
-  sz_hints->min_height = newh;
-  sz_hints->max_height = newh;
+  sz_hints->min_width = PHYS(neww);
+  sz_hints->max_width = PHYS(neww);
+  sz_hints->min_height = PHYS(newh);
+  sz_hints->max_height = PHYS(newh);
   sz_hints->flags = PMinSize | PMaxSize;
   XSetWMNormalHints(W_Display, w->window, sz_hints);
   XFree(sz_hints);
-  XResizeWindow(W_Display, w->window, neww, newh);
+  XResizeWindow(W_Display, w->window, PHYS(neww), PHYS(newh));
+  if (x11_scale > 1) {
+    win_free_buffer(w);
+    w->pw = neww;
+    w->ph = newh;
+    win_alloc_buffer(w);
+  }
 }
 
 void
@@ -3598,7 +3813,8 @@ void W_OverlayBitmap(int x, int y, W_Icon bit, W_Color color)
   printf("Overlaying bitmap to %d\n", icon->window);
 #endif
 
-  XCopyPlane(W_Display, icon->bitmap, icon->window,
+  XCopyPlane(W_Display, icon->bitmap,
+	     icon->owner ? icon->owner->drawable : icon->window,
 	     colortable[color].contexts[0], 0, 0, icon->width, icon->height,
 	     x, y, 1);
 }

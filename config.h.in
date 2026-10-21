@@ -214,6 +214,9 @@
 #undef HAVE_XPM
 #undef HAVE_X11_XPM_H
 
+/* XRender available for X11 --scale */
+#undef HAVE_XRENDER
+
 /* System dependend macros						*/
 
 /* SYSV signal handling */
