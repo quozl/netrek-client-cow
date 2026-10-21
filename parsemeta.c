@@ -1162,6 +1162,7 @@ static int chose(int which, unsigned char key)
 
   if ((pid = fork()) == 0) {
     char *args[16];
+    char scale[16];
     int argc = 0;
 
     setpgid(0, 0);
@@ -1177,6 +1178,14 @@ static int chose(int which, unsigned char key)
 
     if (key == W_MBUTTON)
       args[argc++] = "--fast-guest";
+
+    /* the server is run as a new process: pass the display scale on */
+    if (W_Scale == W_SCALE_AUTO)
+      strcpy(scale, "auto");
+    else
+      sprintf(scale, "%d", W_Scale);
+    args[argc++] = "--scale";
+    args[argc++] = scale;
 
     args[argc++] = NULL;
 
