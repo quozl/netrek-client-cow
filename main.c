@@ -347,7 +347,8 @@ static void printUsage(char *prog)
   printf(" [--fast-guest]      Bypass login and play as guest\n");
   printf(" [--small-screen]    Shrink windows to fit on an 800x600 screen\n");
   printf(" [--sprite-test]     Show the main window and animate every pixmap; q quits\n");
-  printf(" [--scale N|auto]    Display scale factor (1-8), or auto from the display size\n");
+  printf(" [--scale N|auto]    Display scale factor (1-8), or auto from the display size;\n");
+  printf("                      the pointer moves in screen pixels, so it feels slower\n");
   printf(" [-r defaultsfile]   Specify defaults file\n");
   printf(" [-s socketnum]      Specify listen socket port for manual start\n");
   printf(" [-G playernum]      Reconnect after ghostbust.  Use with -s\n");

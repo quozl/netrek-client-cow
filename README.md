@@ -113,6 +113,14 @@ Try lowering the updates per second, either;
 
 Some displays cannot handle the resolution.  Press <kbd>"</kbd> again to turn off fullscreen mode.
 
+### Large displays
+
+`--scale N` (1 to 8) or `--scale auto` makes the whole game window N times larger.  The game layout is unchanged: text and ships are magnified, so the game looks the same, only bigger.  `auto` picks the largest whole multiple of 1024x768 that fits the display.  The scale is passed to a server started from the server list.
+
+The mouse is not scaled.  The pointer moves in screen pixels, so at scale 2 it needs twice the movement for the same tactical distance, and at scale 4 four times.  A faster pointer setting in your desktop compensates.
+
+Scaling works on X11 when the X server supports XRender (almost always).  On SDL2 builds it is handled by the SDL2 backend.
+
 ### No sounds
 
 No sounds are included.  A set of sounds has been available, but the copyright and license is unknown, so they are not in the source package.
