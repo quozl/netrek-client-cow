@@ -3285,8 +3285,10 @@ void
   free(win->name);
   free(win->data);
   deleteWindow(win);
-  XDestroyWindow(W_Display, win->window);
+  /* free the pictures first: the X server frees a window's pictures when the
+   * window is destroyed, and freeing them again is an error */
   win_free_buffer(win);
+  XDestroyWindow(W_Display, win->window);
   if (win->background) XFreePixmap(W_Display, win->background);
   free((char *) win);
 }
