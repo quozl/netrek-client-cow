@@ -437,7 +437,10 @@ int     ALL_BYTES = 0;				 /* To log all bytes */
 int     serverDead = 0;
 
 #define BUFSIZE 1024
-char    buf[BUFSIZE];
+/* doRead() completes a packet split by the end of a read in place, so leave
+   room after BUFSIZE for the rest of the largest packet, SP_LTD */
+#define BUFSLOP 512
+char    buf[BUFSIZE + BUFSLOP];
 
 static int udpLocalPort = 0;
 static int udpServerPort = 0;
@@ -1194,6 +1197,32 @@ static int doRead(int asock)
 #ifdef SHORT_PACKETS
       if (size == -1)
 	{					 /* variable packet */
+	  /* getvpsize() reads the header, a read may have split it */
+	  int need = (*bufptr == SP_S_MESSAGE) ? 5 : 4;
+
+	  while (need > count + (buf - bufptr))
+	    {
+	      timeout.tv_sec = 20;
+	      timeout.tv_usec = 0;
+	      FD_ZERO(&readfds);
+	      FD_SET(asock, &readfds);
+	      if (SELECT(max_fd, &readfds, 0, 0, &timeout) == 0)
+		{
+		  printf("Packet fragment.  Server must be dead\n");
+		  serverDead = 1;
+		  close(sock);
+		  return 0;
+		}
+	      temp = read(asock, buf + count, need - (count + (buf - bufptr)));
+	      if (temp <= 0)
+		{
+		  printf("1) Got read() of %d.  Server is dead\n", temp);
+		  serverDead = 1;
+		  close(sock);
+		  return 0;
+		}
+	      count += temp;
+	    }
 	  size = getvpsize(bufptr);
 	  if (size <= 0)
 	    {
