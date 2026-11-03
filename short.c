@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <string.h>
+#include <stddef.h>
 
 #include "Wlib.h"
 #include "defs.h"
@@ -939,14 +941,26 @@ void    handleSMessage(struct mesg_s_spacket *packet)
       break;
     case MINDIV:
       /* I know that it's me -> xxx but i copied it straight ... */
-      sprintf(addrbuf + 5, "%c%c ", teamlet[players[packet->m_recpt].p_team],
-	      shipnos[packet->m_recpt]);
+      if (packet->m_recpt >= MAXPLAYER)
+        sprintf(addrbuf + 5, "?? ");
+      else
+        sprintf(addrbuf + 5, "%c%c ", teamlet[players[packet->m_recpt].p_team],
+	        shipnos[packet->m_recpt]);
       break;
     default:
       sprintf(addrbuf + 5, "ALL");
       break;
     }
-  sprintf(buf, "%-9s%s", addrbuf, &packet->mesg);
+  {
+    size_t body_max = (packet->length > offsetof(struct mesg_s_spacket, mesg))
+                    ? (size_t)(packet->length - offsetof(struct mesg_s_spacket, mesg)) : 0;
+    char body[sizeof(buf)];
+    size_t n = strnlen(&packet->mesg, body_max);
+    if (n >= sizeof(body)) n = sizeof(body) - 1;
+    memcpy(body, &packet->mesg, n);
+    body[n] = 0;
+    snprintf(buf, sizeof(buf), "%-9s%s", addrbuf, body);
+  }
   dmessage(buf, packet->m_flags, packet->m_from, packet->m_recpt);
 }
 
