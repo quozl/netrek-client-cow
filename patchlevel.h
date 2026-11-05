@@ -1,2 +1,2 @@
 #include "config.h"
-#define PATCHLEVEL 3 /* last digit of version number */
+#define PATCHLEVEL 4 /* last digit of version number */

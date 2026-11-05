@@ -1,3 +1,9 @@
+Fri Nov  6 07:00:30 2026  James Cameron  <quozl@us.netrek.org>
+
+	* netrek-client-cow-3.3.4: released, see git log, in brief new
+	SDL2 backend (beta), new macOS app bundle, X11 display scaling,
+	dropped network packets, autoconf macros, unit tests.
+
 Sat May 30 13:09:10 2026  James Cameron  <quozl@us.netrek.org>
 
 	* netrek-client-cow-3.3.3: released
