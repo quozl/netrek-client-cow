@@ -3,7 +3,7 @@
 #include "version.h"
 #include "patchlevel.h"
 
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
 
   if (argc > 1)
