@@ -12,7 +12,7 @@ make
 
 After pulling changes that touch `configure.ac` or `system.mk.in`, re-run `autogen.sh` and `./configure` before `make`.
 
-`./configure` defaults to `--with-backend=auto`, which selects SDL2 if all its dev packages are present and falls back to X11 otherwise. On Linux without the SDL2 packages installed, the X11 backend will be used. The SDL2 backend is still in beta; prefer X11 for production use.
+`./configure` defaults to `--with-backend=x11`. Pass `--with-backend=sdl2` to build the SDL2 backend, or `--with-backend=auto` to select SDL2 if all its dev packages are present and fall back to X11 otherwise. The SDL2 backend is still in beta; prefer X11 for production use.
 
 To rebuild after changing `configure.ac`:
 ```sh

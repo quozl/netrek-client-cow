@@ -69,13 +69,15 @@ AC_CHECK_FUNCS(strcmpi strncmpi)
 
 #--------------------------------------------------------------------
 #       Backend selection: --with-backend=sdl2|x11|auto
-#       Default: auto (prefer SDL2 when all deps present, else X11)
+#       Default: x11
+#       auto: SDL2 when all its deps are present, else X11
 #--------------------------------------------------------------------
 
 AC_ARG_WITH([backend],
   [AS_HELP_STRING([--with-backend=sdl2|x11|auto],
-    [select rendering backend (default: auto, prefer sdl2)])],
-  [backend=$withval], [backend=auto])
+    [select rendering backend; auto prefers sdl2 when available
+     (default: x11)])],
+  [backend=$withval], [backend=x11])
 
 NOSDL2="#"
 NOWIN32="#"
